@@ -1,5 +1,6 @@
 """F4.6/C2: słownictwo (T-VOC-1..7). Testy bez modeli i sieci."""
 import csv
+import dataclasses
 import random
 from datetime import timedelta
 from pathlib import Path
@@ -16,6 +17,12 @@ from tutor.pedagogy import vocab as V
 
 SRC = Path.home() / ".local/share/english-ai-tutor/content_sources/vocabulary"
 needs_src = pytest.mark.skipif(not (SRC / "NGSL_12_stats.csv").exists(), reason="brak lokalnych źródeł NGSL")
+
+
+def open_gate_verified(pack):
+    cor = {**pack.rubric.correction, "quality_gate": {**pack.rubric.correction["quality_gate"],
+                                                        "bielik_benchmark_passed": True}}
+    return dataclasses.replace(pack, rubric=pack.rubric.model_copy(update={"correction": cor}))
 
 
 @pytest.fixture(scope="module")
@@ -134,7 +141,21 @@ def test_vocab_6_detect_use(pack, ngsl):  # T-VOC-6
     assert not use("Well, like, I went home.", lemma="like")
 
 
-def test_vocab_6_ingest_use_needs_two_sessions(repo, pack):  # samo wykrycie ≠ opanowanie
+def test_vocab_6_conversation_use_never_proves_mastery_while_gate_closed(repo, pack):
+    """Brak wykrytego błędu ≠ poprawność; samo wykrycie słowa ≠ opanowanie: bramka zamknięta ⇒ tylko liczniki."""
+    pid = repo.create_profile("G")
+    for k, text in enumerate(["I love this colour.", "Colour is nice.", "Another colour here."]):
+        sid = repo.start_session(pid, "chat")
+        tid = repo.add_turn(pid, sid, "user", text)
+        ingest.apply_turn_evaluation(repo, pack, pid, sid, tid, evaluate(pack, text), input_mode="text", text=text,
+                                     goals=GOALS, now=NOW + timedelta(minutes=k), vocab_targets=["color"])
+    row = repo.get_vocab(pid, "en", "color")
+    assert row["used_count"] == 3 and row["use_sessions"] == 3 and row["knowledge"] == "unknown"
+    assert repo.get_card(pid, "vocab", "color") is None
+
+
+def test_vocab_6_ingest_use_needs_two_sessions(repo, pack):  # po otwarciu bramki: ≥ 2 różne sesje
+    pack = open_gate_verified(pack)
     pid = repo.create_profile("U")
     for k, (sid_n, text) in enumerate([(1, "I love this colour."), (2, "Colour is nice.")]):
         sid = repo.start_session(pid, "chat")

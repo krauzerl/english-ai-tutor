@@ -25,9 +25,18 @@ GOALS = {GOAL}
 XX_ROOT = Path(__file__).parent / "fixtures" / "content"
 
 
+def open_gate(pack: C.Pack) -> C.Pack:
+    """Mechanika F4 (BKT, statusy, plan) testowana przy ZAUFANYCH kategoriach. Domyślne zachowanie bramy jakości
+    (puste `trusted_categories`: obserwacje to sugestie) testuje tests/test_gate.py (T-GATE-1)."""
+    cor = {**pack.rubric.correction,
+           "quality_gate": {**pack.rubric.correction["quality_gate"], "trusted_categories": list(C.CORE_CATEGORIES)}}
+    skills = {**pack.skills, GOAL: pack.skills[GOAL].model_copy(update={"target_patterns": [r"\b\w+ed\b"]})}
+    return dataclasses.replace(pack, skills=skills, rubric=pack.rubric.model_copy(update={"correction": cor}))
+
+
 @pytest.fixture(scope="module")
 def pack():
-    return C.load("en")
+    return open_gate(C.load("en"))
 
 
 @pytest.fixture

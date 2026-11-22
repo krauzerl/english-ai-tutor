@@ -37,9 +37,11 @@ def bre_ame_pair(a: str, b: str) -> bool:
 
 # --- przejścia wiedzy (§3.2) ---
 def apply_event(st: dict, event: str, rubric: Rubric, *, day: str | None = None,
-                session: int | None = None) -> dict:
+                session: int | None = None, verified: bool = True) -> dict:
     """Zwraca zmienione pola stanu. Zdarzenia: recognized | recall_ok | recall_fail | used_ok.
-    `active` nigdy nie wraca do `unknown`; po `fail_to_passive` porażkach z rzędu spada do `passive`."""
+    `active` nigdy nie wraca do `unknown`; po `fail_to_passive` porażkach z rzędu spada do `passive`.
+    `used_ok` z `verified=False` (rozmowa, ocena modelu niezweryfikowana): tylko liczniki, BEZ zmiany `knowledge` —
+    brak wykrytego błędu nie dowodzi opanowania słowa."""
     cfg = rubric.vocab
     k, out = st.get("knowledge", "unknown"), {}
     if event == "recognized":
@@ -65,6 +67,8 @@ def apply_event(st: dict, event: str, rubric: Rubric, *, day: str | None = None,
         if session != st.get("last_use_session"):
             out["use_sessions"] = st.get("use_sessions", 0) + 1
             out["last_use_session"] = session
+        if not verified:
+            return out
         if k == "unknown":
             k = out["knowledge"] = "passive"
         if out.get("use_sessions", st.get("use_sessions", 0)) >= cfg["active_use_sessions"]:

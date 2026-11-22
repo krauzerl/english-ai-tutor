@@ -132,12 +132,18 @@ def plan(inp: PlanInput) -> dict:
         for c in s.error_categories:
             for key in {c, c.split(".")[0]}:
                 by_cat[key].append(s.id)
+    tc = (rb.correction or {}).get("quality_gate", {}).get("trusted_categories", [])
+    suggested = []
     for e in sorted(inp.errors, key=lambda e: (-(e.get("severity_max") or 1), e["category"])):
         if e.get("status") == "recurring" or (e.get("count", 0) >= p["recurring_min_count"]
                                               and e.get("status") not in ("resolved", "improving")):
             sid = e.get("skill_id") or next(iter(sorted(by_cat.get(e["category"], []))), None)
-            if sid:
+            if not sid:
+                continue
+            if any(e["category"] == t or e["category"].startswith(t + ".") for t in tc):
                 add("remediation", sid, f"error:{e['category']}")
+            else:   # niezweryfikowany błąd (brama jakości): sugestia dla ucznia, nie wymuszona lekcja naprawcza
+                suggested.append({"skill_id": sid, "reason": f"error:{e['category']}", "unverified": True})
     for cat, n in sorted(inp.stt_suspects_14d.items()):
         if n >= inp.pack.rubric.errors["stt_suspect_count"]:
             sid = next(iter(sorted(by_cat.get(cat, []))), None)
@@ -181,6 +187,7 @@ def plan(inp: PlanInput) -> dict:
     review = [{"card_type": c["card_type"], "ref_id": c["ref_id"]} for c in due[:n_cards]]
     out = {"minutes": inp.minutes, "blocks": blocks, "review": review,
            "practice": tasks, "verify": verify, "conversation": conv, "content_gaps": sorted(set(gaps)),
+           "suggested": suggested,
            "notes": notes, "created_at": inp.now.strftime("%Y-%m-%dT%H:%M:%SZ")}
     assert sum(blocks.values()) == inp.minutes, blocks
     return out
