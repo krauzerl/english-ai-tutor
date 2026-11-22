@@ -53,7 +53,7 @@ def test_ollama_structured(ollama):
 def gemini():
     key, model = config.gemini_api_key(), os.environ.get("GEMINI_LIVE_MODEL")
     if not key or not model:
-        pytest.skip("brak GEMINI_API_KEY lub GEMINI_LIVE_MODEL")
+        pytest.skip("ODROCZONE: Gemini nieskonfigurowany (brak GEMINI_API_KEY lub GEMINI_LIVE_MODEL)")
     from tutor.llm.gemini import GeminiProvider
     return GeminiProvider(model, key)
 

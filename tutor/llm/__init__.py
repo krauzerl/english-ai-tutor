@@ -10,6 +10,17 @@ ROLES = ("conversation", "evaluation", "generation")
 DEFAULT_WINDOW = 8192  # konserwatywnie, gdy model nie jest w [context_windows]
 
 
+def _prices(raw: dict) -> dict[str, Price]:
+    out = {}
+    for model, p in raw.items():
+        try:
+            out[model] = Price(float(p["in_per_mtok"]), float(p["out_per_mtok"]))
+        except (KeyError, TypeError, ValueError):
+            raise LLMError(f"Cennik modelu '{model}': podaj dodatnie in_per_mtok i out_per_mtok "
+                           "(zero nie jest domyślną ceną).") from None
+    return out
+
+
 def llm_settings() -> dict:
     raw = config.raw_config()
     llm = raw.get("llm", {})
@@ -23,8 +34,7 @@ def llm_settings() -> dict:
     return {
         "roles": roles,
         "limits": {"daily_usd": lim.get("daily_usd"), "monthly_usd": lim.get("monthly_usd")},
-        "prices": {m: Price(float(p["in_per_mtok"]), float(p["out_per_mtok"]))
-                   for m, p in raw.get("pricing", {}).items()},
+        "prices": _prices(raw.get("pricing", {})),
         "ollama": llm.get("ollama", {}),
         "gemini": llm.get("gemini", {}),
         "context_windows": raw.get("context_windows", {}),

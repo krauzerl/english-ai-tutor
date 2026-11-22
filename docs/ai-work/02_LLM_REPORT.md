@@ -32,7 +32,7 @@ out_per_mtok = 0.0
 "<model>" = 32768
 ```
 
-## Wyniki testów (`.venv/bin/pytest`: **94 passed, 1 skipped, 5 deselected(live)**; `ruff check`: czysto)
+## Wyniki testów (`.venv/bin/pytest`: **104 passed, 1 skipped, 5 deselected(live)** po domknięciu; `ruff check`: czysto)
 | Test | Wynik |
 |---|---|
 | T-LLM-1 zły JSON → 1 retry → wyjątek, bez zapisu | zaliczony |
@@ -46,20 +46,32 @@ out_per_mtok = 0.0
 | T-ISO-4 kontekst A bez danych B (także cudza sesja podana przy własnym profilu) | zaliczony |
 | Dodatkowe: anulowanie streamingu (Ollama real HTTP, Gemini), cofnięcie zgody (między żądaniami i w trakcie strumienia), przełączanie modeli/ról, awaria w trakcie streamingu (bez łączenia), nigdy lokalny→chmura, migracja 001→002 na realnej bazie v1 | zaliczone |
 | Regresja F0/F1 (22 testy) + `main.py --cli` | zaliczone |
-| **Live** (`pytest -m live`, 5 testów) | **NIEWYKONANE**: Ollama wyłączona (próba uruchomienia `ollama serve` zablokowana przez uprawnienia), brak `GEMINI_API_KEY` |
+| **Live Ollama** (`pytest -m live`, 3 testy: chat+usage, stream+anulowanie, structured) | **zaliczone** na Bieliku 11B (2026-11-22, po domknięciu) |
+| **Live Gemini** (2 testy) | **ODROCZONE** jawnie (skip „ODROCZONE: Gemini nieskonfigurowany”): brak `GEMINI_API_KEY`, `GEMINI_LIVE_MODEL`, cennika i limitów |
 
 Testy automatyczne nie wykonują żadnych prawdziwych wywołań: Ollama = lokalny serwer HTTP w teście, Gemini = atrapa klienta SDK.
 
-## Zużycie zasobów
-Rzeczywiste: zero (brak wywołań modeli). Szacunki: rezerwa na wiejście ≤ okno − odpowiedź; pamięć ≤3000 tok; Bielik 11B Q4_K_M na 8 GiB VRAM — czas/VRAM do zmierzenia w testach live. Koszt Gemini zależy od cennika wpisanego przez użytkownika; kod nie zakłada żadnych stawek ani limitów darmowych.
+## Zużycie zasobów (pomiar live, `tests/live/bench_ollama.py`; Ryzen 7 3700X, 31 GiB RAM, RTX 2060 SUPER 8 GiB, Ollama 0.9.0; VRAM bazowy pulpitu ≈ 0,6 GiB)
+| Model | start „na zimno” | czat 120 tok | TTFT strumienia | tok/s | VRAM modelu | RAM (RSS ollama) | anulowanie | structured |
+|---|---|---|---|---|---|---|---|---|
+| Bielik 11B v2.3 Q4_K_M | 2,8 s | 7,0 s (105 wej / 75 wyj) | 0,10 s | **11,3** | 6937 MiB z 9147 MiB (≈2,2 GiB na CPU) | ≈7,4 GiB | 0,31 s | 1,25 s, poprawny |
+| Bielik 7B v0.1 Q4_K_S | 4,1 s | 1,1 s (45 / 67) | 0,03 s | **64,0** | 6075 MiB (w całości na GPU) | ≈0,7 GiB | 0,04 s | 0,28 s, poprawny |
+Wnioski: 11B nie mieści się w 8 GiB VRAM (częściowy offload, ~11 tok/s — wystarcza do czatu, wolno do ocen wsadowych); 7B jest ~6× szybszy. 11B + Whisper na GPU nadal wykluczone (patrz HANDOFF). Modele zwolnione po pomiarze (`keep_alive: 0`). Gemini: zużycie niezmierzone (odroczone); koszt liczony z cennika wpisanego przez użytkownika.
 
 ## Przykładowe działanie
-Nieuruchomione live. Zachowanie odwzorowane w testach (kształt odpowiedzi SDK Gemini zgodny z zainstalowanym `google-genai` 3.6.1: `usage_metadata.prompt/candidates/thoughts_token_count`, `GenerateContentConfig.response_json_schema`).
+- Ollama (live): czat, streaming z anulowaniem po pierwszym fragmencie (0,31 s do zatrzymania, `cancelled=True`), odpowiedź strukturalna zwalidowana Pydantic — Bielik 11B i 7B.
+- Gemini: tylko atrapa SDK (kształt odpowiedzi zgodny z `google-genai` 3.6.1). Live odroczone.
+
+## Domknięcie (kolejna iteracja F2)
+- **Budżet i współbieżność:** `Meter.reserve` w `BEGIN IMMEDIATE` sprawdza limity i wpisuje rezerwację (wiersz `llm_usage` z kosztem maks.); `settle` zamienia ją na rzeczywiste zużycie (także po błędzie/anulowaniu → szacunek wejścia). Rezerwacje innych połączeń/procesów liczą się do wydatków. Test: 8 wątków × osobne połączenia, limit na 2 żądania → dokładnie 2 przechodzą (przed poprawką przechodziło 8/8). Wybrano blokadę SQLite zamiast mutexu w procesie, bo chroni też przed drugim procesem.
+- **Koszt Gemini:** według dokumentacji Google (ai.google.dev, pricing i opis tokenów) tokeny rozumowania są rozliczane jak wyjście i wliczają się do `max_output_tokens`; rezerwacja = wejście + `max_tokens` pokrywa więc odpowiedź + rozumowanie. Rzeczywisty koszt (`candidates + thoughts`) zapisywany w całości; przekroczenie rezerwacji jest logowane. Założenie zweryfikowane tylko z dokumentacji, nie live.
+- **Cennik:** `Price` odrzuca zero/ujemne/NaN; brak lub zero w `[pricing]` → `LLMError`, nie „darmowy”. Brak cennika modelu zewnętrznego → `LimitsNotConfigured`.
+- **Historia Git (`git log --all`, wszystkie blobry):** 0 plików SQLite (sprawdzony nagłówek każdego bloba), 0 plików `.env/.db/.bak/.wal/.pem/.key`, 0 trafień wzorców kluczy/tokenów. Błąd `.gitignore` (`.env*.egg-info/` w commicie F0+F1 zamiast `.env` i `*.egg-info/`) istniał, ale żaden plik `.env` nigdy nie trafił do historii; jedyną konsekwencją było śledzenie `egg-info/` (usunięte z indeksu, zostaje w historii; nie jest wrażliwe).
 
 ## Otwarte problemy / założenia do weryfikacji live
-1. **Live niewykonany** – potrzebne: `ollama serve` (lub `sudo systemctl enable --now ollama`, decyzja użytkownika), klucz w `~/.config/english-ai-tutor/.env`, `GEMINI_LIVE_MODEL`, cennik i limity w `config.toml`.
-2. Założenie: `max_output_tokens` Gemini obejmuje tokeny rozumowania (limit górny kosztu). Jeśli nie — koszt może przekroczyć szacunek; do sprawdzenia live, ewentualnie ustawić `thinking_budget`.
-3. `shortcut`: brak rezerwacji budżetu przy żądaniach równoległych (jeden użytkownik, jeden wątek).
+1. **Gemini live odroczone** – potrzebne: klucz w `~/.config/english-ai-tutor/.env`, `GEMINI_LIVE_MODEL`, cennik i limity w `config.toml`; przy pierwszym live sprawdzić założenie o `max_output_tokens` i pomiar `thoughts_token_count`.
+2. Założenie z dokumentacji: `max_output_tokens` obejmuje rozumowanie. Gdyby live temu przeczyło — koszt może przekroczyć rezerwację (jest wtedy logowane); wtedy ustawić `thinking_budget` i rezerwować `max_tokens + thinking_budget`.
+3. Osierocona rezerwacja po crashu zostaje jako koszt maksymalny (bezpieczna strona); brak sprzątania. Połączenie SQLite jest per wątek (`check_same_thread`) — GUI musi otwierać własne.
 4. Szacowanie tokenów bez korekty z `usage` providera (tylko stały konserwatywny współczynnik).
 5. Fallback strumienia tylko przed pierwszym fragmentem; po awarii w trakcie UI dostaje `StreamInterrupted` i sam decyduje o ponowieniu (wraca od zera, bez sklejania).
 6. Brak retencji `llm_usage`; po usunięciu profilu zostają wiersze bez treści i bez profilu.

@@ -183,3 +183,12 @@ class Repo:
         return self.conn.execute(
             "SELECT COALESCE(SUM(cost_usd),0) FROM llm_usage WHERE created_at>=?",
             (since_iso,)).fetchone()[0]
+
+    def settle_llm_usage(self, usage_id: int, in_tokens: int, out_tokens: int, latency_ms: int | None,
+                         cost_usd: float) -> float:
+        """Zamienia rezerwację na rzeczywiste zużycie; zwraca koszt rezerwacji."""
+        old = self.conn.execute("SELECT cost_usd FROM llm_usage WHERE id=?", (usage_id,)).fetchone()[0]
+        self.conn.execute(
+            "UPDATE llm_usage SET in_tokens=?, out_tokens=?, latency_ms=?, cost_usd=? WHERE id=?",
+            (in_tokens, out_tokens, latency_ms, cost_usd, usage_id))
+        return old
