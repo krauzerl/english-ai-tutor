@@ -35,6 +35,7 @@ class PlanInput:
     allow_unreviewed_practice: bool = True
     fluency_drop_sessions: int = 0
     reuse_targets: list[dict] = field(default_factory=list)
+    lesson_vocab: list[str] = field(default_factory=list)     # lematy nowe z lekcji (kandydaci do rozmowy)
     provisional_areas: set[str] = field(default_factory=set)  # obszary z wstępnym dopasowaniem (niezweryfikowanym)
 
 
@@ -172,7 +173,9 @@ def plan(inp: PlanInput) -> dict:
                        "reason": pk.reason, "items": [i.id for i in pk.items],
                        "delay_days": retention.delay_days(s, inp.now)})
 
-    conv = {"minutes": blocks["conversation"], "reuse_targets": list(inp.reuse_targets),
+    vt = [c["ref_id"] for c in due if c["card_type"] == "vocab"] + list(inp.lesson_vocab)
+    vt = list(dict.fromkeys(vt))[:rb.vocab.get("planner_targets", 5)]
+    conv = {"minutes": blocks["conversation"], "reuse_targets": list(inp.reuse_targets), "vocab_targets": vt,
             "scenario": _scenario(inp, chosen),
             "fluency_exercise": inp.fluency_drop_sessions >= p["fluency_drop_sessions"]}
     review = [{"card_type": c["card_type"], "ref_id": c["ref_id"]} for c in due[:n_cards]]

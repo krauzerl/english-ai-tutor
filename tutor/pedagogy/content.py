@@ -263,6 +263,84 @@ class Rubric(_M):
     planner: dict[str, Any]
     report: dict[str, Any]
     limits: dict[str, Any]
+    vocab: dict[str, Any] = {}
+
+
+@dataclass(frozen=True)
+class VocabEntry:
+    lemma: str
+    forms: tuple[str, ...]
+    variants: tuple[tuple[str, str], ...]
+    definition_en: str
+    homograph: bool
+    rank: int | None
+    freq_band: int | None
+    spoken: bool | None
+    cefr: str
+    gloss_pl: str
+
+
+_VOCAB_CACHE: dict[Path, dict[str, VocabEntry]] = {}
+
+
+def load_vocab(root: Path | None = None, lang: str = "en") -> dict[str, VocabEntry]:
+    """Lista słownictwa `vocab/ngsl.csv` (lazy, z pamięcią podręczną). Brak pliku = pusta."""
+    import csv
+    path = (root or content_root()) / lang / "vocab" / "ngsl.csv"
+    if path not in _VOCAB_CACHE:
+        out: dict[str, VocabEntry] = {}
+        if path.exists():
+            with path.open(encoding="utf-8", newline="") as f:
+                for r in csv.DictReader(ln for ln in f if not ln.startswith("#")):
+                    out[r["lemma"]] = VocabEntry(
+                        r["lemma"], tuple(r["forms"].split("|")),
+                        tuple(tuple(p.split("|")) for p in r["variants"].split(";") if p),  # type: ignore[misc]
+                        r["definition_en"], r["homograph"] == "1", int(r["rank"]) if r["rank"] else None,
+                        int(r["freq_band"]) if r["freq_band"] else None,
+                        None if r["spoken"] == "" else r["spoken"] == "1", r["cefr"], r["gloss_pl"])
+        _VOCAB_CACHE[path] = out
+    return _VOCAB_CACHE[path]
+
+
+def load_pseudowords(root: Path | None = None, lang: str = "en") -> tuple[list[str], bool]:
+    """(pseudosłowa, czy zrecenzowane przez człowieka). Brak pliku = ([], False)."""
+    p = (root or content_root()) / lang / "vocab" / "pseudowords.yaml"
+    if not p.exists():
+        return [], False
+    d = yaml.safe_load(p.read_text(encoding="utf-8"))
+    return list(d["words"]), (d.get("review") or {}).get("status") == "human_reviewed"
+
+
+def vocab_forms(entry: VocabEntry, variants: Variants | None = None) -> set[str]:
+    """Wszystkie formy lematu do detekcji użycia: `forms` (w tym BrE) + grupy z `variants.yaml`."""
+    forms = {f.lower() for f in entry.forms}
+    for g in (variants.groups if variants else []):
+        gf = {norm_answer(f) for f in g.forms}
+        if forms & gf:
+            forms |= gf
+    return forms
+
+
+def _check_vocab(root: Path, lang: str, rep: Report) -> None:
+    import csv
+    path = root / lang / "vocab" / "ngsl.csv"
+    if not path.exists():
+        return
+    with path.open(encoding="utf-8", newline="") as f:
+        rows = list(csv.DictReader(ln for ln in f if not ln.startswith("#")))
+    lem = [r["lemma"] for r in rows]
+    if len(lem) != 2809 or len(set(lem)) != 2809:
+        rep.errors.append(f"vocab/ngsl.csv: oczekiwano 2809 unikalnych lematów, jest {len(lem)}/{len(set(lem))}")
+    ranks = [r["rank"] for r in rows if r["rank"]]
+    if len(ranks) != len(set(ranks)):
+        rep.errors.append("vocab/ngsl.csv: rank nie jest unikalny")
+    if any(r["cefr"] for r in rows):
+        rep.errors.append("vocab/ngsl.csv: cefr musi być puste (częstość ≠ poziom CEFR)")
+    forms = {f for r in rows for f in r["forms"].split("|")}
+    if clash := sorted(set(load_pseudowords(root, lang)[0]) & forms):
+        rep.errors.append(f"vocab/pseudowords.yaml: pseudosłowa będące słowami NGSL: {clash}")
+    if any(not r["definition_en"] and r["lemma"] != "email" for r in rows):
+        rep.errors.append("vocab/ngsl.csv: brak definicji (poza znaną luką źródła)")
 
 
 @dataclass
@@ -723,6 +801,7 @@ def _collect(lang: str, root: Path | None, extracted_dir: Path | None = None) ->
             if r.src not in pack.sources.by_id():
                 rep.errors.append(f"sources.yaml map [{sid}]: nieznane źródło {r.src}")
     _check_overlap(overlap, rep, extracted_dir)
+    _check_vocab(root, lang, rep)
     for g in pack.variants.groups:
         if len({norm_answer(f) for f in g.forms}) < 2:
             rep.errors.append(f"variants [{g.id}]: mniej niż 2 różne formy")

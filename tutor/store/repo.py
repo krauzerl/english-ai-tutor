@@ -197,6 +197,34 @@ class Repo:
         return _rows(self.conn.execute(
             "SELECT * FROM vocab WHERE profile_id=? ORDER BY id", (profile_id,)))
 
+    _VOCAB_FIELDS = {"lemma", "knowledge", "seen_count", "recall_ok", "recall_fail", "used_count", "last_used_at",
+                     "last_recall_day", "last_use_session", "use_sessions", "card_day", "meaning_pl", "example",
+                     "source"}
+
+    def get_vocab(self, profile_id: int, lang: str, term: str) -> dict | None:
+        r = self.conn.execute("SELECT * FROM vocab WHERE profile_id=? AND lang=? AND term=?",
+                              (profile_id, lang, term)).fetchone()
+        return dict(r) if r else None
+
+    def put_vocab(self, profile_id: int, lang: str, term: str, **fields) -> None:
+        """Upsert stanu słowa; nazwy kolumn tylko z białej listy (wartości zawsze parametrami)."""
+        if not set(fields) <= self._VOCAB_FIELDS:
+            raise ValueError(f"nieznane pola vocab: {set(fields) - self._VOCAB_FIELDS}")
+        self.conn.execute("INSERT OR IGNORE INTO vocab(profile_id,lang,term) VALUES (?,?,?)",
+                          (profile_id, lang, term))
+        if fields:
+            sets = ",".join(f"{k}=?" for k in fields)
+            self.conn.execute(f"UPDATE vocab SET {sets} WHERE profile_id=? AND lang=? AND term=?",
+                              (*fields.values(), profile_id, lang, term))
+
+    def vocab_card_stats(self, profile_id: int, day: str) -> tuple[int, int]:
+        """(aktywne karty vocab, karty vocab utworzone danego dnia)."""
+        a = self.conn.execute("SELECT COUNT(*) FROM srs_card WHERE profile_id=? AND card_type='vocab'",
+                              (profile_id,)).fetchone()[0]
+        n = self.conn.execute("SELECT COUNT(*) FROM vocab WHERE profile_id=? AND card_day=?",
+                              (profile_id, day)).fetchone()[0]
+        return a, n
+
     # --- użycie LLM (limity wspólne dla wszystkich profili; wiersze bez treści) ---
     def add_llm_usage(self, profile_id: int | None, provider: str, model: str, role: str,
                       in_tokens: int, out_tokens: int, latency_ms: int | None, cost_usd: float,

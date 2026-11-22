@@ -17,9 +17,10 @@ from datetime import datetime
 from tutor.pedagogy import errors as E
 from tutor.pedagogy import mastery, srs
 from tutor.pedagogy import retention as R
+from tutor.pedagogy import vocab as V
 from tutor.pedagogy.assessment import UttResult, content_words, prefilter
 from tutor.pedagogy.cefr import level_index
-from tutor.pedagogy.content import Pack
+from tutor.pedagogy.content import Pack, load_vocab, vocab_forms
 from tutor.pedagogy.correction import NEEDS_EVAL  # noqa: F401  (obsługa niejednoznacznej próby: F5)
 from tutor.pedagogy.mastery import SkillState
 from tutor.store.repo import Repo
@@ -117,7 +118,8 @@ def _opportunity_sessions(repo: Repo, profile_id: int, cat: str, sid: str | None
 def apply_turn_evaluation(repo: Repo, pack: Pack, profile_id: int, session_id: int, turn_id: int, result: UttResult,
                           *, input_mode: str, text: str, goals: set[str], now: datetime, model: str | None = None,
                           prompt_version: str | None = None, fluency: dict | None = None,
-                          low_prob_words: list[str] | None = None, theta: dict[str, float] | None = None) -> dict:
+                          low_prob_words: list[str] | None = None, theta: dict[str, float] | None = None,
+                          vocab_targets: list[str] | None = None, tutor_prev: str | None = None) -> dict:
     """Zapisuje wynik oceny jednej wypowiedzi. Zwraca {"applied": bool, "reason", "events": {...}}.
 
     `reason`: applied | already_applied | not_rated:<status> | stale. Ponowne wywołanie dla tej samej tury = no-op."""
@@ -175,9 +177,57 @@ def apply_turn_evaluation(repo: Repo, pack: Pack, profile_id: int, session_id: i
             if prev.status != new.status:
                 transitions.append({"skill_id": sid, "from": prev.status, "to": new.status})
         err_events = _recompute_errors(repo, pack, profile_id, now)
+        voc = _vocab_use(repo, pack, profile_id, session_id, text, vocab_targets or [], tutor_prev,
+                         set(low_prob_words or []), [c.span for c in result.observations if c.kind == "error"], now)
         repo.mark_applied(profile_id, turn_id, _iso(now))
     return {"applied": True, "reason": "applied", "events": {"skills": transitions, "errors": err_events,
-                                                              "new_observations": new_obs}}
+                                                              "new_observations": new_obs, "vocab": voc}}
+
+
+def _vocab_use(repo: Repo, pack: Pack, profile_id: int, session_id: int, text: str, targets: list[str],
+               tutor_prev: str | None, low_prob: set[str], error_spans: list[str], now: datetime) -> list[dict]:
+    """Poprawne użycie słowa-celu w rozmowie (07 §3.5). Samo wykrycie to NIE opanowanie: `active` dopiero po
+    ≥ N użyciach w różnych sesjach. Użycie w spanie z błędem się nie liczy (idzie zwykłą ścieżką obserwacji)."""
+    if not targets:
+        return []
+    ngsl, pre, out = load_vocab(pack.root.parent, pack.lang), prefilter(text, pack.disfluency), []
+    low = " ".join(error_spans).lower()
+    for lem in sorted(set(targets)):
+        e = ngsl.get(lem)
+        if e is None:
+            continue
+        forms = vocab_forms(e, pack.variants)
+        if any(f in low.split() for f in forms) or not V.detect_use(text, pre, forms, pack.rubric,
+                                                                    tutor_prev=tutor_prev, low_prob_words=low_prob):
+            continue
+        row = repo.get_vocab(profile_id, pack.lang, lem) or {}
+        ch = V.apply_event(row, "used_ok", pack.rubric, session=session_id)
+        repo.put_vocab(profile_id, pack.lang, lem, lemma=lem, last_used_at=_iso(now), **ch)
+        card = repo.get_card(profile_id, "vocab", lem)
+        if card and card["due_at"] <= _iso(now):
+            _srs(repo, pack, profile_id, "vocab", lem, True, now)
+        out.append({"lemma": lem, "knowledge": ch.get("knowledge", row.get("knowledge", "unknown"))})
+    return out
+
+
+def record_vocab_recall(repo: Repo, pack: Pack, profile_id: int, lemma: str, correct: bool, *, now: datetime,
+                        trigger: str | None = None) -> dict:
+    """Wynik przywołania produkcyjnego słowa. Karta `vocab` powstaje TYLKO z wyzwalacza (07 §3.4) i w limitach;
+    istniejąca karta dostaje ocenę FSRS."""
+    day = _iso(now)[:10]
+    with repo.transaction():
+        row = repo.get_vocab(profile_id, pack.lang, lemma) or {}
+        ch = V.apply_event(row, "recall_ok" if correct else "recall_fail", pack.rubric, day=day)
+        repo.put_vocab(profile_id, pack.lang, lemma, lemma=lemma, **ch)
+        made = False
+        if repo.get_card(profile_id, "vocab", lemma):
+            _srs(repo, pack, profile_id, "vocab", lemma, correct, now)
+        elif trigger and V.card_allowed(trigger, pack.rubric, **dict(zip(
+                ("active_cards", "new_today"), repo.vocab_card_stats(profile_id, day), strict=True))):
+            _srs(repo, pack, profile_id, "vocab", lemma, correct, now)
+            repo.put_vocab(profile_id, pack.lang, lemma, card_day=day)
+            made = True
+    return {"knowledge": ch.get("knowledge", row.get("knowledge", "unknown")), "card_created": made}
 
 
 def _srs(repo: Repo, pack: Pack, profile_id: int, card_type: str, ref_id: str, correct: bool, now: datetime,

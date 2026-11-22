@@ -129,6 +129,8 @@ srs:
             translate_pl: 20000, reorder: 15000, dictation: 20000}
   hint_good: [1]
   hint_hard: [2, 3]
+  vocab_new_per_day: 10      # 07 §3.4: nie tworzymy masowo kart słownictwa
+  vocab_max_active: 300
 
 # Diagnoza (§4.2, §4.3). `provisional` = wstępne dopasowanie z banku ai_checked: ten sam algorytm,
 # ale wynik jest etykietowany jako niezweryfikowany i NIE zastępuje diagnozy human_reviewed.
@@ -211,3 +213,13 @@ report:
 
 limits:
   prompt_max_words: {A1: 25, A2: 30, B1: 40, B2: 50, C1: 60}
+
+# Słownictwo (07 §3). Rozpoznawanie ≠ opanowanie; wykrycie słowa w transkrypcji nie potwierdza opanowania.
+vocab:
+  recognition_pass: 0.8        # skorygowany wynik warstwy (trafienia − fałszywe „tak”), by oznaczyć passive
+  false_alarm_reject: 0.30     # odsetek fałszywych „tak” na pseudosłowach ⇒ odpowiedzi niewiarygodne
+  active_recall_days: 2        # różne dni z poprawnym przywołaniem produkcyjnym
+  active_use_sessions: 2       # różne sesje z poprawnym użyciem w rozmowie
+  fail_to_passive: 2           # porażki z rzędu: active → passive
+  planner_targets: 5
+  echo_ngram: 3                # echo tutora: ≥ 3 kolejne słowa identyczne
