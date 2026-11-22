@@ -32,12 +32,19 @@ def test_set_last_profile_preserves_llm_sections(home):
     assert s["limits"]["daily_usd"] == 1.5 and s["roles"]["conversation"]["model"] == "m"
 
 
-def test_defaults_use_installed_bielik(home):
+def test_defaults_qwen3_for_live_roles_bielik_for_generation(home):
     s = llm_settings()
-    for role in ("conversation", "evaluation", "generation"):
-        assert s["roles"][role]["provider"] == "ollama"
-        assert "bielik-11b" in s["roles"][role]["model"]
+    for role in ("conversation", "evaluation"):
+        assert s["roles"][role] == {"provider": "ollama", "model": "qwen3:8b", "think": False}
+        assert build_provider(role, s).think is False
+    assert "bielik-11b" in s["roles"]["generation"]["model"] and "think" not in s["roles"]["generation"]
     assert s["limits"] == {"daily_usd": None, "monthly_usd": None}
+
+
+def test_bielik_still_selectable_without_think(home):
+    write_cfg('[llm.conversation]\nmodel = "SpeakLeash/bielik-11b-v2.3-instruct:Q4_K_M"\n')
+    p = build_provider("conversation")
+    assert p.model.startswith("SpeakLeash/bielik-11b") and p.think is None   # Bielik nie obsługuje `think`
 
 
 def test_key_from_env_file_outside_repo(home):

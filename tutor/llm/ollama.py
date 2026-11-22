@@ -27,9 +27,9 @@ class OllamaProvider:
     name, external = "ollama", False
 
     def __init__(self, model: str = DEFAULT_MODEL, url: str = DEFAULT_URL, num_ctx: int = 8192,
-                 timeout: float = 120, keep_alive: str | None = None):
+                 timeout: float = 120, keep_alive: str | None = None, think: bool | None = None):
         self.model, self.url, self.num_ctx = model, url.rstrip("/"), num_ctx
-        self.timeout, self.keep_alive = timeout, keep_alive
+        self.timeout, self.keep_alive, self.think = timeout, keep_alive, think
 
     def _body(self, messages, temperature, max_tokens, stream, schema=None) -> dict:
         body = {
@@ -41,6 +41,8 @@ class OllamaProvider:
             body["format"] = schema
         if self.keep_alive:
             body["keep_alive"] = self.keep_alive
+        if self.think is not None:          # Ollama ≥ 0.9: modele z trybem „thinking” (Qwen3); None = nie wysyłamy
+            body["think"] = self.think
         return body
 
     def _post(self, body, stream: bool):

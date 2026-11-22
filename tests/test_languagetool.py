@@ -125,10 +125,11 @@ def test_lt_4_merge_rules(pack):  # T-LT-4: R1–R7
     assert len(out) == 1 and out[0].p == "h" and out[0].src == "bielik+lt" and out[0].f == "She has"
     out, _ = M.merge([B("She have", "She has", "agreement.subject_verb", "l")],
                      [L("She have", "He has", "agreement.subject_verb")], text)
-    assert out[0].p == "m"
-    # R2: ten sam span, inna kategoria ⇒ Bielik bez zmian, alternatywa w logu
+    assert out[0].p == "l" and out[0].src is None   # F4.7: różne edycje (LT zmienia też podmiot) ≠ zgodność
+    # R2: ta sama poprawka, inna kategoria ⇒ kategoria i pewność Bielika, `src` bielik+lt-fix (F4.7), alternatywa w logu
     out, alts = M.merge([B("a apple", "an apple", "article.wrong")], [L("a apple", "an apple", "word_choice")], text)
-    assert len(out) == 1 and out[0].c == "article.wrong" and out[0].src is None and len(alts) == 1
+    assert len(out) == 1 and out[0].c == "article.wrong" and out[0].p == "m" and out[0].src == "bielik+lt-fix"
+    assert len(alts) == 1
     # R3: tylko Bielik
     out, _ = M.merge([B("a apple", "an apple", "article.wrong")], [], text)
     assert out == [B("a apple", "an apple", "article.wrong")]

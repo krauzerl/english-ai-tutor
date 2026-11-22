@@ -8,6 +8,12 @@ from tutor.llm.ollama import DEFAULT_MODEL, DEFAULT_URL, OllamaProvider
 
 ROLES = ("conversation", "evaluation", "generation")
 DEFAULT_WINDOW = 8192  # konserwatywnie, gdy model nie jest w [context_windows]
+QWEN3_8B = "qwen3:8b"
+# F4.7 (wyniki wstępne): Qwen3 8B bez thinking do rozmowy i oceny; Bielik do polskich tekstów.
+# Domyślne ustawienia roli stosujemy tylko, gdy użytkownik nie podał modelu (np. własny wybór Bielika bez `think`).
+ROLE_DEFAULTS = {"conversation": {"model": QWEN3_8B, "think": False},
+                 "evaluation": {"model": QWEN3_8B, "think": False},
+                 "generation": {"model": DEFAULT_MODEL}}
 
 
 def _prices(raw: dict) -> dict[str, Price]:
@@ -27,8 +33,8 @@ def llm_settings() -> dict:
     roles = {}
     for r in ROLES:
         c = {"provider": "ollama", **llm.get(r, {})}
-        if c["provider"] == "ollama":  # domyślny model tylko lokalny; Gemini wymaga jawnej nazwy
-            c.setdefault("model", DEFAULT_MODEL)
+        if c["provider"] == "ollama" and "model" not in c:  # domyślny model tylko lokalny; Gemini wymaga nazwy
+            c = {**ROLE_DEFAULTS[r], **c}
         roles[r] = c
     lim = raw.get("limits", {})
     return {
@@ -47,7 +53,7 @@ def build_provider(role: str, settings: dict | None = None) -> LLMProvider:
     if cfg["provider"] == "ollama":
         o = s["ollama"]
         return OllamaProvider(cfg["model"], o.get("url", DEFAULT_URL), o.get("num_ctx", 8192),
-                              o.get("timeout", 120), o.get("keep_alive"))
+                              o.get("timeout", 120), o.get("keep_alive"), cfg.get("think", o.get("think")))
     if cfg["provider"] == "gemini":
         key = config.gemini_api_key()
         if not key:

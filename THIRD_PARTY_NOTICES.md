@@ -40,7 +40,8 @@ Licences were taken from installed package metadata on 2026-11-22 and may change
 
 | Component | Licence |
 |---|---|
-| Bielik 11B v2.3 Instruct (default model, via Ollama) | Apache-2.0 |
+| Qwen3 8B (default conversation and evaluation model, via Ollama) | Apache-2.0 |
+| Bielik 11B v2.3 Instruct (default Polish generation model, via Ollama) | Apache-2.0 |
 | Kokoro-82M | Apache-2.0 |
 | faster-whisper `small.en` | MIT |
 | Piper voices | Each voice has its own licence; check before use |
