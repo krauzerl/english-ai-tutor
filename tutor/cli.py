@@ -80,19 +80,25 @@ def content_main(argv: list[str], inp=input, out=print) -> int:
     ap = argparse.ArgumentParser(prog="main.py content")
     sub = ap.add_subparsers(dest="cmd", required=True)
     sub.add_parser("validate").add_argument("lang")
+    sub.add_parser("attribution").add_argument("lang")
     rv = sub.add_parser("review")
     rv.add_argument("lang")
     rv.add_argument("--reviewer", required=True, help="id z reviewers.yaml")
     rv.add_argument("--all", action="store_true", help="także zadania już ocenione (poza human_reviewed)")
     args = ap.parse_args(argv)
     try:
-        rep = C.validate(args.lang)
+        rep = C.validate(args.lang, extracted_dir=config.data_dir() / "content_sources" / "extracted")
     except C.ContentError as e:
         out("\n".join(e.report.errors))
         return 1
     if args.cmd == "validate":
         out(C.format_report(rep))
         return 0 if rep.ok else 1
+    if args.cmd == "attribution":
+        pack = C.load(args.lang)
+        (pack.root / "ATTRIBUTION.md").write_text(C.attribution_md(pack.sources), encoding="utf-8")
+        out(f"Zapisano {pack.root / 'ATTRIBUTION.md'}")
+        return 0
     if not rep.ok:
         out(C.format_report(rep))
         out("Napraw błędy walidacji przed przeglądem.")

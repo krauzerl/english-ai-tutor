@@ -72,11 +72,19 @@ class Skill(_M):
         return self
 
 
+class SourceRef(_M):
+    """Odwołanie do źródła otwartego (07 §2.1): tylko lokalizacja, bez tekstu."""
+    src: str
+    loc: str
+    sha: str | None = None
+
+
 class Provenance(_M):
-    source: Literal["ai_generated", "human"]
+    source: Literal["ai_generated", "ai_adapted", "human"]
     model: str | None = None
     prompt_version: str | None = None
     created_at: str | None = None
+    refs: list[SourceRef] = []
 
     @model_validator(mode="before")
     @classmethod
@@ -123,6 +131,7 @@ class Item(_M):
     answers: list[str] | None = None
     explanation_pl: str | None = None
     audio_text: str | None = None        # listening: tekst dla TTS
+    license: str | None = None           # wymagane przy provenance.refs (07 §1.3)
     provenance: Provenance
     review: Review
 
@@ -189,6 +198,7 @@ class Scenario(_M):
     goal: str
     success_criteria: list[Criterion] = Field(min_length=3, max_length=5)
     target_skill_ids: list[str] = []
+    license: str | None = None
     provenance: Provenance
     review: Review
 
@@ -200,6 +210,29 @@ class Reviewer(_M):
 
 class Reviewers(_M):
     reviewers: list[Reviewer] = []
+
+
+class Source(_M):
+    id: str
+    title: str
+    authors: str
+    url: str
+    license: str
+    sha256: str | None = None
+    exclude: list[str] = []      # loc (prefiks) wykluczone z importu: wyjątki licencyjne, media
+    note: str | None = None
+
+    @property
+    def share_alike(self) -> bool:
+        return "-SA-" in self.license
+
+
+class Sources(_M):
+    sources: list[Source] = []
+    map: dict[str, list[SourceRef]] = {}   # skill_id -> lokalizacje (bez tekstu)
+
+    def by_id(self) -> dict[str, Source]:
+        return {s.id: s for s in self.sources}
 
 
 class _Bkt(_M):
@@ -266,6 +299,7 @@ class Pack:
     reviewers: Reviewers
     prompts: dict[str, dict[str, str]]  # name -> {version, text}
     item_files: dict[str, tuple[Path, int]] = field(default_factory=dict)  # id -> (plik, nr linii)
+    sources: Sources = field(default_factory=Sources)
 
 
 # --- czytanie YAML z numerami linii ---
@@ -367,6 +401,7 @@ def _load_pack(lang: str, root: Path, rep: Report) -> Pack:
     disf = one(Disfluency, "disfluency.yaml") or Disfluency(fillers=[])
     rubric = one(Rubric, "rubric.yaml")
     reviewers = one(Reviewers, "reviewers.yaml", Reviewers())
+    sources = one(Sources, "sources.yaml", Sources()) if (base / "sources.yaml").exists() else Sources()
 
     scenarios = {}
     for f in sorted((base / "scenarios").glob("*.yaml")):
@@ -389,7 +424,7 @@ def _load_pack(lang: str, root: Path, rep: Report) -> Pack:
         prompts[name] = {"version": ver, "text": body}
 
     return Pack(lang, base, skills, items, errors, variants, confus, disf, rubric, scenarios, reviewers,
-                prompts, item_files)  # type: ignore[arg-type]
+                prompts, item_files, sources)  # type: ignore[arg-type]
 
 
 # --- graf prerekwizytów ---
@@ -546,7 +581,7 @@ def _check_item(it: Item, pack: Pack, rep: Report, where: str) -> None:
             err("human_reviewed: reviewer spoza reviewers.yaml")
     elif it.review.status in ("draft", "ai_checked") and (it.review.reviewer or it.review.reviewed_at):
         err("draft/ai_checked nie mogą mieć reviewer/reviewed_at (to pola decyzji człowieka)")
-    if it.provenance.source == "ai_generated" and not it.provenance.prompt_version:
+    if it.provenance.source in ("ai_generated", "ai_adapted") and not it.provenance.prompt_version:
         err("ai_generated wymaga prompt_version")
     text = " ".join(filter(None, [it.prompt, it.stimulus, it.audio_text, *(it.options or []), *(it.answers or [])]))
     if _PII.search(text):
@@ -556,12 +591,79 @@ def _check_item(it: Item, pack: Pack, rep: Report, where: str) -> None:
         err(f"prompt dłuższy niż {lim} słów dla {it.cefr}")
 
 
-def validate(lang: str, root: Path | None = None) -> Report:
-    pack, rep = _collect(lang, root)
+def _check_refs(obj, where: str, pack: Pack, rep: Report) -> None:
+    """T-SRC-1/2/4: refs istnieją, nie wskazują wykluczeń, licencja i ShareAlike, ai_adapted + human."""
+    refs = obj.provenance.refs
+    srcs = pack.sources.by_id()
+    for r in refs:
+        s = srcs.get(r.src)
+        if s is None:
+            rep.errors.append(f"{where}: refs.src „{r.src}” nie istnieje w sources.yaml")
+            continue
+        if any(r.loc == x or r.loc.startswith(x + ".") for x in s.exclude):
+            rep.errors.append(f"{where}: refs.loc „{r.loc}” wskazuje wykluczoną sekcję źródła {r.src}")
+        if r.sha and s.sha256 and r.sha != s.sha256:
+            rep.warnings.append(f"{where}: źródło {r.src} zmienione (sha), przejrzyj odwołanie")
+    if refs:
+        if not obj.license:
+            rep.errors.append(f"{where}: refs bez license")
+        elif any(srcs[r.src].share_alike for r in refs if r.src in srcs) and obj.license != "CC-BY-SA-4.0":
+            rep.errors.append(f"{where}: źródło ShareAlike wymaga license CC-BY-SA-4.0")
+
+
+_WORD = re.compile(r"[\w']+")
+
+
+def shared_run(text: str, fragments: list[str], n: int = 12) -> str | None:
+    """Pierwsze ≥ n kolejnych słów wspólnych z którymś fragmentem źródła (T-SRC-3) albo None."""
+    words = [w.lower() for w in _WORD.findall(text.replace("’", "'"))]
+    if len(words) < n:
+        return None
+    grams = {" ".join(words[i:i + n]) for i in range(len(words) - n + 1)}
+    for fr in fragments:
+        fw = [w.lower() for w in _WORD.findall(fr.replace("’", "'"))]
+        for i in range(len(fw) - n + 1):
+            g = " ".join(fw[i:i + n])
+            if g in grams:
+                return g
+    return None
+
+
+def load_extracts(src: str, extracted_dir: Path | None) -> list[str] | None:
+    """Fragmenty ekstraktu źródła z lokalnej biblioteki; None = brak (CI bez źródeł)."""
+    import json
+    if extracted_dir is None:
+        return None
+    p = extracted_dir / f"{src}.jsonl"
+    if not p.exists():
+        return None
+    return [json.loads(ln)["text"] for ln in p.read_text(encoding="utf-8").splitlines() if ln.strip()]
+
+
+def _check_overlap(texts: dict[str, tuple[str, list[SourceRef]]], rep: Report,
+                   extracted_dir: Path | None) -> None:
+    cache: dict[str, list[str] | None] = {}
+    warned: set[str] = set()
+    for where, (text, refs) in texts.items():
+        for r in refs:
+            if r.src not in cache:
+                cache[r.src] = load_extracts(r.src, extracted_dir)
+            fr = cache[r.src]
+            if fr is None:
+                if r.src not in warned:
+                    warned.add(r.src)
+                    rep.warnings.append(f"brak lokalnego ekstraktu {r.src}: kontrola nakładania pominięta")
+                continue
+            if g := shared_run(text, fr):
+                rep.errors.append(f"{where}: ≥ 12 kolejnych słów wspólnych ze źródłem {r.src}: „{g}…”")
+
+
+def validate(lang: str, root: Path | None = None, extracted_dir: Path | None = None) -> Report:
+    pack, rep = _collect(lang, root, extracted_dir)
     return rep
 
 
-def _collect(lang: str, root: Path | None) -> tuple[Pack, Report]:
+def _collect(lang: str, root: Path | None, extracted_dir: Path | None = None) -> tuple[Pack, Report]:
     root = root or content_root()
     rep = Report()
     if not (root / lang).is_dir():
@@ -590,6 +692,7 @@ def _collect(lang: str, root: Path | None) -> tuple[Pack, Report]:
     if cyc := find_cycle(pack.skills):
         rep.errors.append("graf prerekwizytów ma cykl: " + " -> ".join(cyc))
     seen: dict[str, str] = {}
+    overlap: dict[str, tuple[str, list[SourceRef]]] = {}
     for iid, it in pack.items.items():
         f, line = pack.item_files[iid]
         _check_item(it, pack, rep, f"{f.relative_to(root)}:{line}")
@@ -600,12 +703,26 @@ def _collect(lang: str, root: Path | None) -> tuple[Pack, Report]:
             rep.errors.append(f"{f.relative_to(root)}:{line} [{iid}]: duplikat promptu z {seen[key]}")
         seen[key] = iid
         rep.counts[(it.area, it.cefr, it.review.status)] += 1
+        w = f"{f.relative_to(root)}:{line} [{iid}]"
+        _check_refs(it, w, pack, rep)
+        if it.provenance.refs:
+            overlap[w] = (" ".join(filter(None, [it.prompt, it.stimulus, it.audio_text, it.explanation_pl])),
+                          it.provenance.refs)
     for sc in pack.scenarios.values():
         for s in sc.target_skill_ids:
             if s not in pack.skills:
                 rep.errors.append(f"scenarios [{sc.id}]: nieznane skill_id {s}")
         if sc.review.status == "human_reviewed" and sc.review.reviewer not in {r.id for r in pack.reviewers.reviewers}:
             rep.errors.append(f"scenarios [{sc.id}]: reviewer spoza reviewers.yaml")
+    for sc in pack.scenarios.values():
+        _check_refs(sc, f"scenarios [{sc.id}]", pack, rep)
+    for sid, locs in pack.sources.map.items():
+        if sid not in pack.skills:
+            rep.errors.append(f"sources.yaml map: nieznane skill_id {sid}")
+        for r in locs:
+            if r.src not in pack.sources.by_id():
+                rep.errors.append(f"sources.yaml map [{sid}]: nieznane źródło {r.src}")
+    _check_overlap(overlap, rep, extracted_dir)
     for g in pack.variants.groups:
         if len({norm_answer(f) for f in g.forms}) < 2:
             rep.errors.append(f"variants [{g.id}]: mniej niż 2 różne formy")
@@ -618,6 +735,19 @@ def load(lang: str, root: Path | None = None) -> Pack:
     if rep.errors:
         raise ContentError(rep)
     return pack
+
+
+def attribution_md(sources: Sources) -> str:
+    """ATTRIBUTION.md generowany z sources.yaml (07 §1.3)."""
+    lines = ["# Atrybucja źródeł", "",
+             "Plik generowany: `python main.py content attribution en`. Nie edytować ręcznie.",
+             "Treści w repozytorium są adaptacją (parafraza, własne przykłady, wyjaśnienia po polsku) — "
+             "zmodyfikowano.", ""]
+    for s in sources.sources:
+        lines += [f"- **{s.title}** — {s.authors}. [{s.url}]({s.url}). Licencja: {s.license}."
+                  + (f" SHA-256 pliku źródłowego: `{s.sha256}`." if s.sha256 else "")
+                  + (f" {s.note}" if s.note else "")]
+    return "\n".join(lines) + "\n"
 
 
 def format_report(rep: Report) -> str:

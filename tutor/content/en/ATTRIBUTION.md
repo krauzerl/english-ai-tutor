@@ -1,0 +1,11 @@
+# Atrybucja źródeł
+
+Plik generowany: `python main.py content attribution en`. Nie edytować ręcznie.
+Treści w repozytorium są adaptacją (parafraza, własne przykłady, wyjaśnienia po polsku) — zmodyfikowano.
+
+- **A Digital Workbook for Beginning ESOL (2018)** — Eric Dodson, Davida Jordan, Tim Krause. [https://openoregon.pressbooks.pub/esol23/](https://openoregon.pressbooks.pub/esol23/). Licencja: CC-BY-4.0. SHA-256 pliku źródłowego: `187c938194a20d4b8e85810ac7452e8929ddbd8401602b5f818fdb174516789e`. XHTML Pressbooks. Osadzone wideo i H5P pomijane przez ekstraktor.
+- **Green Tea Intermediate English Communication OER (2020)** — Eric Dodson, Luciana Diniz, Nanci Leiton. [https://openoregon.pressbooks.pub/greentea/](https://openoregon.pressbooks.pub/greentea/). Licencja: CC-BY-4.0. SHA-256 pliku źródłowego: `f578e38f5a45fa58604b49ce83bf3e488bc2a7fa546d4d50e69320e98477a02e`. XHTML Pressbooks. Wideo i aktywności H5P pomijane.
+- **Technical Writing Essentials (2019)** — Suzan Last. [https://pressbooks.bccampus.ca/technicalwriting/](https://pressbooks.bccampus.ca/technicalwriting/). Licencja: CC-BY-4.0. SHA-256 pliku źródłowego: `dcd16966a67386415c6327c4a1a4f732340c16d1dab309d992ea2fba5aead702`. Wyjątki „noncommercial, educational use only” (fragment Wells S.1 i ryciny) — nieużywane. Import z PDF (strona za Cloudflare).
+- **Brehe's Grammar Anatomy (v2)** — Steven Brehe; University System of Georgia / University of North Georgia Press. [https://ung.edu/university-press/books/brehes-grammar-anatomy.php](https://ung.edu/university-press/books/brehes-grammar-anatomy.php). Licencja: CC-BY-SA-4.0. SHA-256 pliku źródłowego: `c6915fe0b7d6e789d6250ca1bc1f52cbffed0a1a46f598425a3fe4ced5398983`. Licencja wg strony redakcyjnej PDF (strona UNG jej nie podaje). Tylko tekst autora; obrazy i włączone treści obce pominięte.
+- **New General Service List 1.2** — Charles Browne, Brent Culligan, Joseph Phillips. [https://www.newgeneralservicelist.com/](https://www.newgeneralservicelist.com/). Licencja: CC-BY-SA-4.0.
+- **NGSL-Spoken 1.2** — Charles Browne, Brent Culligan. [https://www.newgeneralservicelist.com/ngsl-spoken](https://www.newgeneralservicelist.com/ngsl-spoken). Licencja: CC-BY-SA-4.0.
