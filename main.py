@@ -1,41 +1,53 @@
+import sys
+
 import requests
 
 MODEL = "SpeakLeash/bielik-11b-v2.3-instruct:Q4_K_M"
 OLLAMA_URL = "http://localhost:11434/api/chat"
 
-messages = [
-    {
-        "role": "system",
-        "content": (
-            "You are a friendly English tutor. "
-            "Speak mainly in English. Correct the user's most important mistakes "
-            "briefly and continue the conversation."
-        ),
-    }
-]
 
-while True:
-    user_message = input("You: ")
+def chat():
+    messages = [
+        {
+            "role": "system",
+            "content": (
+                "You are a friendly English tutor. "
+                "Speak mainly in English. Correct the user's most important mistakes "
+                "briefly and continue the conversation."
+            ),
+        }
+    ]
 
-    if user_message.strip().lower() in {"exit", "quit", "/exit", "/quit", "/bye"}:
-        print("Tutor: Goodbye!")
-        break
+    while True:
+        user_message = input("You: ")
 
-    messages.append({"role": "user", "content": user_message})
+        if user_message.strip().lower() in {"exit", "quit", "/exit", "/quit", "/bye"}:
+            print("Tutor: Goodbye!")
+            break
 
-    response = requests.post(
-        OLLAMA_URL,
-        json={
-            "model": MODEL,
-            "messages": messages,
-            "stream": False,
-        },
-        timeout=120,
-    )
+        messages.append({"role": "user", "content": user_message})
 
-    response.raise_for_status()
-    assistant_message = response.json()["message"]["content"]
+        response = requests.post(
+            OLLAMA_URL,
+            json={
+                "model": MODEL,
+                "messages": messages,
+                "stream": False,
+            },
+            timeout=120,
+        )
 
-    messages.append({"role": "assistant", "content": assistant_message})
+        response.raise_for_status()
+        assistant_message = response.json()["message"]["content"]
 
-    print(f"\nTutor: {assistant_message}\n")
+        messages.append({"role": "assistant", "content": assistant_message})
+
+        print(f"\nTutor: {assistant_message}\n")
+
+
+if __name__ == "__main__":
+    if sys.argv[1:2] == ["profile"]:
+        from tutor.cli import main as profile_main
+
+        sys.exit(profile_main(sys.argv[2:]))
+    chat()  # także `--cli`: GUI jeszcze nie istnieje

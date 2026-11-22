@@ -24,7 +24,12 @@ Audyt zakończony 2026-11-22. Nie powtarzaj go. Czytaj w kolejności: ten plik �
 8. Treść językowa wyłącznie w `content/<lang>/`; zadania przeglądane przez człowieka (`reviewed: true`).
 9. Zewnętrzne API wymaga zgody per profil; limity kosztów w `config.toml` (cennik wpisuje użytkownik/weryfikuje z Google).
 
-## Pierwsze kroki (F0 → F1)
+## Status
+- **F0 + F1 ukończone** (gałąź `feat/f0-scaffold`, lokalny commit, bez push). Raport: `01_FOUNDATION_REPORT.md`. Następny: F2 (warstwa LLM) lub F3 (treść) — czeka na akceptację.
+- Odstępstwo: tabel `skill`/`item` nie ma w SQLite (treść globalna w `content/`), patrz raport pkt 4. `session_summary` ma własny `id` (nie `session_id` jako PK).
+- Uruchamianie: `.venv/bin/pytest`, `.venv/bin/ruff check .`; profile: `python main.py profile ...`. T-ISO-4 odroczony do F2.
+
+## Pierwsze kroki (F0 → F1) — wykonane
 1. Gałąź `feat/f0-scaffold`. Użyj `superpowers:writing-plans` dla F0+F1, potem `test-driven-development`.
 2. `pyproject.toml` (Python ≥3.12), pakiet `tutor/`, `tests/`, `pytest`, `ruff`.
 3. Migracja `001_init.sql` dokładnie wg ARCHITECTURE §3.
