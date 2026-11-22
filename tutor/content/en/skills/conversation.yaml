@@ -71,6 +71,7 @@
   can_do_pl: Zgadzam się i nie zgadzam, zachowując uprzejmość.
   prereqs: [en.gram.modals_advice]
   error_categories: [register]
+  explanation_ref: grammar/agree_disagree.md
 - id: en.conv.ask_clarification
   lang: en
   domain: conversation
@@ -79,6 +80,7 @@
   can_do_pl: Dopytuję i proszę o powtórzenie lub wyjaśnienie.
   prereqs: [en.gram.present_simple_neg_q]
   error_categories: [word_order.question]
+  explanation_ref: grammar/ask_clarification.md
 - id: en.conv.polite_refusal
   lang: en
   domain: conversation

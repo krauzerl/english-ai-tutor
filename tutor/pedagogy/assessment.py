@@ -170,10 +170,11 @@ class Classified:
     severity: int | None
     confidence: str | None
     self_repair: bool = False
+    source: str | None = None           # pochodzenie obserwacji spoza modelu oceny (LanguageTool, scalenie)
 
 
 def _drop(o: Obs, reason: str) -> Classified:
-    return Classified(o.k, "dropped", reason, o.s, o.f, o.c, o.v, o.p)
+    return Classified(o.k, "dropped", reason, o.s, o.f, o.c, o.v, o.p, source=o.src)
 
 
 def classify(o: Obs, text: str, *, input_mode: str, low_prob_words: set[str], pre: Prefilter,
@@ -187,9 +188,9 @@ def classify(o: Obs, text: str, *, input_mode: str, low_prob_words: set[str], pr
     if all(pre.covered(a, b) for a, b in where):                                     # 2
         good = " ".join(r["good"] for r in pre.repairs)
         rep = bool(o.f) and norm_answer(o.f) in norm_answer(good) and o.k == "error"
-        return Classified("disfluency", "valid", None, o.s, o.f, o.c, o.v, o.p, self_repair=rep)
+        return Classified("disfluency", "valid", None, o.s, o.f, o.c, o.v, o.p, self_repair=rep, source=o.src)
     if is_variant(o.s, o.f, variants, domain):                                       # 3
-        return Classified("variant", "valid", None, o.s, o.f, o.c, o.v, o.p)
+        return Classified("variant", "valid", None, o.s, o.f, o.c, o.v, o.p, source=o.src)
     voice = input_mode == "voice"
     if voice and core_of(o.c) in cfg["voice_dropped_categories"]:                    # 4
         return _drop(o, "category_not_spoken")
@@ -198,14 +199,14 @@ def classify(o: Obs, text: str, *, input_mode: str, low_prob_words: set[str], pr
         toks = [_t(w) for w in text.split()]
         edge = bool(words) and (toks[:len(words)] == words or toks[-len(words):] == words)
         if (set(words) & low_prob_words) or stt_confusable(o.s, o.f, confusables) or edge:
-            return Classified("stt_suspect", "valid", None, o.s, o.f, o.c, o.v, o.p)
+            return Classified("stt_suspect", "valid", None, o.s, o.f, o.c, o.v, o.p, source=o.src)
     if o.c not in taxonomy:                                                          # 6
         return _drop(o, "category_not_in_taxonomy")
     if norm(o.f) == norm(o.s):
         return _drop(o, "fix_equals_span")
     if len(o.f) > cfg["fix_max_ratio"] * len(o.s) + cfg["fix_extra_chars"]:
         return _drop(o, "fix_too_long")
-    return Classified(o.k, "valid", None, o.s, o.f, o.c, o.v, o.p)                   # 7
+    return Classified(o.k, "valid", None, o.s, o.f, o.c, o.v, o.p, source=o.src)     # 7
 
 
 # --- dowody pozytywne i komunikatywność ---

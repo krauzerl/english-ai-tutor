@@ -1,0 +1,435 @@
+# Pilotaż F4.6 (AI-draft, niezweryfikowany przez człowieka). Zmiany statusu: tylko `main.py content review`.
+- id: en.f46.speak.b1.01
+  lang: en
+  skill_ids:
+  - en.conv.ask_clarification
+  area: speaking
+  type: mc
+  cefr: B1
+  difficulty: 0.0
+  pools:
+  - practice
+  domain: conversation
+  prompt: You did not hear what your colleague said. What is the most polite thing to say?
+  stimulus: null
+  options:
+  - What?
+  - Sorry, could you say that again, please?
+  - Say again.
+  - I don't hear.
+  answers:
+  - Sorry, could you say that again, please?
+  explanation_pl: Uprzejma prośba z could you.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.f46.speak.b1.02
+  lang: en
+  skill_ids:
+  - en.conv.ask_clarification
+  area: speaking
+  type: gap
+  cefr: B1
+  difficulty: 0.1
+  pools:
+  - practice
+  domain: conversation
+  prompt: Could you ___ what you mean by 'deadline'?
+  stimulus: null
+  options: null
+  answers:
+  - explain
+  - clarify
+  explanation_pl: 'Prosimy o wyjaśnienie: explain/clarify.'
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.f46.speak.b1.03
+  lang: en
+  skill_ids:
+  - en.conv.ask_clarification
+  area: speaking
+  type: reorder
+  cefr: B1
+  difficulty: 0.2
+  pools:
+  - practice
+  domain: conversation
+  prompt: 'Put the words in order: you / could / repeat / that / please'
+  stimulus: null
+  options: null
+  answers:
+  - Could you repeat that please
+  - Could you please repeat that
+  - Please could you repeat that
+  explanation_pl: Could you + bezokolicznik to grzeczna prośba.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: niezgodność z kluczem (sędzia niezwalidowany)'
+- id: en.f46.speak.b1.04
+  lang: en
+  skill_ids:
+  - en.conv.ask_clarification
+  area: speaking
+  type: transform
+  cefr: B1
+  difficulty: 0.0
+  pools:
+  - practice
+  domain: conversation
+  prompt: 'Make it a polite question with ''Could you'': Say it again.'
+  stimulus: null
+  options: null
+  answers:
+  - Could you say it again
+  - Could you say it again please
+  - Could you please say it again
+  explanation_pl: Could you + bezokolicznik.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.f46.speak.b1.05
+  lang: en
+  skill_ids:
+  - en.conv.ask_clarification
+  area: speaking
+  type: mc
+  cefr: B1
+  difficulty: 0.0
+  pools:
+  - retention
+  domain: conversation
+  prompt: You are not sure you understood. Which phrase checks your understanding?
+  stimulus: null
+  options:
+  - So, you mean the meeting is on Monday?
+  - I am not understanding.
+  - Nothing understand.
+  - Meeting Monday?
+  answers:
+  - So, you mean the meeting is on Monday?
+  explanation_pl: So, you mean… sprawdza zrozumienie.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.f46.speak.b1.06
+  lang: en
+  skill_ids:
+  - en.conv.ask_clarification
+  area: speaking
+  type: gap
+  cefr: B1
+  difficulty: 0.1
+  pools:
+  - retention
+  domain: conversation
+  prompt: Sorry, I didn't ___ that. Could you say it again?
+  stimulus: null
+  options: null
+  answers:
+  - catch
+  - get
+  - hear
+  - understand
+  - follow
+  explanation_pl: I didn't catch that = nie dosłyszałem.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.f46.speak.b1.07
+  lang: en
+  skill_ids:
+  - en.conv.ask_clarification
+  area: speaking
+  type: reorder
+  cefr: B1
+  difficulty: 0.2
+  pools:
+  - retention
+  domain: conversation
+  prompt: 'Put the words in order: do / you / what / mean / by / that'
+  stimulus: null
+  options: null
+  answers:
+  - What do you mean by that
+  explanation_pl: 'Pytanie: what + do you mean.'
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: niezgodność z kluczem (sędzia niezwalidowany)'
+- id: en.f46.speak.b1.08
+  lang: en
+  skill_ids:
+  - en.conv.agree_disagree
+  area: speaking
+  type: mc
+  cefr: B1
+  difficulty: 0.0
+  pools:
+  - practice
+  domain: conversation
+  prompt: 'A friend says: ''This film is great!'' You agree. Which reply is best?'
+  stimulus: null
+  options:
+  - I totally agree.
+  - I am agree.
+  - I agree with.
+  - Yes, I am agree with you.
+  answers:
+  - I totally agree.
+  explanation_pl: Po agree nie używamy am.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.f46.speak.b1.09
+  lang: en
+  skill_ids:
+  - en.conv.agree_disagree
+  area: speaking
+  type: gap
+  cefr: B1
+  difficulty: 0.1
+  pools:
+  - practice
+  domain: conversation
+  prompt: I'm afraid I don't ___ with you on that.
+  stimulus: null
+  options: null
+  answers:
+  - agree
+  explanation_pl: Don't agree with = nie zgadzam się z.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.f46.speak.b1.10
+  lang: en
+  skill_ids:
+  - en.conv.agree_disagree
+  area: speaking
+  type: reorder
+  cefr: B1
+  difficulty: 0.2
+  pools:
+  - practice
+  domain: conversation
+  prompt: 'Put the words in order: see / I / what / you / mean / but / disagree'
+  stimulus: null
+  options: null
+  answers:
+  - I see what you mean but I disagree
+  - I disagree but I see what you mean
+  explanation_pl: Najpierw uznaj punkt widzenia, potem się nie zgódź.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.f46.speak.b1.11
+  lang: en
+  skill_ids:
+  - en.conv.agree_disagree
+  area: speaking
+  type: translate_pl
+  cefr: B1
+  difficulty: 0.0
+  pools:
+  - practice
+  domain: conversation
+  prompt: 'Translate into English: "Zgadzam się z tobą."'
+  stimulus: null
+  options: null
+  answers:
+  - I agree with you
+  explanation_pl: Agree with + osoba.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.f46.speak.b1.12
+  lang: en
+  skill_ids:
+  - en.conv.agree_disagree
+  area: speaking
+  type: mc
+  cefr: B1
+  difficulty: 0.0
+  pools:
+  - retention
+  domain: conversation
+  prompt: You partly agree. What do you say?
+  stimulus: null
+  options:
+  - That's true, but I think it is too expensive.
+  - I am not agree.
+  - Yes no maybe.
+  - You wrong.
+  answers:
+  - That's true, but I think it is too expensive.
+  explanation_pl: That's true, but… łagodzi niezgodę.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.f46.speak.b1.13
+  lang: en
+  skill_ids:
+  - en.conv.agree_disagree
+  area: speaking
+  type: gap
+  cefr: B1
+  difficulty: 0.1
+  pools:
+  - retention
+  domain: conversation
+  prompt: That's a good ___, but I see it differently.
+  stimulus: null
+  options: null
+  answers:
+  - point
+  explanation_pl: Good point = dobra uwaga.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: niezgodność z kluczem (sędzia niezwalidowany)'
+- id: en.f46.speak.b1.14
+  lang: en
+  skill_ids:
+  - en.conv.agree_disagree
+  area: speaking
+  type: translate_pl
+  cefr: B1
+  difficulty: 0.2
+  pools:
+  - retention
+  domain: conversation
+  prompt: 'Translate into English: "Nie zgadzam się."'
+  stimulus: null
+  options: null
+  answers:
+  - I disagree
+  - I don't agree
+  - I do not agree
+  explanation_pl: I disagree / I don't agree.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'

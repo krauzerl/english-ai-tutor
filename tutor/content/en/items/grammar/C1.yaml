@@ -90,3 +90,219 @@
     reviewer: null
     reviewed_at: null
     notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka)'
+- id: en.f46.gram.c1.01
+  lang: en
+  skill_ids:
+  - en.gram.participle_clauses
+  area: grammar
+  type: transform
+  cefr: C1
+  difficulty: 0.4
+  pools:
+  - practice
+  domain: grammar
+  prompt: 'Combine using a participle clause: He opened the door. He saw a note on the floor.'
+  stimulus: null
+  options: null
+  answers:
+  - Opening the door he saw a note on the floor
+  explanation_pl: 'Dwie czynności jednego podmiotu: -ing + zdanie główne.'
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: niezgodność z kluczem (sędzia niezwalidowany)'
+- id: en.f46.gram.c1.02
+  lang: en
+  skill_ids:
+  - en.gram.participle_clauses
+  area: grammar
+  type: mc
+  cefr: C1
+  difficulty: 0.5
+  pools:
+  - practice
+  domain: grammar
+  prompt: ___ the instructions, Anna started the machine.
+  stimulus: null
+  options:
+  - Read
+  - Having read
+  - To read
+  - Reads
+  answers:
+  - Having read
+  explanation_pl: 'Having + III forma: czynność wcześniejsza.'
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.f46.gram.c1.03
+  lang: en
+  skill_ids:
+  - en.gram.participle_clauses
+  area: grammar
+  type: gap
+  cefr: C1
+  difficulty: 0.6
+  pools:
+  - practice
+  domain: grammar
+  prompt: ___ by the noise, the baby started to cry.
+  stimulus: null
+  options: null
+  answers:
+  - Frightened
+  - Scared
+  - Startled
+  - Woken
+  explanation_pl: Imiesłów bierny opisuje, co spotkało podmiot.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: niezgodność z kluczem (sędzia niezwalidowany)'
+- id: en.f46.gram.c1.04
+  lang: en
+  skill_ids:
+  - en.gram.participle_clauses
+  area: grammar
+  type: transform
+  cefr: C1
+  difficulty: 0.4
+  pools:
+  - practice
+  domain: grammar
+  prompt: 'Rewrite with a participle clause: Because he was tired, he went to bed early.'
+  stimulus: null
+  options: null
+  answers:
+  - Being tired he went to bed early
+  - Tired he went to bed early
+  explanation_pl: Przyczyna skrócona do imiesłowu.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: niezgodność z kluczem (sędzia niezwalidowany)'
+- id: en.f46.gram.c1.05
+  lang: en
+  skill_ids:
+  - en.gram.participle_clauses
+  area: grammar
+  type: mc
+  cefr: C1
+  difficulty: 0.4
+  pools:
+  - retention
+  domain: grammar
+  prompt: The man ___ next to me is my boss.
+  stimulus: null
+  options:
+  - sitting
+  - sits
+  - sit
+  - to sitting
+  answers:
+  - sitting
+  explanation_pl: Imiesłów czynny skraca zdanie względne.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: niezgodność z kluczem (sędzia niezwalidowany)'
+- id: en.f46.gram.c1.06
+  lang: en
+  skill_ids:
+  - en.gram.participle_clauses
+  area: grammar
+  type: gap
+  cefr: C1
+  difficulty: 0.5
+  pools:
+  - retention
+  domain: grammar
+  prompt: The documents ___ (send) yesterday are on your desk.
+  stimulus: null
+  options: null
+  answers:
+  - sent
+  explanation_pl: 'Imiesłów bierny: sent.'
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: niezgodność z kluczem (sędzia niezwalidowany)'
+- id: en.f46.gram.c1.07
+  lang: en
+  skill_ids:
+  - en.gram.participle_clauses
+  area: grammar
+  type: transform
+  cefr: C1
+  difficulty: 0.6
+  pools:
+  - retention
+  domain: grammar
+  prompt: 'Rewrite with a participle clause: She walked home, and she listened to music.'
+  stimulus: null
+  options: null
+  answers:
+  - She walked home listening to music
+  - Listening to music she walked home
+  explanation_pl: 'Równoległa czynność: listening.'
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: niezgodność z kluczem (sędzia niezwalidowany)'

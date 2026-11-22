@@ -1,0 +1,496 @@
+{
+ "meta": {
+  "n_cases": 130,
+  "n_reviewed": 0,
+  "reviewed_cases": 0,
+  "date": "2026-11-22",
+  "lt_version": "6.6",
+  "model": "SpeakLeash/bielik-11b-v2.3-instruct:Q4_K_M",
+  "resources": {
+   "lt_rss_mib": 663.64453125,
+   "vram_mib": 6970.0,
+   "lt_cpu_pct": 1.2569370191633353,
+   "ollama_rss_mib": 7401.05078125,
+   "wall_s": 1709.7117574199983,
+   "ttft": {
+    "baseline_s": 0.16851072766803554,
+    "after_lt_s": 0.5973703569992116,
+    "degradation": 2.544998975827968
+   }
+  },
+  "judge": {
+   "n": 11,
+   "agree_stored_key": 0,
+   "agree_human_key": 0,
+   "n_human_keys": 0,
+   "preliminary": true,
+   "items": [
+    {
+     "item": "en.pilot.gram.a1.03",
+     "answer": "I have one apple and a banana.",
+     "agrees_stored_key": false,
+     "agrees_human_key": null,
+     "lt_flags_key": false,
+     "lt_flags_distractors": []
+    },
+    {
+     "item": "en.pilot.gram.a2.01",
+     "answer": "released",
+     "agrees_stored_key": false,
+     "agrees_human_key": null,
+     "lt_flags_key": false,
+     "lt_flags_distractors": []
+    },
+    {
+     "item": "en.pilot.gram.b1.01",
+     "answer": "already merged",
+     "agrees_stored_key": false,
+     "agrees_human_key": null,
+     "lt_flags_key": false,
+     "lt_flags_distractors": []
+    },
+    {
+     "item": "en.pilot.gram.b1.02",
+     "answer": "will rain",
+     "agrees_stored_key": false,
+     "agrees_human_key": null,
+     "lt_flags_key": false,
+     "lt_flags_distractors": [
+      true,
+      false,
+      false
+     ]
+    },
+    {
+     "item": "en.pilot.gram.b2.01",
+     "answer": "accepted",
+     "agrees_stored_key": false,
+     "agrees_human_key": null,
+     "lt_flags_key": false,
+     "lt_flags_distractors": [
+      false,
+      true,
+      false
+     ]
+    },
+    {
+     "item": "en.pilot.gram.c1.01",
+     "answer": "they met",
+     "agrees_stored_key": false,
+     "agrees_human_key": null,
+     "lt_flags_key": false,
+     "lt_flags_distractors": [
+      false,
+      false,
+      true
+     ]
+    },
+    {
+     "item": "en.pilot.gram.c1.02",
+     "answer": "to have",
+     "agrees_stored_key": false,
+     "agrees_human_key": null,
+     "lt_flags_key": false,
+     "lt_flags_distractors": []
+    },
+    {
+     "item": "en.pilot.listen.a1.02",
+     "answer": "At 8:15",
+     "agrees_stored_key": false,
+     "agrees_human_key": null,
+     "lt_flags_key": null,
+     "lt_flags_distractors": null
+    },
+    {
+     "item": "en.pilot.read.a1.01",
+     "answer": "On Sunday",
+     "agrees_stored_key": false,
+     "agrees_human_key": null,
+     "lt_flags_key": null,
+     "lt_flags_distractors": null
+    },
+    {
+     "item": "en.pilot.vocab.a1.02",
+     "answer": "Wednesday",
+     "agrees_stored_key": false,
+     "agrees_human_key": null,
+     "lt_flags_key": null,
+     "lt_flags_distractors": null
+    },
+    {
+     "item": "en.pilot.vocab.b2.03",
+     "answer": "point",
+     "agrees_stored_key": false,
+     "agrees_human_key": null,
+     "lt_flags_key": null,
+     "lt_flags_distractors": null
+    }
+   ]
+  }
+ },
+ "systems": {
+  "A": {
+   "score": {
+    "cases": 130,
+    "unrated": 1,
+    "reports": 83,
+    "tp": 64,
+    "gold": 74,
+    "precision": 0.7710843373493976,
+    "precision_ci": [
+     0.6699173072434109,
+     0.8482675258319817
+    ],
+    "recall": 0.8648648648648649,
+    "recall_ci": [
+     0.768806149375471,
+     0.9249103209951277
+    ],
+    "fpr": {
+     "C1": 0.32,
+     "C2": 0.26666666666666666,
+     "C3": 0.0,
+     "S": 0.0,
+     "D": 0.0
+    },
+    "fpr_c123": 0.24,
+    "n_c123": 50,
+    "bre_ame_acceptance": 0.7333333333333334,
+    "stt_clean": 1.0,
+    "disfluency_clean": 1.0,
+    "correction_accuracy": 0.53125,
+    "meaning_guard_fail": 3,
+    "meaning_human": null,
+    "category_agreement": 0.515625,
+    "explanation_human": null,
+    "suggestions_p_l": 0,
+    "per_category": {
+     "agreement": {
+      "reports": 7,
+      "hits": 6,
+      "precision": 0.8571428571428571
+     },
+     "article": {
+      "reports": 6,
+      "hits": 6,
+      "precision": 1.0
+     },
+     "morphology": {
+      "reports": 4,
+      "hits": 4,
+      "precision": 1.0
+     },
+     "omission": {
+      "reports": 14,
+      "hits": 11,
+      "precision": 0.7857142857142857
+     },
+     "preposition": {
+      "reports": 8,
+      "hits": 8,
+      "precision": 1.0
+     },
+     "punctuation": {
+      "reports": 1,
+      "hits": 1,
+      "precision": 1.0
+     },
+     "tense": {
+      "reports": 33,
+      "hits": 22,
+      "precision": 0.6666666666666666
+     },
+     "word_choice": {
+      "reports": 5,
+      "hits": 2,
+      "precision": 0.4
+     },
+     "word_order": {
+      "reports": 5,
+      "hits": 4,
+      "precision": 0.8
+     }
+    },
+    "latency_ms": {
+     "lt_p50": null,
+     "lt_p95": null,
+     "queue_p50_s": 10.78043397700094,
+     "queue_p95_s": 20.701892492998013
+    }
+   },
+   "gate": {
+    "checks": {
+     "precision>=0.80": false,
+     "precision_wilson_low>=0.70": false,
+     "recall>=0.5": true,
+     "recall_wilson_low>=0.4": true,
+     "reports>=10": true,
+     "fpr_c123<0.10": false,
+     "fpr_c2<0.10": false,
+     "stt_clean>=0.95": true,
+     "disfluency_clean==1": true,
+     "correction>=0.85": false,
+     "category_agreement>=0.85": false,
+     "meaning_human>=0.95": false,
+     "explanation_human>=4": false,
+     "queue_p95<=6s": false
+    },
+    "failed": [
+     "precision>=0.80",
+     "precision_wilson_low>=0.70",
+     "fpr_c123<0.10",
+     "fpr_c2<0.10",
+     "correction>=0.85",
+     "category_agreement>=0.85",
+     "meaning_human>=0.95",
+     "explanation_human>=4",
+     "queue_p95<=6s"
+    ],
+    "blockers": [
+     "zrecenzowanych przypadków 0 < 100",
+     "zrecenzowanych spanów złotych 0 < 50"
+    ],
+    "eligible": false
+   },
+   "recommend": {
+    "preposition": {
+     "reports": 8,
+     "hits": 8,
+     "precision": 1.0
+    }
+   }
+  },
+  "B": {
+   "score": {
+    "cases": 130,
+    "unrated": 0,
+    "reports": 21,
+    "tp": 20,
+    "gold": 76,
+    "precision": 0.9523809523809523,
+    "precision_ci": [
+     0.7733018341376452,
+     0.9915442305280766
+    ],
+    "recall": 0.2631578947368421,
+    "recall_ci": [
+     0.1772926637089946,
+     0.371814568610999
+    ],
+    "fpr": {
+     "C1": 0.0,
+     "C2": 0.0,
+     "C3": 0.0,
+     "S": 0.0,
+     "D": 0.0
+    },
+    "fpr_c123": 0.0,
+    "n_c123": 50,
+    "bre_ame_acceptance": 1.0,
+    "stt_clean": 1.0,
+    "disfluency_clean": 1.0,
+    "correction_accuracy": 0.9,
+    "meaning_guard_fail": 0,
+    "meaning_human": null,
+    "category_agreement": 0.3,
+    "explanation_human": null,
+    "suggestions_p_l": 0,
+    "per_category": {
+     "agreement": {
+      "reports": 5,
+      "hits": 5,
+      "precision": 1.0
+     },
+     "collocation": {
+      "reports": 5,
+      "hits": 5,
+      "precision": 1.0
+     },
+     "morphology": {
+      "reports": 2,
+      "hits": 2,
+      "precision": 1.0
+     },
+     "spelling": {
+      "reports": 5,
+      "hits": 4,
+      "precision": 0.8
+     },
+     "word_choice": {
+      "reports": 4,
+      "hits": 4,
+      "precision": 1.0
+     }
+    },
+    "latency_ms": {
+     "lt_p50": 26.834111002244754,
+     "lt_p95": 35.05107599994517,
+     "queue_p50_s": 0.027122826999402605,
+     "queue_p95_s": 0.03523259999928996
+    }
+   },
+   "gate": {
+    "checks": {
+     "precision>=0.80": true,
+     "precision_wilson_low>=0.70": true,
+     "recall>=0.5": false,
+     "recall_wilson_low>=0.4": false,
+     "reports>=10": true,
+     "fpr_c123<0.10": true,
+     "fpr_c2<0.10": true,
+     "stt_clean>=0.95": true,
+     "disfluency_clean==1": true,
+     "correction>=0.85": true,
+     "category_agreement>=0.85": false,
+     "meaning_human>=0.95": false,
+     "explanation_human>=4": false,
+     "queue_p95<=6s": true
+    },
+    "failed": [
+     "recall>=0.5",
+     "recall_wilson_low>=0.4",
+     "category_agreement>=0.85",
+     "meaning_human>=0.95",
+     "explanation_human>=4"
+    ],
+    "blockers": [
+     "zrecenzowanych przypadków 0 < 100",
+     "zrecenzowanych spanów złotych 0 < 50"
+    ],
+    "eligible": false
+   },
+   "recommend": {}
+  },
+  "C": {
+   "score": {
+    "cases": 130,
+    "unrated": 1,
+    "reports": 83,
+    "tp": 64,
+    "gold": 74,
+    "precision": 0.7710843373493976,
+    "precision_ci": [
+     0.6699173072434109,
+     0.8482675258319817
+    ],
+    "recall": 0.8648648648648649,
+    "recall_ci": [
+     0.768806149375471,
+     0.9249103209951277
+    ],
+    "fpr": {
+     "C1": 0.32,
+     "C2": 0.26666666666666666,
+     "C3": 0.0,
+     "S": 0.0,
+     "D": 0.0
+    },
+    "fpr_c123": 0.24,
+    "n_c123": 50,
+    "bre_ame_acceptance": 0.7333333333333334,
+    "stt_clean": 1.0,
+    "disfluency_clean": 1.0,
+    "correction_accuracy": 0.53125,
+    "meaning_guard_fail": 3,
+    "meaning_human": null,
+    "category_agreement": 0.515625,
+    "explanation_human": null,
+    "suggestions_p_l": 0,
+    "per_category": {
+     "agreement": {
+      "reports": 7,
+      "hits": 6,
+      "precision": 0.8571428571428571
+     },
+     "article": {
+      "reports": 6,
+      "hits": 6,
+      "precision": 1.0
+     },
+     "morphology": {
+      "reports": 4,
+      "hits": 4,
+      "precision": 1.0
+     },
+     "omission": {
+      "reports": 14,
+      "hits": 11,
+      "precision": 0.7857142857142857
+     },
+     "preposition": {
+      "reports": 8,
+      "hits": 8,
+      "precision": 1.0
+     },
+     "punctuation": {
+      "reports": 1,
+      "hits": 1,
+      "precision": 1.0
+     },
+     "tense": {
+      "reports": 33,
+      "hits": 22,
+      "precision": 0.6666666666666666
+     },
+     "word_choice": {
+      "reports": 5,
+      "hits": 2,
+      "precision": 0.4
+     },
+     "word_order": {
+      "reports": 5,
+      "hits": 4,
+      "precision": 0.8
+     }
+    },
+    "latency_ms": {
+     "lt_p50": 20.887283000774914,
+     "lt_p95": 22.814141000708332,
+     "queue_p50_s": 10.803131147000386,
+     "queue_p95_s": 20.725351724995562
+    }
+   },
+   "gate": {
+    "checks": {
+     "precision>=0.80": false,
+     "precision_wilson_low>=0.70": false,
+     "recall>=0.5": true,
+     "recall_wilson_low>=0.4": true,
+     "reports>=10": true,
+     "fpr_c123<0.10": false,
+     "fpr_c2<0.10": false,
+     "stt_clean>=0.95": true,
+     "disfluency_clean==1": true,
+     "correction>=0.85": false,
+     "category_agreement>=0.85": false,
+     "meaning_human>=0.95": false,
+     "explanation_human>=4": false,
+     "queue_p95<=6s": false
+    },
+    "failed": [
+     "precision>=0.80",
+     "precision_wilson_low>=0.70",
+     "fpr_c123<0.10",
+     "fpr_c2<0.10",
+     "correction>=0.85",
+     "category_agreement>=0.85",
+     "meaning_human>=0.95",
+     "explanation_human>=4",
+     "queue_p95<=6s"
+    ],
+    "blockers": [
+     "zrecenzowanych przypadków 0 < 100",
+     "zrecenzowanych spanów złotych 0 < 50"
+    ],
+    "eligible": false
+   },
+   "recommend": {
+    "preposition": {
+     "reports": 8,
+     "hits": 8,
+     "precision": 1.0
+    }
+   }
+  }
+ }
+}

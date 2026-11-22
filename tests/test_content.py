@@ -30,12 +30,14 @@ def tmp_root(tmp_path):
 def test_content_validates_clean():  # DoD F3
     rep = C.validate("en")
     assert rep.ok, rep.errors
-    assert rep.n_skills >= 80 and rep.n_items == 60
+    assert rep.n_skills >= 80 and rep.n_items == 60 + 84   # F3 + pilotaż F4.6 (84)
 
 
 def test_content_1_items_schema_and_pilot_shape(pack):  # T-CONTENT-1
     cells = {}
     for i in pack.items.values():
+        if i.id.startswith("en.f46."):   # pilotaż F4.6 ma własny test (T-CONTENT-7)
+            continue
         assert i.skill_ids and all(s in pack.skills for s in i.skill_ids)
         assert i.review.status in C.STATUSES and i.answers
         cells[(i.area, i.cefr)] = cells.get((i.area, i.cefr), 0) + 1

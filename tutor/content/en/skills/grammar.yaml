@@ -256,6 +256,7 @@
   can_do_pl: Opisuję czynności bez wskazywania sprawcy (is made, was built).
   prereqs: [en.gram.past_simple_regular]
   error_categories: [morphology, tense]
+  explanation_ref: grammar/passive_basic.md
 - id: en.gram.relative_defining
   lang: en
   domain: grammar

@@ -1,0 +1,7 @@
+# Pseudosłowa do testu rozpoznawania (07 §3.3): brzmią jak angielskie, nie są słowami. AI-draft —
+# do czasu recenzji człowieka (`review.status: human_reviewed`) wynik testu jest oznaczany jako wstępny.
+review: {status: draft, reviewer: null, reviewed_at: null}
+provenance: {source: ai_generated, model: claude-sonnet-5-5, prompt_version: null, created_at: 2026-11-22}
+words: [blorent, trandish, glimpord, snarvel, quistle, frumble, dorvish, plenket, skorvane, wimbrel,
+        crontle, vashing, thornick, brevoid, lunkarp, mistrop, grelver, padwick, olverant, sniffern,
+        tarvoce, quelbit, jandrel, fosterne, brindack, yolphen, narcelle, spodgen, truvane, ulmerick]

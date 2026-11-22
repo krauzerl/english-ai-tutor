@@ -1,0 +1,64 @@
+# Rejestr źródeł otwartych (07 §1.1). Tylko metadane i lokalizacje — bez tekstów źródeł.
+# sha256 = plik, z którego robiono ekstrakt (lokalna biblioteka poza Git). SUP_lemmatized.csv celowo nieobecny.
+sources:
+  - id: esol
+    title: "A Digital Workbook for Beginning ESOL (2018)"
+    authors: "Eric Dodson, Davida Jordan, Tim Krause"
+    url: "https://openoregon.pressbooks.pub/esol23/"
+    license: CC-BY-4.0
+    sha256: 187c938194a20d4b8e85810ac7452e8929ddbd8401602b5f818fdb174516789e
+    note: "XHTML Pressbooks. Osadzone wideo i H5P pomijane przez ekstraktor."
+  - id: greentea
+    title: "Green Tea Intermediate English Communication OER (2020)"
+    authors: "Eric Dodson, Luciana Diniz, Nanci Leiton"
+    url: "https://openoregon.pressbooks.pub/greentea/"
+    license: CC-BY-4.0
+    sha256: f578e38f5a45fa58604b49ce83bf3e488bc2a7fa546d4d50e69320e98477a02e
+    note: "XHTML Pressbooks. Wideo i aktywności H5P pomijane."
+  - id: twe
+    title: "Technical Writing Essentials (2019)"
+    authors: "Suzan Last"
+    url: "https://pressbooks.bccampus.ca/technicalwriting/"
+    license: CC-BY-4.0
+    sha256: dcd16966a67386415c6327c4a1a4f732340c16d1dab309d992ea2fba5aead702
+    exclude: ["S.1", "fig-1.5.1", "fig-3.4.1", "fig-3.4.2", "fig-5.2.1", "fig-5.2.2", "fig-5.3.1", "fig-7.4.1"]
+    note: "Wyjątki „noncommercial, educational use only” (fragment Wells S.1 i ryciny) — nieużywane. Import z PDF (strona za Cloudflare)."
+  - id: brehe
+    title: "Brehe's Grammar Anatomy (v2)"
+    authors: "Steven Brehe; University System of Georgia / University of North Georgia Press"
+    url: "https://ung.edu/university-press/books/brehes-grammar-anatomy.php"
+    license: CC-BY-SA-4.0
+    sha256: c6915fe0b7d6e789d6250ca1bc1f52cbffed0a1a46f598425a3fe4ced5398983
+    note: "Licencja wg strony redakcyjnej PDF (strona UNG jej nie podaje). Tylko tekst autora; obrazy i włączone treści obce pominięte."
+  - id: ngsl
+    title: "New General Service List 1.2"
+    authors: "Charles Browne, Brent Culligan, Joseph Phillips"
+    url: "https://www.newgeneralservicelist.com/"
+    license: CC-BY-SA-4.0
+  - id: ngsl_s
+    title: "NGSL-Spoken 1.2"
+    authors: "Charles Browne, Brent Culligan"
+    url: "https://www.newgeneralservicelist.com/ngsl-spoken"
+    license: CC-BY-SA-4.0
+map:   # skill_id -> [{src, loc}] (tylko lokalizacje; pilotaż F4.6/C3)
+  en.gram.to_be_present:
+  - {src: esol, loc: chapter-slug-4.1}
+  en.gram.present_simple:
+  - {src: esol, loc: chapter-do-does-questions.1}
+  en.gram.articles_basic:
+  - {src: esol, loc: chapter-articles-indefinite-and-definite.1}
+  - {src: brehe, loc: p43.1}
+  en.vocab.daily_routine:
+  - {src: esol, loc: chapter-slug-9.1}
+  en.gram.past_simple_regular:
+  - {src: esol, loc: chapter-slug-2-3.1}
+  en.gram.present_perfect:
+  - {src: brehe, loc: p31.1}
+  en.gram.passive_basic:
+  - {src: brehe, loc: p172.1}
+  - {src: twe, loc: p244.1}
+  en.tech.incident_report:
+  - {src: twe, loc: p233.1}
+  en.gram.participle_clauses:
+  - {src: brehe, loc: p299.1}
+

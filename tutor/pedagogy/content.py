@@ -72,11 +72,19 @@ class Skill(_M):
         return self
 
 
+class SourceRef(_M):
+    """Odwołanie do źródła otwartego (07 §2.1): tylko lokalizacja, bez tekstu."""
+    src: str
+    loc: str
+    sha: str | None = None
+
+
 class Provenance(_M):
-    source: Literal["ai_generated", "human"]
+    source: Literal["ai_generated", "ai_adapted", "human"]
     model: str | None = None
     prompt_version: str | None = None
     created_at: str | None = None
+    refs: list[SourceRef] = []
 
     @model_validator(mode="before")
     @classmethod
@@ -123,6 +131,7 @@ class Item(_M):
     answers: list[str] | None = None
     explanation_pl: str | None = None
     audio_text: str | None = None        # listening: tekst dla TTS
+    license: str | None = None           # wymagane przy provenance.refs (07 §1.3)
     provenance: Provenance
     review: Review
 
@@ -189,8 +198,42 @@ class Scenario(_M):
     goal: str
     success_criteria: list[Criterion] = Field(min_length=3, max_length=5)
     target_skill_ids: list[str] = []
+    license: str | None = None
     provenance: Provenance
     review: Review
+
+
+class Phrase(_M):
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+    id: str
+    text: str = Field(min_length=3)
+    pattern: str | None = None            # detekcja użycia (regex), opcjonalnie
+    kind: Literal["phrase", "collocation", "chunk"]
+    skill_ids: list[str] = Field(min_length=1)
+    register_: Literal["informal", "neutral", "formal"] = Field("neutral", alias="register")
+    variety: Literal["both", "BrE", "AmE"] = "both"
+    gloss_pl: str
+    lemmas: list[str] = []
+    license: str | None = None
+    provenance: Provenance
+    review: Review
+
+    @model_validator(mode="after")
+    def _pat(self):
+        if self.pattern:
+            try:
+                re.compile(self.pattern)
+            except re.error as e:
+                raise ValueError(f"pattern: {e}") from e
+        return self
+
+
+class Explanation(_M):
+    """Front matter wyjaśnienia `grammar/*.md`. `structure: v2` włącza walidację sekcji (07 §2.2)."""
+    provenance: Provenance
+    review: Review
+    license: str | None = None
+    structure: Literal["v2"] | None = None
 
 
 class Reviewer(_M):
@@ -200,6 +243,44 @@ class Reviewer(_M):
 
 class Reviewers(_M):
     reviewers: list[Reviewer] = []
+
+
+class LtRule(_M):
+    category: str | None
+    trust: Literal["h", "m", "l"]
+    voice: bool = True
+    severity: int = Field(1, ge=1, le=3)
+
+
+class LtMap(_M):
+    lt_map_version: str
+    lt_version_tested: str | None = None
+    rules: dict[str, LtRule] = {}
+    categories: dict[str, LtRule] = {}
+    ignore_categories: list[str] = []
+
+
+class Source(_M):
+    id: str
+    title: str
+    authors: str
+    url: str
+    license: str
+    sha256: str | None = None
+    exclude: list[str] = []      # loc (prefiks) wykluczone z importu: wyjątki licencyjne, media
+    note: str | None = None
+
+    @property
+    def share_alike(self) -> bool:
+        return "-SA-" in self.license
+
+
+class Sources(_M):
+    sources: list[Source] = []
+    map: dict[str, list[SourceRef]] = {}   # skill_id -> lokalizacje (bez tekstu)
+
+    def by_id(self) -> dict[str, Source]:
+        return {s.id: s for s in self.sources}
 
 
 class _Bkt(_M):
@@ -230,6 +311,84 @@ class Rubric(_M):
     planner: dict[str, Any]
     report: dict[str, Any]
     limits: dict[str, Any]
+    vocab: dict[str, Any] = {}
+
+
+@dataclass(frozen=True)
+class VocabEntry:
+    lemma: str
+    forms: tuple[str, ...]
+    variants: tuple[tuple[str, str], ...]
+    definition_en: str
+    homograph: bool
+    rank: int | None
+    freq_band: int | None
+    spoken: bool | None
+    cefr: str
+    gloss_pl: str
+
+
+_VOCAB_CACHE: dict[Path, dict[str, VocabEntry]] = {}
+
+
+def load_vocab(root: Path | None = None, lang: str = "en") -> dict[str, VocabEntry]:
+    """Lista słownictwa `vocab/ngsl.csv` (lazy, z pamięcią podręczną). Brak pliku = pusta."""
+    import csv
+    path = (root or content_root()) / lang / "vocab" / "ngsl.csv"
+    if path not in _VOCAB_CACHE:
+        out: dict[str, VocabEntry] = {}
+        if path.exists():
+            with path.open(encoding="utf-8", newline="") as f:
+                for r in csv.DictReader(ln for ln in f if not ln.startswith("#")):
+                    out[r["lemma"]] = VocabEntry(
+                        r["lemma"], tuple(r["forms"].split("|")),
+                        tuple(tuple(p.split("|")) for p in r["variants"].split(";") if p),  # type: ignore[misc]
+                        r["definition_en"], r["homograph"] == "1", int(r["rank"]) if r["rank"] else None,
+                        int(r["freq_band"]) if r["freq_band"] else None,
+                        None if r["spoken"] == "" else r["spoken"] == "1", r["cefr"], r["gloss_pl"])
+        _VOCAB_CACHE[path] = out
+    return _VOCAB_CACHE[path]
+
+
+def load_pseudowords(root: Path | None = None, lang: str = "en") -> tuple[list[str], bool]:
+    """(pseudosłowa, czy zrecenzowane przez człowieka). Brak pliku = ([], False)."""
+    p = (root or content_root()) / lang / "vocab" / "pseudowords.yaml"
+    if not p.exists():
+        return [], False
+    d = yaml.safe_load(p.read_text(encoding="utf-8"))
+    return list(d["words"]), (d.get("review") or {}).get("status") == "human_reviewed"
+
+
+def vocab_forms(entry: VocabEntry, variants: Variants | None = None) -> set[str]:
+    """Wszystkie formy lematu do detekcji użycia: `forms` (w tym BrE) + grupy z `variants.yaml`."""
+    forms = {f.lower() for f in entry.forms}
+    for g in (variants.groups if variants else []):
+        gf = {norm_answer(f) for f in g.forms}
+        if forms & gf:
+            forms |= gf
+    return forms
+
+
+def _check_vocab(root: Path, lang: str, rep: Report) -> None:
+    import csv
+    path = root / lang / "vocab" / "ngsl.csv"
+    if not path.exists():
+        return
+    with path.open(encoding="utf-8", newline="") as f:
+        rows = list(csv.DictReader(ln for ln in f if not ln.startswith("#")))
+    lem = [r["lemma"] for r in rows]
+    if len(lem) != 2809 or len(set(lem)) != 2809:
+        rep.errors.append(f"vocab/ngsl.csv: oczekiwano 2809 unikalnych lematów, jest {len(lem)}/{len(set(lem))}")
+    ranks = [r["rank"] for r in rows if r["rank"]]
+    if len(ranks) != len(set(ranks)):
+        rep.errors.append("vocab/ngsl.csv: rank nie jest unikalny")
+    if any(r["cefr"] for r in rows):
+        rep.errors.append("vocab/ngsl.csv: cefr musi być puste (częstość ≠ poziom CEFR)")
+    forms = {f for r in rows for f in r["forms"].split("|")}
+    if clash := sorted(set(load_pseudowords(root, lang)[0]) & forms):
+        rep.errors.append(f"vocab/pseudowords.yaml: pseudosłowa będące słowami NGSL: {clash}")
+    if any(not r["definition_en"] and r["lemma"] != "email" for r in rows):
+        rep.errors.append("vocab/ngsl.csv: brak definicji (poza znaną luką źródła)")
 
 
 @dataclass
@@ -266,6 +425,10 @@ class Pack:
     reviewers: Reviewers
     prompts: dict[str, dict[str, str]]  # name -> {version, text}
     item_files: dict[str, tuple[Path, int]] = field(default_factory=dict)  # id -> (plik, nr linii)
+    sources: Sources = field(default_factory=Sources)
+    phrases: dict[str, Phrase] = field(default_factory=dict)
+    explanations: dict[str, Explanation] = field(default_factory=dict)   # "grammar/x.md" -> front matter
+    lt_map: LtMap | None = None
 
 
 # --- czytanie YAML z numerami linii ---
@@ -367,6 +530,15 @@ def _load_pack(lang: str, root: Path, rep: Report) -> Pack:
     disf = one(Disfluency, "disfluency.yaml") or Disfluency(fillers=[])
     rubric = one(Rubric, "rubric.yaml")
     reviewers = one(Reviewers, "reviewers.yaml", Reviewers())
+    ltmap = one(LtMap, "lt_map.yaml", None) if (base / "lt_map.yaml").exists() else None
+    phrases = lst(Phrase, base / "phrases.yaml", "phrases")
+    explanations: dict[str, Explanation] = {}
+    for f in sorted((base / "grammar").glob("*.md")):
+        meta, _ = _split_front(f.read_text(encoding="utf-8"))
+        ex = _model(Explanation, meta, f"grammar/{f.name}", rep) if meta else None
+        if ex:
+            explanations[f"grammar/{f.name}"] = ex
+    sources = one(Sources, "sources.yaml", Sources()) if (base / "sources.yaml").exists() else Sources()
 
     scenarios = {}
     for f in sorted((base / "scenarios").glob("*.yaml")):
@@ -389,7 +561,7 @@ def _load_pack(lang: str, root: Path, rep: Report) -> Pack:
         prompts[name] = {"version": ver, "text": body}
 
     return Pack(lang, base, skills, items, errors, variants, confus, disf, rubric, scenarios, reviewers,
-                prompts, item_files)  # type: ignore[arg-type]
+                prompts, item_files, sources, phrases, explanations, ltmap)  # type: ignore[arg-type]
 
 
 # --- graf prerekwizytów ---
@@ -505,6 +677,70 @@ def retention_gaps(pack: Pack, need: int, need_productive: int) -> list[str]:
                   if len(by_skill[s]) < need or sum(i.productive for i in by_skill[s]) < need_productive)
 
 
+def retention_pool_status(pack: Pack, need: int, need_productive: int) -> dict[str, dict]:
+    """Rozróżnienie puli retention ISTNIEJĄCEJ (zadania z `retention` w dowolnym statusie poza rejected/suspect)
+    od DOPUSZCZONEJ do sprawdzania trwałości (`human_reviewed`, jedyna, z której korzysta `retention.pick_items`).
+    `ready` = pula dopuszczona kompletna; sama obecność zadań w puli NIE oznacza gotowości."""
+    out: dict[str, dict] = {}
+    for sid in pack.skills:
+        ex = [i for i in pack.items.values() if "retention" in i.pools and sid in i.skill_ids
+              and i.review.status not in ("rejected", "suspect")]
+        ad = [i for i in ex if i.review.status == "human_reviewed"]
+        out[sid] = {"existing": len(ex), "existing_productive": sum(i.productive for i in ex),
+                    "admitted": len(ad), "admitted_productive": sum(i.productive for i in ad),
+                    "ready": len(ad) >= need and sum(i.productive for i in ad) >= need_productive}
+    return out
+
+
+def usable_phrase(p: Phrase, allow_unreviewed_practice: bool) -> bool:
+    """Zwroty trafiają do kart `construction` i celów rozmowy jak zadania `practice` (draft nigdy)."""
+    return p.review.status == "human_reviewed" or (p.review.status == "ai_checked" and allow_unreviewed_practice)
+
+
+_MD_SECTIONS = ["Zasada", "Formy", "Poprawnie", "Błędnie → poprawnie", "Typowe błędy Polaków"]
+_PAIR = re.compile(r"^- (.+?) → (.+?) \[([a-z_.0-9]+)\]$")
+_PLERR = re.compile(r"^- `([a-z_.0-9]+)`")
+
+
+def check_explanation_md(text: str, cat_ids: set[str], where: str, rep: Report, has_refs: bool) -> None:
+    """07 §2.2: sekcje stałe, ≥ 4 zdania poprawne, ≥ 4 pary błędnie → poprawnie z istniejącą kategorią,
+    ≥ 2 typowe błędy Polaków z kategorią. `BrE/AmE` opcjonalne (gdy jest, nie może być puste); `Źródła` przy refs."""
+    _, body = _split_front(text)
+    secs: dict[str, list[str]] = {}
+    cur = None
+    for ln in body.splitlines():
+        if m := re.match(r"## (.+?)\s*$", ln):
+            cur = m.group(1)
+            secs[cur] = []
+        elif cur and ln.strip():
+            secs[cur].append(ln.rstrip())
+    for need in _MD_SECTIONS + (["Źródła"] if has_refs else []):
+        if need not in secs:
+            rep.errors.append(f"{where}: brak sekcji „{need}”")
+    if "BrE/AmE" in secs and not secs["BrE/AmE"]:
+        rep.errors.append(f"{where}: pusta sekcja BrE/AmE")
+    if sum(1 for x in secs.get("Poprawnie", []) if x.startswith("- ")) < 4:
+        rep.errors.append(f"{where}: sekcja Poprawnie wymaga ≥ 4 zdań")
+    pairs = [x for x in secs.get("Błędnie → poprawnie", []) if x.startswith("- ")]
+    ok = 0
+    for x in pairs:
+        m = _PAIR.match(x)
+        if not m:
+            rep.errors.append(f"{where}: para w złym formacie: {x[:50]}")
+        elif norm(m.group(1)) == norm(m.group(2)):
+            rep.errors.append(f"{where}: para błędna identyczna z poprawną: {x[:50]}")
+        elif m.group(3) not in cat_ids:
+            rep.errors.append(f"{where}: nieznana kategoria błędu {m.group(3)}")
+        else:
+            ok += 1
+    if ok < 4:
+        rep.errors.append(f"{where}: wymagane ≥ 4 poprawne pary błędnie → poprawnie (jest {ok})")
+    pl = [x for x in secs.get("Typowe błędy Polaków", []) if x.startswith("- ")]
+    good = [x for x in pl if (m := _PLERR.match(x)) and m.group(1) in cat_ids]
+    if len(good) < 2 or len(good) != len(pl):
+        rep.errors.append(f"{where}: Typowe błędy Polaków: ≥ 2 wpisy, każdy z `kategorią` z errors.yaml")
+
+
 # --- walidacja ---
 def _check_item(it: Item, pack: Pack, rep: Report, where: str) -> None:
     def err(msg):
@@ -546,7 +782,7 @@ def _check_item(it: Item, pack: Pack, rep: Report, where: str) -> None:
             err("human_reviewed: reviewer spoza reviewers.yaml")
     elif it.review.status in ("draft", "ai_checked") and (it.review.reviewer or it.review.reviewed_at):
         err("draft/ai_checked nie mogą mieć reviewer/reviewed_at (to pola decyzji człowieka)")
-    if it.provenance.source == "ai_generated" and not it.provenance.prompt_version:
+    if it.provenance.source in ("ai_generated", "ai_adapted") and not it.provenance.prompt_version:
         err("ai_generated wymaga prompt_version")
     text = " ".join(filter(None, [it.prompt, it.stimulus, it.audio_text, *(it.options or []), *(it.answers or [])]))
     if _PII.search(text):
@@ -556,12 +792,79 @@ def _check_item(it: Item, pack: Pack, rep: Report, where: str) -> None:
         err(f"prompt dłuższy niż {lim} słów dla {it.cefr}")
 
 
-def validate(lang: str, root: Path | None = None) -> Report:
-    pack, rep = _collect(lang, root)
+def _check_refs(obj, where: str, pack: Pack, rep: Report) -> None:
+    """T-SRC-1/2/4: refs istnieją, nie wskazują wykluczeń, licencja i ShareAlike, ai_adapted + human."""
+    refs = obj.provenance.refs
+    srcs = pack.sources.by_id()
+    for r in refs:
+        s = srcs.get(r.src)
+        if s is None:
+            rep.errors.append(f"{where}: refs.src „{r.src}” nie istnieje w sources.yaml")
+            continue
+        if any(r.loc == x or r.loc.startswith(x + ".") for x in s.exclude):
+            rep.errors.append(f"{where}: refs.loc „{r.loc}” wskazuje wykluczoną sekcję źródła {r.src}")
+        if r.sha and s.sha256 and r.sha != s.sha256:
+            rep.warnings.append(f"{where}: źródło {r.src} zmienione (sha), przejrzyj odwołanie")
+    if refs:
+        if not obj.license:
+            rep.errors.append(f"{where}: refs bez license")
+        elif any(srcs[r.src].share_alike for r in refs if r.src in srcs) and obj.license != "CC-BY-SA-4.0":
+            rep.errors.append(f"{where}: źródło ShareAlike wymaga license CC-BY-SA-4.0")
+
+
+_WORD = re.compile(r"[\w']+")
+
+
+def shared_run(text: str, fragments: list[str], n: int = 12) -> str | None:
+    """Pierwsze ≥ n kolejnych słów wspólnych z którymś fragmentem źródła (T-SRC-3) albo None."""
+    words = [w.lower() for w in _WORD.findall(text.replace("’", "'"))]
+    if len(words) < n:
+        return None
+    grams = {" ".join(words[i:i + n]) for i in range(len(words) - n + 1)}
+    for fr in fragments:
+        fw = [w.lower() for w in _WORD.findall(fr.replace("’", "'"))]
+        for i in range(len(fw) - n + 1):
+            g = " ".join(fw[i:i + n])
+            if g in grams:
+                return g
+    return None
+
+
+def load_extracts(src: str, extracted_dir: Path | None) -> list[str] | None:
+    """Fragmenty ekstraktu źródła z lokalnej biblioteki; None = brak (CI bez źródeł)."""
+    import json
+    if extracted_dir is None:
+        return None
+    p = extracted_dir / f"{src}.jsonl"
+    if not p.exists():
+        return None
+    return [json.loads(ln)["text"] for ln in p.read_text(encoding="utf-8").splitlines() if ln.strip()]
+
+
+def _check_overlap(texts: dict[str, tuple[str, list[SourceRef]]], rep: Report,
+                   extracted_dir: Path | None) -> None:
+    cache: dict[str, list[str] | None] = {}
+    warned: set[str] = set()
+    for where, (text, refs) in texts.items():
+        for r in refs:
+            if r.src not in cache:
+                cache[r.src] = load_extracts(r.src, extracted_dir)
+            fr = cache[r.src]
+            if fr is None:
+                if r.src not in warned:
+                    warned.add(r.src)
+                    rep.warnings.append(f"brak lokalnego ekstraktu {r.src}: kontrola nakładania pominięta")
+                continue
+            if g := shared_run(text, fr):
+                rep.errors.append(f"{where}: ≥ 12 kolejnych słów wspólnych ze źródłem {r.src}: „{g}…”")
+
+
+def validate(lang: str, root: Path | None = None, extracted_dir: Path | None = None) -> Report:
+    pack, rep = _collect(lang, root, extracted_dir)
     return rep
 
 
-def _collect(lang: str, root: Path | None) -> tuple[Pack, Report]:
+def _collect(lang: str, root: Path | None, extracted_dir: Path | None = None) -> tuple[Pack, Report]:
     root = root or content_root()
     rep = Report()
     if not (root / lang).is_dir():
@@ -590,6 +893,7 @@ def _collect(lang: str, root: Path | None) -> tuple[Pack, Report]:
     if cyc := find_cycle(pack.skills):
         rep.errors.append("graf prerekwizytów ma cykl: " + " -> ".join(cyc))
     seen: dict[str, str] = {}
+    overlap: dict[str, tuple[str, list[SourceRef]]] = {}
     for iid, it in pack.items.items():
         f, line = pack.item_files[iid]
         _check_item(it, pack, rep, f"{f.relative_to(root)}:{line}")
@@ -600,12 +904,53 @@ def _collect(lang: str, root: Path | None) -> tuple[Pack, Report]:
             rep.errors.append(f"{f.relative_to(root)}:{line} [{iid}]: duplikat promptu z {seen[key]}")
         seen[key] = iid
         rep.counts[(it.area, it.cefr, it.review.status)] += 1
+        w = f"{f.relative_to(root)}:{line} [{iid}]"
+        _check_refs(it, w, pack, rep)
+        if it.provenance.refs:
+            overlap[w] = (" ".join(filter(None, [it.prompt, it.stimulus, it.audio_text, it.explanation_pl])),
+                          it.provenance.refs)
     for sc in pack.scenarios.values():
         for s in sc.target_skill_ids:
             if s not in pack.skills:
                 rep.errors.append(f"scenarios [{sc.id}]: nieznane skill_id {s}")
         if sc.review.status == "human_reviewed" and sc.review.reviewer not in {r.id for r in pack.reviewers.reviewers}:
             rep.errors.append(f"scenarios [{sc.id}]: reviewer spoza reviewers.yaml")
+    for sc in pack.scenarios.values():
+        _check_refs(sc, f"scenarios [{sc.id}]", pack, rep)
+    for pid, ph in pack.phrases.items():
+        w = f"phrases [{pid}]"
+        for sk in ph.skill_ids:
+            if sk not in pack.skills:
+                rep.errors.append(f"{w}: nieznane skill_id {sk}")
+        _check_refs(ph, w, pack, rep)
+        if ph.review.status == "human_reviewed" and ph.review.reviewer not in {r.id for r in pack.reviewers.reviewers}:
+            rep.errors.append(f"{w}: reviewer spoza reviewers.yaml")
+        if ph.review.status in ("draft", "ai_checked") and (ph.review.reviewer or ph.review.reviewed_at):
+            rep.errors.append(f"{w}: draft/ai_checked nie mogą mieć reviewer/reviewed_at")
+        if ph.provenance.refs:
+            overlap[w] = (ph.text, ph.provenance.refs)
+    for path, ex in pack.explanations.items():
+        w = f"{path}"
+        _check_refs(ex, w, pack, rep)
+        if ex.structure == "v2":
+            check_explanation_md((pack.root / path).read_text(encoding="utf-8"), cats, w, rep,
+                                 bool(ex.provenance.refs))
+        if ex.provenance.refs:
+            overlap[w] = ((pack.root / path).read_text(encoding="utf-8"), ex.provenance.refs)
+        if ex.review.status == "human_reviewed" and ex.review.reviewer not in {r.id for r in pack.reviewers.reviewers}:
+            rep.errors.append(f"{w}: reviewer spoza reviewers.yaml")
+    for sid, locs in pack.sources.map.items():
+        if sid not in pack.skills:
+            rep.errors.append(f"sources.yaml map: nieznane skill_id {sid}")
+        for r in locs:
+            if r.src not in pack.sources.by_id():
+                rep.errors.append(f"sources.yaml map [{sid}]: nieznane źródło {r.src}")
+    _check_overlap(overlap, rep, extracted_dir)
+    _check_vocab(root, lang, rep)
+    if pack.lt_map:
+        for name, r in [*pack.lt_map.rules.items(), *pack.lt_map.categories.items()]:
+            if r.category and r.category not in cats:
+                rep.errors.append(f"lt_map.yaml [{name}]: kategoria {r.category} nie istnieje w errors.yaml")
     for g in pack.variants.groups:
         if len({norm_answer(f) for f in g.forms}) < 2:
             rep.errors.append(f"variants [{g.id}]: mniej niż 2 różne formy")
@@ -618,6 +963,19 @@ def load(lang: str, root: Path | None = None) -> Pack:
     if rep.errors:
         raise ContentError(rep)
     return pack
+
+
+def attribution_md(sources: Sources) -> str:
+    """ATTRIBUTION.md generowany z sources.yaml (07 §1.3)."""
+    lines = ["# Atrybucja źródeł", "",
+             "Plik generowany: `python main.py content attribution en`. Nie edytować ręcznie.",
+             "Treści w repozytorium są adaptacją (parafraza, własne przykłady, wyjaśnienia po polsku) — "
+             "zmodyfikowano.", ""]
+    for s in sources.sources:
+        lines += [f"- **{s.title}** — {s.authors}. [{s.url}]({s.url}). Licencja: {s.license}."
+                  + (f" SHA-256 pliku źródłowego: `{s.sha256}`." if s.sha256 else "")
+                  + (f" {s.note}" if s.note else "")]
+    return "\n".join(lines) + "\n"
 
 
 def format_report(rep: Report) -> str:
@@ -651,17 +1009,99 @@ def _patch_item(pack: Pack, item_id: str, mutate) -> None:
     tmp.replace(path)  # shortcut: komentarze w treści zadań nie przeżywają zapisu (poza nagłówkiem)
 
 
-def set_review(pack: Pack, item_id: str, status: str, *, reviewer: str, now: str,
-               notes: str | None = None) -> None:
-    """Ścieżka CZŁOWIEKA (`main.py content review`). Tylko tu powstaje `human_reviewed`."""
+def _human_review(pack: Pack, status: str, reviewer: str, now: str, notes: str | None) -> dict:
     if status not in STATUSES:
         raise ValueError(status)
     if reviewer not in {r.id for r in pack.reviewers.reviewers}:
         raise ValueError(f"reviewer „{reviewer}” nie występuje w reviewers.yaml")
+    return {"status": status, "reviewer": reviewer, "reviewed_at": now, "notes": notes}
 
-    def mut(d):
-        d["review"] = {"status": status, "reviewer": reviewer, "reviewed_at": now, "notes": notes}
-    _patch_item(pack, item_id, mut)
+
+def set_review(pack: Pack, item_id: str, status: str, *, reviewer: str, now: str,
+               notes: str | None = None) -> None:
+    """Ścieżka CZŁOWIEKA (`main.py content review`). Tylko tu powstaje `human_reviewed`."""
+    rv = _human_review(pack, status, reviewer, now, notes)
+    _patch_item(pack, item_id, lambda d: d.__setitem__("review", rv))
+
+
+def review_targets(pack: Pack, kinds: tuple[str, ...] = ("explanations", "scenarios", "phrases")) -> list[dict]:
+    """Elementy poza zadaniami, które człowiek może zrecenzować (07 §2.1): {kind, id, status, notes, lines}."""
+    out = []
+    if "explanations" in kinds:
+        for path, ex in sorted(pack.explanations.items()):
+            if ex.structure == "v2":
+                out.append({"kind": "explanation", "id": path, "status": ex.review.status, "notes": ex.review.notes,
+                            "lines": (pack.root / path).read_text(encoding="utf-8").split("---\n", 2)[-1].splitlines()})
+    if "scenarios" in kinds:
+        for sc in sorted(pack.scenarios.values(), key=lambda x: x.id):
+            out.append({"kind": "scenario", "id": sc.id, "status": sc.review.status, "notes": sc.review.notes,
+                        "lines": [f"{sc.title_pl} ({sc.cefr}); rola: {sc.role}; cel: {sc.goal}"]
+                        + [f"- {c.description_pl}: {' | '.join(c.example_phrases)}" for c in sc.success_criteria]})
+    if "phrases" in kinds:
+        for ph in sorted(pack.phrases.values(), key=lambda x: x.id):
+            out.append({"kind": "phrase", "id": ph.id, "status": ph.review.status, "notes": ph.review.notes,
+                        "lines": [f"{ph.text}  [{ph.kind}, {ph.register_}, {ph.variety}]", f"PL: {ph.gloss_pl}"]})
+    return out
+
+
+def _patch_front(path: Path, mutate) -> None:
+    text = path.read_text(encoding="utf-8")
+    m = re.match(r"---\n(.*?)\n---\n(.*)", text, re.S)
+    fm = yaml.safe_load(m.group(1))
+    mutate(fm)
+    tmp = path.with_suffix(".tmp")
+    tmp.write_text("---\n" + yaml.safe_dump(fm, allow_unicode=True, sort_keys=False, width=200) + "---\n"
+                   + m.group(2), encoding="utf-8")
+    tmp.replace(path)
+
+
+def _patch_map(path: Path, mutate) -> None:
+    text = path.read_text(encoding="utf-8")
+    header = "".join(ln for ln in text.splitlines(keepends=True) if ln.startswith("#"))
+    d = yaml.safe_load(text)
+    mutate(d)
+    tmp = path.with_suffix(".tmp")
+    tmp.write_text(header + yaml.safe_dump(d, allow_unicode=True, sort_keys=False, width=200), encoding="utf-8")
+    tmp.replace(path)
+
+
+def _patch_list_file(path: Path, doc_id: str, mutate, key: str = "id") -> None:
+    text = path.read_text(encoding="utf-8")
+    header = "".join(ln for ln in text.splitlines(keepends=True) if ln.startswith("#"))
+    data = yaml.safe_load(text)
+    for d in data:
+        if d[key] == doc_id:
+            mutate(d)
+            break
+    else:
+        raise KeyError(doc_id)
+    tmp = path.with_suffix(".tmp")
+    tmp.write_text(header + yaml.safe_dump(data, allow_unicode=True, sort_keys=False, width=200), encoding="utf-8")
+    tmp.replace(path)
+
+
+def set_review_bench(pack: Pack, path: Path, case_id: str, status: str, *, reviewer: str, now: str,
+                     notes: str | None = None) -> None:
+    """Recenzja CZŁOWIEKA przypadku benchmarku (`grammar_gold.yaml` — klucz `id`; `f3_mismatch.yaml` — `item_id`)."""
+    rv = _human_review(pack, status, reviewer, now, notes)
+    key = "item_id" if path.name == "f3_mismatch.yaml" else "id"
+    _patch_list_file(path, case_id, lambda d: d.__setitem__("review", rv), key)
+
+
+def set_review_doc(pack: Pack, kind: str, doc_id: str, status: str, *, reviewer: str, now: str,
+                   notes: str | None = None) -> None:
+    """Recenzja CZŁOWIEKA wyjaśnień, scenariuszy i zwrotów (jak `set_review` dla zadań)."""
+    rv = _human_review(pack, status, reviewer, now, notes)
+    if kind == "explanation":
+        _patch_front(pack.root / doc_id, lambda fm: fm.__setitem__("review", rv))
+    elif kind == "scenario":
+        f = next(f for f in (pack.root / "scenarios").glob("*.yaml")
+                 if (yaml.safe_load(f.read_text(encoding="utf-8")) or {}).get("id") == doc_id)
+        _patch_map(f, lambda d: d.__setitem__("review", rv))
+    elif kind == "phrase":
+        _patch_list_file(pack.root / "phrases.yaml", doc_id, lambda d: d.__setitem__("review", rv))
+    else:
+        raise ValueError(kind)
 
 
 def set_ai_check(pack: Pack, item_id: str, status: str, note: str | None = None) -> None:

@@ -90,3 +90,646 @@
     reviewer: null
     reviewed_at: null
     notes: 'solve_check: niezgodność z kluczem'
+- id: en.f46.gram.a1.01
+  lang: en
+  skill_ids:
+  - en.gram.to_be_present
+  area: grammar
+  type: gap
+  cefr: A1
+  difficulty: -0.7
+  pools:
+  - practice
+  domain: grammar
+  prompt: My brother ___ a teacher.
+  stimulus: null
+  options: null
+  answers:
+  - is
+  explanation_pl: Podmiot w 3. os. l. poj. wymaga is.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.f46.gram.a1.02
+  lang: en
+  skill_ids:
+  - en.gram.to_be_present
+  area: grammar
+  type: mc
+  cefr: A1
+  difficulty: -0.6
+  pools:
+  - practice
+  domain: grammar
+  prompt: Choose the correct sentence.
+  stimulus: null
+  options:
+  - They is at home.
+  - They are at home.
+  - They at home.
+  - They be at home.
+  answers:
+  - They are at home.
+  explanation_pl: Po they używamy are; czasownik be nie może zniknąć.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.f46.gram.a1.03
+  lang: en
+  skill_ids:
+  - en.gram.to_be_present
+  area: grammar
+  type: transform
+  cefr: A1
+  difficulty: -0.5
+  pools:
+  - practice
+  domain: grammar
+  prompt: 'Make it negative: She is late.'
+  stimulus: null
+  options: null
+  answers:
+  - She is not late
+  - She isn't late
+  - She's not late
+  explanation_pl: 'Przeczenie: is not / isn''t.'
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: niezgodność z kluczem (sędzia niezwalidowany)'
+- id: en.f46.gram.a1.04
+  lang: en
+  skill_ids:
+  - en.gram.to_be_present
+  area: grammar
+  type: gap
+  cefr: A1
+  difficulty: -0.7
+  pools:
+  - practice
+  domain: grammar
+  prompt: I ___ twenty-five years old.
+  stimulus: null
+  options: null
+  answers:
+  - am
+  explanation_pl: 'Wiek podajemy z be: I am 25, nie have.'
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.f46.gram.a1.05
+  lang: en
+  skill_ids:
+  - en.gram.to_be_present
+  area: grammar
+  type: mc
+  cefr: A1
+  difficulty: -0.7
+  pools:
+  - retention
+  domain: grammar
+  prompt: Where ___ your keys?
+  stimulus: null
+  options:
+  - is
+  - are
+  - am
+  - be
+  answers:
+  - are
+  explanation_pl: Keys to liczba mnoga, więc are.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.f46.gram.a1.06
+  lang: en
+  skill_ids:
+  - en.gram.to_be_present
+  area: grammar
+  type: gap
+  cefr: A1
+  difficulty: -0.6
+  pools:
+  - retention
+  domain: grammar
+  prompt: We ___ not ready yet.
+  stimulus: null
+  options: null
+  answers:
+  - are
+  explanation_pl: We + are.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.f46.gram.a1.07
+  lang: en
+  skill_ids:
+  - en.gram.to_be_present
+  area: grammar
+  type: translate_pl
+  cefr: A1
+  difficulty: -0.5
+  pools:
+  - retention
+  domain: grammar
+  prompt: 'Translate into English: "Jestem w domu."'
+  stimulus: null
+  options: null
+  answers:
+  - I am at home
+  - I'm at home
+  - I am home
+  - I'm home
+  explanation_pl: I am / I'm + at home.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.f46.gram.a1.08
+  lang: en
+  skill_ids:
+  - en.gram.present_simple
+  area: grammar
+  type: gap
+  cefr: A1
+  difficulty: -0.7
+  pools:
+  - practice
+  domain: grammar
+  prompt: Maria ___ (work) in a bank every day.
+  stimulus: null
+  options: null
+  answers:
+  - works
+  explanation_pl: W 3. os. l. poj. dodajemy -s.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: niezgodność z kluczem (sędzia niezwalidowany)'
+- id: en.f46.gram.a1.09
+  lang: en
+  skill_ids:
+  - en.gram.present_simple
+  area: grammar
+  type: mc
+  cefr: A1
+  difficulty: -0.6
+  pools:
+  - practice
+  domain: grammar
+  prompt: My father ___ coffee in the morning.
+  stimulus: null
+  options:
+  - drink
+  - drinks
+  - drinking
+  - is drink
+  answers:
+  - drinks
+  explanation_pl: He/she/it + czasownik z -s.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.f46.gram.a1.10
+  lang: en
+  skill_ids:
+  - en.gram.present_simple
+  area: grammar
+  type: transform
+  cefr: A1
+  difficulty: -0.5
+  pools:
+  - practice
+  domain: grammar
+  prompt: 'Make it negative: He plays football on Sundays.'
+  stimulus: null
+  options: null
+  answers:
+  - He does not play football on Sundays
+  - He doesn't play football on Sundays
+  explanation_pl: 'Przeczenie: does not + bezokolicznik bez -s.'
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.f46.gram.a1.11
+  lang: en
+  skill_ids:
+  - en.gram.present_simple
+  area: grammar
+  type: gap
+  cefr: A1
+  difficulty: -0.7
+  pools:
+  - practice
+  domain: grammar
+  prompt: ___ your sister live in London?
+  stimulus: null
+  options: null
+  answers:
+  - Does
+  explanation_pl: 'Pytanie z podmiotem w 3. os.: Does.'
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: niezgodność z kluczem (sędzia niezwalidowany)'
+- id: en.f46.gram.a1.12
+  lang: en
+  skill_ids:
+  - en.gram.present_simple
+  area: grammar
+  type: mc
+  cefr: A1
+  difficulty: -0.7
+  pools:
+  - retention
+  domain: grammar
+  prompt: We usually ___ lunch at one.
+  stimulus: null
+  options:
+  - has
+  - have
+  - having
+  - haves
+  answers:
+  - have
+  explanation_pl: We + have, bez -s.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.f46.gram.a1.13
+  lang: en
+  skill_ids:
+  - en.gram.present_simple
+  area: grammar
+  type: gap
+  cefr: A1
+  difficulty: -0.6
+  pools:
+  - retention
+  domain: grammar
+  prompt: Tom ___ not like fish.
+  stimulus: null
+  options: null
+  answers:
+  - does
+  explanation_pl: Tom = he, więc does not.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: niezgodność z kluczem (sędzia niezwalidowany)'
+- id: en.f46.gram.a1.14
+  lang: en
+  skill_ids:
+  - en.gram.present_simple
+  area: grammar
+  type: reorder
+  cefr: A1
+  difficulty: -0.5
+  pools:
+  - retention
+  domain: grammar
+  prompt: 'Put the words in order: every / she / school / walks / to / day'
+  stimulus: null
+  options: null
+  answers:
+  - She walks to school every day
+  - Every day she walks to school
+  explanation_pl: 'Szyk: podmiot, czasownik, miejsce, czas.'
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.f46.gram.a1.15
+  lang: en
+  skill_ids:
+  - en.gram.articles_basic
+  area: grammar
+  type: gap
+  cefr: A1
+  difficulty: -0.7
+  pools:
+  - practice
+  domain: grammar
+  prompt: I have ___ umbrella in my bag.
+  stimulus: null
+  options: null
+  answers:
+  - an
+  explanation_pl: An stawiamy przed samogłoską w wymowie.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: niezgodność z kluczem (sędzia niezwalidowany)'
+- id: en.f46.gram.a1.16
+  lang: en
+  skill_ids:
+  - en.gram.articles_basic
+  area: grammar
+  type: mc
+  cefr: A1
+  difficulty: -0.6
+  pools:
+  - practice
+  domain: grammar
+  prompt: She is ___ engineer.
+  stimulus: null
+  options:
+  - a
+  - an
+  - two
+  - no article
+  answers:
+  - an
+  explanation_pl: Engineer zaczyna się samogłoską, więc an.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.f46.gram.a1.17
+  lang: en
+  skill_ids:
+  - en.gram.articles_basic
+  area: grammar
+  type: gap
+  cefr: A1
+  difficulty: -0.5
+  pools:
+  - practice
+  domain: grammar
+  prompt: Please close ___ door, it is cold.
+  stimulus: null
+  options: null
+  answers:
+  - the
+  explanation_pl: 'Mówimy o konkretnych, znanych drzwiach: the.'
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: niezgodność z kluczem (sędzia niezwalidowany)'
+- id: en.f46.gram.a1.18
+  lang: en
+  skill_ids:
+  - en.gram.articles_basic
+  area: grammar
+  type: translate_pl
+  cefr: A1
+  difficulty: -0.7
+  pools:
+  - practice
+  domain: grammar
+  prompt: 'Translate into English: "Mam psa."'
+  stimulus: null
+  options: null
+  answers:
+  - I have a dog
+  - I've got a dog
+  - I have got a dog
+  explanation_pl: Rzeczownik policzalny w l. poj. potrzebuje a.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.f46.gram.a1.19
+  lang: en
+  skill_ids:
+  - en.gram.articles_basic
+  area: grammar
+  type: mc
+  cefr: A1
+  difficulty: -0.7
+  pools:
+  - retention
+  domain: grammar
+  prompt: Can you pass me ___ apple, please?
+  stimulus: null
+  options:
+  - a
+  - an
+  - two
+  - no article
+  answers:
+  - an
+  explanation_pl: Apple zaczyna się samogłoską.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: niezgodność z kluczem (sędzia niezwalidowany)'
+- id: en.f46.gram.a1.20
+  lang: en
+  skill_ids:
+  - en.gram.articles_basic
+  area: grammar
+  type: gap
+  cefr: A1
+  difficulty: -0.6
+  pools:
+  - retention
+  domain: grammar
+  prompt: I saw a film yesterday. ___ film was very good.
+  stimulus: null
+  options: null
+  answers:
+  - The
+  - the
+  explanation_pl: 'Druga wzmianka o tym samym filmie: the.'
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.f46.gram.a1.21
+  lang: en
+  skill_ids:
+  - en.gram.articles_basic
+  area: grammar
+  type: reorder
+  cefr: A1
+  difficulty: -0.5
+  pools:
+  - retention
+  domain: grammar
+  prompt: 'Put the words in order: is / a / he / pilot'
+  stimulus: null
+  options: null
+  answers:
+  - He is a pilot
+  explanation_pl: Zawód wymaga a przed rzeczownikiem.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'

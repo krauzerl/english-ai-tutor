@@ -87,23 +87,35 @@ def norm_eq(a: C.Item, b: C.Item) -> bool:
     return k(a) == k(b)
 
 
-def solve_check(pack: C.Pack, provider, structured, item: C.Item, *,
-                reject_on_mismatch: bool = False) -> tuple[str, str]:
-    """Rozwiązanie na ślepo (bez klucza). Zgodność => ai_checked; inaczej draft z notatką (albo rejected)."""
+def solve(pack: C.Pack, provider, structured, item: C.Item) -> Solve | None:
+    """Rozwiązanie na ślepo (bez klucza); `None` = model nie zwrócił poprawnej odpowiedzi strukturalnej."""
     from tutor.llm.base import InvalidStructuredOutput, Message
     prompt = _fill(pack.prompts["solve_item"]["text"], item_type=item.type, stimulus=item.stimulus or "-",
                    audio_text=item.audio_text or "-", prompt=item.prompt,
                    options=json.dumps(item.options, ensure_ascii=False) if item.options else "-")
     try:
-        s = structured(provider, [Message("user", prompt)], Solve, temperature=0.0, max_tokens=120)
+        return structured(provider, [Message("user", prompt)], Solve, temperature=0.0, max_tokens=120)
     except InvalidStructuredOutput:
+        return None
+
+
+def agrees(pack: C.Pack, item: C.Item, s: Solve | None, key: list[str] | None = None) -> bool:
+    return bool(s and not s.unclear and not s.multiple_correct and s.answer.strip()
+                and C.norm_answer(s.answer) in C.expand_answers(key or item.answers or [], pack.variants,
+                                                                item.domain))
+
+
+def solve_check(pack: C.Pack, provider, structured, item: C.Item, *,
+                reject_on_mismatch: bool = False) -> tuple[str, str]:
+    """Rozwiązanie na ślepo (bez klucza). Zgodność => ai_checked; inaczej draft z notatką (albo rejected)."""
+    s = solve(pack, provider, structured, item)
+    if s is None:
         return "draft", "solve_check: niepoprawna odpowiedź modelu (brak werdyktu)"
-    agree = (not s.unclear and not s.multiple_correct and bool(s.answer.strip())
-             and C.norm_answer(s.answer) in C.expand_answers(item.answers or [], pack.variants, item.domain))
-    if agree:
-        return "ai_checked", "solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka)"
+    if agrees(pack, item, s):
+        return "ai_checked", ("solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; "
+                              "sędzia niezwalidowany)")
     why = "niejednoznaczne/więcej niż jedna poprawna" if (s.unclear or s.multiple_correct) else "niezgodność z kluczem"
-    return ("rejected" if reject_on_mismatch else "draft"), f"solve_check: {why}"
+    return ("rejected" if reject_on_mismatch else "draft"), f"solve_check: {why} (sędzia niezwalidowany)"
 
 
 def main(argv: list[str]) -> int:
@@ -117,6 +129,7 @@ def main(argv: list[str]) -> int:
     ap.add_argument("--solve-check", action="store_true")
     ap.add_argument("--only-draft", action="store_true", help="solve-check tylko dla zadań w statusie draft")
     ap.add_argument("--reject-on-mismatch", action="store_true")
+    ap.add_argument("--id-prefix", default="", help="solve-check tylko dla zadań o id zaczynającym się od prefiksu")
     a = ap.parse_args(argv)
     if a.n > MAX_N:
         print(f"--n <= {MAX_N}: masowa generacja jest poza zakresem.", file=sys.stderr)
@@ -130,7 +143,7 @@ def main(argv: list[str]) -> int:
         stats = {"ai_checked": 0, "draft": 0, "rejected": 0}
         for it in list(pack.items.values()):
             if it.review.status == "human_reviewed" or (a.only_draft and it.review.status != "draft") \
-                    or it.type in C.OPEN_TYPES:
+                    or it.type in C.OPEN_TYPES or not it.id.startswith(a.id_prefix):
                 continue
             status, note = solve_check(pack, prov, structured, it, reject_on_mismatch=a.reject_on_mismatch)
             C.set_ai_check(pack, it.id, status, note)

@@ -1,0 +1,78 @@
+# 11 zadań F3, w których kontrola na ślepo (Bielik) nie zgodziła się z kluczem (07 §5.1). `human_key`: klucz wskazany przez recenzenta.
+- item_id: en.pilot.gram.a1.03
+  human_key: null
+  note: 'wstępnie: klucz wygląda na poprawny, niezgodność to prawdopodobnie błąd sędziego (Bielik) — do potwierdzenia przez człowieka'
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- item_id: en.pilot.gram.a2.01
+  human_key: null
+  note: 'wstępnie: klucz wygląda na poprawny, niezgodność to prawdopodobnie błąd sędziego (Bielik) — do potwierdzenia przez człowieka'
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- item_id: en.pilot.gram.b1.01
+  human_key: null
+  note: 'wstępnie: klucz wygląda na poprawny, niezgodność to prawdopodobnie błąd sędziego (Bielik) — do potwierdzenia przez człowieka'
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- item_id: en.pilot.gram.b1.02
+  human_key: null
+  note: 'wstępnie: klucz wygląda na poprawny, niezgodność to prawdopodobnie błąd sędziego (Bielik) — do potwierdzenia przez człowieka'
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- item_id: en.pilot.gram.b2.01
+  human_key: null
+  note: 'wstępnie: klucz wygląda na poprawny, niezgodność to prawdopodobnie błąd sędziego (Bielik) — do potwierdzenia przez człowieka'
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- item_id: en.pilot.gram.c1.01
+  human_key: null
+  note: 'wstępnie: klucz wygląda na poprawny, niezgodność to prawdopodobnie błąd sędziego (Bielik) — do potwierdzenia przez człowieka'
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- item_id: en.pilot.gram.c1.02
+  human_key: null
+  note: 'wstępnie: klucz wygląda na poprawny, niezgodność to prawdopodobnie błąd sędziego (Bielik) — do potwierdzenia przez człowieka'
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- item_id: en.pilot.listen.a1.02
+  human_key: null
+  note: 'wstępnie: klucz wygląda na poprawny, niezgodność to prawdopodobnie błąd sędziego (Bielik) — do potwierdzenia przez człowieka'
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- item_id: en.pilot.read.a1.01
+  human_key: null
+  note: 'wstępnie: klucz wygląda na poprawny, niezgodność to prawdopodobnie błąd sędziego (Bielik) — do potwierdzenia przez człowieka'
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- item_id: en.pilot.vocab.a1.02
+  human_key: null
+  note: 'wstępnie: klucz wygląda na poprawny, niezgodność to prawdopodobnie błąd sędziego (Bielik) — do potwierdzenia przez człowieka'
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- item_id: en.pilot.vocab.b2.03
+  human_key: null
+  note: możliwa niejednoznaczność dystraktora `point` (wstępny przegląd 07 §5.1) — do recenzji
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null

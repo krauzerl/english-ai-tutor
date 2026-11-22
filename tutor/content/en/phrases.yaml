@@ -1,0 +1,767 @@
+# Zwroty i kolokacje (07 §2.4). AI-draft; `usable_phrase` wymaga ai_checked/human_reviewed.
+- id: en.phr.get_up
+  text: I get up at seven.
+  kind: phrase
+  skill_ids:
+  - en.vocab.daily_routine
+  register: neutral
+  variety: both
+  gloss_pl: Wstaję o siódmej.
+  lemmas:
+  - get
+  - up
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+    notes: null
+- id: en.phr.brush_teeth
+  text: I brush my teeth after breakfast.
+  kind: chunk
+  skill_ids:
+  - en.vocab.daily_routine
+  register: neutral
+  variety: both
+  gloss_pl: Myję zęby po śniadaniu.
+  lemmas:
+  - brush
+  - tooth
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+    notes: null
+- id: en.phr.have_breakfast
+  text: I have breakfast at home.
+  kind: collocation
+  skill_ids:
+  - en.vocab.daily_routine
+  register: neutral
+  variety: both
+  gloss_pl: Jem śniadanie w domu.
+  lemmas:
+  - have
+  - breakfast
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+    notes: null
+- id: en.phr.go_to_work
+  text: I go to work by bus.
+  kind: collocation
+  skill_ids:
+  - en.vocab.daily_routine
+  register: neutral
+  variety: both
+  gloss_pl: Jadę do pracy autobusem.
+  lemmas:
+  - go
+  - work
+  - bus
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+    notes: null
+- id: en.phr.come_home
+  text: I come home at six.
+  kind: phrase
+  skill_ids:
+  - en.vocab.daily_routine
+  register: neutral
+  variety: both
+  gloss_pl: Wracam do domu o szóstej.
+  lemmas:
+  - come
+  - home
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+    notes: null
+- id: en.phr.watch_tv
+  text: In the evening I watch TV.
+  kind: collocation
+  skill_ids:
+  - en.vocab.daily_routine
+  register: neutral
+  variety: both
+  gloss_pl: Wieczorem oglądam telewizję.
+  lemmas:
+  - watch
+  - evening
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+    notes: null
+- id: en.phr.go_to_bed
+  text: I go to bed at eleven.
+  kind: collocation
+  skill_ids:
+  - en.vocab.daily_routine
+  register: neutral
+  variety: both
+  gloss_pl: Idę spać o jedenastej.
+  lemmas:
+  - go
+  - bed
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+    notes: null
+- id: en.phr.say_again
+  text: Sorry, could you say that again, please?
+  kind: phrase
+  skill_ids:
+  - en.conv.ask_clarification
+  register: neutral
+  variety: both
+  gloss_pl: Przepraszam, możesz powtórzyć?
+  lemmas:
+  - could
+  - say
+  - again
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+    notes: null
+- id: en.phr.didnt_catch
+  text: Sorry, I didn't catch that.
+  kind: phrase
+  skill_ids:
+  - en.conv.ask_clarification
+  register: neutral
+  variety: both
+  gloss_pl: Przepraszam, nie dosłyszałem.
+  lemmas:
+  - catch
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+    notes: null
+- id: en.phr.what_mean_by
+  text: What do you mean by that?
+  kind: phrase
+  skill_ids:
+  - en.conv.ask_clarification
+  register: neutral
+  variety: both
+  gloss_pl: Co masz na myśli?
+  lemmas:
+  - mean
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+    notes: null
+- id: en.phr.explain_further
+  text: Could you explain that a bit more?
+  kind: phrase
+  skill_ids:
+  - en.conv.ask_clarification
+  register: neutral
+  variety: both
+  gloss_pl: Możesz to bardziej wyjaśnić?
+  lemmas:
+  - explain
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+    notes: null
+- id: en.phr.so_you_mean
+  text: So, you mean the meeting is on Monday?
+  kind: chunk
+  skill_ids:
+  - en.conv.ask_clarification
+  register: neutral
+  variety: both
+  gloss_pl: Czyli masz na myśli, że spotkanie jest w poniedziałek?
+  lemmas:
+  - mean
+  - meeting
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+    notes: null
+- id: en.phr.let_me_check
+  text: 'Let me check I understood: you want it by Friday?'
+  kind: chunk
+  skill_ids:
+  - en.conv.ask_clarification
+  register: neutral
+  variety: both
+  gloss_pl: 'Sprawdzę, czy zrozumiałem: chcesz to na piątek?'
+  lemmas:
+  - check
+  - understand
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+    notes: null
+- id: en.phr.slower_please
+  text: Could you speak a bit more slowly, please?
+  kind: phrase
+  skill_ids:
+  - en.conv.ask_clarification
+  register: neutral
+  variety: both
+  gloss_pl: Możesz mówić trochę wolniej?
+  lemmas:
+  - speak
+  - slowly
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+    notes: null
+- id: en.phr.totally_agree
+  text: I totally agree with you.
+  kind: phrase
+  skill_ids:
+  - en.conv.agree_disagree
+  register: neutral
+  variety: both
+  gloss_pl: Całkowicie się z tobą zgadzam.
+  lemmas:
+  - agree
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+    notes: null
+- id: en.phr.good_point
+  text: That's a good point.
+  kind: phrase
+  skill_ids:
+  - en.conv.agree_disagree
+  register: neutral
+  variety: both
+  gloss_pl: To dobra uwaga.
+  lemmas:
+  - good
+  - point
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+    notes: null
+- id: en.phr.see_what_mean
+  text: I see what you mean, but I disagree.
+  kind: chunk
+  skill_ids:
+  - en.conv.agree_disagree
+  register: neutral
+  variety: both
+  gloss_pl: Rozumiem, co masz na myśli, ale się nie zgadzam.
+  lemmas:
+  - see
+  - mean
+  - disagree
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+    notes: null
+- id: en.phr.not_so_sure
+  text: I'm not so sure about that.
+  kind: phrase
+  skill_ids:
+  - en.conv.agree_disagree
+  register: informal
+  variety: both
+  gloss_pl: Nie jestem tego taki pewien.
+  lemmas:
+  - sure
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+    notes: null
+- id: en.phr.afraid_disagree
+  text: I'm afraid I don't agree.
+  kind: phrase
+  skill_ids:
+  - en.conv.agree_disagree
+  register: formal
+  variety: both
+  gloss_pl: Obawiam się, że się nie zgadzam.
+  lemmas:
+  - afraid
+  - agree
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+    notes: null
+- id: en.phr.see_it_differently
+  text: I see it a bit differently.
+  kind: phrase
+  skill_ids:
+  - en.conv.agree_disagree
+  register: neutral
+  variety: both
+  gloss_pl: Widzę to trochę inaczej.
+  lemmas:
+  - see
+  - different
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+    notes: null
+- id: en.phr.fair_enough
+  text: Fair enough.
+  kind: chunk
+  skill_ids:
+  - en.conv.agree_disagree
+  register: informal
+  variety: BrE
+  gloss_pl: Niech ci będzie / rozsądna uwaga.
+  lemmas:
+  - fair
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+    notes: null
+- id: en.phr.make_decision
+  text: I need to make a decision.
+  kind: collocation
+  skill_ids:
+  - en.vocab.collocations_make_do
+  register: neutral
+  variety: both
+  gloss_pl: Muszę podjąć decyzję.
+  lemmas:
+  - make
+  - decision
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+    notes: null
+- id: en.phr.make_mistake
+  text: Everyone makes mistakes.
+  kind: collocation
+  skill_ids:
+  - en.vocab.collocations_make_do
+  register: neutral
+  variety: both
+  gloss_pl: Każdy popełnia błędy.
+  lemmas:
+  - make
+  - mistake
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+    notes: null
+- id: en.phr.do_favour
+  text: Could you do me a favour?
+  kind: collocation
+  skill_ids:
+  - en.vocab.collocations_make_do
+  register: neutral
+  variety: BrE
+  gloss_pl: Możesz wyświadczyć mi przysługę?
+  lemmas:
+  - do
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+    notes: null
+- id: en.phr.do_homework
+  text: I have to do my homework.
+  kind: collocation
+  skill_ids:
+  - en.vocab.collocations_make_do
+  register: neutral
+  variety: both
+  gloss_pl: Muszę odrobić pracę domową.
+  lemmas:
+  - do
+  - homework
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+    notes: null
+- id: en.phr.take_photo
+  text: Let me take a photo.
+  kind: collocation
+  skill_ids:
+  - en.vocab.collocations_make_do
+  register: neutral
+  variety: both
+  gloss_pl: Zrobię zdjęcie.
+  lemmas:
+  - take
+  - photo
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+    notes: null
+- id: en.phr.take_break
+  text: Let's take a break.
+  kind: collocation
+  skill_ids:
+  - en.vocab.collocations_make_do
+  register: neutral
+  variety: AmE
+  gloss_pl: Zróbmy przerwę.
+  lemmas:
+  - take
+  - break
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+    notes: null
+- id: en.phr.make_progress
+  text: We are making good progress.
+  kind: collocation
+  skill_ids:
+  - en.vocab.collocations_make_do
+  register: neutral
+  variety: both
+  gloss_pl: Robimy dobre postępy.
+  lemmas:
+  - make
+  - progress
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+    notes: null
+- id: en.phr.became_unavailable
+  text: At 14:05 the database became unavailable.
+  kind: chunk
+  skill_ids:
+  - en.tech.incident_report
+  register: formal
+  variety: both
+  gloss_pl: O 14:05 baza danych przestała być dostępna.
+  lemmas:
+  - database
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+    notes: null
+- id: en.phr.was_detected
+  text: The issue was detected at 14:10.
+  kind: chunk
+  skill_ids:
+  - en.tech.incident_report
+  register: formal
+  variety: both
+  gloss_pl: Problem wykryto o 14:10.
+  lemmas:
+  - issue
+  - detect
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+    notes: null
+- id: en.phr.root_cause
+  text: The root cause turned out to be a misconfigured rule.
+  kind: chunk
+  skill_ids:
+  - en.tech.incident_report
+  register: formal
+  variety: both
+  gloss_pl: Przyczyną okazała się błędnie skonfigurowana reguła.
+  lemmas:
+  - cause
+  - turn
+  - rule
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+    notes: null
+- id: en.phr.service_restored
+  text: Service was restored at 14:45.
+  kind: chunk
+  skill_ids:
+  - en.tech.incident_report
+  register: formal
+  variety: both
+  gloss_pl: Usługę przywrócono o 14:45.
+  lemmas:
+  - service
+  - restore
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+    notes: null
+- id: en.phr.outage_lasted
+  text: The outage lasted about forty minutes.
+  kind: chunk
+  skill_ids:
+  - en.tech.incident_report
+  register: formal
+  variety: both
+  gloss_pl: Awaria trwała około czterdziestu minut.
+  lemmas:
+  - last
+  - minute
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+    notes: null
+- id: en.phr.impact_users
+  text: The incident affected all users in the EU region.
+  kind: chunk
+  skill_ids:
+  - en.tech.incident_report
+  register: formal
+  variety: both
+  gloss_pl: Incydent dotknął wszystkich użytkowników w regionie UE.
+  lemmas:
+  - affect
+  - user
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+    notes: null
+- id: en.phr.next_steps
+  text: As a next step, we will add monitoring.
+  kind: chunk
+  skill_ids:
+  - en.tech.incident_report
+  register: formal
+  variety: both
+  gloss_pl: W kolejnym kroku dodamy monitoring.
+  lemmas:
+  - step
+  - add
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+    notes: null

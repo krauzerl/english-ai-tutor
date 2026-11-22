@@ -251,8 +251,8 @@ def test_retention_passed_rule(rb):
 
 
 def test_t_ret_1_unseen_only_and_deferred_without_content(pack, rb):
-    # prawdziwy pakiet: brak puli retention ⇒ odroczenie z sygnałem, nie „udane”
-    pk = retention.pick_items(promote(pack), rb, "en.gram.past_simple_regular", set(), 1)
+    # prawdziwy pakiet: umiejętność bez puli retention (poza pilotażem F4.6) ⇒ odroczenie z sygnałem, nie „udane”
+    pk = retention.pick_items(promote(pack), rb, "en.gram.third_conditional", set(), 1)
     assert pk.deferred and pk.reason == "not_enough_content" and pk.items == []
     # pakiet z dodanymi zadaniami retention (w pamięci)
     base = next(i for i in pack.items.values() if i.type == "gap")

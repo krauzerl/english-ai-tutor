@@ -1,0 +1,18 @@
+# Mapowanie reguł LanguageTool → taksonomia (07 §4.4). `trust` to HIPOTEZA do zmierzenia w benchmarku:
+# do czasu bramy jakości (rubric.yaml correction.quality_gate.lt_trusted_rules) żadna reguła nie ma efektywnego `h`.
+# Identyfikatory reguł EN_A_VS_AN, HE_VERB_AGR, I_AM_VB, MORFOLOGIK_RULE_EN_US potwierdzone na LT 6.6; NON3PRS_VERB i DT_DT jeszcze nie.
+lt_map_version: lt_map.v1
+lt_version_tested: "6.6"   # zweryfikowane na żywym serwerze (F4.6/C4): parametry, pola odpowiedzi, id reguł poniżej
+rules:
+  EN_A_VS_AN:     {category: article.wrong, trust: h, voice: false}
+  HE_VERB_AGR:    {category: agreement.subject_verb, trust: m, voice: true}
+  NON3PRS_VERB:   {category: agreement.subject_verb, trust: m, voice: true}
+  DT_DT:          {category: determiner, trust: m, voice: false}
+  I_AM_VB:        {category: morphology.word_form, trust: m, voice: true}
+  MORFOLOGIK_RULE_EN_US: {category: spelling, trust: m, voice: false}   # pisownia; BrE/AmE filtrowane w lt_merge
+categories:
+  GRAMMAR:        {category: null, trust: l}
+  TYPOS:          {category: spelling, trust: m, voice: false}
+  CONFUSED_WORDS: {category: word_choice.confusable, trust: l, voice: false}
+  COLLOCATIONS:   {category: collocation, trust: l, voice: true}
+ignore_categories: [STYLE, REDUNDANCY, TYPOGRAPHY, CASING, PLAIN_ENGLISH, COLLOCATIONS_STYLE, COLLOQUIALISMS, PUNCTUATION]
