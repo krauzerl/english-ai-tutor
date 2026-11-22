@@ -1,0 +1,2628 @@
+# Złoty standard benchmarku korekt (07 §5.1). Zdania napisane przez Claude (AI-draft), nie z podręczników ani od uczniów.
+# Liczą się TYLKO przypadki `human_reviewed` (bench review). Do czasu recenzji wyniki są WSTĘPNE.
+- id: g.e1.001
+  set: E1
+  input_mode: text
+  text: I have 25 years and I work in IT.
+  words: null
+  gold:
+  - span: I have 25 years
+    fix_accept:
+    - I am 25
+    - I'm 25
+    - I am 25 years old
+    - I'm 25 years old
+    category: l1_calque.have_years
+    severity: 2
+  meaning: I am 25 and I work in IT.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.e1.002
+  set: E1
+  input_mode: text
+  text: She is engineer in a big company.
+  words: null
+  gold:
+  - span: is engineer
+    fix_accept:
+    - is an engineer
+    category: article.missing
+    severity: 2
+  meaning: She is an engineer in a big company.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.e1.003
+  set: E1
+  input_mode: text
+  text: I bought new laptop yesterday.
+  words: null
+  gold:
+  - span: new laptop
+    fix_accept:
+    - a new laptop
+    category: article.missing
+    severity: 2
+  meaning: I bought a new laptop yesterday.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.e1.004
+  set: E1
+  input_mode: text
+  text: He plays the football every Sunday.
+  words: null
+  gold:
+  - span: the football
+    fix_accept:
+    - football
+    category: article.extra
+    severity: 1
+  meaning: He plays football every Sunday.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.e1.005
+  set: E1
+  input_mode: text
+  text: I saw an interesting film. A film was about space.
+  words: null
+  gold:
+  - span: A film
+    fix_accept:
+    - The film
+    category: article.wrong
+    severity: 2
+  meaning: I saw an interesting film. The film was about space.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.e1.006
+  set: E1
+  input_mode: text
+  text: We went to the cinema yesterday and we have seen a good movie.
+  words: null
+  gold:
+  - span: we have seen
+    fix_accept:
+    - we saw
+    category: tense.past_simple
+    severity: 2
+  meaning: We went to the cinema yesterday and we saw a good movie.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.e1.007
+  set: E1
+  input_mode: text
+  text: I live in Warsaw since 2015.
+  words: null
+  gold:
+  - span: live
+    fix_accept:
+    - have lived
+    category: tense.present_perfect
+    severity: 2
+  meaning: I have lived in Warsaw since 2015.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.e1.008
+  set: E1
+  input_mode: text
+  text: Yesterday I go to the shop.
+  words: null
+  gold:
+  - span: I go
+    fix_accept:
+    - I went
+    category: tense.past_simple
+    severity: 2
+  meaning: Yesterday I went to the shop.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.e1.009
+  set: E1
+  input_mode: text
+  text: She don't like coffee.
+  words: null
+  gold:
+  - span: don't
+    fix_accept:
+    - doesn't
+    - does not
+    category: agreement.subject_verb
+    severity: 2
+  meaning: She doesn't like coffee.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.e1.010
+  set: E1
+  input_mode: text
+  text: He have two brothers.
+  words: null
+  gold:
+  - span: He have
+    fix_accept:
+    - He has
+    category: agreement.subject_verb
+    severity: 2
+  meaning: He has two brothers.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.e1.011
+  set: E1
+  input_mode: text
+  text: My sister work in a hospital.
+  words: null
+  gold:
+  - span: My sister work
+    fix_accept:
+    - My sister works
+    category: agreement.subject_verb
+    severity: 2
+  meaning: My sister works in a hospital.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.e1.012
+  set: E1
+  input_mode: text
+  text: I am agree with your opinion.
+  words: null
+  gold:
+  - span: I am agree
+    fix_accept:
+    - I agree
+    category: l1_calque
+    severity: 2
+  meaning: I agree with your opinion.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.e1.013
+  set: E1
+  input_mode: text
+  text: I will call you when I will arrive.
+  words: null
+  gold:
+  - span: when I will arrive
+    fix_accept:
+    - when I arrive
+    category: tense.sequence
+    severity: 2
+  meaning: I will call you when I arrive.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.e1.014
+  set: E1
+  input_mode: text
+  text: If it will rain, we will stay at home.
+  words: null
+  gold:
+  - span: If it will rain
+    fix_accept:
+    - If it rains
+    category: tense.sequence
+    severity: 2
+  meaning: If it rains, we will stay at home.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.e1.015
+  set: E1
+  input_mode: text
+  text: I am interested in learn English.
+  words: null
+  gold:
+  - span: in learn
+    fix_accept:
+    - in learning
+    category: morphology.word_form
+    severity: 2
+  meaning: I am interested in learning English.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.e1.016
+  set: E1
+  input_mode: text
+  text: She explained me the problem.
+  words: null
+  gold:
+  - span: explained me the problem
+    fix_accept:
+    - explained the problem to me
+    category: l1_calque.explain_me
+    severity: 2
+  meaning: She explained the problem to me.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.e1.017
+  set: E1
+  input_mode: text
+  text: He is married with a doctor.
+  words: null
+  gold:
+  - span: married with
+    fix_accept:
+    - married to
+    category: preposition.dependent
+    severity: 2
+  meaning: He is married to a doctor.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.e1.018
+  set: E1
+  input_mode: text
+  text: I am afraid from dogs.
+  words: null
+  gold:
+  - span: afraid from
+    fix_accept:
+    - afraid of
+    category: preposition.dependent
+    severity: 2
+  meaning: I am afraid of dogs.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.e1.019
+  set: E1
+  input_mode: text
+  text: We arrived to London at night.
+  words: null
+  gold:
+  - span: arrived to
+    fix_accept:
+    - arrived in
+    category: preposition.place
+    severity: 2
+  meaning: We arrived in London at night.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.e1.020
+  set: E1
+  input_mode: text
+  text: I will meet you in Monday.
+  words: null
+  gold:
+  - span: in Monday
+    fix_accept:
+    - on Monday
+    category: preposition.time
+    severity: 2
+  meaning: I will meet you on Monday.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.e1.021
+  set: E1
+  input_mode: text
+  text: She is good in mathematics.
+  words: null
+  gold:
+  - span: good in
+    fix_accept:
+    - good at
+    category: preposition.dependent
+    severity: 2
+  meaning: She is good at mathematics.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.e1.022
+  set: E1
+  input_mode: text
+  text: I have many work to do today.
+  words: null
+  gold:
+  - span: many work
+    fix_accept:
+    - a lot of work
+    - much work
+    category: determiner.quantifier
+    severity: 2
+  meaning: I have a lot of work to do today.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.e1.023
+  set: E1
+  input_mode: text
+  text: She gave me many advices.
+  words: null
+  gold:
+  - span: many advices
+    fix_accept:
+    - a lot of advice
+    - much advice
+    - some advice
+    category: morphology.plural
+    severity: 2
+  meaning: She gave me a lot of advice.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.e1.024
+  set: E1
+  input_mode: text
+  text: Can you give me some informations about the course?
+  words: null
+  gold:
+  - span: some informations
+    fix_accept:
+    - some information
+    category: morphology.plural
+    severity: 2
+  meaning: Can you give me some information about the course?
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.e1.025
+  set: E1
+  input_mode: text
+  text: Where you are going now?
+  words: null
+  gold:
+  - span: Where you are going
+    fix_accept:
+    - Where are you going
+    category: word_order.question
+    severity: 2
+  meaning: Where are you going now?
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.e1.026
+  set: E1
+  input_mode: text
+  text: I don't know where is the station.
+  words: null
+  gold:
+  - span: where is the station
+    fix_accept:
+    - where the station is
+    category: word_order.subordinate
+    severity: 2
+  meaning: I don't know where the station is.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.e1.027
+  set: E1
+  input_mode: text
+  text: I like very much this song.
+  words: null
+  gold:
+  - span: like very much this song
+    fix_accept:
+    - like this song very much
+    category: word_order.adverb
+    severity: 1
+  meaning: I like this song very much.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.e1.028
+  set: E1
+  input_mode: text
+  text: He asked me what time is it.
+  words: null
+  gold:
+  - span: what time is it
+    fix_accept:
+    - what time it was
+    - what time it is
+    category: word_order.subordinate
+    severity: 2
+  meaning: He asked me what time it was.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.e1.029
+  set: E1
+  input_mode: text
+  text: I make a photo of my cat every day.
+  words: null
+  gold:
+  - span: make a photo
+    fix_accept:
+    - take a photo
+    - take a picture
+    category: l1_calque.make_photo
+    severity: 2
+  meaning: I take a photo of my cat every day.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.e1.030
+  set: E1
+  input_mode: text
+  text: We did a big mistake in the report.
+  words: null
+  gold:
+  - span: did a big mistake
+    fix_accept:
+    - made a big mistake
+    category: collocation.verb_noun
+    severity: 2
+  meaning: We made a big mistake in the report.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.e1.031
+  set: E1
+  input_mode: text
+  text: I have been to Paris last year.
+  words: null
+  gold:
+  - span: I have been to Paris last year
+    fix_accept:
+    - I went to Paris last year
+    - I was in Paris last year
+    category: tense.past_simple
+    severity: 2
+  meaning: I went to Paris last year.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.e1.032
+  set: E1
+  input_mode: text
+  text: She has worked here since five years.
+  words: null
+  gold:
+  - span: since five years
+    fix_accept:
+    - for five years
+    category: preposition.time
+    severity: 2
+  meaning: She has worked here for five years.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.e1.033
+  set: E1
+  input_mode: text
+  text: I am student of computer science.
+  words: null
+  gold:
+  - span: am student
+    fix_accept:
+    - am a student
+    category: article.missing
+    severity: 2
+  meaning: I am a student of computer science.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.e1.034
+  set: E1
+  input_mode: text
+  text: The people in my country is very friendly.
+  words: null
+  gold:
+  - span: people in my country is
+    fix_accept:
+    - people in my country are
+    category: agreement.subject_verb
+    severity: 2
+  meaning: The people in my country are very friendly.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.e1.035
+  set: E1
+  input_mode: text
+  text: He goed to school by bus.
+  words: null
+  gold:
+  - span: goed
+    fix_accept:
+    - went
+    category: morphology.irregular_past
+    severity: 2
+  meaning: He went to school by bus.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.e1.036
+  set: E1
+  input_mode: text
+  text: There are three childs in the room.
+  words: null
+  gold:
+  - span: childs
+    fix_accept:
+    - children
+    category: morphology.plural
+    severity: 2
+  meaning: There are three children in the room.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.e1.037
+  set: E1
+  input_mode: text
+  text: She is more tall than her brother.
+  words: null
+  gold:
+  - span: more tall
+    fix_accept:
+    - taller
+    category: morphology.comparative
+    severity: 1
+  meaning: She is taller than her brother.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.e1.038
+  set: E1
+  input_mode: text
+  text: I can to swim very well.
+  words: null
+  gold:
+  - span: can to swim
+    fix_accept:
+    - can swim
+    category: morphology.word_form
+    severity: 2
+  meaning: I can swim very well.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.e1.039
+  set: E1
+  input_mode: text
+  text: I look forward to see you next week.
+  words: null
+  gold:
+  - span: to see
+    fix_accept:
+    - to seeing
+    category: morphology.word_form
+    severity: 2
+  meaning: I look forward to seeing you next week.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.e1.040
+  set: E1
+  input_mode: text
+  text: She said me that she was tired.
+  words: null
+  gold:
+  - span: said me
+    fix_accept:
+    - told me
+    category: word_choice.confusable
+    severity: 2
+  meaning: She told me that she was tired.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.e1.041
+  set: E1
+  input_mode: text
+  text: I am here from two hours.
+  words: null
+  gold:
+  - span: from two hours
+    fix_accept:
+    - for two hours
+    category: preposition.time
+    severity: 2
+  meaning: I am here for two hours.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.e1.042
+  set: E1
+  input_mode: text
+  text: Can I have a water, please?
+  words: null
+  gold:
+  - span: a water
+    fix_accept:
+    - some water
+    - a glass of water
+    - a bottle of water
+    category: article.extra
+    severity: 1
+  meaning: Can I have some water, please?
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.e1.043
+  set: E1
+  input_mode: text
+  text: We discussed about the project.
+  words: null
+  gold:
+  - span: discussed about
+    fix_accept:
+    - discussed
+    category: preposition.dependent
+    severity: 2
+  meaning: We discussed the project.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.e1.044
+  set: E1
+  input_mode: text
+  text: I have a meeting at the Friday.
+  words: null
+  gold:
+  - span: at the Friday
+    fix_accept:
+    - on Friday
+    category: preposition.time
+    severity: 2
+  meaning: I have a meeting on Friday.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.e1.045
+  set: E1
+  input_mode: text
+  text: He suggested me to take a break.
+  words: null
+  gold:
+  - span: suggested me to take a break
+    fix_accept:
+    - suggested that I take a break
+    - suggested I take a break
+    - suggested taking a break
+    category: l1_calque
+    severity: 2
+  meaning: He suggested that I take a break.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.e2.001
+  set: E2
+  input_mode: text
+  text: Yesterday I go to the shop and buy new shoes.
+  words: null
+  gold:
+  - span: go
+    fix_accept:
+    - went
+    category: tense.past_simple
+    severity: 2
+  - span: buy
+    fix_accept:
+    - bought
+    category: tense.past_simple
+    severity: 2
+  meaning: Yesterday I went to the shop and bought new shoes.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.e2.002
+  set: E2
+  input_mode: text
+  text: She don't has a car and she walk to work.
+  words: null
+  gold:
+  - span: don't has
+    fix_accept:
+    - doesn't have
+    - does not have
+    category: agreement.subject_verb
+    severity: 2
+  - span: she walk
+    fix_accept:
+    - she walks
+    category: agreement.subject_verb
+    severity: 2
+  meaning: She doesn't have a car and she walks to work.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.e2.003
+  set: E2
+  input_mode: text
+  text: I am agree that he have good ideas.
+  words: null
+  gold:
+  - span: I am agree
+    fix_accept:
+    - I agree
+    category: l1_calque
+    severity: 2
+  - span: he have
+    fix_accept:
+    - he has
+    category: agreement.subject_verb
+    severity: 2
+  meaning: I agree that he has good ideas.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.e2.004
+  set: E2
+  input_mode: text
+  text: My brother is doctor and he work in hospital.
+  words: null
+  gold:
+  - span: is doctor
+    fix_accept:
+    - is a doctor
+    category: article.missing
+    severity: 2
+  - span: work
+    fix_accept:
+    - works
+    category: agreement.subject_verb
+    severity: 2
+  - span: in hospital
+    fix_accept:
+    - in a hospital
+    - in the hospital
+    category: article.missing
+    severity: 2
+  meaning: My brother is a doctor and he works in a hospital.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.e2.005
+  set: E2
+  input_mode: text
+  text: Last week I have visited my friend who live in Krakow.
+  words: null
+  gold:
+  - span: I have visited
+    fix_accept:
+    - I visited
+    category: tense.past_simple
+    severity: 2
+  - span: who live
+    fix_accept:
+    - who lives
+    category: agreement.subject_verb
+    severity: 2
+  meaning: Last week I visited my friend who lives in Krakow.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.e2.006
+  set: E2
+  input_mode: text
+  text: He explained me that he can't to come.
+  words: null
+  gold:
+  - span: explained me
+    fix_accept:
+    - told me
+    - explained to me
+    category: l1_calque.explain_me
+    severity: 2
+  - span: can't to come
+    fix_accept:
+    - can't come
+    category: morphology.word_form
+    severity: 2
+  meaning: He told me that he can't come.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.e2.007
+  set: E2
+  input_mode: text
+  text: I look forward to meet you and your childs.
+  words: null
+  gold:
+  - span: to meet
+    fix_accept:
+    - to meeting
+    category: morphology.word_form
+    severity: 2
+  - span: childs
+    fix_accept:
+    - children
+    category: morphology.plural
+    severity: 2
+  meaning: I look forward to meeting you and your children.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.e2.008
+  set: E2
+  input_mode: text
+  text: We discussed about the problem since two hours.
+  words: null
+  gold:
+  - span: discussed about
+    fix_accept:
+    - discussed
+    category: preposition.dependent
+    severity: 2
+  - span: since two hours
+    fix_accept:
+    - for two hours
+    category: preposition.time
+    severity: 2
+  meaning: We discussed the problem for two hours.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.e2.009
+  set: E2
+  input_mode: text
+  text: She has many informations about the course but she didn't gave me.
+  words: null
+  gold:
+  - span: many informations
+    fix_accept:
+    - a lot of information
+    - much information
+    category: morphology.plural
+    severity: 2
+  - span: didn't gave
+    fix_accept:
+    - didn't give
+    category: tense.past_simple
+    severity: 2
+  meaning: She has a lot of information about the course but she didn't give me.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.e2.010
+  set: E2
+  input_mode: text
+  text: If I will have time, I go to the cinema with my friends.
+  words: null
+  gold:
+  - span: If I will have
+    fix_accept:
+    - If I have
+    category: tense.sequence
+    severity: 2
+  - span: I go
+    fix_accept:
+    - I'll go
+    - I will go
+    category: tense.future
+    severity: 2
+  meaning: If I have time, I'll go to the cinema with my friends.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.e2.011
+  set: E2
+  input_mode: text
+  text: Where you work and how long you live there?
+  words: null
+  gold:
+  - span: Where you work
+    fix_accept:
+    - Where do you work
+    category: word_order.question
+    severity: 2
+  - span: how long you live
+    fix_accept:
+    - how long do you live
+    - how long have you lived
+    category: word_order.question
+    severity: 2
+  meaning: Where do you work and how long do you live there?
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.e2.012
+  set: E2
+  input_mode: text
+  text: I buyed a new phone but battery is bad.
+  words: null
+  gold:
+  - span: buyed
+    fix_accept:
+    - bought
+    category: morphology.irregular_past
+    severity: 2
+  - span: battery is bad
+    fix_accept:
+    - the battery is bad
+    - its battery is bad
+    category: article.missing
+    severity: 1
+  meaning: I bought a new phone but the battery is bad.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.e2.013
+  set: E2
+  input_mode: text
+  text: He is more smart than his sister and he have better marks.
+  words: null
+  gold:
+  - span: more smart
+    fix_accept:
+    - smarter
+    category: morphology.comparative
+    severity: 1
+  - span: he have
+    fix_accept:
+    - he has
+    category: agreement.subject_verb
+    severity: 2
+  meaning: He is smarter than his sister and he has better marks.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.e2.014
+  set: E2
+  input_mode: text
+  text: In my country people is very friendly and weather are warm.
+  words: null
+  gold:
+  - span: people is
+    fix_accept:
+    - people are
+    category: agreement.subject_verb
+    severity: 2
+  - span: weather are
+    fix_accept:
+    - the weather is
+    - weather is
+    category: agreement.subject_verb
+    severity: 2
+  meaning: In my country people are very friendly and the weather is warm.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.e2.015
+  set: E2
+  input_mode: text
+  text: Can you borrow me your pen? I have forgot it at home yesterday.
+  words: null
+  gold:
+  - span: borrow me
+    fix_accept:
+    - lend me
+    category: word_choice.confusable
+    severity: 2
+  - span: have forgot
+    fix_accept:
+    - forgot
+    category: tense.past_simple
+    severity: 2
+  meaning: Can you lend me your pen? I forgot it at home yesterday.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.c1.001
+  set: C1
+  input_mode: text
+  text: I usually get up at seven and walk to work.
+  words: null
+  gold: []
+  meaning: I usually get up at seven and walk to work.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.c1.002
+  set: C1
+  input_mode: text
+  text: She has lived in London for three years.
+  words: null
+  gold: []
+  meaning: She has lived in London for three years.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.c1.003
+  set: C1
+  input_mode: text
+  text: If it rains tomorrow, we will stay at home.
+  words: null
+  gold: []
+  meaning: If it rains tomorrow, we will stay at home.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.c1.004
+  set: C1
+  input_mode: text
+  text: Could you tell me where the station is?
+  words: null
+  gold: []
+  meaning: Could you tell me where the station is?
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.c1.005
+  set: C1
+  input_mode: text
+  text: He is an engineer and works for a software company.
+  words: null
+  gold: []
+  meaning: He is an engineer and works for a software company.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.c1.006
+  set: C1
+  input_mode: text
+  text: We have already finished the report.
+  words: null
+  gold: []
+  meaning: We have already finished the report.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.c1.007
+  set: C1
+  input_mode: text
+  text: My sister doesn't like coffee, but she loves tea.
+  words: null
+  gold: []
+  meaning: My sister doesn't like coffee, but she loves tea.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.c1.008
+  set: C1
+  input_mode: text
+  text: They were watching a film when the power went out.
+  words: null
+  gold: []
+  meaning: They were watching a film when the power went out.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.c1.009
+  set: C1
+  input_mode: text
+  text: I'm looking forward to seeing you next week.
+  words: null
+  gold: []
+  meaning: I'm looking forward to seeing you next week.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.c1.010
+  set: C1
+  input_mode: text
+  text: There are three children in the room.
+  words: null
+  gold: []
+  meaning: There are three children in the room.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.c1.011
+  set: C1
+  input_mode: text
+  text: What time does the meeting start?
+  words: null
+  gold: []
+  meaning: What time does the meeting start?
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.c1.012
+  set: C1
+  input_mode: text
+  text: She told me that she was tired.
+  words: null
+  gold: []
+  meaning: She told me that she was tired.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.c1.013
+  set: C1
+  input_mode: text
+  text: I have been learning English for two years.
+  words: null
+  gold: []
+  meaning: I have been learning English for two years.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.c1.014
+  set: C1
+  input_mode: text
+  text: The documents were sent to the client yesterday.
+  words: null
+  gold: []
+  meaning: The documents were sent to the client yesterday.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.c1.015
+  set: C1
+  input_mode: text
+  text: Having finished the work, he went home.
+  words: null
+  gold: []
+  meaning: Having finished the work, he went home.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.c1.016
+  set: C1
+  input_mode: text
+  text: I would like to book a table for four people.
+  words: null
+  gold: []
+  meaning: I would like to book a table for four people.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.c1.017
+  set: C1
+  input_mode: text
+  text: He suggested that we take a break.
+  words: null
+  gold: []
+  meaning: He suggested that we take a break.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.c1.018
+  set: C1
+  input_mode: text
+  text: My parents live in a small town near the sea.
+  words: null
+  gold: []
+  meaning: My parents live in a small town near the sea.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.c1.019
+  set: C1
+  input_mode: text
+  text: Do you know how much this costs?
+  words: null
+  gold: []
+  meaning: Do you know how much this costs?
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.c1.020
+  set: C1
+  input_mode: text
+  text: We discussed the project for two hours.
+  words: null
+  gold: []
+  meaning: We discussed the project for two hours.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.c1.021
+  set: C1
+  input_mode: text
+  text: I'm afraid of spiders.
+  words: null
+  gold: []
+  meaning: I'm afraid of spiders.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.c1.022
+  set: C1
+  input_mode: text
+  text: She is better at maths than her brother.
+  words: null
+  gold: []
+  meaning: She is better at maths than her brother.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.c1.023
+  set: C1
+  input_mode: text
+  text: The weather is very warm in my country.
+  words: null
+  gold: []
+  meaning: The weather is very warm in my country.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.c1.024
+  set: C1
+  input_mode: text
+  text: Can you lend me your pen, please?
+  words: null
+  gold: []
+  meaning: Can you lend me your pen, please?
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.c1.025
+  set: C1
+  input_mode: text
+  text: I didn't go to work because I was ill.
+  words: null
+  gold: []
+  meaning: I didn't go to work because I was ill.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.c2.001
+  set: C2
+  input_mode: text
+  text: I'll meet you at the cinema and then we can go to the centre.
+  words: null
+  gold: []
+  meaning: I'll meet you at the cinema and then we can go to the centre.
+  variety: BrE
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.c2.002
+  set: C2
+  input_mode: text
+  text: The colour of the flat is lovely.
+  words: null
+  gold: []
+  meaning: The colour of the flat is lovely.
+  variety: BrE
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.c2.003
+  set: C2
+  input_mode: text
+  text: We travelled to the city centre by tube.
+  words: null
+  gold: []
+  meaning: We travelled to the city centre by tube.
+  variety: BrE
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.c2.004
+  set: C2
+  input_mode: text
+  text: Have you got a pen I can borrow?
+  words: null
+  gold: []
+  meaning: Have you got a pen I can borrow?
+  variety: BrE
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.c2.005
+  set: C2
+  input_mode: text
+  text: I've just eaten, thanks.
+  words: null
+  gold: []
+  meaning: I've just eaten, thanks.
+  variety: BrE
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.c2.006
+  set: C2
+  input_mode: text
+  text: I just ate, thanks.
+  words: null
+  gold: []
+  meaning: I just ate, thanks.
+  variety: AmE
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.c2.007
+  set: C2
+  input_mode: text
+  text: She has gotten much better at chess.
+  words: null
+  gold: []
+  meaning: She has gotten much better at chess.
+  variety: AmE
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.c2.008
+  set: C2
+  input_mode: text
+  text: My favorite color is green.
+  words: null
+  gold: []
+  meaning: My favorite color is green.
+  variety: AmE
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.c2.009
+  set: C2
+  input_mode: text
+  text: We took the elevator to the apartment on the fifth floor.
+  words: null
+  gold: []
+  meaning: We took the elevator to the apartment on the fifth floor.
+  variety: AmE
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.c2.010
+  set: C2
+  input_mode: text
+  text: I need to organise my schedule.
+  words: null
+  gold: []
+  meaning: I need to organise my schedule.
+  variety: BrE
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.c2.011
+  set: C2
+  input_mode: text
+  text: I need to organize my schedule.
+  words: null
+  gold: []
+  meaning: I need to organize my schedule.
+  variety: AmE
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.c2.012
+  set: C2
+  input_mode: text
+  text: Whom did you speak to?
+  words: null
+  gold: []
+  meaning: Whom did you speak to?
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.c2.013
+  set: C2
+  input_mode: text
+  text: The team are playing well today.
+  words: null
+  gold: []
+  meaning: The team are playing well today.
+  variety: BrE
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.c2.014
+  set: C2
+  input_mode: text
+  text: The team is playing well today.
+  words: null
+  gold: []
+  meaning: The team is playing well today.
+  variety: AmE
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.c2.015
+  set: C2
+  input_mode: text
+  text: Neither of the answers is correct.
+  words: null
+  gold: []
+  meaning: Neither of the answers is correct.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.c3.001
+  set: C3
+  input_mode: voice
+  text: Yeah, I'm gonna call him later.
+  words:
+  - - Yeah,
+    - 0.0
+    - 0.3
+    - 0.93
+  - - I'm
+    - 0.35
+    - 0.65
+    - 0.93
+  - - gonna
+    - 0.7
+    - 1.0
+    - 0.93
+  - - call
+    - 1.05
+    - 1.35
+    - 0.93
+  - - him
+    - 1.4
+    - 1.7
+    - 0.93
+  - - later.
+    - 1.75
+    - 2.05
+    - 0.93
+  gold: []
+  meaning: Yeah, I'm gonna call him later.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.c3.002
+  set: C3
+  input_mode: voice
+  text: And then we went home.
+  words:
+  - - And
+    - 0.0
+    - 0.3
+    - 0.93
+  - - then
+    - 0.35
+    - 0.65
+    - 0.93
+  - - we
+    - 0.7
+    - 1.0
+    - 0.93
+  - - went
+    - 1.05
+    - 1.35
+    - 0.93
+  - - home.
+    - 1.4
+    - 1.7
+    - 0.93
+  gold: []
+  meaning: And then we went home.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.c3.003
+  set: C3
+  input_mode: voice
+  text: Sounds good.
+  words:
+  - - Sounds
+    - 0.0
+    - 0.3
+    - 0.93
+  - - good.
+    - 0.35
+    - 0.65
+    - 0.93
+  gold: []
+  meaning: Sounds good.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.c3.004
+  set: C3
+  input_mode: voice
+  text: I wanna learn more about it.
+  words:
+  - - I
+    - 0.0
+    - 0.3
+    - 0.93
+  - - wanna
+    - 0.35
+    - 0.65
+    - 0.93
+  - - learn
+    - 0.7
+    - 1.0
+    - 0.93
+  - - more
+    - 1.05
+    - 1.35
+    - 0.93
+  - - about
+    - 1.4
+    - 1.7
+    - 0.93
+  - - it.
+    - 1.75
+    - 2.05
+    - 0.93
+  gold: []
+  meaning: I wanna learn more about it.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.c3.005
+  set: C3
+  input_mode: voice
+  text: Kinda tired today, to be honest.
+  words:
+  - - Kinda
+    - 0.0
+    - 0.3
+    - 0.93
+  - - tired
+    - 0.35
+    - 0.65
+    - 0.93
+  - - today,
+    - 0.7
+    - 1.0
+    - 0.93
+  - - to
+    - 1.05
+    - 1.35
+    - 0.93
+  - - be
+    - 1.4
+    - 1.7
+    - 0.93
+  - - honest.
+    - 1.75
+    - 2.05
+    - 0.93
+  gold: []
+  meaning: Kinda tired today, to be honest.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.c3.006
+  set: C3
+  input_mode: voice
+  text: But I really like it.
+  words:
+  - - But
+    - 0.0
+    - 0.3
+    - 0.93
+  - - I
+    - 0.35
+    - 0.65
+    - 0.93
+  - - really
+    - 0.7
+    - 1.0
+    - 0.93
+  - - like
+    - 1.05
+    - 1.35
+    - 0.93
+  - - it.
+    - 1.4
+    - 1.7
+    - 0.93
+  gold: []
+  meaning: But I really like it.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.c3.007
+  set: C3
+  input_mode: voice
+  text: No worries, see you tomorrow.
+  words:
+  - - 'No'
+    - 0.0
+    - 0.3
+    - 0.93
+  - - worries,
+    - 0.35
+    - 0.65
+    - 0.93
+  - - see
+    - 0.7
+    - 1.0
+    - 0.93
+  - - you
+    - 1.05
+    - 1.35
+    - 0.93
+  - - tomorrow.
+    - 1.4
+    - 1.7
+    - 0.93
+  gold: []
+  meaning: No worries, see you tomorrow.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.c3.008
+  set: C3
+  input_mode: voice
+  text: I've gotta go now.
+  words:
+  - - I've
+    - 0.0
+    - 0.3
+    - 0.93
+  - - gotta
+    - 0.35
+    - 0.65
+    - 0.93
+  - - go
+    - 0.7
+    - 1.0
+    - 0.93
+  - - now.
+    - 1.05
+    - 1.35
+    - 0.93
+  gold: []
+  meaning: I've gotta go now.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.c3.009
+  set: C3
+  input_mode: voice
+  text: Yeah, sure, why not?
+  words:
+  - - Yeah,
+    - 0.0
+    - 0.3
+    - 0.93
+  - - sure,
+    - 0.35
+    - 0.65
+    - 0.93
+  - - why
+    - 0.7
+    - 1.0
+    - 0.93
+  - - not?
+    - 1.05
+    - 1.35
+    - 0.93
+  gold: []
+  meaning: Yeah, sure, why not?
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.c3.010
+  set: C3
+  input_mode: voice
+  text: Not really, maybe next week.
+  words:
+  - - Not
+    - 0.0
+    - 0.3
+    - 0.93
+  - - really,
+    - 0.35
+    - 0.65
+    - 0.93
+  - - maybe
+    - 0.7
+    - 1.0
+    - 0.93
+  - - next
+    - 1.05
+    - 1.35
+    - 0.93
+  - - week.
+    - 1.4
+    - 1.7
+    - 0.93
+  gold: []
+  meaning: Not really, maybe next week.
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.s.001
+  set: S
+  input_mode: voice
+  text: I have apple for lunch
+  words:
+  - - I
+    - 0.0
+    - 0.3
+    - 0.93
+  - - have
+    - 0.35
+    - 0.65
+    - 0.93
+  - - apple
+    - 0.7
+    - 1.0
+    - 0.38
+  - - for
+    - 1.05
+    - 1.35
+    - 0.93
+  - - lunch
+    - 1.4
+    - 1.7
+    - 0.93
+  gold: []
+  meaning: I have apple for lunch
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.s.002
+  set: S
+  input_mode: voice
+  text: She walk to school every day
+  words:
+  - - She
+    - 0.0
+    - 0.3
+    - 0.93
+  - - walk
+    - 0.35
+    - 0.65
+    - 0.41
+  - - to
+    - 0.7
+    - 1.0
+    - 0.93
+  - - school
+    - 1.05
+    - 1.35
+    - 0.93
+  - - every
+    - 1.4
+    - 1.7
+    - 0.93
+  - - day
+    - 1.75
+    - 2.05
+    - 0.93
+  gold: []
+  meaning: She walk to school every day
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.s.003
+  set: S
+  input_mode: voice
+  text: Their going to the park
+  words:
+  - - Their
+    - 0.0
+    - 0.3
+    - 0.42
+  - - going
+    - 0.35
+    - 0.65
+    - 0.93
+  - - to
+    - 0.7
+    - 1.0
+    - 0.93
+  - - the
+    - 1.05
+    - 1.35
+    - 0.93
+  - - park
+    - 1.4
+    - 1.7
+    - 0.93
+  gold: []
+  meaning: Their going to the park
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.s.004
+  set: S
+  input_mode: voice
+  text: I can come tomorrow
+  words:
+  - - I
+    - 0.0
+    - 0.3
+    - 0.93
+  - - can
+    - 0.35
+    - 0.65
+    - 0.45
+  - - come
+    - 0.7
+    - 1.0
+    - 0.93
+  - - tomorrow
+    - 1.05
+    - 1.35
+    - 0.93
+  gold: []
+  meaning: I can come tomorrow
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.s.005
+  set: S
+  input_mode: voice
+  text: He work in a bank
+  words:
+  - - He
+    - 0.0
+    - 0.3
+    - 0.93
+  - - work
+    - 0.35
+    - 0.65
+    - 0.44
+  - - in
+    - 0.7
+    - 1.0
+    - 0.93
+  - - a
+    - 1.05
+    - 1.35
+    - 0.93
+  - - bank
+    - 1.4
+    - 1.7
+    - 0.93
+  gold: []
+  meaning: He work in a bank
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.s.006
+  set: S
+  input_mode: voice
+  text: I want to go too the party
+  words:
+  - - I
+    - 0.0
+    - 0.3
+    - 0.93
+  - - want
+    - 0.35
+    - 0.65
+    - 0.93
+  - - to
+    - 0.7
+    - 1.0
+    - 0.93
+  - - go
+    - 1.05
+    - 1.35
+    - 0.93
+  - - too
+    - 1.4
+    - 1.7
+    - 0.4
+  - - the
+    - 1.75
+    - 2.05
+    - 0.93
+  - - party
+    - 2.1
+    - 2.4
+    - 0.93
+  gold: []
+  meaning: I want to go too the party
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.s.007
+  set: S
+  input_mode: voice
+  text: She have two cats
+  words:
+  - - She
+    - 0.0
+    - 0.3
+    - 0.93
+  - - have
+    - 0.35
+    - 0.65
+    - 0.47
+  - - two
+    - 0.7
+    - 1.0
+    - 0.93
+  - - cats
+    - 1.05
+    - 1.35
+    - 0.93
+  gold: []
+  meaning: She have two cats
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.s.008
+  set: S
+  input_mode: voice
+  text: We need new laptop for work
+  words:
+  - - We
+    - 0.0
+    - 0.3
+    - 0.93
+  - - need
+    - 0.35
+    - 0.65
+    - 0.93
+  - - new
+    - 0.7
+    - 1.0
+    - 0.93
+  - - laptop
+    - 1.05
+    - 1.35
+    - 0.36
+  - - for
+    - 1.4
+    - 1.7
+    - 0.93
+  - - work
+    - 1.75
+    - 2.05
+    - 0.93
+  gold: []
+  meaning: We need new laptop for work
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.s.009
+  set: S
+  input_mode: voice
+  text: Yesterday I walk to work
+  words:
+  - - Yesterday
+    - 0.0
+    - 0.3
+    - 0.93
+  - - I
+    - 0.35
+    - 0.65
+    - 0.93
+  - - walk
+    - 0.7
+    - 1.0
+    - 0.43
+  - - to
+    - 1.05
+    - 1.35
+    - 0.93
+  - - work
+    - 1.4
+    - 1.7
+    - 0.93
+  gold: []
+  meaning: Yesterday I walk to work
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.s.010
+  set: S
+  input_mode: voice
+  text: Your welcome no problem
+  words:
+  - - Your
+    - 0.0
+    - 0.3
+    - 0.39
+  - - welcome
+    - 0.35
+    - 0.65
+    - 0.93
+  - - 'no'
+    - 0.7
+    - 1.0
+    - 0.93
+  - - problem
+    - 1.05
+    - 1.35
+    - 0.93
+  gold: []
+  meaning: Your welcome no problem
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.s.011
+  set: S
+  input_mode: voice
+  text: He don't like it
+  words:
+  - - He
+    - 0.0
+    - 0.3
+    - 0.93
+  - - don't
+    - 0.35
+    - 0.65
+    - 0.46
+  - - like
+    - 0.7
+    - 1.0
+    - 0.93
+  - - it
+    - 1.05
+    - 1.35
+    - 0.93
+  gold: []
+  meaning: He don't like it
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.s.012
+  set: S
+  input_mode: voice
+  text: I seen him yesterday
+  words:
+  - - I
+    - 0.0
+    - 0.3
+    - 0.93
+  - - seen
+    - 0.35
+    - 0.65
+    - 0.37
+  - - him
+    - 0.7
+    - 1.0
+    - 0.93
+  - - yesterday
+    - 1.05
+    - 1.35
+    - 0.93
+  gold: []
+  meaning: I seen him yesterday
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.d.001
+  set: D
+  input_mode: voice
+  text: I um I went to the market yesterday
+  words:
+  - - I
+    - 0.0
+    - 0.3
+    - 0.93
+  - - um
+    - 0.35
+    - 0.65
+    - 0.93
+  - - I
+    - 0.7
+    - 1.0
+    - 0.93
+  - - went
+    - 1.05
+    - 1.35
+    - 0.93
+  - - to
+    - 1.4
+    - 1.7
+    - 0.93
+  - - the
+    - 1.75
+    - 2.05
+    - 0.93
+  - - market
+    - 2.1
+    - 2.4
+    - 0.93
+  - - yesterday
+    - 2.45
+    - 2.75
+    - 0.93
+  gold: []
+  meaning: I um I went to the market yesterday
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.d.002
+  set: D
+  input_mode: voice
+  text: I I I want to go home
+  words:
+  - - I
+    - 0.0
+    - 0.3
+    - 0.93
+  - - I
+    - 0.35
+    - 0.65
+    - 0.93
+  - - I
+    - 0.7
+    - 1.0
+    - 0.93
+  - - want
+    - 1.05
+    - 1.35
+    - 0.93
+  - - to
+    - 1.4
+    - 1.7
+    - 0.93
+  - - go
+    - 1.75
+    - 2.05
+    - 0.93
+  - - home
+    - 2.1
+    - 2.4
+    - 0.93
+  gold: []
+  meaning: I I I want to go home
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.d.003
+  set: D
+  input_mode: voice
+  text: I goed — I went to school by bus
+  words:
+  - - I
+    - 0.0
+    - 0.3
+    - 0.93
+  - - goed
+    - 0.35
+    - 0.65
+    - 0.93
+  - - —
+    - 0.7
+    - 1.0
+    - 0.93
+  - - I
+    - 1.05
+    - 1.35
+    - 0.93
+  - - went
+    - 1.4
+    - 1.7
+    - 0.93
+  - - to
+    - 1.75
+    - 2.05
+    - 0.93
+  - - school
+    - 2.1
+    - 2.4
+    - 0.93
+  - - by
+    - 2.45
+    - 2.75
+    - 0.93
+  - - bus
+    - 2.8
+    - 3.1
+    - 0.93
+  gold: []
+  meaning: I goed — I went to school by bus
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.d.004
+  set: D
+  input_mode: voice
+  text: She, you know, works in a bank
+  words:
+  - - She,
+    - 0.0
+    - 0.3
+    - 0.93
+  - - you
+    - 0.35
+    - 0.65
+    - 0.93
+  - - know,
+    - 0.7
+    - 1.0
+    - 0.93
+  - - works
+    - 1.05
+    - 1.35
+    - 0.93
+  - - in
+    - 1.4
+    - 1.7
+    - 0.93
+  - - a
+    - 1.75
+    - 2.05
+    - 0.93
+  - - bank
+    - 2.1
+    - 2.4
+    - 0.93
+  gold: []
+  meaning: She, you know, works in a bank
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.d.005
+  set: D
+  input_mode: voice
+  text: We went to the, uh, cinema
+  words:
+  - - We
+    - 0.0
+    - 0.3
+    - 0.93
+  - - went
+    - 0.35
+    - 0.65
+    - 0.93
+  - - to
+    - 0.7
+    - 1.0
+    - 0.93
+  - - the,
+    - 1.05
+    - 1.35
+    - 0.93
+  - - uh,
+    - 1.4
+    - 1.7
+    - 0.93
+  - - cinema
+    - 1.75
+    - 2.05
+    - 0.93
+  gold: []
+  meaning: We went to the, uh, cinema
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.d.006
+  set: D
+  input_mode: voice
+  text: He have — he has two sisters
+  words:
+  - - He
+    - 0.0
+    - 0.3
+    - 0.93
+  - - have
+    - 0.35
+    - 0.65
+    - 0.93
+  - - —
+    - 0.7
+    - 1.0
+    - 0.93
+  - - he
+    - 1.05
+    - 1.35
+    - 0.93
+  - - has
+    - 1.4
+    - 1.7
+    - 0.93
+  - - two
+    - 1.75
+    - 2.05
+    - 0.93
+  - - sisters
+    - 2.1
+    - 2.4
+    - 0.93
+  gold: []
+  meaning: He have — he has two sisters
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.d.007
+  set: D
+  input_mode: voice
+  text: I like like like this song
+  words:
+  - - I
+    - 0.0
+    - 0.3
+    - 0.93
+  - - like
+    - 0.35
+    - 0.65
+    - 0.93
+  - - like
+    - 0.7
+    - 1.0
+    - 0.93
+  - - like
+    - 1.05
+    - 1.35
+    - 0.93
+  - - this
+    - 1.4
+    - 1.7
+    - 0.93
+  - - song
+    - 1.75
+    - 2.05
+    - 0.93
+  gold: []
+  meaning: I like like like this song
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+- id: g.d.008
+  set: D
+  input_mode: voice
+  text: Well, I mean, it was okay, erm, quite good
+  words:
+  - - Well,
+    - 0.0
+    - 0.3
+    - 0.93
+  - - I
+    - 0.35
+    - 0.65
+    - 0.93
+  - - mean,
+    - 0.7
+    - 1.0
+    - 0.93
+  - - it
+    - 1.05
+    - 1.35
+    - 0.93
+  - - was
+    - 1.4
+    - 1.7
+    - 0.93
+  - - okay,
+    - 1.75
+    - 2.05
+    - 0.93
+  - - erm,
+    - 2.1
+    - 2.4
+    - 0.93
+  - - quite
+    - 2.45
+    - 2.75
+    - 0.93
+  - - good
+    - 2.8
+    - 3.1
+    - 0.93
+  gold: []
+  meaning: Well, I mean, it was okay, erm, quite good
+  variety: any
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null

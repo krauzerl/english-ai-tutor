@@ -4,7 +4,7 @@ Bezpieczeństwo: host ∈ {127.0.0.1, localhost, ::1}, schemat http(s), bez dany
 HTTP wyłączone (serwer na localhost nie może odesłać tekstu ucznia na obcy host); `trust_env=False` (zmienne
 HTTP_PROXY nie kierują ruchu na zewnątrz). Błąd, timeout albo odpowiedź inna niż 200 ⇒ `None` (ocena idzie dalej
 samym modelem). Brak wykrytego błędu NIE jest dowodem poprawności wypowiedzi: `[]` ≠ „zdanie poprawne”.
-Kontrakt (language, text, motherTongue, disabledCategories; matches[].offset/length/replacements/rule.id/issueType/category.id)
+Kontrakt (language, text, motherTongue, disabledCategories; matches[].offset/length/replacements/rule.*)
 potwierdzony na żywym serwerze LT 6.6 (F4.6/C4). `language=en` bez odmiany wyłącza sprawdzanie pisowni.
 """
 from __future__ import annotations

@@ -87,20 +87,31 @@ def norm_eq(a: C.Item, b: C.Item) -> bool:
     return k(a) == k(b)
 
 
-def solve_check(pack: C.Pack, provider, structured, item: C.Item, *,
-                reject_on_mismatch: bool = False) -> tuple[str, str]:
-    """Rozwiązanie na ślepo (bez klucza). Zgodność => ai_checked; inaczej draft z notatką (albo rejected)."""
+def solve(pack: C.Pack, provider, structured, item: C.Item) -> Solve | None:
+    """Rozwiązanie na ślepo (bez klucza); `None` = model nie zwrócił poprawnej odpowiedzi strukturalnej."""
     from tutor.llm.base import InvalidStructuredOutput, Message
     prompt = _fill(pack.prompts["solve_item"]["text"], item_type=item.type, stimulus=item.stimulus or "-",
                    audio_text=item.audio_text or "-", prompt=item.prompt,
                    options=json.dumps(item.options, ensure_ascii=False) if item.options else "-")
     try:
-        s = structured(provider, [Message("user", prompt)], Solve, temperature=0.0, max_tokens=120)
+        return structured(provider, [Message("user", prompt)], Solve, temperature=0.0, max_tokens=120)
     except InvalidStructuredOutput:
+        return None
+
+
+def agrees(pack: C.Pack, item: C.Item, s: Solve | None, key: list[str] | None = None) -> bool:
+    return bool(s and not s.unclear and not s.multiple_correct and s.answer.strip()
+                and C.norm_answer(s.answer) in C.expand_answers(key or item.answers or [], pack.variants,
+                                                                item.domain))
+
+
+def solve_check(pack: C.Pack, provider, structured, item: C.Item, *,
+                reject_on_mismatch: bool = False) -> tuple[str, str]:
+    """Rozwiązanie na ślepo (bez klucza). Zgodność => ai_checked; inaczej draft z notatką (albo rejected)."""
+    s = solve(pack, provider, structured, item)
+    if s is None:
         return "draft", "solve_check: niepoprawna odpowiedź modelu (brak werdyktu)"
-    agree = (not s.unclear and not s.multiple_correct and bool(s.answer.strip())
-             and C.norm_answer(s.answer) in C.expand_answers(item.answers or [], pack.variants, item.domain))
-    if agree:
+    if agrees(pack, item, s):
         return "ai_checked", ("solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; "
                               "sędzia niezwalidowany)")
     why = "niejednoznaczne/więcej niż jedna poprawna" if (s.unclear or s.multiple_correct) else "niezgodność z kluczem"

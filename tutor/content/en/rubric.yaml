@@ -164,6 +164,16 @@ correction:
     bielik_benchmark_passed: false
     precision_min: 0.80
     false_alarm_max: 0.10
+    # F4.6/C6: bramy per kategoria/reguła i minimalna czułość. Puste listy = nic nie jest zaufane do czasu
+    # recenzji człowieka; benchmark tylko rekomenduje, niczego tu nie wpisuje.
+    trusted_categories: []
+    lt_trusted_rules: []
+    judge_agreement_min: 0.90
+    category_precision_min: 0.85
+    category_min_n: 8
+    recall_min: 0.50              # system niewykrywający błędów nie przechodzi bramy
+    recall_wilson_low_min: 0.40
+    min_reports: 10               # …i musi w ogóle coś zgłosić
   periodic_turns_per_correction: 3
   sev_min_interrupt: 2
   intensive_target_s: 6
