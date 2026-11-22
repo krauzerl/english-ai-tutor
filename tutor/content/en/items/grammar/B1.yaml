@@ -91,3 +91,432 @@
     reviewer: null
     reviewed_at: null
     notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka)'
+- id: en.f46.gram.b1.01
+  lang: en
+  skill_ids:
+  - en.gram.present_perfect
+  area: grammar
+  type: gap
+  cefr: B1
+  difficulty: 0.0
+  pools:
+  - practice
+  domain: grammar
+  prompt: I ___ already sent the email.
+  stimulus: null
+  options: null
+  answers:
+  - have
+  - '''ve'
+  explanation_pl: 'Have + III forma: rezultat do teraz.'
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.f46.gram.b1.02
+  lang: en
+  skill_ids:
+  - en.gram.present_perfect
+  area: grammar
+  type: mc
+  cefr: B1
+  difficulty: 0.1
+  pools:
+  - practice
+  domain: grammar
+  prompt: She has lived here ___ 2019.
+  stimulus: null
+  options:
+  - for
+  - since
+  - from
+  - during
+  answers:
+  - since
+  explanation_pl: Since + punkt w czasie, for + okres.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.f46.gram.b1.03
+  lang: en
+  skill_ids:
+  - en.gram.present_perfect
+  area: grammar
+  type: transform
+  cefr: B1
+  difficulty: 0.2
+  pools:
+  - practice
+  domain: grammar
+  prompt: 'Rewrite with the present perfect and ''already'': We booked the tickets.'
+  stimulus: null
+  options: null
+  answers:
+  - We have already booked the tickets
+  - We've already booked the tickets
+  - We have booked the tickets already
+  - We've booked the tickets already
+  explanation_pl: Have + booked, already przed III formą lub na końcu.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.f46.gram.b1.04
+  lang: en
+  skill_ids:
+  - en.gram.present_perfect
+  area: grammar
+  type: gap
+  cefr: B1
+  difficulty: 0.0
+  pools:
+  - practice
+  domain: grammar
+  prompt: How long have you ___ (know) Anna?
+  stimulus: null
+  options: null
+  answers:
+  - known
+  explanation_pl: Know → known (III forma).
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.f46.gram.b1.05
+  lang: en
+  skill_ids:
+  - en.gram.present_perfect
+  area: grammar
+  type: mc
+  cefr: B1
+  difficulty: 0.0
+  pools:
+  - retention
+  domain: grammar
+  prompt: I have worked here ___ three years.
+  stimulus: null
+  options:
+  - for
+  - since
+  - ago
+  - from
+  answers:
+  - for
+  explanation_pl: For + długość okresu.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: niezgodność z kluczem (sędzia niezwalidowany)'
+- id: en.f46.gram.b1.06
+  lang: en
+  skill_ids:
+  - en.gram.present_perfect
+  area: grammar
+  type: gap
+  cefr: B1
+  difficulty: 0.1
+  pools:
+  - retention
+  domain: grammar
+  prompt: They have not arrived ___.
+  stimulus: null
+  options: null
+  answers:
+  - yet
+  explanation_pl: Yet w przeczeniu i pytaniu.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.f46.gram.b1.07
+  lang: en
+  skill_ids:
+  - en.gram.present_perfect
+  area: grammar
+  type: reorder
+  cefr: B1
+  difficulty: 0.2
+  pools:
+  - retention
+  domain: grammar
+  prompt: 'Put the words in order: lost / I / keys / my / have'
+  stimulus: null
+  options: null
+  answers:
+  - I have lost my keys
+  - I've lost my keys
+  explanation_pl: 'Have + lost: skutek widoczny teraz.'
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.f46.gram.b1.08
+  lang: en
+  skill_ids:
+  - en.gram.passive_basic
+  area: grammar
+  type: gap
+  cefr: B1
+  difficulty: 0.0
+  pools:
+  - practice
+  domain: grammar
+  prompt: The report ___ (write) by our team last week.
+  stimulus: null
+  options: null
+  answers:
+  - was written
+  explanation_pl: 'Przeszłość bierna: was + III forma.'
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.f46.gram.b1.09
+  lang: en
+  skill_ids:
+  - en.gram.passive_basic
+  area: grammar
+  type: mc
+  cefr: B1
+  difficulty: 0.1
+  pools:
+  - practice
+  domain: grammar
+  prompt: English ___ in many countries.
+  stimulus: null
+  options:
+  - speaks
+  - is spoken
+  - is speaking
+  - spoke
+  answers:
+  - is spoken
+  explanation_pl: 'Strona bierna: is + III forma.'
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.f46.gram.b1.10
+  lang: en
+  skill_ids:
+  - en.gram.passive_basic
+  area: grammar
+  type: transform
+  cefr: B1
+  difficulty: 0.2
+  pools:
+  - practice
+  domain: grammar
+  prompt: 'Rewrite in the passive: The manager signed the contract.'
+  stimulus: null
+  options: null
+  answers:
+  - The contract was signed by the manager
+  - The contract was signed
+  explanation_pl: 'Dopełnienie staje się podmiotem: was signed.'
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.f46.gram.b1.11
+  lang: en
+  skill_ids:
+  - en.gram.passive_basic
+  area: grammar
+  type: gap
+  cefr: B1
+  difficulty: 0.0
+  pools:
+  - practice
+  domain: grammar
+  prompt: These emails ___ (send) every morning.
+  stimulus: null
+  options: null
+  answers:
+  - are sent
+  explanation_pl: 'Teraźniejsza bierna: are + III forma.'
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: niezgodność z kluczem (sędzia niezwalidowany)'
+- id: en.f46.gram.b1.12
+  lang: en
+  skill_ids:
+  - en.gram.passive_basic
+  area: grammar
+  type: mc
+  cefr: B1
+  difficulty: 0.0
+  pools:
+  - retention
+  domain: grammar
+  prompt: The bug ___ yesterday.
+  stimulus: null
+  options:
+  - was fixed
+  - fixed
+  - is fixing
+  - has fix
+  answers:
+  - was fixed
+  explanation_pl: 'Błąd nie naprawia sam siebie: was fixed.'
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.f46.gram.b1.13
+  lang: en
+  skill_ids:
+  - en.gram.passive_basic
+  area: grammar
+  type: transform
+  cefr: B1
+  difficulty: 0.1
+  pools:
+  - retention
+  domain: grammar
+  prompt: 'Rewrite in the passive: Someone stole my laptop.'
+  stimulus: null
+  options: null
+  answers:
+  - My laptop was stolen
+  - My laptop was stolen by someone
+  explanation_pl: Steal → was stolen.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.f46.gram.b1.14
+  lang: en
+  skill_ids:
+  - en.gram.passive_basic
+  area: grammar
+  type: gap
+  cefr: B1
+  difficulty: 0.2
+  pools:
+  - retention
+  domain: grammar
+  prompt: The servers ___ (update) every night.
+  stimulus: null
+  options: null
+  answers:
+  - are updated
+  explanation_pl: 'Czynność regularna, sprawca nieistotny: are updated.'
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: niezgodność z kluczem (sędzia niezwalidowany)'

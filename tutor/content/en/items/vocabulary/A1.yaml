@@ -94,3 +94,215 @@
     reviewer: null
     reviewed_at: null
     notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka)'
+- id: en.f46.vocab.a1.01
+  lang: en
+  skill_ids:
+  - en.vocab.daily_routine
+  area: vocabulary
+  type: translate_pl
+  cefr: A1
+  difficulty: -0.7
+  pools:
+  - practice
+  domain: general
+  prompt: 'Translate into English: "budzić się"'
+  stimulus: null
+  options: null
+  answers:
+  - wake up
+  explanation_pl: budzić się = wake up.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: niezgodność z kluczem (sędzia niezwalidowany)'
+- id: en.f46.vocab.a1.02
+  lang: en
+  skill_ids:
+  - en.vocab.daily_routine
+  area: vocabulary
+  type: mc
+  cefr: A1
+  difficulty: -0.6
+  pools:
+  - practice
+  domain: general
+  prompt: I ___ up at 7:00 and brush my teeth.
+  stimulus: null
+  options:
+  - get
+  - make
+  - put
+  - go
+  answers:
+  - get
+  explanation_pl: Wstawać = get up.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.f46.vocab.a1.03
+  lang: en
+  skill_ids:
+  - en.vocab.daily_routine
+  area: vocabulary
+  type: gap
+  cefr: A1
+  difficulty: -0.5
+  pools:
+  - practice
+  domain: general
+  prompt: I go to ___ at eleven o'clock at night.
+  stimulus: null
+  options: null
+  answers:
+  - bed
+  explanation_pl: Iść spać = go to bed.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: niezgodność z kluczem (sędzia niezwalidowany)'
+- id: en.f46.vocab.a1.04
+  lang: en
+  skill_ids:
+  - en.vocab.daily_routine
+  area: vocabulary
+  type: gap
+  cefr: A1
+  difficulty: -0.7
+  pools:
+  - practice
+  domain: general
+  prompt: In the evening I ___ TV.
+  stimulus: null
+  options: null
+  answers:
+  - watch
+  explanation_pl: 'Telewizję się ogląda: watch TV.'
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.f46.vocab.a1.05
+  lang: en
+  skill_ids:
+  - en.vocab.daily_routine
+  area: vocabulary
+  type: mc
+  cefr: A1
+  difficulty: -0.7
+  pools:
+  - retention
+  domain: general
+  prompt: I ___ my teeth twice a day.
+  stimulus: null
+  options:
+  - brush
+  - make
+  - put
+  - drive
+  answers:
+  - brush
+  explanation_pl: Myć zęby = brush your teeth.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.f46.vocab.a1.06
+  lang: en
+  skill_ids:
+  - en.vocab.daily_routine
+  area: vocabulary
+  type: translate_pl
+  cefr: A1
+  difficulty: -0.6
+  pools:
+  - retention
+  domain: general
+  prompt: 'Translate into English: "jeść śniadanie"'
+  stimulus: null
+  options: null
+  answers:
+  - have breakfast
+  - eat breakfast
+  explanation_pl: have/eat breakfast.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: niezgodność z kluczem (sędzia niezwalidowany)'
+- id: en.f46.vocab.a1.07
+  lang: en
+  skill_ids:
+  - en.vocab.daily_routine
+  area: vocabulary
+  type: gap
+  cefr: A1
+  difficulty: -0.5
+  pools:
+  - retention
+  domain: general
+  prompt: I go to ___ by bus; I work in an office.
+  stimulus: null
+  options: null
+  answers:
+  - work
+  explanation_pl: Iść do pracy = go to work.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: niezgodność z kluczem (sędzia niezwalidowany)'

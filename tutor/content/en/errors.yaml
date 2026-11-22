@@ -64,3 +64,6 @@ categories:
   - {id: omission.copula, explanation_pl: "Czasownik to be jest obowiązkowy: She is a teacher, nie She a teacher.", l1: "Almost! Is the verb «to be» missing?", l2_pl: "Brakuje czasownika to be. Wstaw odpowiednią formę."}
   # --- kalki ---
   - {id: l1_calque, explanation_pl: "Zdanie przypomina dosłowne tłumaczenie z polskiego i brzmi nienaturalnie.", l1: "Almost! Try to say it the English way.", l2_pl: "Jak powiedziałby to native speaker, nie tłumacząc słowo w słowo?"}
+  - {explanation_pl: 'Polskie „robić zdjęcie” nie tłumaczy się make a photo; po angielsku zdjęcie się bierze: take a photo.', id: l1_calque.make_photo, l1: 'Almost! Is that the verb English speakers use?', l2_pl: 'Jakiego czasownika używa się z photo/picture? Zastanów się nad take.'}
+  - {explanation_pl: 'Wiek podajemy z be (I am 25), nie z have; po polsku „mam 25 lat” wprowadza błąd I have 25 years.', id: l1_calque.have_years, l1: Almost! Check the verb for age., l2_pl: 'Jak po angielsku mówi się o wieku? Czy potrzebny jest czasownik have?'}
+  - {explanation_pl: 'Po polsku „wyjaśnij mi”; po angielsku explain wymaga to: explain it to me.', id: l1_calque.explain_me, l1: Almost! Check what follows «explain»., l2_pl: 'Do czasownika explain osoba dochodzi przez przyimek. Jaki?'}

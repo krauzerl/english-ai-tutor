@@ -91,3 +91,216 @@
     reviewer: null
     reviewed_at: null
     notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka)'
+- id: en.f46.gram.a2.01
+  lang: en
+  skill_ids:
+  - en.gram.past_simple_regular
+  area: grammar
+  type: gap
+  cefr: A2
+  difficulty: -0.2
+  pools:
+  - practice
+  domain: grammar
+  prompt: Yesterday we ___ (walk) to the station.
+  stimulus: null
+  options: null
+  answers:
+  - walked
+  explanation_pl: 'Regularny czasownik w past simple: -ed.'
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.f46.gram.a2.02
+  lang: en
+  skill_ids:
+  - en.gram.past_simple_regular
+  area: grammar
+  type: mc
+  cefr: A2
+  difficulty: -0.1
+  pools:
+  - practice
+  domain: grammar
+  prompt: They ___ the project last Friday.
+  stimulus: null
+  options:
+  - finish
+  - finished
+  - finishing
+  - have finished
+  answers:
+  - finished
+  explanation_pl: Last Friday wskazuje past simple.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.f46.gram.a2.03
+  lang: en
+  skill_ids:
+  - en.gram.past_simple_regular
+  area: grammar
+  type: transform
+  cefr: A2
+  difficulty: 0.0
+  pools:
+  - practice
+  domain: grammar
+  prompt: 'Rewrite in the past simple with ''yesterday'': I call my mother.'
+  stimulus: null
+  options: null
+  answers:
+  - I called my mother yesterday
+  - Yesterday I called my mother
+  explanation_pl: Call → called.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.f46.gram.a2.04
+  lang: en
+  skill_ids:
+  - en.gram.past_simple_regular
+  area: grammar
+  type: gap
+  cefr: A2
+  difficulty: -0.2
+  pools:
+  - practice
+  domain: grammar
+  prompt: She ___ not like the film last night.
+  stimulus: null
+  options: null
+  answers:
+  - did
+  explanation_pl: 'Przeczenie w past simple: did not.'
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: niezgodność z kluczem (sędzia niezwalidowany)'
+- id: en.f46.gram.a2.05
+  lang: en
+  skill_ids:
+  - en.gram.past_simple_regular
+  area: grammar
+  type: mc
+  cefr: A2
+  difficulty: -0.2
+  pools:
+  - retention
+  domain: grammar
+  prompt: We ___ in Warsaw in 2020.
+  stimulus: null
+  options:
+  - live
+  - lived
+  - living
+  - have lived
+  answers:
+  - lived
+  explanation_pl: Konkretny rok oznacza past simple.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.f46.gram.a2.06
+  lang: en
+  skill_ids:
+  - en.gram.past_simple_regular
+  area: grammar
+  type: gap
+  cefr: A2
+  difficulty: -0.1
+  pools:
+  - retention
+  domain: grammar
+  prompt: Last week he ___ (stop) at a small café.
+  stimulus: null
+  options: null
+  answers:
+  - stopped
+  explanation_pl: Stop → stopped (podwojona spółgłoska).
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: niezgodność z kluczem (sędzia niezwalidowany)'
+- id: en.f46.gram.a2.07
+  lang: en
+  skill_ids:
+  - en.gram.past_simple_regular
+  area: grammar
+  type: transform
+  cefr: A2
+  difficulty: 0.0
+  pools:
+  - retention
+  domain: grammar
+  prompt: 'Make it negative: They played tennis yesterday.'
+  stimulus: null
+  options: null
+  answers:
+  - They did not play tennis yesterday
+  - They didn't play tennis yesterday
+  explanation_pl: Did not + bezokolicznik.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'

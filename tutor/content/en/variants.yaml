@@ -33,3 +33,9 @@ groups:
   - {id: analyse_analyze, kind: spelling, forms: [analyse, analyze]}
   - {id: grey_gray, kind: spelling, forms: [grey, gray]}
   - {id: neighbour_neighbor, kind: spelling, forms: [neighbour, neighbor]}
+  # Formy potoczne dozwolone w mowie (07 §4.3): obserwacja „gonna → going to” to wariant, nie błąd.
+  # skip_domains: zadania z kluczem nie przyjmują form potocznych jako odpowiedzi.
+  - {id: gonna, kind: grammar, forms: [gonna, going to], skip_domains: [grammar, general, tech_it, interview]}
+  - {id: wanna, kind: grammar, forms: [wanna, want to], skip_domains: [grammar, general, tech_it, interview]}
+  - {id: gotta, kind: grammar, forms: [gotta, have to, have got to], skip_domains: [grammar, general, tech_it, interview]}
+  - {id: kinda, kind: grammar, forms: [kinda, kind of], skip_domains: [grammar, general, tech_it, interview]}

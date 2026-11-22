@@ -73,6 +73,7 @@ def main(argv: list[str]) -> int:
 
 def content_main(argv: list[str], inp=input, out=print) -> int:
     """python main.py content validate|review <lang>."""
+    import types
     from datetime import UTC, datetime
 
     from tutor.pedagogy import content as C
@@ -85,6 +86,8 @@ def content_main(argv: list[str], inp=input, out=print) -> int:
     rv.add_argument("lang")
     rv.add_argument("--reviewer", required=True, help="id z reviewers.yaml")
     rv.add_argument("--all", action="store_true", help="także zadania już ocenione (poza human_reviewed)")
+    rv.add_argument("--kind", choices=["items", "docs"], default="items",
+                    help="items = zadania (domyślnie); docs = wyjaśnienia, scenariusze i zwroty")
     args = ap.parse_args(argv)
     try:
         rep = C.validate(args.lang, extracted_dir=config.data_dir() / "content_sources" / "extracted")
@@ -108,20 +111,34 @@ def content_main(argv: list[str], inp=input, out=print) -> int:
         out(f"Reviewer „{args.reviewer}” nie występuje w reviewers.yaml (dodaj siebie ręcznie).")
         return 1
     skip = {"human_reviewed", "rejected"} if args.all else {"human_reviewed", "rejected", "suspect"}
-    queue = [i for i in pack.items.values() if i.review.status not in skip]
+    if args.kind == "docs":
+        queue = [t for t in C.review_targets(pack) if t["status"] not in skip]
+    else:
+        queue = [i for i in pack.items.values() if i.review.status not in skip]
     out(f"Do przeglądu: {len(queue)}. [a]kceptuj  [e]dytuj notatkę  [o]drzuć  [p]omiń  [q]uit")
     done = 0
     for it in queue:
-        out(f"\n{it.id}  {it.area}/{it.cefr}/{it.type}  status={it.review.status}  źródło={it.provenance.source}")
-        if it.stimulus:
-            out(f"  TEKST: {it.stimulus}")
-        if it.audio_text:
-            out(f"  AUDIO: {it.audio_text}")
-        out(f"  ZADANIE: {it.prompt}")
-        if it.options:
-            out("  OPCJE: " + " | ".join(it.options))
-        out(f"  KLUCZ: {it.answers}")
-        out(f"  WYJAŚNIENIE: {it.explanation_pl}")
+        if args.kind == "docs":
+            out(f"\n{it['kind']} {it['id']}  status={it['status']}")
+            for ln in it["lines"]:
+                out("  " + ln)
+            doc = it
+            it = types.SimpleNamespace(id=it["id"], review=types.SimpleNamespace(notes=it["notes"]))
+            save = lambda st, d=doc, **kw: C.set_review_doc(pack, d["kind"], d["id"], st, **kw)  # noqa: E731
+            note = lambda n: None  # noqa: E731  (notatka dla dokumentów: w treści wpisu review.notes po decyzji)
+        else:
+            out(f"\n{it.id}  {it.area}/{it.cefr}/{it.type}  status={it.review.status}  źródło={it.provenance.source}")
+            if it.stimulus:
+                out(f"  TEKST: {it.stimulus}")
+            if it.audio_text:
+                out(f"  AUDIO: {it.audio_text}")
+            out(f"  ZADANIE: {it.prompt}")
+            if it.options:
+                out("  OPCJE: " + " | ".join(it.options))
+            out(f"  KLUCZ: {it.answers}")
+            out(f"  WYJAŚNIENIE: {it.explanation_pl}")
+            save = lambda st, _id=it.id, **kw: C.set_review(pack, _id, st, **kw)  # noqa: E731
+            note = lambda n, _id=it.id: C.set_note(pack, _id, n)  # noqa: E731
         if it.review.notes:
             out(f"  NOTATKA: {it.review.notes}")
         notes = it.review.notes
@@ -129,13 +146,12 @@ def content_main(argv: list[str], inp=input, out=print) -> int:
             c = inp("> ").strip().lower()[:1]
             now = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
             if c == "a":
-                C.set_review(pack, it.id, "human_reviewed", reviewer=args.reviewer, now=now, notes=notes)
+                save("human_reviewed", reviewer=args.reviewer, now=now, notes=notes)
             elif c == "o":
-                C.set_review(pack, it.id, "rejected", reviewer=args.reviewer, now=now,
-                             notes=inp("powód odrzucenia: ").strip() or None)
+                save("rejected", reviewer=args.reviewer, now=now, notes=inp("powód odrzucenia: ").strip() or None)
             elif c == "e":
                 notes = inp("notatka: ").strip() or None
-                C.set_note(pack, it.id, notes)
+                note(notes)
                 continue  # po notatce nadal czekamy na decyzję
             elif c == "p":
                 break

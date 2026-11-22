@@ -94,3 +94,221 @@
     reviewer: null
     reviewed_at: null
     notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka)'
+- id: en.f46.vocab.b1.01
+  lang: en
+  skill_ids:
+  - en.vocab.collocations_make_do
+  area: vocabulary
+  type: mc
+  cefr: B1
+  difficulty: 0.0
+  pools:
+  - practice
+  domain: general
+  prompt: Can you ___ me a favour?
+  stimulus: null
+  options:
+  - make
+  - do
+  - take
+  - have
+  answers:
+  - do
+  explanation_pl: Do a favour = wyświadczyć przysługę.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.f46.vocab.b1.02
+  lang: en
+  skill_ids:
+  - en.vocab.collocations_make_do
+  area: vocabulary
+  type: gap
+  cefr: B1
+  difficulty: 0.1
+  pools:
+  - practice
+  domain: general
+  prompt: I need to ___ a decision by Friday.
+  stimulus: null
+  options: null
+  answers:
+  - make
+  explanation_pl: Make a decision = podjąć decyzję.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.f46.vocab.b1.03
+  lang: en
+  skill_ids:
+  - en.vocab.collocations_make_do
+  area: vocabulary
+  type: translate_pl
+  cefr: B1
+  difficulty: 0.2
+  pools:
+  - practice
+  domain: general
+  prompt: 'Translate into English: "zrobić zdjęcie"'
+  stimulus: null
+  options: null
+  answers:
+  - take a photo
+  - take a picture
+  explanation_pl: 'Zdjęcie się robi: take a photo, nie make.'
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.f46.vocab.b1.04
+  lang: en
+  skill_ids:
+  - en.vocab.collocations_make_do
+  area: vocabulary
+  type: gap
+  cefr: B1
+  difficulty: 0.0
+  pools:
+  - practice
+  domain: general
+  prompt: Please ___ your homework before dinner.
+  stimulus: null
+  options: null
+  answers:
+  - do
+  explanation_pl: Do homework.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: niezgodność z kluczem (sędzia niezwalidowany)'
+- id: en.f46.vocab.b1.05
+  lang: en
+  skill_ids:
+  - en.vocab.collocations_make_do
+  area: vocabulary
+  type: mc
+  cefr: B1
+  difficulty: 0.0
+  pools:
+  - retention
+  domain: general
+  prompt: She ___ a mistake in the report.
+  stimulus: null
+  options:
+  - did
+  - made
+  - took
+  - had
+  answers:
+  - made
+  explanation_pl: Make a mistake.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.f46.vocab.b1.06
+  lang: en
+  skill_ids:
+  - en.vocab.collocations_make_do
+  area: vocabulary
+  type: gap
+  cefr: B1
+  difficulty: 0.1
+  pools:
+  - retention
+  domain: general
+  prompt: We should ___ a break; I'm tired.
+  stimulus: null
+  options: null
+  answers:
+  - take
+  - have
+  explanation_pl: Take/have a break.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.f46.vocab.b1.07
+  lang: en
+  skill_ids:
+  - en.vocab.collocations_make_do
+  area: vocabulary
+  type: translate_pl
+  cefr: B1
+  difficulty: 0.2
+  pools:
+  - retention
+  domain: general
+  prompt: 'Translate into English: "odrabiać pracę domową"'
+  stimulus: null
+  options: null
+  answers:
+  - do my homework
+  - do homework
+  - do your homework
+  - do the homework
+  - do his homework
+  - do her homework
+  explanation_pl: Do homework.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'

@@ -1,0 +1,213 @@
+# Pilotaż F4.6 (AI-draft, niezweryfikowany przez człowieka). Zmiany statusu: tylko `main.py content review`.
+- id: en.f46.write.b2.01
+  lang: en
+  skill_ids:
+  - en.tech.incident_report
+  area: writing
+  type: gap
+  cefr: B2
+  difficulty: 0.2
+  pools:
+  - practice
+  domain: tech_it
+  prompt: By the time the engineer arrived, the service ___ already crashed.
+  stimulus: null
+  options: null
+  answers:
+  - had
+  explanation_pl: 'Past perfect: had + III forma.'
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: niezgodność z kluczem (sędzia niezwalidowany)'
+- id: en.f46.write.b2.02
+  lang: en
+  skill_ids:
+  - en.tech.incident_report
+  area: writing
+  type: mc
+  cefr: B2
+  difficulty: 0.3
+  pools:
+  - practice
+  domain: tech_it
+  prompt: Which sentence fits a formal incident report?
+  stimulus: null
+  options:
+  - The database went down lol.
+  - At 14:05 the database became unavailable.
+  - Database is dead, we fix it.
+  - Something broke, no idea.
+  answers:
+  - At 14:05 the database became unavailable.
+  explanation_pl: 'Raport: godzina, fakt, styl neutralny.'
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.f46.write.b2.03
+  lang: en
+  skill_ids:
+  - en.tech.incident_report
+  area: writing
+  type: transform
+  cefr: B2
+  difficulty: 0.4
+  pools:
+  - practice
+  domain: tech_it
+  prompt: 'Rewrite in the passive for a report: We restarted the server at 10:15.'
+  stimulus: null
+  options: null
+  answers:
+  - The server was restarted at 10:15
+  explanation_pl: W raportach często pomijamy sprawcę.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.f46.write.b2.04
+  lang: en
+  skill_ids:
+  - en.tech.incident_report
+  area: writing
+  type: reorder
+  cefr: B2
+  difficulty: 0.2
+  pools:
+  - practice
+  domain: tech_it
+  prompt: 'Put the words in order: was / the / at / detected / 09:40 / issue'
+  stimulus: null
+  options: null
+  answers:
+  - The issue was detected at 09:40
+  - At 09:40 the issue was detected
+  explanation_pl: Strona bierna z godziną.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.f46.write.b2.05
+  lang: en
+  skill_ids:
+  - en.tech.incident_report
+  area: writing
+  type: mc
+  cefr: B2
+  difficulty: 0.2
+  pools:
+  - retention
+  domain: tech_it
+  prompt: The root cause ___ to be a misconfigured firewall rule.
+  stimulus: null
+  options:
+  - turned out
+  - turned off
+  - turned on
+  - turned up
+  answers:
+  - turned out
+  explanation_pl: Turn out = okazać się.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.f46.write.b2.06
+  lang: en
+  skill_ids:
+  - en.tech.incident_report
+  area: writing
+  type: gap
+  cefr: B2
+  difficulty: 0.3
+  pools:
+  - retention
+  domain: tech_it
+  prompt: The outage ___ for about forty minutes before service was restored.
+  stimulus: null
+  options: null
+  answers:
+  - lasted
+  explanation_pl: Last = trwać.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: niezgodność z kluczem (sędzia niezwalidowany)'
+- id: en.f46.write.b2.07
+  lang: en
+  skill_ids:
+  - en.tech.incident_report
+  area: writing
+  type: gap
+  cefr: B2
+  difficulty: 0.4
+  pools:
+  - retention
+  domain: tech_it
+  prompt: Before the client called, the team ___ (fix) the bug.
+  stimulus: null
+  options: null
+  answers:
+  - had fixed
+  explanation_pl: 'Wcześniejsze zdarzenie: had fixed.'
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+    refs: []
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: niezgodność z kluczem (sędzia niezwalidowany)'

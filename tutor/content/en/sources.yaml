@@ -40,4 +40,25 @@ sources:
     authors: "Charles Browne, Brent Culligan"
     url: "https://www.newgeneralservicelist.com/ngsl-spoken"
     license: CC-BY-SA-4.0
-map: {}   # skill_id -> [{src, loc}] — uzupełniane przy pilotażu (C3)
+map:   # skill_id -> [{src, loc}] (tylko lokalizacje; pilotaż F4.6/C3)
+  en.gram.to_be_present:
+  - {src: esol, loc: chapter-slug-4.1}
+  en.gram.present_simple:
+  - {src: esol, loc: chapter-do-does-questions.1}
+  en.gram.articles_basic:
+  - {src: esol, loc: chapter-articles-indefinite-and-definite.1}
+  - {src: brehe, loc: p43.1}
+  en.vocab.daily_routine:
+  - {src: esol, loc: chapter-slug-9.1}
+  en.gram.past_simple_regular:
+  - {src: esol, loc: chapter-slug-2-3.1}
+  en.gram.present_perfect:
+  - {src: brehe, loc: p31.1}
+  en.gram.passive_basic:
+  - {src: brehe, loc: p172.1}
+  - {src: twe, loc: p244.1}
+  en.tech.incident_report:
+  - {src: twe, loc: p233.1}
+  en.gram.participle_clauses:
+  - {src: brehe, loc: p299.1}
+

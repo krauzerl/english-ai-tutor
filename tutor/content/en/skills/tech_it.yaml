@@ -80,6 +80,7 @@
   can_do_pl: 'Piszę raport z incydentu: przebieg i przyczyna.'
   prereqs: [en.gram.past_perfect, en.gram.passive_basic]
   error_categories: [tense.past_perfect]
+  explanation_ref: grammar/incident_report.md
 - id: en.tech.meeting_participation
   lang: en
   domain: tech_it
