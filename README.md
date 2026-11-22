@@ -69,8 +69,8 @@ Developed and measured on Ubuntu 24.04 with a Ryzen 7 3700X, 31 GiB RAM and an 8
 | Setup | Needs |
 |---|---|
 | Tests, profiles, content tools | Any machine with Python 3.12+ |
-| Conversation with an 11B model (default, Q4_K_M) | About 8 GiB VRAM, or 16 GiB RAM and patience. Measured about 11 tokens/s with partial CPU offload |
-| Faster, lighter conversation | A smaller model, e.g. 7B (measured about 64 tokens/s on the same GPU) |
+| Conversation and evaluation with Qwen3 8B (default, Q4_K_M, thinking off) | About 6 GiB VRAM; fits fully on an 8 GiB GPU. Measured about 50 tokens/s |
+| Polish texts with Bielik 11B v2.3 (default for `generation`, optional for the other roles) | About 7.2 GiB VRAM plus about 7 GB RAM with partial CPU offload. Measured about 30 tokens/s |
 | Voice mode | Working microphone and speakers, PortAudio (`libportaudio2`). Whisper runs on CPU (int8) so the GPU stays free for the LLM |
 
 ## Installation (Ubuntu 24.04)
@@ -98,17 +98,38 @@ pip install -e ".[dev]"      # tests and linting
 
 ## Local models
 
-Install Ollama (see [ollama.com](https://ollama.com)), start it, and pull the default model:
+Install Ollama (see [ollama.com](https://ollama.com)), start it, and pull the default models:
 
 ```bash
+ollama pull qwen3:8b
 ollama pull SpeakLeash/bielik-11b-v2.3-instruct:Q4_K_M
 ```
 
+Defaults per role (no configuration needed):
+
+| Role | Default model | Why |
+|---|---|---|
+| `conversation`, `evaluation` | `qwen3:8b`, `think = false` | Fewer false corrections and faster replies than Bielik 11B |
+| `generation` (Polish texts) | `SpeakLeash/bielik-11b-v2.3-instruct:Q4_K_M` | Qwen3 writes Polish with errors |
+
+The choice comes from a **preliminary** benchmark on one machine (130 cases, no human-reviewed gold standard yet).
+It is not a confirmed result and may change after review. Thinking stays off: it raises latency, and Ollama
+needs version 0.9.0 or newer for the `think` setting. Qwen3.5 was not tested (it needs a newer Ollama).
+
 Configuration lives in `~/.config/english-ai-tutor/config.toml` (created on demand, outside the repository).
-Example:
+Every role can use Bielik instead. Leave `think` unset for Bielik, which has no thinking mode. Example:
 
 ```toml
 [llm.conversation]
+provider = "ollama"
+model = "qwen3:8b"
+think = false
+
+[llm.evaluation]
+provider = "ollama"
+model = "SpeakLeash/bielik-11b-v2.3-instruct:Q4_K_M"   # optional: Bielik instead of Qwen3
+
+[llm.generation]
 provider = "ollama"
 model = "SpeakLeash/bielik-11b-v2.3-instruct:Q4_K_M"
 
@@ -133,7 +154,7 @@ Voice models are not bundled. Download the Kokoro files `kokoro-v1.0.int8.onnx` 
 ## Usage
 
 ```bash
-python main.py                      # text chat with the local model
+python main.py                      # minimal legacy text chat (fixed to Bielik 11B)
 python main.py --voice              # voice conversation (needs the voice extra and models)
 python main.py --voice --no-audio   # voice pipeline in text mode
 python main.py profile create alice # also: list, select, export, delete
