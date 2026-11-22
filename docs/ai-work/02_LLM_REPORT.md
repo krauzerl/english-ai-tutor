@@ -66,3 +66,9 @@ Nieuruchomione live. Zachowanie odwzorowane w testach (kształt odpowiedzi SDK G
 7. Eksport profilu zawiera wiersze `llm_usage` tego profilu (bez treści).
 8. Granice dnia/miesiąca w UTC.
 9. Docelowe schematy Pydantic (`TurnFeedback`, `RubricScore`) i prompty — F4/F5.
+
+## Publikacja (przegląd przed push)
+- Remote: `origin` = github.com/krauzerl/english-ai-tutor; push gałęzi `feat/f0-scaffold`, bez force, bez scalania do `main`.
+- Przegląd całej historii (`git log --all`): brak plików `.db/.sqlite/.bak/.wal/.env/.pem/.key`, brak katalogów backupów/eksportów, brak wzorców kluczy (AIza…, sk-…, ghp_…, klucze prywatne). Jedyne trafienie: atrapa `abc123` w teście. Brak danych uczniów (testy używają baz w `tmp_path`).
+- Usunięto z indeksu `english_ai_tutor.egg-info/` (artefakt builda, wcześniej śledzony; teraz w `.gitignore`).
+- Ponowny przebieg: 94 passed, 1 skipped, 5 deselected (live); `ruff check` czysty.
