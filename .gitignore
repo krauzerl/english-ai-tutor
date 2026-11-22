@@ -1,13 +1,59 @@
+# Python environments and caches
 .venv/
-.idea/
+venv/
+env/
 __pycache__/
-*.pyc
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+*.egg-info/
+build/
+dist/
+
+# Secrets and local configuration
 .env
 .env.*
-*.egg-info/
+!.env.example
+config.toml
+
+# Local data: SQLite databases, student profiles, exports
+*.db
+*.db-wal
+*.db-shm
+*.db-journal
+*.sqlite
+*.sqlite3
+
+# Audio and models (never commit recordings or weights)
+*.wav
+*.mp3
+*.flac
+*.ogg
+*.onnx
+*.gguf
+*.safetensors
+
+# Source textbooks and extracts (licensed material kept outside the repo)
 *.pdf
 *.epub
 *.xhtml
 extracted/
-*.db
-*.wav
+content_sources/
+
+# Logs, temporary files, experiment output
+*.log
+*.tmp
+*.bak
+*.swp
+.DS_Store
+tmp/
+
+# Editor settings
+.idea/
+.vscode/
+
+# Internal AI work notes (kept locally only)
+docs/ai-work/
