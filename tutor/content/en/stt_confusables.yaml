@@ -1,0 +1,17 @@
+# Pary, które Whisper często myli albo gubi (§2.5): błąd tego typu w mowie to `stt_suspect`, nie błąd ucznia.
+sets:
+  - [to, too, two]
+  - [there, their, they're]
+  - [your, you're]
+  - [its, it's]
+  - [for, four]
+  - ["no", know]
+  - [then, than]
+  - [where, were, wear]
+droppable: [a, an, the]        # wstawienie lub brak
+suffixes: [s, es, ed, d, "'s", "'ll", "'d", "'ve", "'re", "'m"]
+pairs:
+  - [can, can't]
+  - [cannot, can't]
+  - [do, don't]
+  - [did, didn't]

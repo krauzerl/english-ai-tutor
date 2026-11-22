@@ -1,0 +1,4 @@
+# Lista osób uprawnionych do oznaczania treści jako human_reviewed (tylko przez `python main.py content review`).
+# Celowo pusta: żadna treść nie została jeszcze zrecenzowana przez człowieka. Format wpisu:
+#   - {id: jan, name: "Jan Kowalski"}
+reviewers: []

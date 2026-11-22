@@ -1,0 +1,44 @@
+# Scenariusz AI-draft do przeglądu człowieka.
+id: en.scn.it_interview
+lang: en
+cefr: B2
+domain: interview
+title_pl: Rozmowa rekrutacyjna IT
+role: hiring manager for a backend developer role
+goal: Introduce yourself, describe one project using STAR and ask two questions about the team.
+success_criteria:
+- id: c1
+  description_pl: Przedstaw się i swoje doświadczenie.
+  example_phrases:
+  - I've been working as a developer for five years.
+  - My main focus is backend services.
+- id: c2
+  description_pl: 'Opisz projekt: sytuacja, zadanie, działanie, wynik.'
+  example_phrases:
+  - The situation was a slow checkout.
+  - As a result, latency dropped.
+- id: c3
+  description_pl: Zadaj dwa pytania o zespół lub proces.
+  example_phrases:
+  - How is the team organised?
+  - What does the release process look like?
+- id: c4
+  description_pl: Odpowiedz na pytanie, którego nie znasz.
+  example_phrases:
+  - I haven't worked with that, but I would...
+  - I'm not sure, but I'd start by...
+target_skill_ids:
+- en.int.self_intro
+- en.int.experience_star
+- en.int.ask_interviewer
+- en.int.unknown_question
+provenance:
+  source: ai_generated
+  model: claude-sonnet-5-5
+  prompt_version: null
+  created_at: '2026-11-22'
+review:
+  status: draft
+  reviewer: null
+  reviewed_at: null
+  notes: null

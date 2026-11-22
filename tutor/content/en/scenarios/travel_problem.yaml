@@ -1,0 +1,38 @@
+# Scenariusz AI-draft do przeglądu człowieka.
+id: en.scn.travel_problem
+lang: en
+cefr: B1
+domain: conversation
+title_pl: Problem w podróży
+role: hotel receptionist
+goal: Explain a problem with your booking and agree on a solution.
+success_criteria:
+- id: c1
+  description_pl: Wyjaśnij problem.
+  example_phrases:
+  - There is a problem with my room.
+  - I booked a double room but...
+- id: c2
+  description_pl: Poproś o rozwiązanie uprzejmie.
+  example_phrases:
+  - Could you change the room?
+  - Would it be possible to...
+- id: c3
+  description_pl: Uzgodnij rozwiązanie.
+  example_phrases:
+  - That sounds fine.
+  - I'll take the other room.
+target_skill_ids:
+- en.conv.make_requests
+- en.gram.present_perfect
+- en.conv.negotiate_compromise
+provenance:
+  source: ai_generated
+  model: claude-sonnet-5-5
+  prompt_version: null
+  created_at: '2026-11-22'
+review:
+  status: draft
+  reviewer: null
+  reviewed_at: null
+  notes: null

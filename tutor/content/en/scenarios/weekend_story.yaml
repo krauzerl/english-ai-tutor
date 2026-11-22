@@ -1,0 +1,38 @@
+# Scenariusz AI-draft do przeglądu człowieka.
+id: en.scn.weekend_story
+lang: en
+cefr: A2
+domain: conversation
+title_pl: Opowieść o weekendzie
+role: friendly colleague
+goal: Tell what you did last weekend and ask a follow-up question.
+success_criteria:
+- id: c1
+  description_pl: Opisz, co robiłeś/aś w weekend (czas przeszły).
+  example_phrases:
+  - I went to the cinema.
+  - We visited my parents.
+- id: c2
+  description_pl: Dodaj jeden szczegół (z kim, gdzie).
+  example_phrases:
+  - I went with my brother.
+  - It was in the city centre.
+- id: c3
+  description_pl: Zadaj pytanie rozmówcy.
+  example_phrases:
+  - What did you do?
+  - Did you have a good weekend?
+target_skill_ids:
+- en.gram.past_simple_regular
+- en.gram.irregular_past
+- en.conv.ask_questions
+provenance:
+  source: ai_generated
+  model: claude-sonnet-5-5
+  prompt_version: null
+  created_at: '2026-11-22'
+review:
+  status: draft
+  reviewer: null
+  reviewed_at: null
+  notes: null

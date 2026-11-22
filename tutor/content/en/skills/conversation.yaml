@@ -1,0 +1,97 @@
+# Katalog umiejętności `conversation` (własne parafrazy deskryptorów, nie cytaty English Profile/EVP). Treść AI-draft do przeglądu.
+- id: en.conv.greetings_small_talk
+  lang: en
+  domain: conversation
+  area: speaking
+  cefr: A1
+  can_do_pl: Witam się i prowadzę krótką rozmowę towarzyską.
+  prereqs: [en.gram.to_be_present]
+  error_categories: [omission.copula]
+- id: en.conv.introduce_self
+  lang: en
+  domain: conversation
+  area: speaking
+  cefr: A1
+  can_do_pl: Przedstawiam siebie i pytam o innych.
+  prereqs: [en.gram.to_be_present, en.vocab.personal_info]
+  error_categories: [omission.copula]
+- id: en.conv.ask_questions
+  lang: en
+  domain: conversation
+  area: speaking
+  cefr: A2
+  can_do_pl: Zadaję pytania o fakty i preferencje.
+  prereqs: [en.gram.present_simple_neg_q]
+  error_categories: [word_order.question]
+- id: en.conv.make_requests
+  lang: en
+  domain: conversation
+  area: speaking
+  cefr: A2
+  can_do_pl: Uprzejmie o coś proszę (Could I…?, Can you…?).
+  prereqs: [en.gram.can_ability]
+  error_categories: [register]
+- id: en.conv.express_preferences
+  lang: en
+  domain: conversation
+  area: speaking
+  cefr: A2
+  can_do_pl: Mówię, co lubię i wolę, i uzasadniam.
+  prereqs: [en.gram.present_simple]
+  error_categories: [word_choice]
+- id: en.conv.make_suggestions
+  lang: en
+  domain: conversation
+  area: speaking
+  cefr: A2
+  can_do_pl: Proponuję i przyjmuję propozycje (Let's…, How about…?).
+  prereqs: [en.gram.future_going_to]
+  error_categories: [register]
+- id: en.conv.describe_experience
+  lang: en
+  domain: conversation
+  area: speaking
+  cefr: B1
+  can_do_pl: Opowiadam o doświadczeniach i wydarzeniach.
+  prereqs: [en.gram.present_perfect_vs_past, en.gram.past_continuous]
+  error_categories: [tense.past_simple, tense.present_perfect]
+- id: en.conv.give_opinion
+  lang: en
+  domain: conversation
+  area: speaking
+  cefr: B1
+  can_do_pl: Wyrażam i uzasadniam opinię.
+  prereqs: [en.vocab.opinions]
+  error_categories: [word_choice]
+- id: en.conv.agree_disagree
+  lang: en
+  domain: conversation
+  area: speaking
+  cefr: B1
+  can_do_pl: Zgadzam się i nie zgadzam, zachowując uprzejmość.
+  prereqs: [en.gram.modals_advice]
+  error_categories: [register]
+- id: en.conv.ask_clarification
+  lang: en
+  domain: conversation
+  area: speaking
+  cefr: B1
+  can_do_pl: Dopytuję i proszę o powtórzenie lub wyjaśnienie.
+  prereqs: [en.gram.present_simple_neg_q]
+  error_categories: [word_order.question]
+- id: en.conv.polite_refusal
+  lang: en
+  domain: conversation
+  area: speaking
+  cefr: B2
+  can_do_pl: Odmawiam uprzejmie i proponuję alternatywę.
+  prereqs: [en.gram.second_conditional]
+  error_categories: [register]
+- id: en.conv.negotiate_compromise
+  lang: en
+  domain: conversation
+  area: speaking
+  cefr: B2
+  can_do_pl: Negocjuję i szukam kompromisu.
+  prereqs: [en.gram.first_conditional, en.gram.second_conditional]
+  error_categories: [register]

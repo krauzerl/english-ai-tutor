@@ -1,0 +1,102 @@
+# Bank pilotażowy (AI-draft, niezweryfikowany przez człowieka). Zmiany statusu: tylko `main.py content review`.
+- id: en.pilot.read.b1.01
+  lang: en
+  skill_ids:
+  - en.read.articles_gist
+  area: reading
+  type: reading_mc
+  cefr: B1
+  difficulty: -0.2
+  pools:
+  - diagnosis
+  - practice
+  domain: general
+  prompt: What is the main idea of the text?
+  stimulus: More companies now offer remote work. Employees save time because they do not commute, and many say they are more productive at home. However, some managers worry that teams communicate less.
+    As a result, several firms ask people to come to the office two days a week.
+  options:
+  - Remote work has advantages, but some firms want a balance.
+  - Everyone must return to the office.
+  - Commuting is getting faster.
+  - Managers are happy with remote work.
+  answers:
+  - Remote work has advantages, but some firms want a balance.
+  explanation_pl: Tekst pokazuje zalety pracy zdalnej i obawy firm.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka)'
+- id: en.pilot.read.b1.02
+  lang: en
+  skill_ids:
+  - en.read.articles_gist
+  area: reading
+  type: reading_mc
+  cefr: B1
+  difficulty: 0.1
+  pools:
+  - diagnosis
+  - practice
+  domain: interview
+  prompt: Why does Julia write the email?
+  stimulus: Dear Mr Evans, Thank you for inviting me to an interview on Tuesday. Unfortunately, I have a conflicting appointment at that time. Would it be possible to meet on Wednesday morning instead?
+    Best regards, Julia Kowal
+  options:
+  - To ask to change the interview day
+  - To refuse the job
+  - To ask about the salary
+  - To thank for a job offer
+  answers:
+  - To ask to change the interview day
+  explanation_pl: Julia ma kolizję terminów i prosi o środę.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka)'
+- id: en.pilot.read.b1.03
+  lang: en
+  skill_ids:
+  - en.read.articles_gist
+  area: reading
+  type: reading_mc
+  cefr: B1
+  difficulty: 0.3
+  pools:
+  - diagnosis
+  - practice
+  domain: general
+  prompt: What does the writer think about the laptop?
+  stimulus: I bought this laptop two months ago. The battery lasts all day, and the screen is excellent. The only problem is the keyboard, which feels cheap. I would still recommend it to students.
+  options:
+  - It is mostly good, with one weakness.
+  - It is completely bad.
+  - It is too expensive.
+  - It is not suitable for students.
+  answers:
+  - It is mostly good, with one weakness.
+  explanation_pl: Autor chwali baterię i ekran, krytykuje klawiaturę.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka)'

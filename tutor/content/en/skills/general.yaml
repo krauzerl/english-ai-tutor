@@ -1,0 +1,241 @@
+# Katalog umiejętności `general` (własne parafrazy deskryptorów, nie cytaty English Profile/EVP). Treść AI-draft do przeglądu.
+- id: en.vocab.personal_info
+  lang: en
+  domain: general
+  area: vocabulary
+  cefr: A1
+  can_do_pl: Podaję podstawowe informacje o sobie i rodzinie.
+  prereqs: []
+  error_categories: [word_choice]
+- id: en.vocab.daily_routine
+  lang: en
+  domain: general
+  area: vocabulary
+  cefr: A1
+  can_do_pl: Nazywam codzienne czynności.
+  prereqs: []
+  error_categories: [word_choice]
+- id: en.vocab.food_drink
+  lang: en
+  domain: general
+  area: vocabulary
+  cefr: A1
+  can_do_pl: Zamawiam i opisuję jedzenie i napoje.
+  prereqs: []
+  error_categories: [word_choice]
+- id: en.vocab.time_expressions_basic
+  lang: en
+  domain: general
+  area: vocabulary
+  cefr: A1
+  can_do_pl: Podaję czas, dni tygodnia i daty.
+  prereqs: []
+  error_categories: [preposition.time]
+- id: en.vocab.travel_transport
+  lang: en
+  domain: general
+  area: vocabulary
+  cefr: A2
+  can_do_pl: Poruszam się po podróży i transporcie.
+  prereqs: [en.vocab.time_expressions_basic]
+  error_categories: [word_choice]
+- id: en.vocab.shopping
+  lang: en
+  domain: general
+  area: vocabulary
+  cefr: A2
+  can_do_pl: Robię zakupy i pytam o cenę.
+  prereqs: [en.vocab.food_drink]
+  error_categories: [word_choice]
+- id: en.vocab.health_body
+  lang: en
+  domain: general
+  area: vocabulary
+  cefr: A2
+  can_do_pl: Opisuję samopoczucie i części ciała.
+  prereqs: []
+  error_categories: [word_choice]
+- id: en.vocab.work_basic
+  lang: en
+  domain: general
+  area: vocabulary
+  cefr: A2
+  can_do_pl: Mówię o pracy i obowiązkach.
+  prereqs: [en.vocab.daily_routine]
+  error_categories: [word_choice]
+- id: en.vocab.opinions
+  lang: en
+  domain: general
+  area: vocabulary
+  cefr: B1
+  can_do_pl: Wyrażam opinie bogatszym słownictwem.
+  prereqs: [en.vocab.work_basic]
+  error_categories: [word_choice, collocation]
+- id: en.vocab.phrasal_verbs_common
+  lang: en
+  domain: general
+  area: vocabulary
+  cefr: B1
+  can_do_pl: Używam częstych czasowników frazalnych.
+  prereqs: []
+  error_categories: [collocation, word_choice]
+- id: en.vocab.collocations_make_do
+  lang: en
+  domain: general
+  area: vocabulary
+  cefr: B1
+  can_do_pl: Dobieram make/do/take/have do rzeczowników.
+  prereqs: []
+  error_categories: [collocation.verb_noun]
+- id: en.vocab.news_media
+  lang: en
+  domain: general
+  area: vocabulary
+  cefr: B2
+  can_do_pl: Rozmawiam o wiadomościach i mediach.
+  prereqs: [en.vocab.opinions]
+  error_categories: [word_choice]
+- id: en.vocab.abstract_nouns
+  lang: en
+  domain: general
+  area: vocabulary
+  cefr: B2
+  can_do_pl: Używam rzeczowników abstrakcyjnych i słowotwórstwa.
+  prereqs: [en.vocab.opinions]
+  error_categories: [morphology.word_form]
+- id: en.vocab.idioms
+  lang: en
+  domain: general
+  area: vocabulary
+  cefr: B2
+  can_do_pl: Rozumiem i stosuję częste idiomy.
+  prereqs: [en.vocab.phrasal_verbs_common]
+  error_categories: [collocation, l1_calque]
+- id: en.vocab.academic_formal
+  lang: en
+  domain: general
+  area: vocabulary
+  cefr: C1
+  can_do_pl: Stosuję słownictwo formalne i akademickie.
+  prereqs: [en.vocab.abstract_nouns]
+  error_categories: [register.formality]
+- id: en.vocab.nuanced_adjectives
+  lang: en
+  domain: general
+  area: vocabulary
+  cefr: C1
+  can_do_pl: Dobieram precyzyjne przymiotniki i przysłówki.
+  prereqs: [en.vocab.abstract_nouns]
+  error_categories: [collocation.adj_noun]
+- id: en.read.signs_notices
+  lang: en
+  domain: general
+  area: reading
+  cefr: A1
+  can_do_pl: Rozumiem proste znaki i ogłoszenia.
+  prereqs: []
+  error_categories: [word_choice]
+- id: en.read.short_messages
+  lang: en
+  domain: general
+  area: reading
+  cefr: A2
+  can_do_pl: Rozumiem krótkie wiadomości i e-maile.
+  prereqs: []
+  error_categories: [word_choice]
+- id: en.read.articles_gist
+  lang: en
+  domain: general
+  area: reading
+  cefr: B1
+  can_do_pl: Wychwytuję główną myśl artykułu.
+  prereqs: []
+  error_categories: [word_choice]
+- id: en.read.argument_structure
+  lang: en
+  domain: general
+  area: reading
+  cefr: B2
+  can_do_pl: Śledzę argumentację w dłuższym tekście.
+  prereqs: []
+  error_categories: [word_choice]
+- id: en.read.implicit_meaning
+  lang: en
+  domain: general
+  area: reading
+  cefr: C1
+  can_do_pl: Wnioskuję intencje i znaczenia niewyrażone wprost.
+  prereqs: []
+  error_categories: [word_choice]
+- id: en.listen.numbers_names
+  lang: en
+  domain: general
+  area: listening
+  cefr: A1
+  can_do_pl: Rozumiem liczby, imiona i proste dane.
+  prereqs: []
+  error_categories: [word_choice]
+- id: en.listen.short_dialogues
+  lang: en
+  domain: general
+  area: listening
+  cefr: A2
+  can_do_pl: Rozumiem krótkie dialogi o codziennych sprawach.
+  prereqs: []
+  error_categories: [word_choice]
+- id: en.listen.announcements_gist
+  lang: en
+  domain: general
+  area: listening
+  cefr: B1
+  can_do_pl: Rozumiem główną myśl komunikatów i wypowiedzi.
+  prereqs: []
+  error_categories: [word_choice]
+- id: en.listen.opinions_detail
+  lang: en
+  domain: general
+  area: listening
+  cefr: B2
+  can_do_pl: Wychwytuję szczegóły i postawy rozmówców.
+  prereqs: []
+  error_categories: [word_choice]
+- id: en.listen.fast_speech_inference
+  lang: en
+  domain: general
+  area: listening
+  cefr: C1
+  can_do_pl: Rozumiem szybką mowę i wnioskuję z kontekstu.
+  prereqs: []
+  error_categories: [word_choice]
+- id: en.gen.thank_apologise
+  lang: en
+  domain: general
+  area: speaking
+  cefr: A1
+  can_do_pl: Dziękuję i przepraszam w prostych sytuacjach.
+  prereqs: []
+  error_categories: [register]
+- id: en.gen.describe_people_places
+  lang: en
+  domain: general
+  area: speaking
+  cefr: A2
+  can_do_pl: Opisuję ludzi, miejsca i rzeczy.
+  prereqs: [en.gram.to_be_present, en.gram.present_simple]
+  error_categories: [word_choice]
+- id: en.gen.plan_arrangements
+  lang: en
+  domain: general
+  area: speaking
+  cefr: B1
+  can_do_pl: Umawiam się i ustalam szczegóły.
+  prereqs: [en.gram.future_going_to]
+  error_categories: [tense.future]
+- id: en.gen.express_certainty
+  lang: en
+  domain: general
+  area: speaking
+  cefr: B2
+  can_do_pl: Wyrażam stopień pewności i prawdopodobieństwa.
+  prereqs: [en.gram.modals_deduction]
+  error_categories: [register]

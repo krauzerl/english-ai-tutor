@@ -1,0 +1,100 @@
+# Bank pilotażowy (AI-draft, niezweryfikowany przez człowieka). Zmiany statusu: tylko `main.py content review`.
+- id: en.pilot.read.a1.01
+  lang: en
+  skill_ids:
+  - en.read.signs_notices
+  area: reading
+  type: reading_mc
+  cefr: A1
+  difficulty: -0.6
+  pools:
+  - diagnosis
+  - practice
+  domain: general
+  prompt: When can you NOT park here?
+  stimulus: NO PARKING. Monday to Friday, 8 a.m. – 6 p.m.
+  options:
+  - On Sunday
+  - On Monday morning
+  - On Saturday evening
+  - At night
+  answers:
+  - On Monday morning
+  explanation_pl: 'Zakaz parkowania: poniedziałek–piątek 8:00–18:00.'
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: niezgodność z kluczem'
+- id: en.pilot.read.a1.02
+  lang: en
+  skill_ids:
+  - en.read.short_messages
+  area: reading
+  type: reading_mc
+  cefr: A1
+  difficulty: -0.4
+  pools:
+  - diagnosis
+  - practice
+  domain: general
+  prompt: Where is Anna?
+  stimulus: Hi Tom, I am at the station. The train is late. See you at 6. Anna
+  options:
+  - At home
+  - At the station
+  - At work
+  - On the train
+  answers:
+  - At the station
+  explanation_pl: Anna jest na stacji i czeka na spóźniony pociąg.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka)'
+- id: en.pilot.read.a1.03
+  lang: en
+  skill_ids:
+  - en.read.signs_notices
+  area: reading
+  type: reading_mc
+  cefr: A1
+  difficulty: 0.0
+  pools:
+  - diagnosis
+  - practice
+  domain: general
+  prompt: How much are a tea and a cake together?
+  stimulus: Coffee £2. Tea £1.50. Cake £3.
+  options:
+  - £4.50
+  - £3.50
+  - £5
+  - £4
+  answers:
+  - £4.50
+  explanation_pl: 1,50 + 3 = 4,50.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka)'

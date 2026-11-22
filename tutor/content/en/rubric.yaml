@@ -1,0 +1,192 @@
+# Parametry silnika dydaktycznego dla `en` (04_PEDAGOGY_SPEC §2.2, §4.6, §4.7). Wszystkie progi są POCZĄTKOWE,
+# nieskalibrowane; kalibracja po F8. Kod nie ma tych liczb na stałe.
+rubric_version: rubric.v1
+
+severity_weights: {1: 0.5, 2: 1.0, 3: 2.0}
+
+# G i V: ważone błędy na 100 słów. Ocena = najwyższa, dla której wartość <= próg (0 powyżej progu oceny 1).
+# Ocena 4 dodatkowo wymaga >= min_structures_for_4 poprawnych użyć struktur/słów z poziomu lekcji;
+# bez tego ocena to najwyżej 3 (a ocena < 4 wymaga cytatu-dowodu, patrz evidence.quote_required_below).
+grammar_vocab:
+  per100_max: {4: 1.0, 3: 3.0, 2: 6.0, 1: 10.0}
+  min_structures_for_4: 2
+
+# N: obserwacje `natural` na 100 słów; ocena 1 to dolna granica (brak oceny 0).
+naturalness:
+  per100_max: {4: 1.0, 3: 3.0, 2: 6.0}
+  floor_score: 1
+
+# C: odsetek `ok` wśród wypowiedzi z etykietą różną od `na` i z cytatem-dowodem.
+communication:
+  ok_ratio_min: {4: 0.90, 3: 0.75, 2: 0.50, 1: 0.25}
+
+# F: względem mediany ucznia z baseline_sessions ostatnich sesji głosowych. Ocena = min(ocena z tempa, ocena z pauz):
+# 4 wymaga obu kryteriów (jak w spec), niższe oceny wystarczy spełnić jednym -> brak luk między progami.
+fluency:
+  tempo_delta_pct_min: {4: 10.0, 3: -10.0, 2: -25.0}     # tempo >= próg
+  pause_delta_pct_max: {4: -20.0, 3: 20.0, 2: 50.0}      # długie pauzy/min <= próg
+  articulation_pause_ms: 250
+  long_pause_ms: 1000
+  run_pause_ms: 400
+
+# Wymagane dowody. Brak dowodu = brak oceny (`insufficient_evidence`), nigdy błąd ucznia.
+evidence:
+  text_dims: {min_words: 50, min_utterances: 5}          # G, V, N
+  communication: {min_labeled: 5}                         # C
+  fluency: {min_speech_s: 60, min_voice_utts: 5, min_voice_sessions_for_score: 3, baseline_sessions: 3}
+  quote_required_below: 4                                 # G/V/N poniżej tej oceny wymagają >= 1 cytatu (F: metryki, bez cytatów)
+  min_quotes: 1
+
+descriptions_pl:
+  grammar:
+    4: "Błędy są rzadkie, a struktury z lekcji użyte poprawnie."
+    3: "Błędy pojawiają się, ale nie zaburzają sensu; większość struktur z lekcji poprawna."
+    2: "Błędy są częste i miejscami utrudniają odbiór."
+    1: "Błędy są bardzo częste; sens często wymaga domysłu."
+    0: "Błędy uniemożliwiają zrozumienie większości wypowiedzi."
+  vocabulary:
+    4: "Dobór słów trafny, użyte słownictwo z poziomu lekcji."
+    3: "Dobór słów zwykle trafny, pojedyncze pomyłki."
+    2: "Częste pomyłki w doborze słów lub obejścia."
+    1: "Słownictwo bardzo ograniczone, wiele pomyłek."
+    0: "Brak słownictwa potrzebnego do wypowiedzi."
+  naturalness:
+    4: "Wypowiedzi brzmią naturalnie."
+    3: "Pojedyncze kalki lub nieidiomatyczne zwroty."
+    2: "Wyraźnie widać kalki z polskiego."
+    1: "Większość zwrotów brzmi nienaturalnie."
+  communication:
+    4: "Prawie zawsze realizujesz intencję rozmowy."
+    3: "Zwykle realizujesz intencję rozmowy."
+    2: "Połowa wypowiedzi realizuje intencję."
+    1: "Rzadko realizujesz intencję rozmowy."
+    0: "Intencja rozmowy prawie nie jest realizowana."
+  fluency:
+    4: "Płynniej niż zwykle: szybsze tempo i mniej długich pauz."
+    3: "Płynność jak zwykle."
+    2: "Nieco mniej płynnie niż zwykle."
+    1: "Wyraźnie mniej płynnie niż zwykle."
+
+# Klasyfikacja obserwacji (§2.3).
+classify:
+  stt_prob_min: 0.5
+  voice_dropped_categories: [spelling, punctuation, capitalization]
+  fix_max_ratio: 3
+  fix_extra_chars: 20
+
+# Pewność LLM (§2.8). treat_m_as_l = true, gdy precyzja `m` < 0,8 (po F8).
+confidence:
+  treat_m_as_l: false
+
+# BKT (§4.6). p_guess "options" = 1/liczba opcji zadania MC.
+bkt:
+  mc: {p_init: 0.2, p_learn: 0.15, p_slip: 0.10, p_guess: options}
+  production: {p_init: 0.2, p_learn: 0.15, p_slip: 0.10, p_guess: 0.05}
+  conversation: {p_learn: 0.10, p_slip: 0.15, p_guess: 0.10}
+  correction: {p_learn: 0.10, p_slip: 0.10, p_guess: 0.30}
+
+mastery:
+  p_master: 0.85
+  min_days: 2
+  learning_threshold: 0.3
+  p_init_clamp: [0.05, 0.6]
+  relapse_p_cap: 0.6
+  cefr_weight: 0.5                       # waga mini-weryfikacji w posteriorze obszaru
+  receptive_areas: [reading, listening]  # tu "próba produkcyjna" nie istnieje: wystarczą poprawne próby z 2 dni
+  correction_l1_source: conversation     # L1 (sam sygnał) to dowód prawie pełny
+
+# Trwałość (§4.8).
+retention:
+  d7: 7
+  d30: 30
+  d30_window_end: 37
+  n_items: 3
+  pass_min: 2
+  productive_required: 1
+
+# FSRS (§4.7): czas poniżej fast_ms (poprawna odpowiedź w zadaniu zamkniętym) = Easy.
+srs:
+  desired_retention: 0.9
+  fast_ms: {mc: 4000, reading_mc: 15000, listening_mc: 8000, gap: 10000, transform: 20000,
+            translate_pl: 20000, reorder: 15000, dictation: 20000}
+  hint_good: [1]
+  hint_hard: [2, 3]
+
+# Diagnoza (§4.2, §4.3). `provisional` = wstępne dopasowanie z banku ai_checked: ten sam algorytm,
+# ale wynik jest etykietowany jako niezweryfikowany i NIE zastępuje diagnozy human_reviewed.
+diagnosis:
+  theta_min: 0.5
+  theta_max: 6.5
+  step: 0.05
+  prior_mean: 2.5
+  prior_sd: 1.5
+  slope: 1.0
+  difficulty_scale: 0.5
+  stop_sd: 0.35
+  min_items: 5
+  max_items: 10
+  time_limit_min: 25
+  interval_pct: [10, 90]
+  ceiling_p90: 5.5
+  floor_p10: 1.5
+  recent_window: 4
+  recent_threshold: 3
+  top_level: C1
+  gate_min_per_level: 15
+  show_c2_min_items: 15
+  provisional:
+    label_pl: "wstępne dopasowanie trudności (materiał niezweryfikowany przez człowieka) – nie jest diagnozą CEFR"
+
+# Korekta (§3). Domyślnie `summary`, dopóki benchmark jakości oceny Bielika (F8) nie przejdzie.
+correction:
+  default_style: summary
+  quality_gate:
+    bielik_benchmark_passed: false
+    precision_min: 0.80
+    false_alarm_max: 0.10
+  periodic_turns_per_correction: 3
+  sev_min_interrupt: 2
+  intensive_target_s: 6
+  intensive_timeout_s: 10
+  summary_batch: 5
+  quiz_sentences_max: 5
+  priority: {goal_multiplier: 2.0, same_session_multiplier: 0.5}
+  uptake_turns: [2, 5]
+  suggestion_wording_when_gate_open: true
+
+# Rejestr błędów (§4.9) i podejrzenia STT (§2.5).
+errors:
+  window_days: 30
+  recurring_count: 3
+  recurring_utterances: 2
+  improving_correct_min: 3
+  improving_wrong_max: 1
+  resolved_correct_min: 3
+  sessions_window: 3
+  stt_suspect_count: 3
+  stt_suspect_days: 14
+
+planner:
+  review_share_max: 0.30
+  blocks:   # minuty: review, practice (wyjaśnienie+ćwiczenia), conversation, verify
+    15: {review: 4, practice: 5, conversation: 5, verify: 1}
+    30: {review: 6, practice: 10, conversation: 12, verify: 2}
+    45: {review: 8, practice: 15, conversation: 18, verify: 4}
+    60: {review: 10, practice: 20, conversation: 25, verify: 5}
+  insufficient_evidence_extra_conversation_min: 2
+  low_score_threshold: 1
+  low_score_theta_drop: 0.5
+  fluency_drop_sessions: 2
+  recurring_min_count: 3
+  minutes_per_item: 1.5
+
+report:
+  top_errors: 3
+  strength_min_uses: 2
+  strength_min_opportunities: 3
+  hide_c2_below_items: 15
+  disclaimer_pl: "Szacunek diagnostyczny, nie certyfikat; trafność niezweryfikowana."
+  pronunciation_pl: "Wymowa nieoceniana."
+
+limits:
+  prompt_max_words: {A1: 25, A2: 30, B1: 40, B2: 50, C1: 60}

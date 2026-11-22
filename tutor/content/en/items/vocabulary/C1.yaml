@@ -1,0 +1,97 @@
+# Bank pilotażowy (AI-draft, niezweryfikowany przez człowieka). Zmiany statusu: tylko `main.py content review`.
+- id: en.pilot.vocab.c1.01
+  lang: en
+  skill_ids:
+  - en.vocab.academic_formal
+  area: vocabulary
+  type: mc
+  cefr: C1
+  difficulty: 0.0
+  pools:
+  - diagnosis
+  - practice
+  domain: general
+  prompt: The report's findings are ___ with earlier studies.
+  stimulus: null
+  options:
+  - consistent
+  - constant
+  - persistent
+  - insistent
+  answers:
+  - consistent
+  explanation_pl: consistent with = zgodny z.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka)'
+- id: en.pilot.vocab.c1.02
+  lang: en
+  skill_ids:
+  - en.vocab.nuanced_adjectives
+  area: vocabulary
+  type: gap
+  cefr: C1
+  difficulty: 0.3
+  pools:
+  - diagnosis
+  - practice
+  domain: interview
+  prompt: The manager gave a ___ response, neither confirming nor denying the rumours.
+  stimulus: null
+  options: null
+  answers:
+  - noncommittal
+  - non-committal
+  explanation_pl: Noncommittal = wymijający, bez zajmowania stanowiska.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka)'
+- id: en.pilot.vocab.c1.03
+  lang: en
+  skill_ids:
+  - en.vocab.academic_formal
+  area: vocabulary
+  type: mc
+  cefr: C1
+  difficulty: 0.5
+  pools:
+  - diagnosis
+  - practice
+  domain: general
+  prompt: Her argument was so ___ that no one could refute it.
+  stimulus: null
+  options:
+  - cogent
+  - vague
+  - tedious
+  - whimsical
+  answers:
+  - cogent
+  explanation_pl: Cogent = przekonujący, logiczny.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka)'

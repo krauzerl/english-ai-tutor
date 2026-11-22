@@ -1,0 +1,96 @@
+# Bank pilotażowy (AI-draft, niezweryfikowany przez człowieka). Zmiany statusu: tylko `main.py content review`.
+- id: en.pilot.listen.b2.01
+  lang: en
+  skill_ids:
+  - en.listen.opinions_detail
+  area: listening
+  type: listening_mc
+  cefr: B2
+  difficulty: 0.0
+  pools:
+  - diagnosis
+  - practice
+  domain: tech_it
+  prompt: Why did the migration take longer?
+  stimulus: null
+  options:
+  - Legacy data caused problems.
+  - The team was too small.
+  - The budget was cut.
+  - The client changed the plan.
+  answers:
+  - Legacy data caused problems.
+  explanation_pl: Niespodziewane problemy ze starymi danymi.
+  audio_text: Honestly, I expected the migration to take a week, but we hit unexpected problems with legacy data, so it dragged on for a month.
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka)'
+- id: en.pilot.listen.b2.02
+  lang: en
+  skill_ids:
+  - en.listen.opinions_detail
+  area: listening
+  type: dictation
+  cefr: B2
+  difficulty: 0.2
+  pools:
+  - diagnosis
+  - practice
+  domain: tech_it
+  prompt: Type what you hear.
+  stimulus: null
+  options: null
+  answers:
+  - Despite the tight schedule the team managed to deliver the feature without compromising quality
+  explanation_pl: 'Dyktando: despite + rzeczownik.'
+  audio_text: Despite the tight schedule, the team managed to deliver the feature without compromising quality.
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka)'
+- id: en.pilot.listen.b2.03
+  lang: en
+  skill_ids:
+  - en.listen.opinions_detail
+  area: listening
+  type: listening_mc
+  cefr: B2
+  difficulty: 0.4
+  pools:
+  - diagnosis
+  - practice
+  domain: conversation
+  prompt: What does the speaker suggest?
+  stimulus: null
+  options:
+  - Meeting on Monday
+  - Cancelling completely
+  - Eating at the desk
+  - Meeting today
+  answers:
+  - Meeting on Monday
+  explanation_pl: Mówiący proponuje przełożenie lunchu na poniedziałek.
+  audio_text: I'd love to join you for lunch, but I'm swamped this week. How about we reschedule for Monday?
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka)'

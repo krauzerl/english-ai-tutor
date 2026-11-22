@@ -1,0 +1,103 @@
+# Bank pilotażowy (AI-draft, niezweryfikowany przez człowieka). Zmiany statusu: tylko `main.py content review`.
+- id: en.pilot.read.b2.01
+  lang: en
+  skill_ids:
+  - en.read.argument_structure
+  area: reading
+  type: reading_mc
+  cefr: B2
+  difficulty: 0.0
+  pools:
+  - diagnosis
+  - practice
+  domain: general
+  prompt: What do the authors suggest about the results?
+  stimulus: Critics argue that four-day work weeks reduce output. Yet a recent pilot in several firms found that productivity stayed the same, while absenteeism fell. The authors caution, however, that
+    the results may not apply to sectors that depend on constant customer contact.
+  options:
+  - They may not apply to every industry.
+  - They prove that all firms should switch.
+  - They show that output fell.
+  - They are unreliable because the pilot was short.
+  answers:
+  - They may not apply to every industry.
+  explanation_pl: Autorzy ostrzegają, że wyniki mogą nie dotyczyć branż z ciągłym kontaktem z klientem.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka)'
+- id: en.pilot.read.b2.02
+  lang: en
+  skill_ids:
+  - en.read.argument_structure
+  area: reading
+  type: reading_mc
+  cefr: B2
+  difficulty: 0.2
+  pools:
+  - diagnosis
+  - practice
+  domain: tech_it
+  prompt: Why did the outage last two hours?
+  stimulus: The outage began when a configuration change was deployed without review. Although monitoring detected the error within minutes, the rollback script failed, which extended the downtime to two
+    hours. The team has since added a mandatory review step and tested the rollback process.
+  options:
+  - The rollback script did not work.
+  - Monitoring did not detect the error.
+  - The change was reviewed too slowly.
+  - The team was on holiday.
+  answers:
+  - The rollback script did not work.
+  explanation_pl: Monitoring wykrył błąd szybko, ale skrypt wycofania zawiódł.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka)'
+- id: en.pilot.read.b2.03
+  lang: en
+  skill_ids:
+  - en.read.argument_structure
+  area: reading
+  type: reading_mc
+  cefr: B2
+  difficulty: 0.4
+  pools:
+  - diagnosis
+  - practice
+  domain: general
+  prompt: What worries the author most?
+  stimulus: While the author acknowledges that automation will eliminate some jobs, she maintains that it will create others that we cannot yet imagine. What worries her more is the speed of change, which
+    leaves little time for retraining.
+  options:
+  - The speed of change
+  - The loss of all jobs
+  - The cost of machines
+  - The lack of new technology
+  answers:
+  - The speed of change
+  explanation_pl: Autorkę martwi tempo zmian, a nie samo zniknięcie miejsc pracy.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka)'

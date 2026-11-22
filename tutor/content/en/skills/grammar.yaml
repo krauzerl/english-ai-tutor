@@ -1,0 +1,425 @@
+# Katalog umiejętności `grammar` (własne parafrazy deskryptorów, nie cytaty English Profile/EVP). Treść AI-draft do przeglądu.
+- id: en.gram.to_be_present
+  lang: en
+  domain: grammar
+  area: grammar
+  cefr: A1
+  can_do_pl: Mówię, kim jestem i jak się mają rzeczy (am/is/are).
+  prereqs: []
+  error_categories: [omission.copula, agreement.subject_verb]
+  explanation_ref: grammar/to_be_present.md
+- id: en.gram.pronouns
+  lang: en
+  domain: grammar
+  area: grammar
+  cefr: A1
+  can_do_pl: Używam zaimków osobowych i dopełnieniowych (I/me, he/him).
+  prereqs: []
+  error_categories: [morphology]
+- id: en.gram.articles_basic
+  lang: en
+  domain: grammar
+  area: grammar
+  cefr: A1
+  can_do_pl: Dobieram a/an/the w prostych zdaniach.
+  prereqs: []
+  error_categories: [article.missing, article.wrong]
+  explanation_ref: grammar/articles_basic.md
+- id: en.gram.plural_nouns
+  lang: en
+  domain: grammar
+  area: grammar
+  cefr: A1
+  can_do_pl: Tworzę liczbę mnogą rzeczowników, także częstych nieregularnych.
+  prereqs: []
+  error_categories: [morphology.plural, agreement.number]
+- id: en.gram.present_simple
+  lang: en
+  domain: grammar
+  area: grammar
+  cefr: A1
+  can_do_pl: Opisuję nawyki, fakty i rutynę.
+  prereqs: [en.gram.to_be_present]
+  error_categories: [tense.present_simple, agreement.subject_verb]
+  explanation_ref: grammar/present_simple.md
+- id: en.gram.present_simple_neg_q
+  lang: en
+  domain: grammar
+  area: grammar
+  cefr: A1
+  can_do_pl: Tworzę przeczenia i pytania w present simple.
+  prereqs: [en.gram.present_simple]
+  error_categories: [omission.auxiliary, word_order.question]
+- id: en.gram.possessives
+  lang: en
+  domain: grammar
+  area: grammar
+  cefr: A1
+  can_do_pl: Mówię, do kogo coś należy (my, his, John's).
+  prereqs: [en.gram.pronouns]
+  error_categories: [determiner.possessive]
+- id: en.gram.there_is_are
+  lang: en
+  domain: grammar
+  area: grammar
+  cefr: A1
+  can_do_pl: Opisuję, co jest w danym miejscu (there is/are).
+  prereqs: [en.gram.to_be_present, en.gram.plural_nouns]
+  error_categories: [agreement.number]
+- id: en.gram.can_ability
+  lang: en
+  domain: grammar
+  area: grammar
+  cefr: A1
+  can_do_pl: Mówię, co umiem i czego nie umiem (can/can't).
+  prereqs: [en.gram.present_simple]
+  error_categories: [omission.auxiliary]
+- id: en.gram.imperatives
+  lang: en
+  domain: grammar
+  area: grammar
+  cefr: A1
+  can_do_pl: Wydaję proste polecenia i instrukcje.
+  prereqs: []
+  error_categories: [word_order]
+- id: en.gram.prep_place_basic
+  lang: en
+  domain: grammar
+  area: grammar
+  cefr: A1
+  can_do_pl: Opisuję położenie przedmiotów (in, on, at, under).
+  prereqs: []
+  error_categories: [preposition.place]
+- id: en.gram.present_continuous
+  lang: en
+  domain: grammar
+  area: grammar
+  cefr: A1
+  can_do_pl: Mówię, co dzieje się teraz.
+  prereqs: [en.gram.to_be_present]
+  error_categories: [tense.present_continuous]
+- id: en.gram.to_be_past
+  lang: en
+  domain: grammar
+  area: grammar
+  cefr: A2
+  can_do_pl: Mówię o stanach w przeszłości (was/were).
+  prereqs: [en.gram.to_be_present]
+  error_categories: [tense.past_simple, agreement.subject_verb]
+- id: en.gram.past_simple_regular
+  lang: en
+  domain: grammar
+  area: grammar
+  cefr: A2
+  can_do_pl: Opowiadam o zakończonych zdarzeniach w przeszłości.
+  prereqs: [en.gram.to_be_past, en.gram.present_simple]
+  error_categories: [tense.past_simple]
+  tags: [narration]
+  explanation_ref: grammar/past_simple_regular.md
+- id: en.gram.irregular_past
+  lang: en
+  domain: grammar
+  area: grammar
+  cefr: A2
+  can_do_pl: Używam częstych czasowników nieregularnych w przeszłości.
+  prereqs: [en.gram.past_simple_regular]
+  error_categories: [morphology.irregular_past]
+  explanation_ref: grammar/irregular_past.md
+- id: en.gram.past_simple_neg_q
+  lang: en
+  domain: grammar
+  area: grammar
+  cefr: A2
+  can_do_pl: Zadaję pytania i przeczę w past simple.
+  prereqs: [en.gram.past_simple_regular]
+  error_categories: [omission.auxiliary, word_order.question]
+- id: en.gram.future_going_to
+  lang: en
+  domain: grammar
+  area: grammar
+  cefr: A2
+  can_do_pl: Mówię o planach i zamiarach (going to).
+  prereqs: [en.gram.present_continuous]
+  error_categories: [tense.future]
+  explanation_ref: grammar/future_going_to.md
+- id: en.gram.future_will
+  lang: en
+  domain: grammar
+  area: grammar
+  cefr: A2
+  can_do_pl: Mówię o decyzjach i przewidywaniach (will).
+  prereqs: [en.gram.present_simple]
+  error_categories: [tense.future]
+- id: en.gram.comparatives
+  lang: en
+  domain: grammar
+  area: grammar
+  cefr: A2
+  can_do_pl: Porównuję dwie rzeczy (bigger than, more interesting).
+  prereqs: []
+  error_categories: [morphology.comparative]
+- id: en.gram.superlatives
+  lang: en
+  domain: grammar
+  area: grammar
+  cefr: A2
+  can_do_pl: Wskazuję najlepszy/największy (the best, the most).
+  prereqs: [en.gram.comparatives]
+  error_categories: [morphology.comparative]
+- id: en.gram.countable_uncountable
+  lang: en
+  domain: grammar
+  area: grammar
+  cefr: A2
+  can_do_pl: Dobieram much/many/some/any do rodzaju rzeczownika.
+  prereqs: [en.gram.plural_nouns, en.gram.articles_basic]
+  error_categories: [determiner.quantifier]
+- id: en.gram.have_to_must
+  lang: en
+  domain: grammar
+  area: grammar
+  cefr: A2
+  can_do_pl: Mówię o obowiązkach i zakazach (have to, must, mustn't).
+  prereqs: [en.gram.can_ability]
+  error_categories: [omission.auxiliary]
+- id: en.gram.prep_time
+  lang: en
+  domain: grammar
+  area: grammar
+  cefr: A2
+  can_do_pl: Podaję czas przyimkami at/on/in.
+  prereqs: []
+  error_categories: [preposition.time]
+- id: en.gram.adverbs_frequency
+  lang: en
+  domain: grammar
+  area: grammar
+  cefr: A2
+  can_do_pl: Mówię, jak często coś robię (always, usually, never).
+  prereqs: [en.gram.present_simple]
+  error_categories: [word_order.adverb]
+- id: en.gram.present_perfect
+  lang: en
+  domain: grammar
+  area: grammar
+  cefr: B1
+  can_do_pl: Mówię o doświadczeniach i skutkach przeszłości dla teraz.
+  prereqs: [en.gram.past_simple_regular, en.gram.irregular_past]
+  error_categories: [tense.present_perfect]
+  explanation_ref: grammar/present_perfect.md
+- id: en.gram.present_perfect_vs_past
+  lang: en
+  domain: grammar
+  area: grammar
+  cefr: B1
+  can_do_pl: Odróżniam present perfect od past simple.
+  prereqs: [en.gram.present_perfect]
+  error_categories: [tense.present_perfect, tense.past_simple]
+- id: en.gram.past_continuous
+  lang: en
+  domain: grammar
+  area: grammar
+  cefr: B1
+  can_do_pl: Opisuję tło i czynności w toku w przeszłości.
+  prereqs: [en.gram.past_simple_regular, en.gram.present_continuous]
+  error_categories: [tense.past_continuous]
+- id: en.gram.first_conditional
+  lang: en
+  domain: grammar
+  area: grammar
+  cefr: B1
+  can_do_pl: Mówię o realnych warunkach i ich skutkach (if + present, will).
+  prereqs: [en.gram.future_will]
+  error_categories: [tense.sequence]
+  explanation_ref: grammar/first_conditional.md
+- id: en.gram.second_conditional
+  lang: en
+  domain: grammar
+  area: grammar
+  cefr: B1
+  can_do_pl: Mówię o sytuacjach hipotetycznych (if + past, would).
+  prereqs: [en.gram.first_conditional, en.gram.past_simple_regular]
+  error_categories: [tense]
+- id: en.gram.modals_advice
+  lang: en
+  domain: grammar
+  area: grammar
+  cefr: B1
+  can_do_pl: Udzielam rad i sugestii (should, ought to, had better).
+  prereqs: [en.gram.can_ability]
+  error_categories: [omission.auxiliary]
+- id: en.gram.passive_basic
+  lang: en
+  domain: grammar
+  area: grammar
+  cefr: B1
+  can_do_pl: Opisuję czynności bez wskazywania sprawcy (is made, was built).
+  prereqs: [en.gram.past_simple_regular]
+  error_categories: [morphology, tense]
+- id: en.gram.relative_defining
+  lang: en
+  domain: grammar
+  area: grammar
+  cefr: B1
+  can_do_pl: Dookreślam rzeczowniki zdaniami z who/which/that.
+  prereqs: [en.gram.present_simple]
+  error_categories: [word_order.subordinate]
+- id: en.gram.gerund_infinitive
+  lang: en
+  domain: grammar
+  area: grammar
+  cefr: B1
+  can_do_pl: Dobieram -ing lub to + bezokolicznik po czasownikach.
+  prereqs: [en.gram.present_simple]
+  error_categories: [morphology.word_form]
+- id: en.gram.used_to
+  lang: en
+  domain: grammar
+  area: grammar
+  cefr: B1
+  can_do_pl: Opowiadam o dawnych nawykach i stanach (used to).
+  prereqs: [en.gram.past_simple_regular]
+  error_categories: [tense.past_simple]
+- id: en.gram.reported_speech_basic
+  lang: en
+  domain: grammar
+  area: grammar
+  cefr: B1
+  can_do_pl: Relacjonuję cudze wypowiedzi (said that…).
+  prereqs: [en.gram.past_simple_regular]
+  error_categories: [tense.sequence]
+  explanation_ref: grammar/reported_speech_basic.md
+- id: en.gram.prep_dependent
+  lang: en
+  domain: grammar
+  area: grammar
+  cefr: B1
+  can_do_pl: Używam stałych przyimków po czasownikach i przymiotnikach.
+  prereqs: [en.gram.prep_place_basic]
+  error_categories: [preposition.dependent]
+- id: en.gram.third_conditional
+  lang: en
+  domain: grammar
+  area: grammar
+  cefr: B2
+  can_do_pl: Mówię o niespełnionych warunkach w przeszłości.
+  prereqs: [en.gram.second_conditional, en.gram.present_perfect]
+  error_categories: [tense.past_perfect]
+  explanation_ref: grammar/third_conditional.md
+- id: en.gram.past_perfect
+  lang: en
+  domain: grammar
+  area: grammar
+  cefr: B2
+  can_do_pl: Porządkuję zdarzenia przeszłe w czasie (had + III forma).
+  prereqs: [en.gram.present_perfect, en.gram.past_simple_regular]
+  error_categories: [tense.past_perfect]
+- id: en.gram.present_perfect_continuous
+  lang: en
+  domain: grammar
+  area: grammar
+  cefr: B2
+  can_do_pl: Opisuję czynności trwające do teraz (have been -ing).
+  prereqs: [en.gram.present_perfect, en.gram.present_continuous]
+  error_categories: [tense.present_perfect]
+  explanation_ref: grammar/present_perfect_continuous.md
+- id: en.gram.reported_speech_full
+  lang: en
+  domain: grammar
+  area: grammar
+  cefr: B2
+  can_do_pl: Relacjonuję pytania, polecenia i przesunięcia czasów.
+  prereqs: [en.gram.reported_speech_basic, en.gram.past_perfect]
+  error_categories: [tense.sequence]
+- id: en.gram.relative_non_defining
+  lang: en
+  domain: grammar
+  area: grammar
+  cefr: B2
+  can_do_pl: Dodaję informacje dodatkowe zdaniami względnymi z przecinkami.
+  prereqs: [en.gram.relative_defining]
+  error_categories: [punctuation]
+- id: en.gram.modals_deduction
+  lang: en
+  domain: grammar
+  area: grammar
+  cefr: B2
+  can_do_pl: Wyciągam wnioski (must be, can't have, might).
+  prereqs: [en.gram.modals_advice]
+  error_categories: [omission.auxiliary]
+- id: en.gram.passive_advanced
+  lang: en
+  domain: grammar
+  area: grammar
+  cefr: B2
+  can_do_pl: Używam strony biernej w złożonych czasach i konstrukcjach.
+  prereqs: [en.gram.passive_basic, en.gram.present_perfect]
+  error_categories: [morphology]
+- id: en.gram.wish_if_only
+  lang: en
+  domain: grammar
+  area: grammar
+  cefr: B2
+  can_do_pl: Wyrażam żal i życzenia (wish, if only).
+  prereqs: [en.gram.second_conditional]
+  error_categories: [tense]
+- id: en.gram.linking_contrast
+  lang: en
+  domain: grammar
+  area: grammar
+  cefr: B2
+  can_do_pl: Łączę idee kontrastem i przyczyną (although, despite, whereas).
+  prereqs: []
+  error_categories: [word_choice]
+  explanation_ref: grammar/linking_contrast.md
+- id: en.gram.inversion
+  lang: en
+  domain: grammar
+  area: grammar
+  cefr: C1
+  can_do_pl: Stosuję inwersję dla podkreślenia (Never have I…, Not only…).
+  prereqs: [en.gram.third_conditional]
+  error_categories: [word_order]
+  explanation_ref: grammar/inversion.md
+- id: en.gram.cleft_sentences
+  lang: en
+  domain: grammar
+  area: grammar
+  cefr: C1
+  can_do_pl: Wyróżniam informację zdaniami rozszczepionymi (What I need is…).
+  prereqs: [en.gram.relative_defining]
+  error_categories: [word_order]
+  explanation_ref: grammar/cleft_sentences.md
+- id: en.gram.participle_clauses
+  lang: en
+  domain: grammar
+  area: grammar
+  cefr: C1
+  can_do_pl: Skracam zdania imiesłowami (Having finished, …).
+  prereqs: [en.gram.relative_non_defining]
+  error_categories: [morphology]
+  explanation_ref: grammar/participle_clauses.md
+- id: en.gram.mixed_conditionals
+  lang: en
+  domain: grammar
+  area: grammar
+  cefr: C1
+  can_do_pl: Łączę warunki z różnych okresów czasu.
+  prereqs: [en.gram.third_conditional, en.gram.second_conditional]
+  error_categories: [tense]
+- id: en.gram.hedging_modality
+  lang: en
+  domain: grammar
+  area: grammar
+  cefr: C1
+  can_do_pl: Łagodzę i stopniuję pewność twierdzeń (tend to, it seems that).
+  prereqs: [en.gram.modals_deduction]
+  error_categories: [register]
+- id: en.gram.subjunctive_formal
+  lang: en
+  domain: grammar
+  area: grammar
+  cefr: C1
+  can_do_pl: Używam form formalnych (I suggest that he be…).
+  prereqs: []
+  error_categories: [register.formality]

@@ -1,0 +1,37 @@
+# Scenariusz AI-draft do przeglądu człowieka.
+id: en.scn.cafe_order
+lang: en
+cefr: A1
+domain: general
+title_pl: Zamawianie w kawiarni
+role: friendly barista
+goal: Order a drink and a snack and pay.
+success_criteria:
+- id: c1
+  description_pl: Zamów napój.
+  example_phrases:
+  - I'd like a coffee, please.
+  - Can I have a tea?
+- id: c2
+  description_pl: Zamów przekąskę i dopytaj o cenę.
+  example_phrases:
+  - How much is the cake?
+  - I'll have a sandwich.
+- id: c3
+  description_pl: Podziękuj i zapłać.
+  example_phrases:
+  - Thank you.
+  - Here you are.
+target_skill_ids:
+- en.conv.greetings_small_talk
+- en.vocab.food_drink
+provenance:
+  source: ai_generated
+  model: claude-sonnet-5-5
+  prompt_version: null
+  created_at: '2026-11-22'
+review:
+  status: draft
+  reviewer: null
+  reviewed_at: null
+  notes: null

@@ -1,0 +1,100 @@
+# Bank pilotażowy (AI-draft, niezweryfikowany przez człowieka). Zmiany statusu: tylko `main.py content review`.
+- id: en.pilot.read.a2.01
+  lang: en
+  skill_ids:
+  - en.read.short_messages
+  area: reading
+  type: reading_mc
+  cefr: A2
+  difficulty: -0.2
+  pools:
+  - diagnosis
+  - practice
+  domain: general
+  prompt: What should Marta bring?
+  stimulus: Hi Marta, the meeting is moved to Thursday at 10:00. Please bring the contract. Room 4B. Peter
+  options:
+  - The contract
+  - A laptop
+  - Lunch
+  - A phone
+  answers:
+  - The contract
+  explanation_pl: Piotr prosi o przyniesienie umowy.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka)'
+- id: en.pilot.read.a2.02
+  lang: en
+  skill_ids:
+  - en.read.signs_notices
+  area: reading
+  type: reading_mc
+  cefr: A2
+  difficulty: 0.1
+  pools:
+  - diagnosis
+  - practice
+  domain: general
+  prompt: What can you do on 28 December?
+  stimulus: The library will be closed on 24 December. It will open again on 2 January. Books can be returned in the box outside.
+  options:
+  - Return a book in the outside box
+  - Borrow a book
+  - Read in the library
+  - Meet the librarian
+  answers:
+  - Return a book in the outside box
+  explanation_pl: Biblioteka zamknięta, ale książki wrzuca się do skrzynki przed budynkiem.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka)'
+- id: en.pilot.read.a2.03
+  lang: en
+  skill_ids:
+  - en.read.short_messages
+  area: reading
+  type: reading_mc
+  cefr: A2
+  difficulty: 0.3
+  pools:
+  - diagnosis
+  - practice
+  domain: tech_it
+  prompt: When will Kate restart the server?
+  stimulus: Our website is down. The server needs a restart. I will do it after lunch, at about 2 p.m. Kate
+  options:
+  - Before lunch
+  - At about 2 p.m.
+  - Tomorrow morning
+  - At midnight
+  answers:
+  - At about 2 p.m.
+  explanation_pl: Kate zrobi restart po lunchu, ok. 14:00.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka)'

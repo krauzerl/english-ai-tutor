@@ -1,0 +1,97 @@
+# Bank pilotażowy (AI-draft, niezweryfikowany przez człowieka). Zmiany statusu: tylko `main.py content review`.
+- id: en.pilot.listen.c1.01
+  lang: en
+  skill_ids:
+  - en.listen.fast_speech_inference
+  area: listening
+  type: listening_mc
+  cefr: C1
+  difficulty: 0.0
+  pools:
+  - diagnosis
+  - practice
+  domain: general
+  prompt: What is the speaker's attitude?
+  stimulus: null
+  options:
+  - Struck by how little attention the issue has received
+  - Surprised by the conclusions
+  - Critical of the researchers
+  - Unconcerned
+  answers:
+  - Struck by how little attention the issue has received
+  explanation_pl: Mówiący jest zaskoczony brakiem zainteresowania tematem.
+  audio_text: The study's conclusions are hardly surprising, but what's striking is how little attention the issue has received so far.
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka)'
+- id: en.pilot.listen.c1.02
+  lang: en
+  skill_ids:
+  - en.listen.fast_speech_inference
+  area: listening
+  type: dictation
+  cefr: C1
+  difficulty: 0.3
+  pools:
+  - diagnosis
+  - practice
+  domain: tech_it
+  prompt: Type what you hear.
+  stimulus: null
+  options: null
+  answers:
+  - Had we anticipated the scale of demand we would have provisioned additional capacity
+  - Had we anticipated the scale of demand we'd have provisioned additional capacity
+  explanation_pl: 'Dyktando: inwersja w trzecim okresie warunkowym.'
+  audio_text: Had we anticipated the scale of demand, we would have provisioned additional capacity.
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka)'
+- id: en.pilot.listen.c1.03
+  lang: en
+  skill_ids:
+  - en.listen.fast_speech_inference
+  area: listening
+  type: listening_mc
+  cefr: C1
+  difficulty: 0.4
+  pools:
+  - diagnosis
+  - practice
+  domain: interview
+  prompt: What does the speaker imply?
+  stimulus: null
+  options:
+  - The project was not a total failure but fell short.
+  - The project was a complete success.
+  - The board cancelled the project.
+  - The speaker avoided the board.
+  answers:
+  - The project was not a total failure but fell short.
+  explanation_pl: 'Mówiący łagodzi ocenę: projekt nie spełnił obietnic.'
+  audio_text: I wouldn't say the project failed, exactly; it just didn't deliver what we'd promised the board.
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka)'

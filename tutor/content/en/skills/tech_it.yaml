@@ -1,0 +1,98 @@
+# Katalog umiejętności `tech_it` (własne parafrazy deskryptorów, nie cytaty English Profile/EVP). Treść AI-draft do przeglądu.
+- id: en.tech.ask_for_help
+  lang: en
+  domain: tech_it
+  area: speaking
+  cefr: A2
+  can_do_pl: Proszę o pomoc przy problemie technicznym.
+  prereqs: [en.gram.can_ability]
+  error_categories: [register]
+- id: en.tech.vocab_basic
+  lang: en
+  domain: tech_it
+  area: vocabulary
+  cefr: A2
+  can_do_pl: Znam podstawowe słownictwo IT (file, server, bug).
+  prereqs: []
+  error_categories: [word_choice]
+- id: en.tech.standup_update
+  lang: en
+  domain: tech_it
+  area: speaking
+  cefr: B1
+  can_do_pl: Relacjonuję postępy na stand-upie (yesterday, today, blockers).
+  prereqs: [en.gram.past_simple_regular, en.gram.future_going_to]
+  error_categories: [tense.past_simple, tense.future]
+  tags: [narration]
+- id: en.tech.describe_bug
+  lang: en
+  domain: tech_it
+  area: speaking
+  cefr: B1
+  can_do_pl: 'Opisuję błąd: kroki, oczekiwany i faktyczny wynik.'
+  prereqs: [en.gram.present_simple, en.gram.past_simple_regular]
+  error_categories: [tense.present_simple]
+- id: en.tech.client_email
+  lang: en
+  domain: tech_it
+  area: writing
+  cefr: B1
+  can_do_pl: Piszę uprzejmy e-mail do klienta o stanie prac.
+  prereqs: [en.gram.present_perfect]
+  error_categories: [register.formality]
+- id: en.tech.code_review_comments
+  lang: en
+  domain: tech_it
+  area: writing
+  cefr: B1
+  can_do_pl: 'Piszę komentarze do code review: uprzejme sugestie.'
+  prereqs: [en.gram.modals_advice]
+  error_categories: [register]
+- id: en.tech.vocab_advanced
+  lang: en
+  domain: tech_it
+  area: vocabulary
+  cefr: B2
+  can_do_pl: Znam rozszerzone słownictwo IT (deploy, rollback, latency).
+  prereqs: []
+  error_categories: [word_choice, collocation]
+- id: en.tech.explain_architecture
+  lang: en
+  domain: tech_it
+  area: speaking
+  cefr: B2
+  can_do_pl: Wyjaśniam architekturę systemu i decyzje projektowe.
+  prereqs: [en.gram.passive_basic, en.gram.linking_contrast]
+  error_categories: [morphology]
+- id: en.tech.estimate_deadline
+  lang: en
+  domain: tech_it
+  area: speaking
+  cefr: B2
+  can_do_pl: Szacuję terminy i omawiam ryzyka.
+  prereqs: [en.gram.first_conditional, en.gram.modals_deduction]
+  error_categories: [tense.future]
+- id: en.tech.incident_report
+  lang: en
+  domain: tech_it
+  area: writing
+  cefr: B2
+  can_do_pl: 'Piszę raport z incydentu: przebieg i przyczyna.'
+  prereqs: [en.gram.past_perfect, en.gram.passive_basic]
+  error_categories: [tense.past_perfect]
+- id: en.tech.meeting_participation
+  lang: en
+  domain: tech_it
+  area: speaking
+  cefr: B2
+  can_do_pl: Zabieram głos na spotkaniu technicznym.
+  prereqs: [en.gram.modals_advice, en.conv.agree_disagree]
+  error_categories: [register]
+- id: en.tech.documentation
+  lang: en
+  domain: tech_it
+  area: writing
+  cefr: B2
+  can_do_pl: Piszę zwięzłą dokumentację techniczną.
+  prereqs: [en.gram.passive_basic, en.gram.imperatives]
+  error_categories: [register]

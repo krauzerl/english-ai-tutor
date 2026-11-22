@@ -50,6 +50,10 @@ if __name__ == "__main__":
         from tutor.cli import main as profile_main
 
         sys.exit(profile_main(sys.argv[2:]))
+    if sys.argv[1:2] == ["content"]:
+        from tutor.cli import content_main
+
+        sys.exit(content_main(sys.argv[2:]))
     if "--voice" in sys.argv[1:]:
         from tutor.voice.cli import run
 

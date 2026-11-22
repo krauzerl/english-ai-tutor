@@ -1,0 +1,30 @@
+# Poprawne warianty (§2.4): BrE/AmE, kontrakcje, synonimy. Para (span, fix) z tej samej grupy = `variant`, nie błąd.
+groups:
+  - {id: colour_color, kind: spelling, forms: [colour, color]}
+  - {id: organise_organize, kind: spelling, forms: [organise, organize]}
+  - {id: travelled_traveled, kind: spelling, forms: [travelled, traveled]}
+  - {id: programme_program, kind: spelling, forms: [programme, program], skip_domains: [tech_it]}
+  - {id: licence_license, kind: spelling, forms: [licence, license]}
+  - {id: centre_center, kind: spelling, forms: [centre, center]}
+  - {id: flat_apartment, kind: lexical, forms: [flat, apartment]}
+  - {id: holiday_vacation, kind: lexical, forms: [holiday, vacation]}
+  - {id: lift_elevator, kind: lexical, forms: [lift, elevator]}
+  - {id: cv_resume, kind: lexical, forms: [CV, résumé, resume]}
+  - {id: have_got, kind: grammar, forms: [have got, have]}
+  - {id: has_got, kind: grammar, forms: [has got, has]}
+  - {id: gotten_got, kind: grammar, forms: [gotten, got]}
+  - {id: hospital_the, kind: grammar, forms: [in hospital, in the hospital]}
+  - {id: team_are_is, kind: grammar, forms: [the team are, the team is]}
+  - {id: whom_who, kind: grammar, forms: [whom, who]}
+  - {id: im, kind: contraction, forms: [I'm, I am]}
+  - {id: ive, kind: contraction, forms: [I've, I have]}
+  - {id: dont, kind: contraction, forms: [don't, do not]}
+  - {id: doesnt, kind: contraction, forms: [doesn't, does not]}
+  - {id: didnt, kind: contraction, forms: [didn't, did not]}
+  - {id: its, kind: contraction, forms: [it's, it is]}
+  - {id: thats, kind: contraction, forms: [that's, that is]}
+  - {id: cant, kind: contraction, forms: [can't, cannot]}
+  - {id: wont, kind: contraction, forms: [won't, will not]}
+  - {id: youre, kind: contraction, forms: [you're, you are]}
+  - {id: were_contr, kind: contraction, forms: [we're, we are]}
+  - {id: theyre, kind: contraction, forms: [they're, they are]}

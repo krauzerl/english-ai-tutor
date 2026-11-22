@@ -1,0 +1,82 @@
+# Katalog umiejętności `interview` (własne parafrazy deskryptorów, nie cytaty English Profile/EVP). Treść AI-draft do przeglądu.
+- id: en.int.self_intro
+  lang: en
+  domain: interview
+  area: speaking
+  cefr: A2
+  can_do_pl: Przedstawiam się krótko na rozmowie kwalifikacyjnej.
+  prereqs: [en.vocab.work_basic, en.gram.present_simple]
+  error_categories: [tense.present_simple]
+- id: en.int.ask_interviewer
+  lang: en
+  domain: interview
+  area: speaking
+  cefr: B1
+  can_do_pl: Zadaję pytania rekruterowi o rolę i zespół.
+  prereqs: [en.gram.present_simple_neg_q]
+  error_categories: [word_order.question]
+- id: en.int.strengths_weaknesses
+  lang: en
+  domain: interview
+  area: speaking
+  cefr: B1
+  can_do_pl: Mówię o mocnych stronach i obszarach rozwoju.
+  prereqs: [en.gram.present_perfect]
+  error_categories: [word_choice]
+- id: en.int.thank_follow_up
+  lang: en
+  domain: interview
+  area: writing
+  cefr: B1
+  can_do_pl: Piszę podziękowanie po rozmowie.
+  prereqs: [en.gram.present_perfect]
+  error_categories: [register.formality]
+- id: en.int.experience_star
+  lang: en
+  domain: interview
+  area: speaking
+  cefr: B2
+  can_do_pl: Opowiadam doświadczenie w układzie STAR.
+  prereqs: [en.gram.past_simple_regular, en.gram.past_perfect]
+  error_categories: [tense.past_simple]
+  tags: [narration]
+- id: en.int.behavioral_questions
+  lang: en
+  domain: interview
+  area: speaking
+  cefr: B2
+  can_do_pl: Odpowiadam na pytania behawioralne konkretnym przykładem.
+  prereqs: [en.gram.past_continuous, en.gram.present_perfect_vs_past]
+  error_categories: [tense.past_simple]
+- id: en.int.technical_questions
+  lang: en
+  domain: interview
+  area: speaking
+  cefr: B2
+  can_do_pl: Odpowiadam na pytania techniczne i uzasadniam wybory.
+  prereqs: [en.gram.linking_contrast]
+  error_categories: [word_choice]
+- id: en.int.motivation_career
+  lang: en
+  domain: interview
+  area: speaking
+  cefr: B2
+  can_do_pl: Wyjaśniam motywację i zmiany w karierze.
+  prereqs: [en.gram.present_perfect_continuous]
+  error_categories: [tense.present_perfect]
+- id: en.int.unknown_question
+  lang: en
+  domain: interview
+  area: speaking
+  cefr: B2
+  can_do_pl: Radzę sobie z pytaniem, na które nie znam odpowiedzi.
+  prereqs: [en.gram.modals_deduction]
+  error_categories: [register]
+- id: en.int.salary_negotiation
+  lang: en
+  domain: interview
+  area: speaking
+  cefr: C1
+  can_do_pl: Negocjuję wynagrodzenie i warunki zatrudnienia.
+  prereqs: [en.gram.mixed_conditionals, en.gram.hedging_modality]
+  error_categories: [register]

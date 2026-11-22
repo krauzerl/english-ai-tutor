@@ -1,0 +1,66 @@
+# Taksonomia błędów EN: rdzeń wspólny + podkategorie. Szablony PL (wyjaśnienie) i podpowiedzi L1–L3 (§3.2);
+# LLM generuje wyjaśnienie tylko wtedy, gdy szablonu brak. Wszystko to treść AI-draft do przeglądu człowieka.
+choice_template: "Which is correct: «{a}» or «{b}»?"
+categories:
+  # --- tense ---
+  - {id: tense, explanation_pl: "Dobierz czas do momentu zdarzenia: teraz, przeszłość zakończona, przeszłość z wpływem na teraz, przyszłość.", l1: "Almost! Check the verb tense.", l2_pl: "Zastanów się, kiedy zdarzenie ma miejsce. Jaki czas pasuje?"}
+  - {id: tense.present_simple, explanation_pl: "Present simple opisuje nawyki i fakty; w 3. osobie liczby pojedynczej dodajemy -s.", l1: "Almost! Check the verb.", l2_pl: "Mówisz o nawyku lub fakcie. Czy czasownik ma właściwą końcówkę?"}
+  - {id: tense.present_continuous, explanation_pl: "Present continuous (am/is/are + -ing) opisuje to, co dzieje się teraz lub tymczasowo.", l1: "Almost! Check the verb form.", l2_pl: "Czy czynność trwa właśnie teraz? Jaka forma opisuje czynność w toku?"}
+  - {id: tense.past_simple, explanation_pl: "Zakończone zdarzenie w przeszłości (często z yesterday, last week, ago) wyrażamy w past simple.", l1: "Almost! Check the verb.", l2_pl: "Mówisz o zakończonej przeszłości. Jaki czas jest potrzebny?"}
+  - {id: tense.past_continuous, explanation_pl: "Past continuous (was/were + -ing) opisuje czynność w toku w przeszłości, często przerwaną innym zdarzeniem.", l1: "Almost! Check the tense.", l2_pl: "Czynność trwała w danym momencie w przeszłości. Jaki czas to oddaje?"}
+  - {id: tense.present_perfect, explanation_pl: "Present perfect (have/has + III forma) łączy przeszłość z teraźniejszością: doświadczenie, rezultat, czas niezakończony.", l1: "Almost! Think about the tense.", l2_pl: "Nie podajesz konkretnej daty w przeszłości, a liczy się związek z teraz. Jaki czas pasuje?"}
+  - {id: tense.past_perfect, explanation_pl: "Past perfect (had + III forma) pokazuje, co wydarzyło się wcześniej niż inne zdarzenie w przeszłości.", l1: "Almost! Which happened first?", l2_pl: "Dwa zdarzenia w przeszłości — które było wcześniej? Jaki czas to zaznacza?"}
+  - {id: tense.future, explanation_pl: "Przyszłość: will (decyzja, przewidywanie), going to (plan, oznaki), present continuous (ustalony termin).", l1: "Almost! Check how you talk about the future.", l2_pl: "Czy to plan, decyzja w chwili mówienia, czy przewidywanie? Wybierz odpowiednią formę."}
+  - {id: tense.sequence, explanation_pl: "W zdaniach podrzędnych czasu i warunku po if/when/before używamy czasu teraźniejszego, nie will.", l1: "Almost! Check the tense after «if/when».", l2_pl: "Po if/when/before mówimy o przyszłości czasem teraźniejszym. Popraw czasownik."}
+  - {id: aspect, explanation_pl: "Aspekt (prosty, ciągły, perfect) zmienia sposób patrzenia na czynność.", l1: "Almost! Check the verb form.", l2_pl: "Czy czynność jest w toku, zakończona, czy powtarzalna?"}
+  # --- agreement ---
+  - {id: agreement, explanation_pl: "Podmiot i orzeczenie muszą się zgadzać w liczbie.", l1: "Almost! Check the agreement.", l2_pl: "Policz podmiot: liczba pojedyncza czy mnoga? Dopasuj czasownik."}
+  - {id: agreement.subject_verb, explanation_pl: "W 3. os. l. poj. czasownik w present simple ma -s (he works); was/were i is/are zależą od podmiotu.", l1: "Almost! Check the verb ending.", l2_pl: "Kto wykonuje czynność — jedna osoba czy kilka? Dopasuj czasownik."}
+  - {id: agreement.number, explanation_pl: "Rzeczownik i określnik muszą pasować liczbą (this book / these books).", l1: "Almost! Check singular and plural.", l2_pl: "Czy mówisz o jednej rzeczy, czy o kilku? Popraw formę."}
+  # --- article ---
+  - {id: article, explanation_pl: "Rodzajnik: a/an (pierwsza wzmianka, jeden z wielu), the (konkretny, znany), brak (ogólnie, liczba mnoga).", l1: "Almost! Check the article.", l2_pl: "Czy rozmówca wie, o który przedmiot chodzi? To decyduje o rodzajniku."}
+  - {id: article.missing, explanation_pl: "Rzeczownik policzalny w liczbie pojedynczej zwykle wymaga rodzajnika lub innego określnika.", l1: "Almost! Is something missing before the noun?", l2_pl: "Rzeczownik policzalny w l. poj. nie stoi sam. Czego tu brakuje?"}
+  - {id: article.wrong, explanation_pl: "Wybór a/an/the zależy od tego, czy rzecz jest konkretna i znana; an stawiamy przed samogłoską w wymowie.", l1: "Almost! Check the article.", l2_pl: "Czy to konkretna, znana rzecz, czy jedna z wielu?"}
+  - {id: article.extra, explanation_pl: "Przed rzeczownikami niepoliczalnymi, nazwami ogólnymi i liczbą mnogą w znaczeniu ogólnym nie dajemy the.", l1: "Almost! Do you need that word?", l2_pl: "Mówisz ogólnie, nie o konkretnej rzeczy. Czy rodzajnik jest potrzebny?"}
+  # --- determiner ---
+  - {id: determiner, explanation_pl: "Określniki (much/many, some/any, this/that, my/your) dobieramy do rodzaju rzeczownika.", l1: "Almost! Check the small word before the noun.", l2_pl: "Czy rzeczownik jest policzalny? To zmienia wybór określnika."}
+  - {id: determiner.quantifier, explanation_pl: "Many z rzeczownikami policzalnymi, much z niepoliczalnymi; a lot of pasuje do obu.", l1: "Almost! Check much/many.", l2_pl: "Czy możesz policzyć ten rzeczownik? Wybierz much lub many."}
+  - {id: determiner.possessive, explanation_pl: "Dopasuj dzierżawcę do właściciela: his (jego), her (jej), their (ich); dopełniacz saksoński: John's.", l1: "Almost! Whose is it?", l2_pl: "Do kogo należy rzecz? Wybierz właściwą formę dzierżawczą."}
+  # --- preposition ---
+  - {id: preposition, explanation_pl: "Przyimki często nie mają prostych odpowiedników w polskim; uczymy się ich z całymi zwrotami.", l1: "Almost! Check the preposition.", l2_pl: "Sprawdź, jaki przyimek łączy się z tym słowem."}
+  - {id: preposition.time, explanation_pl: "at + godzina, on + dzień/data, in + miesiąc/rok/pora dnia.", l1: "Almost! Check the time preposition.", l2_pl: "Czy to godzina, dzień, czy dłuższy okres? Każdy ma swój przyimek."}
+  - {id: preposition.place, explanation_pl: "at + punkt, in + wnętrze/obszar, on + powierzchnia.", l1: "Almost! Check the place preposition.", l2_pl: "Czy miejsce to punkt, wnętrze, czy powierzchnia?"}
+  - {id: preposition.dependent, explanation_pl: "Niektóre czasowniki i przymiotniki wymagają stałego przyimka (depend on, interested in, good at).", l1: "Almost! Check the preposition after the verb or adjective.", l2_pl: "To słowo łączy się ze stałym przyimkiem. Jakim?"}
+  # --- word_order ---
+  - {id: word_order, explanation_pl: "Szyk zdania w angielskim jest sztywny: podmiot – orzeczenie – dopełnienie.", l1: "Almost! Check the word order.", l2_pl: "Ułóż słowa: kto, co robi, kogo/co."}
+  - {id: word_order.question, explanation_pl: "W pytaniach używamy operatora (do/does/did, is, have) przed podmiotem.", l1: "Almost! Check how you form the question.", l2_pl: "Pytanie wymaga operatora przed podmiotem. Jakiego?"}
+  - {id: word_order.adverb, explanation_pl: "Przysłówki częstotliwości stoją przed czasownikiem głównym, ale po to be.", l1: "Almost! Check where the adverb goes.", l2_pl: "Gdzie stoi przysłówek względem czasownika?"}
+  - {id: word_order.subordinate, explanation_pl: "W pytaniu zależnym szyk jest oznajmujący: I don't know where he is.", l1: "Almost! Check the word order after the question word.", l2_pl: "To pytanie zależne — użyj szyku zdania oznajmującego."}
+  # --- word_choice ---
+  - {id: word_choice, explanation_pl: "Wybrane słowo nie pasuje znaczeniem; sprawdź, czy nie jest to fałszywy przyjaciel.", l1: "Almost! Is that the best word?", l2_pl: "Czy to słowo naprawdę znaczy to, co chcesz powiedzieć?"}
+  - {id: word_choice.false_friend, explanation_pl: "Słowo podobne do polskiego ma w angielskim inne znaczenie (actual ≠ aktualny, sympathetic ≠ sympatyczny).", l1: "Almost! Be careful with similar-looking words.", l2_pl: "To słowo przypomina polskie, ale znaczy co innego. Jakie słowo pasuje?"}
+  - {id: word_choice.confusable, explanation_pl: "Pary jak make/do, say/tell, bring/take różnią się użyciem.", l1: "Almost! Check the verb choice.", l2_pl: "Czy to nie jest para łatwa do pomylenia? Wybierz właściwe słowo."}
+  # --- collocation ---
+  - {id: collocation, explanation_pl: "Niektóre słowa łączą się tylko z określonymi partnerami (make a decision, do homework).", l1: "Almost! Check which words go together.", l2_pl: "Jakie słowo naturalnie łączy się z tym rzeczownikiem?"}
+  - {id: collocation.verb_noun, explanation_pl: "Z danym rzeczownikiem używamy konkretnego czasownika (make a mistake, take a break, have a meeting).", l1: "Almost! Check the verb with this noun.", l2_pl: "Jakiego czasownika użyłby native speaker z tym rzeczownikiem?"}
+  - {id: collocation.adj_noun, explanation_pl: "Przymiotniki mają swoich stałych partnerów (heavy rain, strong coffee).", l1: "Almost! Check the adjective.", l2_pl: "Który przymiotnik naturalnie pasuje do tego rzeczownika?"}
+  # --- morphology ---
+  - {id: morphology, explanation_pl: "Forma słowa (końcówka, forma nieregularna, część mowy) nie pasuje do zdania.", l1: "Almost! Check the form of the word.", l2_pl: "Czy ta forma słowa istnieje i pasuje do zdania?"}
+  - {id: morphology.irregular_past, explanation_pl: "Wiele częstych czasowników ma nieregularną formę przeszłą (go–went, buy–bought) i nie dodaje -ed.", l1: "Almost! Check the past form.", l2_pl: "To czasownik nieregularny. Jaka jest jego forma przeszła?"}
+  - {id: morphology.plural, explanation_pl: "Liczba mnoga bywa nieregularna (child–children, person–people).", l1: "Almost! Check the plural form.", l2_pl: "Jaka jest liczba mnoga tego rzeczownika?"}
+  - {id: morphology.comparative, explanation_pl: "Krótkie przymiotniki: -er/-est; długie: more/most; nieregularne: good–better–best.", l1: "Almost! Check the comparison.", l2_pl: "Czy przymiotnik jest krótki czy długi? Tak wybierasz formę stopnia wyższego."}
+  - {id: morphology.word_form, explanation_pl: "Rzeczownik, czasownik, przymiotnik i przysłówek mają różne końcówki (success, succeed, successful, successfully).", l1: "Almost! Check the part of speech.", l2_pl: "Jakiej części mowy wymaga to miejsce w zdaniu?"}
+  # --- register ---
+  - {id: register, explanation_pl: "Styl wypowiedzi (formalny/nieformalny) powinien pasować do sytuacji.", l1: "Almost! Think about the tone.", l2_pl: "Do kogo mówisz? Czy ton pasuje do sytuacji?"}
+  - {id: register.formality, explanation_pl: "W e-mailach i rozmowach kwalifikacyjnych unikamy skrótów i slangu; używamy grzecznych form (Could you…?).", l1: "Almost! Is this formal enough?", l2_pl: "To sytuacja formalna. Jak powiedzieć to uprzejmiej?"}
+  # --- pisownia, interpunkcja, wielkie litery (tylko tekst pisany) ---
+  - {id: spelling, explanation_pl: "Pisownia słowa jest niepoprawna.", l1: "Almost! Check the spelling.", l2_pl: "Sprawdź, jak pisze się to słowo."}
+  - {id: punctuation, explanation_pl: "Interpunkcja zmienia sens i czytelność zdania.", l1: "Almost! Check the punctuation.", l2_pl: "Czy zdanie ma właściwe znaki interpunkcyjne?"}
+  - {id: capitalization, explanation_pl: "Wielką literą piszemy początek zdania, I oraz nazwy własne.", l1: "Almost! Check the capital letters.", l2_pl: "Które słowa powinny zaczynać się wielką literą?"}
+  # --- omission ---
+  - {id: omission, explanation_pl: "Brakuje słowa wymaganego gramatycznie.", l1: "Almost! Is a word missing?", l2_pl: "Czy zdanie ma wszystkie potrzebne elementy?"}
+  - {id: omission.subject, explanation_pl: "W angielskim zdanie wymaga podmiotu (It is raining, nie Is raining).", l1: "Almost! Who or what is the subject?", l2_pl: "Kto lub co jest podmiotem? W angielskim musi być wyrażony."}
+  - {id: omission.auxiliary, explanation_pl: "Pytania i przeczenia w wielu czasach wymagają operatora (do/does/did, have, will).", l1: "Almost! Do you need a helping verb?", l2_pl: "Pytanie lub przeczenie potrzebuje czasownika pomocniczego. Jakiego?"}
+  - {id: omission.copula, explanation_pl: "Czasownik to be jest obowiązkowy: She is a teacher, nie She a teacher.", l1: "Almost! Is the verb «to be» missing?", l2_pl: "Brakuje czasownika to be. Wstaw odpowiednią formę."}
+  # --- kalki ---
+  - {id: l1_calque, explanation_pl: "Zdanie przypomina dosłowne tłumaczenie z polskiego i brzmi nienaturalnie.", l1: "Almost! Try to say it the English way.", l2_pl: "Jak powiedziałby to native speaker, nie tłumacząc słowo w słowo?"}

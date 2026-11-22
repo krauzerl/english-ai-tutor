@@ -1,0 +1,92 @@
+# Bank pilotażowy (AI-draft, niezweryfikowany przez człowieka). Zmiany statusu: tylko `main.py content review`.
+- id: en.pilot.gram.c1.01
+  lang: en
+  skill_ids:
+  - en.gram.inversion
+  area: grammar
+  type: mc
+  cefr: C1
+  difficulty: 0.0
+  pools:
+  - diagnosis
+  - practice
+  domain: interview
+  prompt: Not only ___ the deadline, but they also exceeded the client's expectations.
+  stimulus: null
+  options:
+  - they met
+  - did they meet
+  - they did meet
+  - met they
+  answers:
+  - did they meet
+  explanation_pl: Po Not only na początku zdania następuje inwersja z operatorem.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: niezgodność z kluczem'
+- id: en.pilot.gram.c1.02
+  lang: en
+  skill_ids:
+  - en.gram.cleft_sentences
+  area: grammar
+  type: gap
+  cefr: C1
+  difficulty: 0.1
+  pools:
+  - diagnosis
+  - practice
+  domain: general
+  prompt: What I really need ___ a quiet place to think.
+  stimulus: null
+  options: null
+  answers:
+  - is
+  explanation_pl: W zdaniu rozszczepionym What… + is/was + fraza.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: niezgodność z kluczem'
+- id: en.pilot.gram.c1.03
+  lang: en
+  skill_ids:
+  - en.gram.participle_clauses
+  area: grammar
+  type: transform
+  cefr: C1
+  difficulty: 0.4
+  pools:
+  - diagnosis
+  - practice
+  domain: tech_it
+  prompt: 'Rewrite starting with ''Having'': After she had finished the audit, she sent the report.'
+  stimulus: null
+  options: null
+  answers:
+  - Having finished the audit she sent the report
+  explanation_pl: Having + III forma skraca zdanie o wcześniejszej czynności.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka)'

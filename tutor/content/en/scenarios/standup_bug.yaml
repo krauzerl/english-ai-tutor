@@ -1,0 +1,38 @@
+# Scenariusz AI-draft do przeglądu człowieka.
+id: en.scn.standup_bug
+lang: en
+cefr: B1
+domain: tech_it
+title_pl: Stand-up i opis błędu
+role: team lead running a daily stand-up
+goal: Give a stand-up update and describe a bug you are blocked on.
+success_criteria:
+- id: c1
+  description_pl: Powiedz, co zrobiłeś/aś wczoraj i co robisz dziś.
+  example_phrases:
+  - Yesterday I fixed the login bug.
+  - Today I'm working on the API.
+- id: c2
+  description_pl: 'Opisz błąd: kroki i oczekiwany wynik.'
+  example_phrases:
+  - When I click Save, nothing happens.
+  - I expected the form to submit.
+- id: c3
+  description_pl: Powiedz, czego potrzebujesz.
+  example_phrases:
+  - I'm blocked by the missing test data.
+  - Could someone review my pull request?
+target_skill_ids:
+- en.tech.standup_update
+- en.tech.describe_bug
+- en.tech.ask_for_help
+provenance:
+  source: ai_generated
+  model: claude-sonnet-5-5
+  prompt_version: null
+  created_at: '2026-11-22'
+review:
+  status: draft
+  reviewer: null
+  reviewed_at: null
+  notes: null

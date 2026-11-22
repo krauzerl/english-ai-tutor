@@ -69,3 +69,76 @@ def main(argv: list[str]) -> int:
         return 0
     finally:
         conn.close()
+
+
+def content_main(argv: list[str], inp=input, out=print) -> int:
+    """python main.py content validate|review <lang>."""
+    from datetime import UTC, datetime
+
+    from tutor.pedagogy import content as C
+
+    ap = argparse.ArgumentParser(prog="main.py content")
+    sub = ap.add_subparsers(dest="cmd", required=True)
+    sub.add_parser("validate").add_argument("lang")
+    rv = sub.add_parser("review")
+    rv.add_argument("lang")
+    rv.add_argument("--reviewer", required=True, help="id z reviewers.yaml")
+    rv.add_argument("--all", action="store_true", help="także zadania już ocenione (poza human_reviewed)")
+    args = ap.parse_args(argv)
+    try:
+        rep = C.validate(args.lang)
+    except C.ContentError as e:
+        out("\n".join(e.report.errors))
+        return 1
+    if args.cmd == "validate":
+        out(C.format_report(rep))
+        return 0 if rep.ok else 1
+    if not rep.ok:
+        out(C.format_report(rep))
+        out("Napraw błędy walidacji przed przeglądem.")
+        return 1
+    pack = C.load(args.lang)
+    if args.reviewer not in {r.id for r in pack.reviewers.reviewers}:
+        out(f"Reviewer „{args.reviewer}” nie występuje w reviewers.yaml (dodaj siebie ręcznie).")
+        return 1
+    skip = {"human_reviewed", "rejected"} if args.all else {"human_reviewed", "rejected", "suspect"}
+    queue = [i for i in pack.items.values() if i.review.status not in skip]
+    out(f"Do przeglądu: {len(queue)}. [a]kceptuj  [e]dytuj notatkę  [o]drzuć  [p]omiń  [q]uit")
+    done = 0
+    for it in queue:
+        out(f"\n{it.id}  {it.area}/{it.cefr}/{it.type}  status={it.review.status}  źródło={it.provenance.source}")
+        if it.stimulus:
+            out(f"  TEKST: {it.stimulus}")
+        if it.audio_text:
+            out(f"  AUDIO: {it.audio_text}")
+        out(f"  ZADANIE: {it.prompt}")
+        if it.options:
+            out("  OPCJE: " + " | ".join(it.options))
+        out(f"  KLUCZ: {it.answers}")
+        out(f"  WYJAŚNIENIE: {it.explanation_pl}")
+        if it.review.notes:
+            out(f"  NOTATKA: {it.review.notes}")
+        notes = it.review.notes
+        while True:
+            c = inp("> ").strip().lower()[:1]
+            now = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
+            if c == "a":
+                C.set_review(pack, it.id, "human_reviewed", reviewer=args.reviewer, now=now, notes=notes)
+            elif c == "o":
+                C.set_review(pack, it.id, "rejected", reviewer=args.reviewer, now=now,
+                             notes=inp("powód odrzucenia: ").strip() or None)
+            elif c == "e":
+                notes = inp("notatka: ").strip() or None
+                C.set_note(pack, it.id, notes)
+                continue  # po notatce nadal czekamy na decyzję
+            elif c == "p":
+                break
+            elif c == "q":
+                out(f"Zakończono; zapisano {done}.")
+                return 0
+            else:
+                continue
+            done += 1
+            break
+    out(f"Koniec kolejki; zapisano {done}.")
+    return 0
