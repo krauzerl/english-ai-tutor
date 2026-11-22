@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "english-ai-tutor"
 version = "0.1.0"
 requires-python = ">=3.12"
-dependencies = ["requests>=2.32"]
+dependencies = ["requests>=2.32", "pydantic>=2.7", "google-genai>=1.0"]
 
 [project.optional-dependencies]
 dev = ["pytest>=8", "ruff>=0.6"]
@@ -19,11 +19,16 @@ include = ["tutor*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+addopts = "-m 'not live'"
+markers = ["live: wymaga działającej Ollamy / klucza Gemini (kosztuje); uruchom: pytest -m live"]
 pythonpath = ["."]
 
 [tool.ruff]
-line-length = 100
+line-length = 120
 target-version = "py312"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["E501", "E702", "B007", "B008"]

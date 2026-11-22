@@ -25,9 +25,10 @@ Audyt zakończony 2026-11-22. Nie powtarzaj go. Czytaj w kolejności: ten plik �
 9. Zewnętrzne API wymaga zgody per profil; limity kosztów w `config.toml` (cennik wpisuje użytkownik/weryfikuje z Google).
 
 ## Status
+- **F2 ukończone** (warstwa LLM, lokalny commit, bez push): `tutor/llm/`, raport `02_LLM_REPORT.md`. **Testy live niewykonane** — wymagają `ollama serve` i klucza Gemini w `~/.config/english-ai-tutor/.env` (+ `GEMINI_LIVE_MODEL`, limity i cennik w `config.toml`). Uruchamianie: `.venv/bin/pytest -m live`. Następny: F3 (treść) lub F4.
 - **F0 + F1 ukończone** (gałąź `feat/f0-scaffold`, lokalny commit, bez push). Raport: `01_FOUNDATION_REPORT.md`. Następny: F2 (warstwa LLM) lub F3 (treść) — czeka na akceptację.
 - Odstępstwo: tabel `skill`/`item` nie ma w SQLite (treść globalna w `content/`), patrz raport pkt 4. `session_summary` ma własny `id` (nie `session_id` jako PK).
-- Uruchamianie: `.venv/bin/pytest`, `.venv/bin/ruff check .`; profile: `python main.py profile ...`. T-ISO-4 odroczony do F2.
+- Uruchamianie: `.venv/bin/pytest`, `.venv/bin/ruff check .`; profile: `python main.py profile ...`. T-ISO-4 zrobiony w F2.
 
 ## Pierwsze kroki (F0 → F1) — wykonane
 1. Gałąź `feat/f0-scaffold`. Użyj `superpowers:writing-plans` dla F0+F1, potem `test-driven-development`.

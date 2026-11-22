@@ -102,3 +102,25 @@ def test_persistence_after_reopen(tmp_path):
     assert r2.get_profile(pid)["name"] == "Ala"
     assert [t["text"] for t in r2.list_turns(pid, sid)] == ["hello"]
     c2.close()
+
+
+def test_migration_002_keeps_usage_rows_from_v1(tmp_path):
+    """T-DB-1 (realne n-1): baza v1 z wierszem llm_usage przechodzi na v2 bez utraty danych."""
+    import shutil
+
+    from tutor.store.db import MIGRATIONS_DIR, open_db
+    v1 = tmp_path / "v1"
+    v1.mkdir()
+    shutil.copy(MIGRATIONS_DIR / "001_init.sql", v1)
+    c = open_db(tmp_path / "d" / "t.db", migrations_dir=v1)
+    pid = c.execute("INSERT INTO profile(name) VALUES ('A')").lastrowid
+    c.execute("INSERT INTO llm_usage(profile_id,provider,model,role,cost_usd) VALUES (?,?,?,?,?)",
+              (pid, "gemini", "m", "conversation", 0.5))
+    c.close()
+    c = open_db(tmp_path / "d" / "t.db")
+    assert c.execute("PRAGMA user_version").fetchone()[0] == 2
+    assert c.execute("SELECT cost_usd FROM llm_usage").fetchone()[0] == 0.5
+    c.execute("DELETE FROM profile WHERE id=?", (pid,))
+    r = c.execute("SELECT profile_id, cost_usd FROM llm_usage").fetchone()
+    assert (r[0], r[1]) == (None, 0.5)
+    assert list((tmp_path / "d" / "backups").glob("*.bak"))

@@ -167,3 +167,19 @@ class Repo:
     def list_vocab(self, profile_id: int) -> list[dict]:
         return _rows(self.conn.execute(
             "SELECT * FROM vocab WHERE profile_id=? ORDER BY id", (profile_id,)))
+
+    # --- użycie LLM (limity wspólne dla wszystkich profili; wiersze bez treści) ---
+    def add_llm_usage(self, profile_id: int | None, provider: str, model: str, role: str,
+                      in_tokens: int, out_tokens: int, latency_ms: int | None, cost_usd: float,
+                      created_at: str | None = None) -> int:
+        return self.conn.execute(
+            "INSERT INTO llm_usage(profile_id,provider,model,role,in_tokens,out_tokens,latency_ms,"
+            "cost_usd,created_at) VALUES (?,?,?,?,?,?,?,?,COALESCE(?,"
+            "strftime('%Y-%m-%dT%H:%M:%fZ','now')))",
+            (profile_id, provider, model, role, in_tokens, out_tokens, latency_ms, cost_usd,
+             created_at)).lastrowid
+
+    def llm_cost_since(self, since_iso: str) -> float:
+        return self.conn.execute(
+            "SELECT COALESCE(SUM(cost_usd),0) FROM llm_usage WHERE created_at>=?",
+            (since_iso,)).fetchone()[0]

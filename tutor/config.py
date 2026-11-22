@@ -30,17 +30,37 @@ def get_last_profile() -> int | None:
 
 
 def set_last_profile(profile_id: int | None) -> None:
+    """Zmienia tylko linię last_profile_id; reszta pliku (sekcje [llm], [limits]) zostaje."""
     p = config_path()
     p.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
     os.chmod(p.parent, 0o700)
-    data = _read()
-    if profile_id is None:
-        data.pop("last_profile_id", None)
-    else:
-        data["last_profile_id"] = int(profile_id)
-    text = "".join(f"{k} = {int(v)}\n" for k, v in data.items() if isinstance(v, int))
+    try:
+        lines = p.read_text().splitlines(keepends=True)
+    except FileNotFoundError:
+        lines = []
+    lines = [ln for ln in lines if not ln.lstrip().startswith("last_profile_id")]
+    if profile_id is not None:
+        lines.insert(0, f"last_profile_id = {int(profile_id)}\n")  # klucze główne przed [sekcjami]
     tmp = p.with_suffix(".tmp")
     fd = os.open(tmp, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
     with os.fdopen(fd, "w") as f:
-        f.write(text)
+        f.write("".join(lines))
     os.replace(tmp, p)
+
+
+def raw_config() -> dict:
+    return _read()
+
+
+def gemini_api_key() -> str | None:
+    """Zmienna środowiskowa albo ~/.config/english-ai-tutor/.env (poza repozytorium)."""
+    if key := os.environ.get("GEMINI_API_KEY"):
+        return key
+    try:
+        for ln in (config_path().parent / ".env").read_text().splitlines():
+            k, sep, v = ln.partition("=")
+            if sep and k.strip() == "GEMINI_API_KEY" and v.strip().strip("\"'"):
+                return v.strip().strip("\"'")
+    except FileNotFoundError:
+        pass
+    return None
