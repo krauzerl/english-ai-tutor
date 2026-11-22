@@ -1065,12 +1065,12 @@ def _patch_map(path: Path, mutate) -> None:
     tmp.replace(path)
 
 
-def _patch_list_file(path: Path, doc_id: str, mutate) -> None:
+def _patch_list_file(path: Path, doc_id: str, mutate, key: str = "id") -> None:
     text = path.read_text(encoding="utf-8")
     header = "".join(ln for ln in text.splitlines(keepends=True) if ln.startswith("#"))
     data = yaml.safe_load(text)
     for d in data:
-        if d["id"] == doc_id:
+        if d[key] == doc_id:
             mutate(d)
             break
     else:
@@ -1078,6 +1078,14 @@ def _patch_list_file(path: Path, doc_id: str, mutate) -> None:
     tmp = path.with_suffix(".tmp")
     tmp.write_text(header + yaml.safe_dump(data, allow_unicode=True, sort_keys=False, width=200), encoding="utf-8")
     tmp.replace(path)
+
+
+def set_review_bench(pack: Pack, path: Path, case_id: str, status: str, *, reviewer: str, now: str,
+                     notes: str | None = None) -> None:
+    """Recenzja CZŁOWIEKA przypadku benchmarku (`grammar_gold.yaml` — klucz `id`; `f3_mismatch.yaml` — `item_id`)."""
+    rv = _human_review(pack, status, reviewer, now, notes)
+    key = "item_id" if path.name == "f3_mismatch.yaml" else "id"
+    _patch_list_file(path, case_id, lambda d: d.__setitem__("review", rv), key)
 
 
 def set_review_doc(pack: Pack, kind: str, doc_id: str, status: str, *, reviewer: str, now: str,

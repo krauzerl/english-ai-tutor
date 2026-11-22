@@ -131,3 +131,24 @@ def test_review_cli_covers_docs(tmp_path):
     finally:
         cm.content_root = orig
     assert rc == 0 and any("Do przeglądu" in x for x in out)
+
+
+def test_review_bench_cases_only_by_human_path(tmp_path):
+    import yaml
+
+    from bench import grammar as BG
+    shutil.copytree(REAL / "en", tmp_path / "en")
+    (tmp_path / "en/reviewers.yaml").write_text("reviewers:\n  - {id: tester, name: Tester}\n")
+    pack = C.load("en", tmp_path)
+    gold = tmp_path / "grammar_gold.yaml"
+    gold.write_text((BG.CASES / "grammar_gold.yaml").read_text())
+    f3 = tmp_path / "f3_mismatch.yaml"
+    f3.write_text((BG.CASES / "f3_mismatch.yaml").read_text())
+    C.set_review_bench(pack, gold, "g.e1.001", "human_reviewed", reviewer="tester", now="2026-01-01")
+    C.set_review_bench(pack, f3, "en.pilot.gram.a1.03", "human_reviewed", reviewer="tester", now="2026-01-01")
+    assert [c.id for c in BG.load_cases(gold, only_reviewed=True)] == ["g.e1.001"]
+    assert next(d for d in yaml.safe_load(f3.read_text()) if d["item_id"] == "en.pilot.gram.a1.03")["review"][
+        "reviewer"] == "tester"
+    with pytest.raises(ValueError):
+        C.set_review_bench(pack, gold, "g.e1.002", "human_reviewed", reviewer="nobody", now="x")
+    assert all(c.status == "draft" for c in BG.load_cases())     # oryginały w repo nietknięte

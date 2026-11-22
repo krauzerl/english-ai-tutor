@@ -76,6 +76,8 @@ def content_main(argv: list[str], inp=input, out=print) -> int:
     import types
     from datetime import UTC, datetime
 
+    import yaml
+
     from tutor.pedagogy import content as C
 
     ap = argparse.ArgumentParser(prog="main.py content")
@@ -86,8 +88,9 @@ def content_main(argv: list[str], inp=input, out=print) -> int:
     rv.add_argument("lang")
     rv.add_argument("--reviewer", required=True, help="id z reviewers.yaml")
     rv.add_argument("--all", action="store_true", help="także zadania już ocenione (poza human_reviewed)")
-    rv.add_argument("--kind", choices=["items", "docs"], default="items",
-                    help="items = zadania (domyślnie); docs = wyjaśnienia, scenariusze i zwroty")
+    rv.add_argument("--kind", choices=["items", "docs", "bench"], default="items",
+                    help="items = zadania (domyślnie); docs = wyjaśnienia, scenariusze, zwroty; "
+                         "bench = przypadki benchmarku (złoty standard)")
     args = ap.parse_args(argv)
     try:
         rep = C.validate(args.lang, extracted_dir=config.data_dir() / "content_sources" / "extracted")
@@ -111,20 +114,38 @@ def content_main(argv: list[str], inp=input, out=print) -> int:
         out(f"Reviewer „{args.reviewer}” nie występuje w reviewers.yaml (dodaj siebie ręcznie).")
         return 1
     skip = {"human_reviewed", "rejected"} if args.all else {"human_reviewed", "rejected", "suspect"}
-    if args.kind == "docs":
+    if args.kind == "bench":
+        try:
+            from bench import grammar as BG
+        except ImportError:
+            out("Moduł bench dostępny tylko w repozytorium źródłowym.")
+            return 1
+        queue = []
+        for f, key in ((BG.CASES / "grammar_gold.yaml", "id"), (BG.CASES / "f3_mismatch.yaml", "item_id")):
+            for d in yaml.safe_load(f.read_text(encoding="utf-8")):
+                if d["review"]["status"] not in skip:
+                    lines = ([f"{d['set']} [{d['input_mode']}] {d['text']}"]
+                             + [f"  ZŁOTY: „{g['span']}” → {g['fix_accept']} ({g['category']})" for g in d["gold"]]
+                             if "set" in d else [f"zadanie F3 {d['item_id']}: klucz człowieka = {d['human_key']}"])
+                    queue.append({"kind": "bench", "id": d[key], "status": d["review"]["status"],
+                                  "notes": d["review"].get("notes"), "lines": lines, "path": f})
+    elif args.kind == "docs":
         queue = [t for t in C.review_targets(pack) if t["status"] not in skip]
     else:
         queue = [i for i in pack.items.values() if i.review.status not in skip]
     out(f"Do przeglądu: {len(queue)}. [a]kceptuj  [e]dytuj notatkę  [o]drzuć  [p]omiń  [q]uit")
     done = 0
     for it in queue:
-        if args.kind == "docs":
+        if args.kind in ("docs", "bench"):
             out(f"\n{it['kind']} {it['id']}  status={it['status']}")
             for ln in it["lines"]:
                 out("  " + ln)
             doc = it
             it = types.SimpleNamespace(id=it["id"], review=types.SimpleNamespace(notes=it["notes"]))
-            save = lambda st, d=doc, **kw: C.set_review_doc(pack, d["kind"], d["id"], st, **kw)  # noqa: E731
+            if args.kind == "bench":
+                save = lambda st, d=doc, **kw: C.set_review_bench(pack, d["path"], d["id"], st, **kw)  # noqa: E731
+            else:
+                save = lambda st, d=doc, **kw: C.set_review_doc(pack, d["kind"], d["id"], st, **kw)  # noqa: E731
             note = lambda n: None  # noqa: E731  (notatka dla dokumentów: w treści wpisu review.notes po decyzji)
         else:
             out(f"\n{it.id}  {it.area}/{it.cefr}/{it.type}  status={it.review.status}  źródło={it.provenance.source}")
