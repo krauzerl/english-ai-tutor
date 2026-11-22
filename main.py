@@ -50,4 +50,8 @@ if __name__ == "__main__":
         from tutor.cli import main as profile_main
 
         sys.exit(profile_main(sys.argv[2:]))
+    if "--voice" in sys.argv[1:]:
+        from tutor.voice.cli import run
+
+        sys.exit(run(sys.argv[1:]))
     chat()  # także `--cli`: GUI jeszcze nie istnieje

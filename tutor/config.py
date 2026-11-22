@@ -14,6 +14,10 @@ def db_path() -> Path:
     return _xdg("XDG_DATA_HOME", ".local/share") / "tutor.db"
 
 
+def data_dir() -> Path:
+    return _xdg("XDG_DATA_HOME", ".local/share")
+
+
 def config_path() -> Path:
     return _xdg("XDG_CONFIG_HOME", ".config") / "config.toml"
 

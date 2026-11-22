@@ -9,8 +9,8 @@ Audyt zakończony 2026-11-22. Nie powtarzaj go. Czytaj w kolejności: ten plik �
 
 ## Środowisko — fakty
 - Ubuntu 24.04, Ryzen 7 3700X, 31 GiB RAM, RTX 2060 SUPER **8 GiB VRAM**.
-- Ollama 0.9.0, serwis **wyłączony** — uruchom `ollama serve` lub poproś użytkownika o `sudo systemctl enable --now ollama`. Modele: `SpeakLeash/bielik-11b-v2.3-instruct:Q4_K_M`, `bielik-7b-instruct-v0.1-gguf`.
-- Brak: faster-whisper, piper, PySide6, ffmpeg (ffmpeg niepotrzebny). `GEMINI_API_KEY` nieustawiony — użytkownik ma dostęp na rok; poprosić o klucz do `~/.config/english-ai-tutor/.env`, nigdy do repo.
+- Ollama 0.9.0, serwis w module 03 działał — uruchom `ollama serve` lub poproś użytkownika o `sudo systemctl enable --now ollama`. Modele: `SpeakLeash/bielik-11b-v2.3-instruct:Q4_K_M`, `bielik-7b-instruct-v0.1-gguf`.
+- Zainstalowane (moduł 03): faster-whisper, kokoro-onnx, piper-tts, sounddevice, onnxruntime (bez torcha). Brak: PySide6, ffmpeg (niepotrzebny); PortAudio z .deb w `~/.local/lib/english-ai-tutor/`. `GEMINI_API_KEY` nieustawiony — użytkownik ma dostęp na rok; poprosić o klucz do `~/.config/english-ai-tutor/.env`, nigdy do repo.
 - Whisper uruchamiać na CPU (int8) gdy Bielik 11B na GPU — razem nie mieszczą się w 8 GiB.
 
 ## Kluczowe decyzje (nie zmieniać bez powodu)
@@ -25,6 +25,7 @@ Audyt zakończony 2026-11-22. Nie powtarzaj go. Czytaj w kolejności: ten plik �
 9. Zewnętrzne API wymaga zgody per profil; limity kosztów w `config.toml` (cennik wpisuje użytkownik/weryfikuje z Google).
 
 ## Status
+- **Moduł 03 (głos) ukończony** (gałąź `feat/voice-prototype`, z `feat/f0-scaffold`): `tutor/voice/`, `python main.py --voice`, raport `03_VOICE_REPORT.md` (uruchomienie, porównanie TTS, benchmark, optymalizacje). STT faster-whisper (CPU int8), TTS Kokoro i Piper za jednym interfejsem. Mediana startu mowy: Piper+small.en 2,64 s, Kokoro+small.en **3,44 s (cel <3 s niespełniony)**, base.en 1,65/2,70 s. **Czeka na użytkownika:** odsłuch próbek (`~/.local/share/english-ai-tutor/voice_samples/`), rozmowa fizyczna, wybór głosu/silnika, BrE/AmE. Wymaga `libportaudio2` i modeli w `~/.local/share/english-ai-tutor/models/` (instrukcja w raporcie). Nagrań nie zapisujemy. Gemini nadal odroczony. Nie scalono do `main`.
 - **F2 ukończone** (warstwa LLM, lokalny commit, bez push): `tutor/llm/`, raport `02_LLM_REPORT.md`. Budżet API atomowy (rezerwacje w SQLite, test współbieżności), cennik zero = błąd. Live Ollama wykonane (Bielik 11B ≈11 tok/s z offloadem CPU, 7B ≈64 tok/s; pomiary w raporcie). **Live Gemini ODROCZONE** — wymaga klucza w `~/.config/english-ai-tutor/.env`, `GEMINI_LIVE_MODEL`, limitów i cennika w `config.toml`. Uruchamianie: `.venv/bin/pytest -m live`, pomiar: `PYTHONPATH=. .venv/bin/python tests/live/bench_ollama.py`. Gałąź `feat/f0-scaffold` wypchnięta na origin (krauzerl/english-ai-tutor); `main` nietknięty, PR/scalenie czeka na decyzję. Następny: F3 (treść) lub F4.
 - **F0 + F1 ukończone** (gałąź `feat/f0-scaffold`, lokalny commit, bez push). Raport: `01_FOUNDATION_REPORT.md`. Następny: F2 (warstwa LLM) lub F3 (treść) — czeka na akceptację.
 - Odstępstwo: tabel `skill`/`item` nie ma w SQLite (treść globalna w `content/`), patrz raport pkt 4. `session_summary` ma własny `id` (nie `session_id` jako PK).

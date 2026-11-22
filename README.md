@@ -48,3 +48,13 @@ python main.py
 - aplikacja desktopowa,
 - zapis historii i postępów,
 - system powtórek i analizy błędów.
+## Rozmowa głosowa (prototyp)
+
+```bash
+python main.py profile create ANIA        # raz
+python main.py --voice                    # Enter = nagrywaj/stop; Enter w trakcie mowy tutora = przerwij
+python main.py --voice --tts piper        # szybszy start mowy
+python main.py --voice --mode auto        # bez przycisku (eksperymentalny)
+```
+
+Instalacja modeli i szczegóły: `docs/ai-work/03_VOICE_REPORT.md`.
