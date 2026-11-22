@@ -41,6 +41,9 @@ Identyfikatory używane w IMPLEMENTATION_PLAN i TEST_PLAN.
 - RQ-3.11 MVP: Ocena każdej wypowiedzi w 5 wymiarach (gramatyka, słownictwo, naturalność, komunikatywność, płynność) wg rubryk 04_PEDAGOGY_SPEC §2. LLM zwraca tylko obserwacje z dosłownym cytatem; oceny 0–4 liczy kod; za mało dowodów → „za mało danych”. Rozróżnienie: błąd ucznia / wariant poprawny / podejrzenie błędu STT / wypełniacz. Wypełniacze, zawahania i powtórzenia nie są błędami. Każda ocena prowadzi do działania (§2.9).
 - RQ-3.12 MVP: Raport sesji (postępy, top-3 błędy z cytatami, mocne strony, ćwiczenia, plan) budowany deterministycznie z DB; narracja LLM opcjonalna i odrzucana, gdy zawiera liczbę spoza danych.
 - RQ-3.13 MVP: Statusy treści: draft / ai_checked / human_reviewed / rejected / suspect. Treść AI nigdy nie dostaje human_reviewed bez przeglądu przez CLI `content review`. Diagnoza i testy trwałości tylko z human_reviewed.
+- RQ-3.14 MVP: Treść adaptowana z otwartych źródeł (ESOL, Green Tea, Technical Writing Essentials — CC BY 4.0; Brehe's Grammar Anatomy, NGSL — CC BY-SA 4.0) ma `provenance.source=ai_adapted`, odwołania `refs` (źródło, lokalizacja, SHA) i `license`; ShareAlike respektowany per plik; wyjątki licencyjne wykluczone; oryginały i ekstrakty poza Git; do LLM tylko pojedyncze fragmenty (07_CONTENT_QUALITY_SPEC §1–§2).
+- RQ-3.15 MVP: Słownictwo bazowe NGSL 1.2 (+ NGSL-Spoken): formy i warianty BrE/AmE, wiedza bierna/czynna, test rozpoznawania z pseudosłowami, karty FSRS tylko po ekspozycji/błędzie (bez masowych kart), cele słownikowe w rozmowie. Częstość ≠ CEFR; kolejność alfabetyczna ≠ ranga (07 §3).
+- RQ-3.16 MVP: Do czasu przejścia bramy jakości (07 §5.4) obserwacje z rozmowy są sugestiami i nie obniżają mastery; mastery zmieniają tylko dowody deterministyczne.
 - RQ-3.10 MVP: Akceptacja wariantów poprawnych (BrE/AmE, kontrakcje, synonimy) — zadania zamknięte mają listę akceptowanych odpowiedzi; otwarte — LLM musi rozróżnić „błąd” od „inny poprawny wariant” (kategoria `acceptable_variant`, bez kary).
 
 ## 5. Funkcje
@@ -73,6 +76,7 @@ Identyfikatory używane w IMPLEMENTATION_PLAN i TEST_PLAN.
 - RQ-6.3 MVP: Fallback: błąd/timeout Gemini → Ollama (jeśli dostępna) z komunikatem.
 - RQ-6.4 MVP: Licznik tokenów i kosztów per wywołanie; limity dzienne/miesięczne; ostrzeżenie przy 80%; blokada przy 100%.
 - RQ-6.5 MVP: Benchmark (CLI) — kryteria w TEST_PLAN §6.
+- RQ-6.7 MVP (opcjonalne): LanguageTool jako lokalny serwer HTTP tylko na localhost, wyłączony domyślnie, bez chmury/płatnego API/GPU; wywoływany wyłącznie z kolejki oceny; brak LT nie zmienia działania aplikacji; nie jest źródłem prawdy — rozstrzyganie z Bielikiem wg 07 §4.5.
 - RQ-6.6 MVP: STT: faster-whisper `small.en` (CPU int8). TTS: Kokoro domyślnie, głosy `bf_emma` (domyślny) i `am_michael`; Piper jako alternatywa. LLM domyślny: Bielik 11B (conversation + evaluation, ten sam model).
 
 ## 8. UI
