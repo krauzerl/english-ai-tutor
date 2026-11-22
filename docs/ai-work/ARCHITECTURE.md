@@ -33,6 +33,8 @@ tutor/
     errors.py          # taksonomia błędów, agregacja
     planner.py         # dobór treści lekcji z budżetem minut
     rubric.py          # rubryki oceny pisania/mówienia
+    # moduł 04 dodaje: content.py, schemas.py, assessment.py, fluency.py,
+    # correction.py, retention.py, report.py — patrz 04_PEDAGOGY_SPEC §8
   llm/
     base.py            # Protocol LLMProvider, Message, Usage
     ollama.py          # przeniesiona logika z main.py
@@ -75,13 +77,15 @@ llm_usage(id, profile_id NULL, provider, model, role, in_tokens, out_tokens, lat
 ```
 Indeksy: `(profile_id, due_at)` na `srs_card`, `(profile_id, category)` na `error_log`.
 
+Migracja 003 (moduł 04, F4): `profile.correction_style`, `allow_unreviewed_practice`; `skill_state.status/verify_due_at/verified_*_at/relapses`; `attempt.source/hint_level`; `error_log.status/severity_max/reopened/example_observation_id`; nowe tabele `observation`, `turn_meta`. Tylko `ADD COLUMN` — przebudowa `profile` w runnerze z `foreign_keys=ON` skasowałaby kaskadowo dane (04_PEDAGOGY_SPEC §7).
+
 ## 4. Silnik dydaktyczny (deterministyczny)
-**Diagnoza** (`diagnosis.py`): per obszar zmienna θ na skali 1–6 (A1..C2). Start θ=2.5 (A2/B1), krok 0.75 → zmniejszany o połowę po zmianie kierunku (staircase). Stop: SE < 0.5 lub 8 zadań na obszar. Wynik: CEFR = round(θ), przedział θ±1.96·SE → poziomy. Zadania mają `cefr` i `difficulty`. P2: zamiana na IRT 1PL po zebraniu danych.
+**Diagnoza** (`diagnosis.py`, szczegóły 04_PEDAGOGY_SPEC §4.2–4.4): per obszar siatka bayesowska θ ∈ [0.5, 6.5], prior N(2.5, 1.5²), model z odgadywaniem i niskim nachyleniem (trudności nieskalibrowane). Wybór zadania: najbliższa trudność do średniej a posteriori (zachowanie schodkowe). Stop: SD < 0.35 lub 10 zadań (min 5). Wynik: poziom + przedział 80%; sufit „C1 lub wyżej” (bank do C1), podłoga „A1 lub niżej”. P2: IRT 1PL po zebraniu danych.
 - grammar, vocabulary, reading, listening (TTS odtwarza tekst): zadania zamknięte, ocena deterministyczna.
 - writing: 1–2 zadania otwarte; LLM zwraca `RubricScore{descriptor_id: met|partial|not_met, evidence_quote}`; poziom = najwyższy z ≥70% met. Niepewność oznaczona jako wysoka (ocena modelowa).
 - speaking: krótka rozmowa 3 min; rubryka zakresu/poprawności/płynności (słowa/min, pauzy z timestampów Whisper). Wymowa nieoceniana — komunikat.
 
-**Mastery** (`mastery.py`): BKT z parametrami stałymi per typ zadania (p_learn=0.15, p_slip=0.1, p_guess=0.2 dla zamkniętych, 0.05 dla produkcyjnych). Opanowane: p≥0.85 w ≥2 różnych dniach.
+**Mastery** (`mastery.py`): BKT z parametrami stałymi per źródło dowodu (tabela 04_PEDAGOGY_SPEC §4.6). Opanowane: p≥0.85 i poprawne próby produkcyjne w ≥2 różnych dniach. Trwałość: testy po 7 i 30 dniach (`retention.py`).
 
 **SRS**: `fsrs` (PyPI, MIT). Karty: słowo, konstrukcja, umiejętność opanowana (test trwałości). Ocena 1–4 z poprawności i czasu.
 
@@ -116,16 +120,17 @@ structured(provider, messages, schema: type[BaseModel]) -> BaseModel  # JSON mod
 
 **Kontekst** (`context.py`): `[system prompt] + [profil ≤300 tok] + [ostatnie podsumowanie ≤300] + [top błędy ≤200] + [cele lekcji ≤200] + [checkpoint ≤300] + [ostatnie tury aż do budżetu]`. Liczenie tokenów: heurystyka znaki/3.5 (shortcut), korekta z `usage` providera.
 
-**Korekta:** każda tura ucznia → równolegle `evaluation` zwraca `TurnFeedback{errors:[{span, category, correction, explanation_pl, severity}], acceptable_variants:[...], target_constructions_used:[...]}`. Tryb natychmiastowy: pokazany pod wiadomością od razu. Tryb podsumowujący: zbierane, pokazane po sesji. W obu przypadkach zapis do `error_log` po walidacji.
+**Ocena i korekta** (04_PEDAGOGY_SPEC §1–§3): wypowiedź → prefiltr deterministyczny → `evaluation` zwraca zwięzły `TurnEval` (obserwacje z dosłownym cytatem, bez wyjaśnień) → walidatory w `pedagogy/assessment.py` (cytat istnieje, taksonomia, warianty BrE/AmE, sygnały STT) → `observation` → polityka korekty. Kolejka oceny w `app/`: jeden wątek, nigdy równolegle z generowaniem rozmowy, przerywana nową turą ucznia, partie do 5 wypowiedzi. Tryby: `summary` (partie, raport), `periodic` (recast w następnej odpowiedzi, ≤1 korekta/3 tury), `intensive` (ocena przed odpowiedzią, limit 10 s, drabina podpowiedzi L1–L4). Wyjaśnienia PL z szablonów `errors.yaml`.
 
 ## 6. Mowa
 - `audio.py`: `sounddevice` 16 kHz mono, push-to-talk, detekcja ciszy RMS; brak urządzenia → wyjątek `NoMicrophone` → UI przełącza na tekst.
 - `stt.py`: `faster-whisper`, model `small.en` (EN) / `small` (inne), CPU int8 domyślnie, `language` wymuszony, `word_timestamps=True` (płynność). GPU opcjonalnie, gdy LLM = Gemini.
-- `tts.py`: `piper-tts`, głosy pobierane jednorazowo do `~/.local/share/english-ai-tutor/voices/`; regulacja tempa (`length_scale`) dla słuchania.
+- `tts.py`: Kokoro domyślnie (`bf_emma`, `am_michael`), Piper alternatywnie; modele w `~/.local/share/english-ai-tutor/models/`; regulacja tempa dla słuchania. (Faktyczny kod: `tutor/voice/`, moduł 03.)
+- F5 dodaje `WhisperSTT.transcribe_detailed()` (słowa, czasy, prawdopodobieństwa) dla płynności i podejrzeń STT; `transcribe()` bez zmian.
 - Brak ffmpeg nie jest potrzebny (audio PCM z sounddevice → numpy).
 
 ## 7. Wielojęzyczność
-Kod rdzenia nie zawiera słów języka docelowego. Wszystko językowe: `content/<lang>/`. Dodanie `it`: skills.yaml, items, scenarios, prompts, głos Piper, model Whisper `small`. Taksonomia błędów: część wspólna + rozszerzenia per język (`content/<lang>/errors.yaml`).
+Kod rdzenia nie zawiera słów języka docelowego. Wszystko językowe: `content/<lang>/` (skills/, items/, errors.yaml, variants.yaml, stt_confusables.yaml, disfluency.yaml, rubric.yaml, scenarios/, prompts/, grammar/ — schemat 04_PEDAGOGY_SPEC §5). Dodanie `it`: skills.yaml, items, scenarios, prompts, głos Piper, model Whisper `small`. Taksonomia błędów: część wspólna + rozszerzenia per język (`content/<lang>/errors.yaml`).
 
 ## 8. UI/UX (zastępstwo Impeccable)
 - Lewy pasek nawigacji (8 widoków), obszar treści, pasek stanu (model, połączenie, mikrofon, zużycie limitu).

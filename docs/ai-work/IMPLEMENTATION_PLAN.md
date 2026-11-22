@@ -16,17 +16,22 @@ Każda faza = osobna gałąź i PR, TDD (Superpowers `test-driven-development`),
 - Obsługa błędów: timeout, brak serwera, zły JSON, limit.
 - DoD: T-LLM-* zielone na fake providerze; ręczny test z Ollamą i Gemini; limity blokują wywołanie.
 
-## F3 – Treść EN v1 (2–3 dni, równolegle z F2) — zależy od F0
-- `content/en/skills.yaml` (~60 umiejętności A1–C1), `items/` (≥ 15 zadań zamkniętych na poziom × obszar grammar/vocab/reading/listening = ~300), 5 scenariuszy (w tym rekrutacja IT), prompty, `errors.yaml`.
-- Generowanie wspomagane LLM dozwolone, ale każde zadanie przegląda człowiek (flaga `reviewed: true`). Walidator schematu treści.
-- DoD: T-CONTENT-* zielone; 100% zadań `reviewed`.
+## F3 – Treść EN v1: schemat, katalog, pilotaż (2–3 dni) — zależy od F0
+Specyfikacja: 04_PEDAGOGY_SPEC §5; instrukcja: `F3_F4_SONNET_BRIEF.md`.
+- `tutor/pedagogy/content.py` (schematy pydantic + walidator), `python main.py content validate|review`.
+- `content/en/skills/*.yaml` (≥80 umiejętności, 5 domen), `errors.yaml`, `variants.yaml`, `stt_confusables.yaml`, `disfluency.yaml`, `rubric.yaml`, `reviewers.yaml` (pusty szablon), 5 scenariuszy (w tym rekrutacja IT), prompty `turn_eval`, `rubric_eval`, `report_narrative`, `gen_item`, `solve_item`.
+- Bank pilotażowy 60 zadań (3 × 4 obszary × A1–C1) + `tools/gen_items.py` (zapis tylko `draft`). **Nie** generować pełnego banku.
+- DoD: T-CONTENT-1/3/4/5 zielone; statusy zgodne z rzeczywistością (nic nie `human_reviewed` bez człowieka). T-CONTENT-2 = brama włączenia diagnozy, wymaga recenzenta (poza F3).
 
-## F4 – Pedagogy core (3 dni) — zależy od F1, F3
-- `cefr.py`, `diagnosis.py`, `mastery.py`, `srs.py`, `errors.py`, `planner.py`, `rubric.py`.
-- DoD: T-PED-* zielone (symulowani uczniowie); brak importów `llm/` (T-ARCH).
+## F4 – Pedagogy core (4–5 dni) — zależy od F1, F3
+Specyfikacja: 04_PEDAGOGY_SPEC §2–§4, §6–§8.
+- Migracja `003_pedagogy.sql` (tylko ADD COLUMN + nowe tabele) i metody repo.
+- `cefr.py`, `diagnosis.py` (siatka bayesowska), `schemas.py`, `assessment.py`, `fluency.py`, `correction.py`, `mastery.py`, `srs.py`, `retention.py`, `errors.py`, `planner.py`, `report.py`.
+- DoD: kryteria odbioru 04_PEDAGOGY_SPEC §11; T-PED-*, T-RET-*, T-ASSESS-*, T-CORR-1..3, T-ERR-1, T-REPORT-*, T-DB-3, T-LANG-1, T-ARCH zielone.
 
 ## F5 – Serwisy aplikacji + CLI end-to-end (2 dni) — zależy od F2, F4
-- `SessionService` (cykl lekcji, korekta 2 tryby, checkpointy, podsumowanie, next_plan), `DiagnosisService`, `ReviewService`.
+- `SessionService` (cykl lekcji, kolejka oceny, korekta 3 tryby, checkpointy, raport sesji, next_plan), `DiagnosisService`, `ReviewService`.
+- `WhisperSTT.transcribe_detailed()` (dodatkowa metoda, bez przebudowy modułu głosowego); pomiar p50/p95 opóźnienia oceny Bielikiem (T-CORR-4).
 - DoD: pełna sesja 15 min w CLI na Ollamie: diagnoza → lekcja → rozmowa → podsumowanie zapisane; T-INT-* zielone.
 
 ## F6 – GUI PySide6 (4–5 dni) — zależy od F5
@@ -40,7 +45,8 @@ Każda faza = osobna gałąź i PR, TDD (Superpowers `test-driven-development`),
 
 ## F8 – Benchmark modeli (2 dni) — zależy od F2, F3 (może iść równolegle z F4–F7)
 - `bench/` wg TEST_PLAN §6; raport `docs/ai-work/BENCHMARK.md`; wybór modeli domyślnych per rola.
-- DoD: raport z liczbami dla ≥3 modeli (Bielik 11B v2.3, ≥1 inny lokalny np. Qwen/Gemma ~8–12B, ≥1 Gemini).
+- DoD: raport z liczbami dla ≥3 modeli (Bielik 11B v2.3, ≥1 inny lokalny np. Qwen/Gemma ~8–12B; Gemini gdy przestanie być odroczony).
+- Brama trybów korekty (04_PEDAGOGY_SPEC §3.3): precyzja `error` ≥ 0.80 i fałszywe alarmy < 10% na złotym zbiorze, inaczej domyślnie `summary`. Kalibracja pewności h/m/l.
 
 ## F9 – Utwardzenie MVP (2 dni) — zależy od wszystkich
 - `/security-review`, `claude-security`, testy regresji, backup DB przed migracją, README.
