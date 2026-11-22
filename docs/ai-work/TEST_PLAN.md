@@ -64,6 +64,33 @@ Uczeń symulowany = funkcja odpowiadająca poprawnie z prawdopodobieństwem zale
 - T-CONTENT-4: graf prerekwizytów acykliczny; każda `error_categories` istnieje w `errors.yaml`; id unikalne i z prefiksem języka.
 - T-CONTENT-5: diagnoza i testy trwałości losują tylko `human_reviewed`; ćwiczenia z `ai_checked` tylko gdy `allow_unreviewed_practice`, z etykietą; draft/rejected/suspect nigdy.
 
+### Treść otwarta, słownictwo, LanguageTool, benchmark (07_CONTENT_QUALITY_SPEC, F4.6)
+- T-SRC-1: każdy `refs.src` istnieje w `sources.yaml`; `loc` nie trafia w `exclude`; `refs` bez `license` → błąd walidacji.
+- T-SRC-2: ShareAlike: element z odwołaniem do `brehe`/`ngsl`/`ngsl_s` bez `CC-BY-SA-4.0` → błąd; mieszany CC BY + CC BY-SA → wymagane CC BY-SA.
+- T-SRC-3: kontrola nakładania: ≥ 12 kolejnych słów wspólnych z fragmentem źródła → błąd; brak lokalnego ekstraktu → ostrzeżenie, nie błąd.
+- T-SRC-4: repo nie zawiera PDF/EPUB/XHTML ani `extracted/` (`git ls-files`); `ai_adapted` + `human_reviewed` wymaga `reviewer` i `reviewed_at` (rozszerzenie T-CONTENT-3).
+- T-VOC-1: import NGSL: 2809 unikalnych lematów; `cefr` zawsze puste; `rank` tylko ze `stats.csv` — przetasowanie wierszy wejścia nie zmienia `rank`.
+- T-VOC-2: warianty BrE/AmE (`colour/color`, `organise/organize`) wykryte tylko, gdy obie formy są w `forms`; homografy oznaczone.
+- T-VOC-3: nowy profil po imporcie ma 0 kart `vocab`; karty powstają tylko z 4 wyzwalaczy (07 §3.4); limit dzienny respektowany.
+- T-VOC-4: przejścia `unknown → passive → active` i spadek po 2 porażkach; `active` nigdy → `unknown`.
+- T-VOC-5: test tak/nie: korekta h−f; fałszywe „tak” ≥ 30% → wynik odrzucony; pseudosłowa nie-`human_reviewed` → wynik „wstępny”.
+- T-VOC-6: detekcja użycia: formy i warianty liczone; echo tutora, `disfluency` i słowa z prob < 0,5 nie liczone.
+- T-VOC-7: planer dodaje ≤ 5 `vocab_targets`; reszta planu bez zmian (regresja T-PED-5).
+- T-LT-1: `enabled=false` lub serwer nieosiągalny/timeout → `None`, ocena działa samym Bielikiem, tura nie blokowana.
+- T-LT-2: URL spoza `127.0.0.1/localhost/::1` → błąd konfiguracji; brak wywołań sieci w testach (fikstury).
+- T-LT-3: mapowanie `lt_map`: znana reguła → kategoria z `errors.yaml`; nieznana → ignorowana i zliczona; kategorie z `ignore_categories` nigdy nie dają `error`.
+- T-LT-4: reguły R1–R7 (07 §4.5), test parametryzowany; jedna obserwacja na span (zgodność z `observation_dedupe`).
+- T-LT-5: wejście głosowe: pisownia/interpunkcja z LT odrzucone; span z prob < 0,5 lub z `stt_confusables` → `stt_suspect`; formy potoczne (`gonna`, zdanie od `And`) → nie błąd.
+- T-LT-6: pisownia BrE (`colour`, `travelling`, `centre`) zgłoszona przez LT `en-US` → `variant`, nie błąd.
+- T-BENCH-1: złoty zbiór: liczności podzbiorów wg 07 §5.1; schemat przypadku; spany złote występują dosłownie w `text`.
+- T-BENCH-2: miary na fiksturze z ręcznie wyliczonymi wynikami (precision, recall, FPR, Wilson, poprawność korekty).
+- T-BENCH-3: `--only-reviewed` pomija `draft`; bez przypadków `human_reviewed` raport oznaczony „WSTĘPNY”, bramy nieotwierane.
+- T-BENCH-4: systemy A/B/C uruchamiane na FakeProvider + fiksturach LT dają deterministyczny wynik.
+- T-CONTENT-6: wyjaśnienie `.md` ma sekcje 07 §2.2, ≥ 4 przykłady poprawne, ≥ 4 pary błędne→poprawne z istniejącą kategorią, ≥ 2 typowe błędy Polaków.
+- T-CONTENT-7: 12 umiejętności pilotażu: 4 `practice` (≥ 2 produkcyjne) + 3 `retention` (≥ 1 produkcyjne), pule rozłączne; brak pilotażu w `diagnosis`.
+- T-CONTENT-8: `phrases.yaml`: schemat, istniejące `skill_ids`, wzorce kompilują się; karty `construction` tylko z `usable(…,"practice")`.
+- T-GATE-1: przy `trusted_categories: []` obserwacja `error` z rozmowy nie zmienia BKT ani statusu mastery, ale trafia do `error_log`; kategoria zaufana → BKT jak w F4.
+
 ## 5. Integracja i regresja
 - T-INT-1: sesja 15 min na FakeProvider: plan → ćwiczenia → rozmowa → podsumowanie → `next_plan` zapisane.
 - T-INT-2: tryb korekty natychmiastowy vs podsumowujący — te same błędy w `error_log`, różny moment prezentacji.
@@ -81,7 +108,8 @@ Uczeń symulowany = funkcja odpowiadająca poprawnie z prawdopodobieństwem zale
 Zestaw stały, wersjonowany (`bench/cases/{en,it}/*.yaml`), ~40 przypadków na język:
 | Kryterium | Metoda | Miara |
 |---|---|---|
-| Poprawność gramatyczna własnych odpowiedzi | 20 odpowiedzi rozmowy → ocena przez człowieka + LanguageTool | błędy/100 słów |
+| Poprawność gramatyczna własnych odpowiedzi | 20 odpowiedzi rozmowy → ocena przez człowieka + LanguageTool (lokalny, opcjonalny) | błędy/100 słów |
+| Wykrywanie i korekta błędów ucznia: Bielik vs LanguageTool vs hybryda | złoty zbiór 130 + 11 niezgodności F3 (07_CONTENT_QUALITY_SPEC §5) | precision/recall/FPR, korekta, znaczenie, BrE/AmE, STT, opóźnienie, RAM/CPU |
 | Jakość korekty | 30 zdań z oznaczonymi błędami (złoty standard) | precision/recall wykrycia, poprawność kategorii |
 | Rozpoznawanie poprawnych wariantów | 15 zdań poprawnych w nietypowej formie | false positive rate (cel < 10%) |
 | Jakość wyjaśnień (PL) | 10 wyjaśnień, ocena 1–5 rubryką przez człowieka | średnia |
