@@ -126,7 +126,7 @@ def test_evaluate_texts_minimizes_model_spans(pack):
 
 def test_prompt_requires_minimal_span(pack):
     p = pack.prompts["turn_eval"]
-    assert p["version"] == "turn_eval.v2" and "SHORTEST" in p["text"]
+    assert p["version"] == "turn_eval.v3" and "Keep `s` short" in p["text"]
 
 
 # --- strażnik znaczenia ---
@@ -158,3 +158,22 @@ def test_variants_and_stt_still_win(pack):
     assert r.observations[0].kind == "variant"
     r = evaluate(pack, "He can go there", o=[B("can", "can't", "agreement")], mode="voice")
     assert r.observations[0].kind == "stt_suspect"
+
+
+def test_lt_subword_span_expanded_to_token(pack):
+    text = "She don't like it"
+    ms = [LT.LTMatch(4, 2, "x", ("does",), "HE_VERB_AGR", "grammar", "GRAMMAR")]       # LT: „do” w „don't”
+    obs, _ = M.to_obs(ms, text, pack.lt_map, input_mode="text", known_forms=set(), trusted_rules=set(),
+                      version="6.6")
+    assert [(o.s, o.f) for o in obs] == [("don't", "doesn't")]
+    out, _ = M.merge([B("don't", "doesn't", "omission.auxiliary")], obs, text)
+    assert out[0].src == "bielik+lt-fix" and out[0].p == "m"          # ta sama poprawka, inna kategoria
+
+
+def test_same_fix_different_category_is_not_conflict(pack):
+    t = "She walk to school."
+    out, alts = M.merge([B("walk", "walks", "tense.present_simple")], [L("walk", "walks")], t)
+    assert len(out) == 1 and out[0].src == "bielik+lt-fix" and out[0].p == "m" and len(alts) == 1
+    from tutor.pedagogy import evidence as EV
+    r = evaluate(pack, t, o=out)
+    assert EV.level(r.observations[0], pack) == EV.OBSERVATION

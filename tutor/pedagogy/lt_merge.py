@@ -43,8 +43,10 @@ def to_obs(matches: list[LTMatch], text: str, lt_map: LtMap, *, input_mode: str,
             stats["voice"] += 1
             continue
         a = E.utf16_index(text, m.offset)                  # LT (Java) liczy jednostki UTF-16
-        span = text[a:E.utf16_index(text, m.offset + m.length)]
+        b = E.utf16_index(text, m.offset + m.length)
         fix = m.replacements[0] if m.replacements else ""
+        a2, b2 = E.word_bounds(text, a, b)                  # fragment słowa („do” w „don't”) ⇒ pełny token
+        span, fix = text[a2:b2], (text[a2:a] + fix + text[b:b2]) if fix else ""
         if not span.strip() or not fix:
             stats["no_fix"] += 1
             continue
@@ -64,7 +66,8 @@ def to_obs(matches: list[LTMatch], text: str, lt_map: LtMap, *, input_mode: str,
 
 def merge(bielik: list[Obs], lt: list[Obs], text: str, ok_spans: list[str] = ()) -> tuple[list[Obs], list[Obs]]:
     """R1–R7 na minimalnych edycjach (F4.7), nie na zakresach. Zwraca (obserwacje, alternatywy LT do logu).
-    same + zgodna kategoria ⇒ R1 (pewność +1); same + inna kategoria lub partial ⇒ R2 (Bielik, alternatywa w logu);
+    same + zgodna kategoria ⇒ R1 (pewność +1); same + inna kategoria ⇒ `src` bielik+lt-fix (pewność bez zmian);
+    partial ⇒ R2 (Bielik, alternatywa w logu);
     conflict (różne zmiany w tym samym miejscu) ⇒ Bielik z pewnością −1 i `src` bielik|lt-conflict."""
     out, alts = list(bielik), []
     b_ed = [E.edits(text, E.locate(text, b.s), b.f) for b in bielik]
@@ -83,6 +86,9 @@ def merge(bielik: list[Obs], lt: list[Obs], text: str, ok_spans: list[str] = ())
                 alts.append(lo)
             elif rel == "same" and core_of(b.c) == core_of(lo.c):                       # R1
                 out[hit] = b.model_copy(update={"p": _UP[b.p], "src": "bielik+lt"})       # out[i] ↔ bielik[i]
+            elif rel == "same":                        # ta sama poprawka, inna kategoria: bez podniesienia pewności
+                out[hit] = b.model_copy(update={"src": "bielik+lt-fix"})
+                alts.append(lo)
             elif rel == "conflict":
                 out[hit] = b.model_copy(update={"p": _DOWN[b.p], "src": "bielik|lt-conflict"})
                 alts.append(lo)

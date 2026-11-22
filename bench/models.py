@@ -58,7 +58,7 @@ class DiskCache(G.CachingProvider):
 
     def __init__(self, inner, path: Path):
         super().__init__(inner)
-        self.path, self.rec = path, {}
+        self.path, self.rec, self.used = path, {}, set()      # used: klucze tego przebiegu (miary czasu)
         if path.exists():
             for ln in path.read_text().splitlines():
                 d = json.loads(ln)
@@ -69,6 +69,7 @@ class DiskCache(G.CachingProvider):
     def chat(self, messages, **kw):
         key = json.dumps([getattr(m, "content", str(m)) for m in messages] + [kw.get("max_tokens")])
         k = hashlib.sha256(key.encode()).hexdigest()
+        self.used.add(k)
         if k not in self.cache:
             r = self.inner.chat(messages, **kw)
             self.cache[k] = r
@@ -138,10 +139,11 @@ def task_grammar(p, pack, cases, d: Path, lt_fn):
     systems = ["A", "C"] if lt_fn else ["A"]
     res, meta = G.run_all(systems, cases, pack, provider=prov, structured=structured, lt_fn=lt_fn,
                           reviewed=G.load_cases())
-    lat = [r["ms"] / 1000 for r in prov.rec.values()]
+    recs = [prov.rec[k] for k in prov.used]
+    lat = [r["ms"] / 1000 for r in recs]
     from tutor.pedagogy.schemas import TurnEval
     valid = 0
-    for r in prov.rec.values():
+    for r in recs:
         try:
             TurnEval.model_validate_json(r["text"])
             valid += 1
@@ -149,9 +151,11 @@ def task_grammar(p, pack, cases, d: Path, lt_fn):
             pass
     out = {"n_cases": len(cases), "systems": {k: v["score"] for k, v in res.items()},
            "unrated": {k: sum(not r.rated for r in v["runs"]) for k, v in res.items()},
-           "json_valid_rate": valid / max(len(prov.rec), 1), "n_calls": len(prov.rec),
+           "json_valid_rate": valid / max(len(recs), 1), "n_calls": len(recs),
            "eval_p50_s": G.pct(lat, 0.5), "eval_p95_s": G.pct(lat, 0.95),
            "r1_agree": sum(o.source == "bielik+lt" for r in res.get("C", {}).get("runs", []) for o in r.reports),
+           "fix_agree": sum((o.source or "").startswith("bielik+lt") for r in res.get("C", {}).get("runs", [])
+                            for o in r.reports + r.suggestions),
            "conflicts": sum("conflict" in (o.source or "") for r in res.get("C", {}).get("runs", [])
                             for o in r.reports + r.suggestions)}
     return out
@@ -268,14 +272,14 @@ def summary() -> str:
         ge = r.get("grammar_elim", {})
         a, c = g(ge, "systems", "A"), g(ge, "systems", "C")
         rows.append([md.parent.name, md.name, f(g(a, "precision")), f(g(a, "recall")), f(g(a, "fpr_c123")),
-                     f(g(a, "correction_accuracy")), f(g(c, "precision")), f(ge.get("r1_agree")),
+                     f(g(a, "correction_accuracy")), f(g(c, "precision")), f(ge.get("fix_agree")),
                      f(ge.get("json_valid_rate")),
                      f(ge.get("eval_p95_s"), 1), f(g(r, "conv", "ttft_p50_s")), f(g(r, "conv", "tok_s_p50"), 1),
                      f(g(r, "conv", "lt_issues_per_100w"), 1), f(g(r, "pl", "lt_issues_per_100w"), 1),
                      f(g(r, "pl", "pl_ratio_min")), f(g(r, "it", "correct")), f(g(r, "voice", "first_audio_p50_s")),
                      f(g(r, "ps", "vram_mib"), 0), f(g(r, "ps", "ollama_rss_mib"), 0)])
-    hdr = ["model", "ctx", "P(A)", "R(A)", "FPR(A)", "korekta(A)", "P(C)", "R1", "JSON", "ocena p95 s", "TTFT s",
-           "tok/s", "LT EN/100w", "LT PL/100w", "PL ratio", "IT ok/4", "głos start s", "VRAM MiB", "RSS MiB"]
+    hdr = ["model", "ctx", "P(A)", "R(A)", "FPR(A)", "korekta(A)", "P(C)", "zgodne B+LT", "JSON", "ocena p95 s",
+           "TTFT s", "tok/s", "LT EN/100w", "LT PL/100w", "PL ratio", "IT ok/4", "głos start s", "VRAM MiB", "RSS MiB"]
     lines = ["| " + " | ".join(hdr) + " |", "|" + "---|" * len(hdr)] + ["| " + " | ".join(x) + " |" for x in rows]
     return "\n".join(lines)
 

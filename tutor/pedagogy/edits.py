@@ -26,6 +26,16 @@ def quotes(s: str) -> str:
     return s.translate(_Q)
 
 
+def word_bounds(text: str, a: int, b: int) -> tuple[int, int]:
+    """Rozszerza [a, b) do granic tokenów, które przecina (offsety zewnętrznych narzędzi bywają podsłowne)."""
+    for s, e, _ in _toks(text):
+        if s < a < e:
+            a = s
+        if s < b < e:
+            b = e
+    return a, b
+
+
 def utf16_index(text: str, units: int) -> int:
     """Offset w jednostkach UTF-16 (Java, LanguageTool) → indeks znaku w Pythonie."""
     n = 0
