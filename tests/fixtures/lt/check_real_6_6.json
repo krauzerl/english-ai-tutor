@@ -1,0 +1,207 @@
+{
+ "_note": "Zapis prawdziwej odpowiedzi LanguageTool 6.6 (/v2/check, language=en-US, motherTongue=pl), F4.6/C4. Zmieniono tylko pomijanie pola software.premiumHint.",
+ "_lt_version": "6.6",
+ "_params": {
+  "language": "en-US",
+  "motherTongue": "pl"
+ },
+ "_text": "She have a apple. I goed home. I am agree with you. This colour is nice. I have 25 years.",
+ "language": {
+  "name": "English (US)",
+  "code": "en-US",
+  "detectedLanguage": {
+   "name": "English (US)",
+   "code": "en-US",
+   "confidence": 0.99999803,
+   "source": "+fallback"
+  }
+ },
+ "matches": [
+  {
+   "message": "The pronoun ‘She’ is usually used with a third-person or a past tense verb.",
+   "offset": 4,
+   "length": 4,
+   "replacements": [
+    {
+     "value": "has",
+     "shortDescription": "form of 'have'"
+    },
+    {
+     "value": "had",
+     "shortDescription": "past of 'have'"
+    }
+   ],
+   "rule": {
+    "id": "HE_VERB_AGR",
+    "subId": "1",
+    "sourceFile": "grammar.xml",
+    "description": "Agreement error: Non-third person/past tense verb with 'he/she/it' or a pronoun",
+    "issueType": "grammar",
+    "urls": [
+     {
+      "value": "https://languagetool.org/insights/post/grammar-subject-verb-agreement/#1-singular-subjects-must-go-with-singular-verbs-and-plural-subjects-with-plural-verbs"
+     }
+    ],
+    "category": {
+     "id": "GRAMMAR",
+     "name": "Grammar"
+    }
+   }
+  },
+  {
+   "message": "Use “an” instead of ‘a’ if the following word starts with a vowel sound, e.g. ‘an article’, ‘an hour’.",
+   "offset": 9,
+   "length": 1,
+   "replacements": [
+    {
+     "value": "an"
+    }
+   ],
+   "rule": {
+    "id": "EN_A_VS_AN",
+    "description": "Use of 'a' vs. 'an'",
+    "issueType": "misspelling",
+    "urls": [
+     {
+      "value": "https://languagetool.org/insights/post/indefinite-articles/"
+     }
+    ],
+    "category": {
+     "id": "MISC",
+     "name": "Miscellaneous"
+    }
+   }
+  },
+  {
+   "message": "Possible spelling mistake. Did you mean “went”, the past tense form of the verb ‘go’?",
+   "offset": 20,
+   "length": 4,
+   "replacements": [
+    {
+     "value": "went"
+    },
+    {
+     "value": "good"
+    },
+    {
+     "value": "God"
+    },
+    {
+     "value": "goes"
+    },
+    {
+     "value": "gold",
+     "shortDescription": "metallic element"
+    },
+    {
+     "value": "god"
+    },
+    {
+     "value": "Good"
+    },
+    {
+     "value": "toed",
+     "shortDescription": "having a toe of a specified kind"
+    },
+    {
+     "value": "coed"
+    },
+    {
+     "value": "GED"
+    },
+    {
+     "value": "goad"
+    },
+    {
+     "value": "goer"
+    },
+    {
+     "value": "gored",
+     "shortDescription": "wounded by piercing with a sharp object"
+    },
+    {
+     "value": "hoed"
+    },
+    {
+     "value": "GOE"
+    },
+    {
+     "value": "GRED"
+    },
+    {
+     "value": "Gold"
+    },
+    {
+     "value": "NOED"
+    },
+    {
+     "value": "OED"
+    },
+    {
+     "value": "geed"
+    }
+   ],
+   "rule": {
+    "id": "MORFOLOGIK_RULE_EN_US",
+    "description": "Possible spelling mistake",
+    "issueType": "misspelling",
+    "category": {
+     "id": "TYPOS",
+     "name": "Possible Typo"
+    }
+   }
+  },
+  {
+   "message": "The base form of a verb does not usually follow ‘am’. Double-check that the verb is in the correct form.",
+   "offset": 33,
+   "length": 8,
+   "replacements": [
+    {
+     "value": "agree"
+    },
+    {
+     "value": "agreed"
+    },
+    {
+     "value": "am agreeing"
+    }
+   ],
+   "rule": {
+    "id": "I_AM_VB",
+    "subId": "14",
+    "sourceFile": "grammar.xml",
+    "description": "I am (I) + VERB BASE",
+    "issueType": "grammar",
+    "category": {
+     "id": "GRAMMAR",
+     "name": "Grammar"
+    }
+   }
+  },
+  {
+   "message": "Possible spelling mistake. ‘colour’ is British English.",
+   "offset": 57,
+   "length": 6,
+   "replacements": [
+    {
+     "value": "color",
+     "shortDescription": "English (US)"
+    }
+   ],
+   "rule": {
+    "id": "MORFOLOGIK_RULE_EN_US",
+    "description": "Possible spelling mistake",
+    "issueType": "misspelling",
+    "urls": [
+     {
+      "value": "https://languagetool.org/insights/post/our-or/#colour-or-color%E2%80%94colourise-or-colorize"
+     }
+    ],
+    "category": {
+     "id": "TYPOS",
+     "name": "Possible Typo"
+    }
+   }
+  }
+ ]
+}

@@ -5,11 +5,34 @@ nie potwierdza opanowania (liczy się dopiero ≥ N poprawnych użyć w różnyc
 """
 from __future__ import annotations
 
+import re
 from collections import defaultdict
 from collections.abc import Iterable
 
 from tutor.pedagogy.assessment import Prefilter, _tokens
 from tutor.pedagogy.content import Rubric
+
+# --- pisownia BrE/AmE (07 §3.1, §4.4) ---
+# US → UK: our/or, ise/ize, yse/yze, re/er, ll/l, ogue/og. Para uznana tylko, gdy OBIE formy są znane.
+US_TO_UK = [(r"or(s|ed|ing|ings)?$", r"our\1"), (r"ize(s|d)?$", r"ise\1"), (r"izing$", "ising"),
+            (r"yze(s|d)?$", r"yse\1"), (r"yzing$", "ysing"), (r"er(s|ed)?$", r"re\1"),
+            (r"([aeiou])l(ed|ing)$", r"\1ll\2"), (r"og(s|ed|ing)?$", r"ogue\1")]
+
+
+def variants_of(forms: list[str]) -> list[tuple[str, str]]:
+    fs, pairs = set(forms), []
+    for f in forms:
+        for pat, rep in US_TO_UK:
+            g = re.sub(pat, rep, f)
+            if g != f and g in fs and (f, g) not in pairs:
+                pairs.append((f, g))
+    return pairs
+
+
+def bre_ame_pair(a: str, b: str) -> bool:
+    """Czy `a` i `b` to ta sama pisownia w BrE i AmE (reguły z listy, w obu kierunkach)."""
+    a, b = a.lower(), b.lower()
+    return bool(variants_of([a, b]) or variants_of([b, a]))
 
 
 # --- przejścia wiedzy (§3.2) ---

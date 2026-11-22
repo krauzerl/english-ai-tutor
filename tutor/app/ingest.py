@@ -140,7 +140,7 @@ def apply_turn_evaluation(repo: Repo, pack: Pack, profile_id: int, session_id: i
             skill = skill_for_category(c.category, goals, pack) if (c.category and c.kind == "error") else None
             oid = repo.add_observation(profile_id, session_id, turn_id, c.kind or "error", c.span, category=c.category,
                                        skill_id=skill, fix=c.fix, severity=c.severity, confidence=c.confidence,
-                                       status=c.status, drop_reason=c.drop_reason, model=model,
+                                       status=c.status, drop_reason=c.drop_reason, model=c.source or model,
                                        prompt_version=prompt_version)
             if oid is None:
                 continue

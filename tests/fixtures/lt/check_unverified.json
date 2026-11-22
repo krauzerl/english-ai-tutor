@@ -1,0 +1,14 @@
+{"_note": "KONTRAKT NIEZWERYFIKOWANY: odpowiedź napisana ręcznie wg dokumentacji; zastąpiona zapisem z prawdziwego serwera po instalacji LT",
+ "software": {"name": "LanguageTool", "version": "6.6"},
+ "matches": [
+  {"message": "Use «an» instead of «a».", "offset": 8, "length": 1, "replacements": [{"value": "an"}],
+   "rule": {"id": "EN_A_VS_AN", "issueType": "misspelling", "category": {"id": "MISC"}}},
+  {"message": "Possible agreement error.", "offset": 17, "length": 5, "replacements": [{"value": "works"}],
+   "rule": {"id": "HE_VERB_AGR", "issueType": "grammar", "category": {"id": "GRAMMAR"}}},
+  {"message": "Spelling.", "offset": 28, "length": 6, "replacements": [{"value": "color"}],
+   "rule": {"id": "MORFOLOGIK_RULE_EN_US", "issueType": "misspelling", "category": {"id": "TYPOS"}}},
+  {"message": "Style.", "offset": 0, "length": 4, "replacements": [{"value": "x"}],
+   "rule": {"id": "SOME_STYLE", "issueType": "style", "category": {"id": "STYLE"}}},
+  {"message": "Unknown.", "offset": 3, "length": 2, "replacements": [{"value": "y"}],
+   "rule": {"id": "UNKNOWN_RULE", "issueType": "grammar", "category": {"id": "GRAMMAR"}}}
+ ]}

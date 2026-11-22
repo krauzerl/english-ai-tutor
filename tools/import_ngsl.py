@@ -15,14 +15,12 @@ import xml.etree.ElementTree as ET
 import zipfile
 from pathlib import Path
 
+from tutor.pedagogy.vocab import variants_of
+
 NS = "{http://schemas.openxmlformats.org/spreadsheetml/2006/main}"
 HOMOGRAPHS = {"found", "left", "mine", "rose", "wound"}   # z nagłówka teaching CSV
 COLUMNS = ["lemma", "forms", "variants", "definition_en", "homograph", "rank", "freq_band", "spoken",
            "spoken_rank", "cefr", "gloss_pl"]
-# US → UK (07 §3.1): our/or, ise/ize, yse/yze, re/er, ll/l, ogue/og. Para uznana tylko, gdy OBIE formy są w `forms`.
-_US_TO_UK = [(r"or(s|ed|ing|ings)?$", r"our\1"), (r"ize(s|d)?$", r"ise\1"), (r"izing$", "ising"),
-             (r"yze(s|d)?$", r"yse\1"), (r"yzing$", "ysing"), (r"er(s|ed)?$", r"re\1"),
-             (r"([aeiou])l(ed|ing)$", r"\1ll\2"), (r"og(s|ed|ing)?$", r"ogue\1")]
 
 
 def sha(p: Path) -> str:
@@ -65,16 +63,6 @@ def read_stats(p: Path | None) -> dict[str, int]:
 
 def band(rank: int | None) -> int | None:
     return None if rank is None else 1 if rank <= 500 else 2 if rank <= 1000 else 3 if rank <= 2000 else 4
-
-
-def variants_of(forms: list[str]) -> list[tuple[str, str]]:
-    fs, pairs = set(forms), []
-    for f in forms:
-        for pat, rep in _US_TO_UK:
-            g = re.sub(pat, rep, f)
-            if g != f and g in fs and (f, g) not in pairs:
-                pairs.append((f, g))
-    return pairs
 
 
 def build(teaching: Path, xlsx: Path, stats: Path | None = None, spoken: Path | None = None,

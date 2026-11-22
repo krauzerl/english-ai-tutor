@@ -17,6 +17,7 @@ class Obs(BaseModel):
     c: str                                   # kategoria taksonomii (sprawdzana przez `classify`)
     v: int = Field(ge=1, le=3)               # waga: 1 sens bez zmian, 2 wyraźny, 3 utrudnia zrozumienie
     p: Literal["h", "m", "l"]
+    src: str | None = None                   # nadawane przez kod (np. „languagetool-6.6”, „bielik+lt”), nie przez LLM
 
 
 class Use(BaseModel):
