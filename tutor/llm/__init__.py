@@ -47,7 +47,7 @@ def build_provider(role: str, settings: dict | None = None) -> LLMProvider:
     if cfg["provider"] == "ollama":
         o = s["ollama"]
         return OllamaProvider(cfg["model"], o.get("url", DEFAULT_URL), o.get("num_ctx", 8192),
-                              o.get("timeout", 120), o.get("keep_alive"))
+                              o.get("timeout", 120), o.get("keep_alive"), cfg.get("think", o.get("think")))
     if cfg["provider"] == "gemini":
         key = config.gemini_api_key()
         if not key:

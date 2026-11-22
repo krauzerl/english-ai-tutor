@@ -125,7 +125,7 @@ def test_lt_4_merge_rules(pack):  # T-LT-4: R1–R7
     assert len(out) == 1 and out[0].p == "h" and out[0].src == "bielik+lt" and out[0].f == "She has"
     out, _ = M.merge([B("She have", "She has", "agreement.subject_verb", "l")],
                      [L("She have", "He has", "agreement.subject_verb")], text)
-    assert out[0].p == "m"
+    assert out[0].p == "l" and out[0].src is None   # F4.7: różne edycje (LT zmienia też podmiot) ≠ zgodność
     # R2: ten sam span, inna kategoria ⇒ Bielik bez zmian, alternatywa w logu
     out, alts = M.merge([B("a apple", "an apple", "article.wrong")], [L("a apple", "an apple", "word_choice")], text)
     assert len(out) == 1 and out[0].c == "article.wrong" and out[0].src is None and len(alts) == 1

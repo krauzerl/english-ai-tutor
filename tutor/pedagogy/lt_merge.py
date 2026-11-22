@@ -10,7 +10,7 @@ from __future__ import annotations
 from collections import Counter
 
 from tutor.app.languagetool import LTMatch
-from tutor.pedagogy.assessment import find_spans
+from tutor.pedagogy import edits as E
 from tutor.pedagogy.content import LtMap, norm_answer
 from tutor.pedagogy.errors import core_of
 from tutor.pedagogy.schemas import Obs, TurnEval, Utt
@@ -18,11 +18,7 @@ from tutor.pedagogy.vocab import bre_ame_pair
 
 IGNORED_ISSUES = {"style", "locale-violation", "whitespace", "typographical"}
 _UP = {"l": "m", "m": "h", "h": "h"}
-
-
-def _rng(text: str, span: str) -> tuple[int, int] | None:
-    w = find_spans(text, span)
-    return w[0] if w else None
+_DOWN = {"h": "m", "m": "l", "l": "l"}
 
 
 def _overlap(a: tuple[int, int] | None, b: tuple[int, int] | None) -> bool:
@@ -46,7 +42,8 @@ def to_obs(matches: list[LTMatch], text: str, lt_map: LtMap, *, input_mode: str,
         if input_mode == "voice" and not info.voice:
             stats["voice"] += 1
             continue
-        span = text[m.offset:m.offset + m.length]
+        a = E.utf16_index(text, m.offset)                  # LT (Java) liczy jednostki UTF-16
+        span = text[a:E.utf16_index(text, m.offset + m.length)]
         fix = m.replacements[0] if m.replacements else ""
         if not span.strip() or not fix:
             stats["no_fix"] += 1
@@ -66,20 +63,29 @@ def to_obs(matches: list[LTMatch], text: str, lt_map: LtMap, *, input_mode: str,
 
 
 def merge(bielik: list[Obs], lt: list[Obs], text: str, ok_spans: list[str] = ()) -> tuple[list[Obs], list[Obs]]:
-    """R1–R7. Zwraca (obserwacje, odrzucone alternatywy LT do logu benchmarku)."""
+    """R1–R7 na minimalnych edycjach (F4.7), nie na zakresach. Zwraca (obserwacje, alternatywy LT do logu).
+    same + zgodna kategoria ⇒ R1 (pewność +1); same + inna kategoria lub partial ⇒ R2 (Bielik, alternatywa w logu);
+    conflict (różne zmiany w tym samym miejscu) ⇒ Bielik z pewnością −1 i `src` bielik|lt-conflict."""
     out, alts = list(bielik), []
-    b_rng = [_rng(text, b.s) for b in bielik]
-    ok_rng = [_rng(text, s) for s in ok_spans]
+    b_ed = [E.edits(text, E.locate(text, b.s), b.f) for b in bielik]
+    b_rng = [E.locate(text, b.s) for b in bielik]
+    ok_rng = [E.locate(text, s) for s in ok_spans]
     for lo in lt:
-        r = _rng(text, lo.s)
-        hit = next((i for i, br in enumerate(b_rng) if _overlap(r, br)), None)
+        r = E.locate(text, lo.s)
+        le = E.edits(text, r, lo.f)
+        hit = next((i for i, be in enumerate(b_ed) if E.overlaps(be, le)), None)
+        if hit is None:                                # Bielik bez zmian w tym miejscu (wariant/naturalne): zakres
+            hit = next((i for i, b in enumerate(bielik) if not b_ed[i] and _overlap(r, b_rng[i])), None)
         if hit is not None:
             b = bielik[hit]
+            rel = E.relation(b_ed[hit], le)
             if b.k in ("variant", "natural"):          # R6: wygrywa klasyfikacja (wariant/naturalne)
                 alts.append(lo)
-            elif norm_answer(b.s) == norm_answer(lo.s) and core_of(b.c) == core_of(lo.c):   # R1
-                fix = b.f if b.f and norm_answer(b.f) != norm_answer(b.s) else lo.f
-                out[hit] = b.model_copy(update={"p": _UP[b.p], "f": fix, "src": "bielik+lt"})   # out[i] ↔ bielik[i]
+            elif rel == "same" and core_of(b.c) == core_of(lo.c):                       # R1
+                out[hit] = b.model_copy(update={"p": _UP[b.p], "src": "bielik+lt"})       # out[i] ↔ bielik[i]
+            elif rel == "conflict":
+                out[hit] = b.model_copy(update={"p": _DOWN[b.p], "src": "bielik|lt-conflict"})
+                alts.append(lo)
             else:                                      # R2: zostaje Bielik, alternatywa tylko w logu
                 alts.append(lo)
             continue

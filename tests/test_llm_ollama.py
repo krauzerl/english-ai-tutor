@@ -152,3 +152,9 @@ def test_stream_dropped_midway_raises_interrupted_with_partial(serve):
 
 def test_health(serve):
     assert provider(serve(ok_chat)).health() is True
+
+
+def test_think_flag_sent_only_when_set():  # F4.7: Qwen3 z wyłączonym thinking
+    m = [Message("user", "hi")]
+    assert "think" not in OllamaProvider()._body(m, 0.0, 10, False)
+    assert OllamaProvider(think=False)._body(m, 0.0, 10, False)["think"] is False

@@ -13,9 +13,11 @@ from __future__ import annotations
 import dataclasses
 import json
 import re
+from collections import Counter
 from datetime import datetime
 
 from tutor.pedagogy import errors as E
+from tutor.pedagogy import evidence as EV
 from tutor.pedagogy import mastery, srs
 from tutor.pedagogy import retention as R
 from tutor.pedagogy import vocab as V
@@ -148,6 +150,7 @@ def apply_turn_evaluation(repo: Repo, pack: Pack, profile_id: int, session_id: i
             return {"applied": False, "reason": f"not_rated:{result.eval_status}", "events": {}}
         touched: set[str] = set()
         new_obs = gated = 0
+        levels = Counter(lv for c in result.observations if (lv := EV.level(c, pack)))
         for c in result.observations:
             skill = skill_for_category(c.category, goals, pack) if (c.category and c.kind == "error") else None
             oid = repo.add_observation(profile_id, session_id, turn_id, c.kind or "error", c.span, category=c.category,
@@ -199,7 +202,7 @@ def apply_turn_evaluation(repo: Repo, pack: Pack, profile_id: int, session_id: i
         repo.mark_applied(profile_id, turn_id, _iso(now))
     return {"applied": True, "reason": "applied", "events": {"skills": transitions, "errors": err_events,
                                                               "new_observations": new_obs, "vocab": voc,
-                                                              "gated": gated}}
+                                                              "gated": gated, "levels": dict(levels)}}
 
 
 def _confirmed_use(pack: Pack, pos, ok: bool) -> bool:
@@ -274,11 +277,11 @@ def apply_item_attempt(repo: Repo, pack: Pack, profile_id: int, session_id: int 
                        skill_id: str, correct: bool, *, source: str, dedupe_key: str, now: datetime,
                        response: str | None = None, hint_level: int = 0, elapsed_ms: int | None = None,
                        n_options: int | None = None, bkt: str = "production", delay_days: int | None = None,
-                       theta: float | None = None) -> dict:
+                       theta: float | None = None, agv: dict | None = None) -> dict:
     """Próba zadania z banku (diagnoza/ćwiczenie/naprawa/test trwałości). `dedupe_key` obowiązkowy:
     to ten sam klucz, który powtórzone wywołanie wyśle drugi raz ⇒ drugi raz nic nie zmienia."""
     with repo.transaction():
-        fb = {"bkt": bkt, "n_options": n_options, "item_id": item_id}
+        fb = {"bkt": bkt, "n_options": n_options, "item_id": item_id, **({"agv": agv} if agv else {})}
         if delay_days is not None:
             fb["delay_days"] = delay_days
         aid = repo.add_attempt(profile_id, skill_id, correct, session_id=session_id, item_id=item_id,
@@ -291,6 +294,19 @@ def apply_item_attempt(repo: Repo, pack: Pack, profile_id: int, session_id: int 
              skill_id, correct, now, hint_level=hint_level, elapsed_ms=elapsed_ms,
              item_type=pack.items[item_id].type if item_id in pack.items else None)
     return {"applied": True, "reason": "applied", "from": prev.status, "to": new.status}
+
+
+def apply_confirmation(repo: Repo, pack: Pack, profile_id: int, session_id: int | None, req, item_id: str,
+                       correct: bool, *, now: datetime, dedupe_key: str, response: str | None = None,
+                       hint_level: int = 0) -> dict:
+    """Kontrakt F5 (AGV): wynik niezależnego zadania potwierdzającego problem z rozmowy (`evidence.ConfirmRequest`).
+    To zwykła próba zadania (źródło `remediation`, BKT `production`) — jedyna droga do oceny `confirmed`.
+    Wynik całej prośby: `evidence.outcome([...])` po wszystkich zadaniach."""
+    if item_id not in req.item_ids:
+        raise ValueError(f"{item_id} nie należy do prośby o potwierdzenie")
+    return apply_item_attempt(repo, pack, profile_id, session_id, item_id, req.skill_id, correct,
+                              source="remediation", dedupe_key=dedupe_key, now=now, response=response,
+                              hint_level=hint_level, agv={"category": req.category, "reason": req.reason})
 
 
 def words_in(text: str, pack: Pack) -> int:

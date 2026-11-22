@@ -20,6 +20,7 @@ from tutor.pedagogy.content import (
     norm,
     norm_answer,
 )
+from tutor.pedagogy.edits import find_spans, meaning_change
 from tutor.pedagogy.errors import allowed_categories, core_of, counted_confidences, is_counted
 from tutor.pedagogy.fluency import delta_pct
 from tutor.pedagogy.schemas import Obs, TurnEval, Use
@@ -115,12 +116,7 @@ def content_words(text: str, pre: Prefilter) -> int:
 
 
 # --- dopasowanie cytatu ---
-def find_spans(text: str, span: str) -> list[tuple[int, int]]:
-    """Wszystkie wystąpienia `span` w `text` (wielkość liter i białe znaki bez znaczenia)."""
-    toks = [re.escape(t) for t in span.replace("’", "'").split()]
-    if not toks:
-        return []
-    return [(m.start(), m.end()) for m in re.finditer(r"\s+".join(toks), text.replace("’", "'"), re.I)]
+# --- dopasowanie cytatu: `find_spans` w `edits` (re-eksport) ---
 
 
 # --- warianty i podejrzenia STT ---
@@ -206,6 +202,8 @@ def classify(o: Obs, text: str, *, input_mode: str, low_prob_words: set[str], pr
         return _drop(o, "fix_equals_span")
     if len(o.f) > cfg["fix_max_ratio"] * len(o.s) + cfg["fix_extra_chars"]:
         return _drop(o, "fix_too_long")
+    if o.k == "error" and meaning_change(text, o.s, o.f, o.c):                      # F4.7: poprawka zmienia sens
+        return _drop(o, "meaning_change")
     return Classified(o.k, "valid", None, o.s, o.f, o.c, o.v, o.p, source=o.src)     # 7
 
 
