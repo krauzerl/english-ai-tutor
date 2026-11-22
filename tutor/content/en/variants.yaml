@@ -28,3 +28,8 @@ groups:
   - {id: youre, kind: contraction, forms: [you're, you are]}
   - {id: were_contr, kind: contraction, forms: [we're, we are]}
   - {id: theyre, kind: contraction, forms: [they're, they are]}
+  - {id: favourite_favorite, kind: spelling, forms: [favourite, favorite]}
+  - {id: behaviour_behavior, kind: spelling, forms: [behaviour, behavior]}
+  - {id: analyse_analyze, kind: spelling, forms: [analyse, analyze]}
+  - {id: grey_gray, kind: spelling, forms: [grey, gray]}
+  - {id: neighbour_neighbor, kind: spelling, forms: [neighbour, neighbor]}

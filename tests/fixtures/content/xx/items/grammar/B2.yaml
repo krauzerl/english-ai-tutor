@@ -1,0 +1,49 @@
+- id: xx.t.g.b2.1
+  lang: xx
+  skill_ids:
+  - xx.gram.s4
+  area: grammar
+  type: gap
+  cefr: B2
+  difficulty: -0.4
+  pools:
+  - diagnosis
+  - practice
+  domain: grammar
+  prompt: Zdanie syntetyczne B2 numer 1 ___ koniec.
+  options: null
+  answers:
+  - alfa
+  explanation_pl: Fixture.
+  provenance: &id001
+    source: ai_generated
+    model: synthetic
+    prompt_version: gen_item.v1
+    created_at: '2026-11-22'
+  review: &id002
+    status: draft
+    reviewer: null
+    reviewed_at: null
+    notes: fixture
+- id: xx.t.g.b2.2
+  lang: xx
+  skill_ids:
+  - xx.gram.s4
+  area: grammar
+  type: mc
+  cefr: B2
+  difficulty: 0.4
+  pools:
+  - diagnosis
+  - practice
+  domain: grammar
+  prompt: 'Wybierz poprawne słowo B2 2:'
+  options:
+  - alfa
+  - beta
+  - gamma
+  answers:
+  - alfa
+  explanation_pl: Fixture.
+  provenance: *id001
+  review: *id002

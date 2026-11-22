@@ -1,0 +1,29 @@
+id: xx.scn.s1
+lang: xx
+cefr: A2
+domain: conversation
+title_pl: Scenariusz
+role: r
+goal: g
+success_criteria:
+- id: c0
+  description_pl: d
+  example_phrases:
+  - p
+- id: c1
+  description_pl: d
+  example_phrases:
+  - p
+- id: c2
+  description_pl: d
+  example_phrases:
+  - p
+target_skill_ids:
+- xx.gen.talk
+provenance:
+  source: ai_generated
+  model: synthetic
+  prompt_version: gen_item.v1
+  created_at: '2026-11-22'
+review:
+  status: draft

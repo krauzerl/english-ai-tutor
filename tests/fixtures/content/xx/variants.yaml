@@ -1,0 +1,6 @@
+groups:
+- id: kolor
+  kind: spelling
+  forms:
+  - kolor
+  - kolour

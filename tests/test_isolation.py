@@ -20,6 +20,11 @@ def two(repo):
         repo.add_vocab(pid, "en", f"term-{tag}", "znaczenie")
         repo.put_session_summary(pid, "session", f"sum-{tag}", session_id=s)
         repo.put_session_summary(pid, "week", f"wk-{tag}", period_start="2026-11-16")
+        repo.put_turn_meta(pid, s, t, "text", eval_status="evaluated", comm="ok", comm_quote=f"quote-{tag}")
+        repo.add_observation(pid, s, t, "error", f"span-{tag}", category="tense", fix="f", severity=2,
+                             confidence="h")
+        repo.put_card(pid, "vocab", f"card-{tag}", "{}", "2026-12-01T00:00:00Z")
+        repo.add_competence(pid, "grammar", "B1", 3.0, 0.4, 8, "diagnosis")
     return a, b
 
 
@@ -33,7 +38,20 @@ def _calls(repo, pid):
         "list_vocab": lambda s: repo.list_vocab(pid),
         "list_summaries": lambda s: repo.list_summaries(pid),
         "list_sessions": lambda s: repo.list_sessions(pid),
+        "list_observations": lambda s: repo.list_observations(pid),
+        "list_observations_session": lambda s: repo.list_observations(pid, s),
+        "list_turn_meta": lambda s: repo.list_turn_meta(pid, s),
+        "get_turn_meta": lambda s: repo.get_turn_meta(pid, repo.list_turns(pid2(pid), s)[0]["id"]
+                                                      if repo.list_turns(pid2(pid), s) else 0),
+        "list_skill_states": lambda s: repo.list_skill_states(pid),
+        "get_card": lambda s: repo.get_card(pid, "vocab", "card-bravo"),
+        "due_cards": lambda s: repo.due_cards(pid, "2027-01-01T00:00:00Z"),
+        "list_competence": lambda s: repo.list_competence(pid),
     }
+
+
+def pid2(pid):  # pomocnik: get_turn_meta pyta o turę innego profilu (nie może jej zobaczyć)
+    return pid
 
 
 def test_t_iso_1_repo_never_returns_other_profile(repo, two):
@@ -61,7 +79,7 @@ def test_t_iso_2_cascade_delete_all_tables(conn, repo, two):
                      (pid, "ollama", "m", "conversation"))
     tables = student_tables(conn)
     assert {"attempt", "turn", "checkpoint", "session", "session_summary", "competence",
-            "srs_card", "llm_usage"} <= set(tables)
+            "srs_card", "llm_usage", "observation", "turn_meta"} <= set(tables)
 
     def count(pid):
         return {t: conn.execute(f"SELECT COUNT(*) FROM {t} WHERE profile_id=?", (pid,)
@@ -165,3 +183,24 @@ def test_attempt_history_across_days(repo, two):
     assert [x["created_at"] for x in h] == sorted(x["created_at"] for x in h)
     assert repo.attempt_days(a, "sk2") == ["2026-11-01", "2026-11-02", "2026-11-03"]
     assert repo.attempt_days(b, "sk2") == []
+
+
+def test_iso_new_tables_other_profile_invisible(repo, two):
+    a, b = two
+    sess_b = repo.list_sessions(b)[0]["id"]
+    turn_b = repo.list_turns(b, sess_b)[0]["id"]
+    assert repo.get_turn_meta(a, turn_b) is None
+    assert repo.list_turn_meta(a, sess_b) == []
+    assert repo.list_observations(a, sess_b) == []
+    assert repo.get_card(a, "vocab", "card-bravo") is None
+    assert all("bravo" not in repr(x) for x in (repo.list_observations(a), repo.due_cards(a, "2999-01-01T00:00:00Z")))
+
+
+def test_cross_profile_observation_and_turn_meta_rejected(repo, two):
+    a, b = two
+    sess_b = repo.list_sessions(b)[0]["id"]
+    turn_b = repo.list_turns(b, sess_b)[0]["id"]
+    with pytest.raises(sqlite3.IntegrityError):
+        repo.add_observation(a, sess_b, turn_b, "error", "x")
+    with pytest.raises(sqlite3.IntegrityError):
+        repo.put_turn_meta(a, sess_b, turn_b, "text")

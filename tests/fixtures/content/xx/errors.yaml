@@ -1,0 +1,26 @@
+choice_template: 'Które: «{a}» czy «{b}»?'
+categories:
+- id: tense
+  explanation_pl: Wyjaśnienie tense.
+  l1: Prawie!
+  l2_pl: Podpowiedź tense.
+- id: tense.xx_past
+  explanation_pl: Wyjaśnienie tense.xx_past.
+  l1: Prawie!
+  l2_pl: Podpowiedź tense.xx_past.
+- id: word_order
+  explanation_pl: Wyjaśnienie word_order.
+  l1: Prawie!
+  l2_pl: Podpowiedź word_order.
+- id: morphology
+  explanation_pl: Wyjaśnienie morphology.
+  l1: Prawie!
+  l2_pl: Podpowiedź morphology.
+- id: spelling
+  explanation_pl: Wyjaśnienie spelling.
+  l1: Prawie!
+  l2_pl: Podpowiedź spelling.
+- id: word_choice
+  explanation_pl: Wyjaśnienie word_choice.
+  l1: Prawie!
+  l2_pl: Podpowiedź word_choice.

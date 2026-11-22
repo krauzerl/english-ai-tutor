@@ -73,6 +73,24 @@ classify:
   voice_dropped_categories: [spelling, punctuation, capitalization]
   fix_max_ratio: 3
   fix_extra_chars: 20
+  # Który wymiar oceny zasila dana kategoria błędu (rdzeń wspólny dla języków). `natural` zawsze → naturalness.
+  dimension_of:
+    tense: grammar
+    aspect: grammar
+    agreement: grammar
+    article: grammar
+    determiner: grammar
+    preposition: grammar
+    word_order: grammar
+    morphology: grammar
+    omission: grammar
+    spelling: grammar
+    punctuation: grammar
+    capitalization: grammar
+    word_choice: vocabulary
+    collocation: vocabulary
+    register: vocabulary
+    l1_calque: vocabulary
 
 # Pewność LLM (§2.8). treat_m_as_l = true, gdy precyzja `m` < 0,8 (po F8).
 confidence:
@@ -179,6 +197,9 @@ planner:
   fluency_drop_sessions: 2
   recurring_min_count: 3
   minutes_per_item: 1.5
+  minutes_per_card: 0.5
+  default_theta: 1.5       # uczeń bez diagnozy w obszarze: start od A1/A2
+  items_per_skill: 2
 
 report:
   top_errors: 3

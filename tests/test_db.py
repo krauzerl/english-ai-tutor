@@ -118,7 +118,7 @@ def test_migration_002_keeps_usage_rows_from_v1(tmp_path):
               (pid, "gemini", "m", "conversation", 0.5))
     c.close()
     c = open_db(tmp_path / "d" / "t.db")
-    assert c.execute("PRAGMA user_version").fetchone()[0] == 2
+    assert c.execute("PRAGMA user_version").fetchone()[0] == LATEST_VERSION
     assert c.execute("SELECT cost_usd FROM llm_usage").fetchone()[0] == 0.5
     c.execute("DELETE FROM profile WHERE id=?", (pid,))
     r = c.execute("SELECT profile_id, cost_usd FROM llm_usage").fetchone()

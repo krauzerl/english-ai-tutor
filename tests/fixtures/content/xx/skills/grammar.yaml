@@ -1,0 +1,58 @@
+- id: xx.gram.s1
+  lang: xx
+  domain: grammar
+  area: grammar
+  cefr: A1
+  can_do_pl: Umiejętność syntetyczna 1.
+  prereqs: []
+  error_categories:
+  - tense.xx_past
+- id: xx.gram.s2
+  lang: xx
+  domain: grammar
+  area: grammar
+  cefr: A2
+  can_do_pl: Umiejętność syntetyczna 2.
+  prereqs:
+  - xx.gram.s1
+  error_categories:
+  - word_order
+- id: xx.gram.s3
+  lang: xx
+  domain: grammar
+  area: grammar
+  cefr: B1
+  can_do_pl: Umiejętność syntetyczna 3.
+  prereqs:
+  - xx.gram.s2
+  error_categories:
+  - tense.xx_past
+- id: xx.gram.s4
+  lang: xx
+  domain: grammar
+  area: grammar
+  cefr: B2
+  can_do_pl: Umiejętność syntetyczna 4.
+  prereqs:
+  - xx.gram.s3
+  error_categories:
+  - word_order
+- id: xx.gram.s5
+  lang: xx
+  domain: grammar
+  area: grammar
+  cefr: C1
+  can_do_pl: Umiejętność syntetyczna 5.
+  prereqs:
+  - xx.gram.s4
+  error_categories:
+  - tense.xx_past
+- id: xx.gen.talk
+  lang: xx
+  domain: conversation
+  area: speaking
+  cefr: A2
+  can_do_pl: Rozmowa syntetyczna.
+  prereqs: []
+  error_categories:
+  - word_choice

@@ -670,6 +670,8 @@ def set_ai_check(pack: Pack, item_id: str, status: str, note: str | None = None)
 
 def append_draft(pack: Pack, item: dict) -> str:
     """Dopisuje zadanie z generatora; wymusza ai_generated + draft, niezależnie od wejścia."""
+    if item.get("area") not in AREAS or item.get("cefr") not in CEFR_LEVELS:  # ścieżka pliku pochodzi z tych pól
+        raise ValueError("niepoprawny area/cefr zadania")
     item = {**item, "provenance": {**item.get("provenance", {}), "source": "ai_generated"},
             "review": {"status": "draft", "reviewer": None, "reviewed_at": None, "notes": None}}
     path = pack.root / "items" / item["area"] / f"{item['cefr']}.yaml"
