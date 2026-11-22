@@ -67,8 +67,15 @@ def test_content_1_variants_accepted(pack):  # T-PED-8 / RQ-3.10
     assert C.answer_ok(item, "i am going to call my manager tomorrow", pack.variants)
     assert not C.answer_ok(item, "I going to call my manager tomorrow", pack.variants)
     exp = C.expand_answers(["I have got a flat"], pack.variants)  # have got/have, flat/apartment; kończy się
-    assert {"i have a apartment", "i have got a apartment"} <= exp or "i have got an apartment" not in exp
-    assert "i have a flat" in exp
+    assert {"i have an apartment", "i have got an apartment", "i have a flat"} <= exp
+    assert not {"i have a apartment", "i have got a apartment"} & exp
+
+
+def test_variant_swap_fixes_article(pack):
+    exp = C.expand_answers(["an apartment"], pack.variants)
+    assert exp == {"an apartment", "a flat"}
+    exp = C.expand_answers(["I took a lift"], pack.variants)
+    assert "i took an elevator" in exp and "i took a elevator" not in exp
 
 
 def test_content_3_human_reviewed_needs_reviewer(tmp_root):  # T-CONTENT-3

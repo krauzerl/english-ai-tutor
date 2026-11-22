@@ -124,14 +124,11 @@ def find_spans(text: str, span: str) -> list[tuple[int, int]]:
 
 
 # --- warianty i podejrzenia STT ---
-def _an(s: str) -> str:
-    """a/an to kwestia fonetyczna, nie wariant: „a apartment” i „an apartment” porównujemy jako to samo."""
-    return re.sub(r"\ban\b", "a", s)
-
-
 def is_variant(span: str, fix: str, variants: Variants, domain: str | None = None) -> bool:
-    exp = {_an(x) for x in expand_answers([span], variants, domain)}
-    return _an(norm_answer(fix)) in exp and _an(norm_answer(fix)) != _an(norm_answer(span))
+    """`expand_answers` sam dopasowuje a/an do podmienionej formy (a flat ↔ an apartment), więc błędny
+    rodzajnik („an flat” → „an apartment”) nie jest wariantem, tylko błędem."""
+    f = norm_answer(fix)
+    return f in expand_answers([span], variants, domain) and f != norm_answer(span)
 
 
 def _strip_common(a: list[str], b: list[str]) -> tuple[list[str], list[str]]:

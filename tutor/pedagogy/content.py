@@ -442,6 +442,12 @@ def expand_answers(answers: list[str], variants: Variants, domain: str | None = 
                     if f2 == f:
                         continue
                     n = " ".join(f" {a} ".replace(f" {f} ", f" {f2} ", 1).split())
+                    # rodzajnik przed podmienioną formą: a flat → an apartment; błędny zostaje błędny (an flat → a ap…)
+                    m = re.search(rf"(?:^| )(a|an) {re.escape(f)}(?: |$)", a)
+                    if m:
+                        ok = (m.group(1) == "an") == (f[:1] in "aeiou")
+                        art = "an" if (f2[:1] in "aeiou") == ok else "a"
+                        n = re.sub(rf"(^| )(?:a|an) (?={re.escape(f2)}( |$))", rf"\g<1>{art} ", n, count=1)
                     if n not in out:
                         out.add(n)
                         todo.append((n, used | {gi}))

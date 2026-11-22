@@ -342,3 +342,7 @@ def test_error_aggregation_counts_only_valid_confident_errors(pack):
            mk(5, 5, 21, kind="variant"), mk(6, 6, 21, kind="natural"), mk(7, 7, 1)]
     g = agg(pack, obs, now)[("tense.past_simple", "s")]
     assert g["count"] == 2 and g["count_30d"] == 1 and g["example_obs_id"] == 1
+
+
+def test_wrong_article_with_variant_swap_is_error(pack):
+    assert cls(pack, ob("an flat", "an apartment", "article"), "I rent an flat").kind == "error"
