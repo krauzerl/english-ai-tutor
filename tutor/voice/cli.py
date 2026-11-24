@@ -104,37 +104,40 @@ def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, l
     clean = False
     try:
         while True:
-            text, t_end, mode, low = _listen(a, q, mic, stt, ep, out)
-            if text is None:
-                break
-            if not text:
-                continue
-            out(f"You: {text}")
-            speaking = threading.Event()
-            watcher = threading.Thread(target=_cancel_on_enter, args=(q, tutor, speaking), daemon=True)
-            speaking.set()
-            watcher.start()
-            if mic:
-                mic.mute(3600)  # half-duplex: nie transkrybuj własnego głosu tutora
             try:
-                r = tutor.respond(text, t_end, input_mode=mode, low_probs=low)
-            except Exception as e:  # noqa: BLE001 - błąd odpowiedzi nie kończy rozmowy ani nie blokuje oceny
-                out(f"[błąd tutora: {e}]")
-                r = None
+                text, t_end, mode, low = _listen(a, q, mic, stt, ep, out,
+                                                 svc.begin_activity if svc else (lambda: None),
+                                                 svc.tutor_done if svc else (lambda: None))
+                if text is None:
+                    break
+                if not text:
+                    continue
+                out(f"You: {text}")
+                speaking = threading.Event()
+                watcher = threading.Thread(target=_cancel_on_enter, args=(q, tutor, speaking), daemon=True)
+                speaking.set()
+                watcher.start()
+                if mic:
+                    mic.mute(3600)  # half-duplex: nie transkrybuj własnego głosu tutora
+                try:
+                    r = tutor.respond(text, t_end, input_mode=mode, low_probs=low)
+                except Exception as e:  # noqa: BLE001 - błąd odpowiedzi nie kończy rozmowy ani nie blokuje oceny
+                    out(f"[błąd tutora: {e}]")
+                    r = None
+                speaking.clear()
+                watcher.join(timeout=0.3)
+                if mic:
+                    mic.mute(SPEAK_TAIL_S)
+                if r is None:
+                    continue
+                if r.error:
+                    out(f"[{r.error}]")
+                m = r.m
+                out(f"  ({'przerwano · ' if r.cancelled else ''}start mowy {m.get('first_audio', '-')} s, "
+                    f"1. token {m.get('llm_first_token', '-')} s)")
             finally:
                 if svc:
-                    svc.tutor_done()
-            speaking.clear()
-            watcher.join(timeout=0.3)
-            if mic:
-                mic.mute(SPEAK_TAIL_S)
-            if r is None:
-                continue
-            if r.error:
-                out(f"[{r.error}]")
-            m = r.m
-            out(f"  ({'przerwano · ' if r.cancelled else ''}start mowy {m.get('first_audio', '-')} s, "
-                f"1. token {m.get('llm_first_token', '-')} s)")
+                    svc.tutor_done()     # każdy cykl (też przerwany: STT, TTS, Ctrl+C) zwalnia ocenianie
         clean = True
     except KeyboardInterrupt:
         pass
@@ -200,9 +203,15 @@ def _cancel_on_enter(q, tutor, speaking: threading.Event) -> None:
         time.sleep(0.05)
 
 
-def _listen(a, q, mic, stt, ep, out) -> tuple[str | None, float, str, list[str] | None]:
+def _listen(a, q, mic, stt, ep, out, begin=lambda: None,
+            end=lambda: None) -> tuple[str | None, float, str, list[str] | None]:
+    """`begin()` = uczeń zaczyna wypowiedź (nagrywanie/wpisanie linii); `end()` = odrzucony impuls (kliknięcie).
+    Koniec cyklu po rozpoznaniu i odpowiedzi sygnalizuje pętla w `run`."""
     def typed(ln):
-        return (None, 0.0, "text", None) if ln in (None, "q", "quit") else (ln, time.monotonic(), "text", None)
+        if ln in (None, "q", "quit"):
+            return None, 0.0, "text", None
+        begin()
+        return ln, time.monotonic(), "text", None
 
     if mic is None:
         out("> ")
@@ -217,6 +226,7 @@ def _listen(a, q, mic, stt, ep, out) -> tuple[str | None, float, str, list[str] 
         res: list = []
         th = threading.Thread(target=lambda: res.append(A.record_manual(mic, stop)), daemon=True)
         mic.mute(0)
+        begin()                                # przed nagrywaniem: ocena nie rusza i trwająca jest anulowana
         th.start()
         ln = q.get()
         stop.set()
@@ -235,7 +245,7 @@ def _listen(a, q, mic, stt, ep, out) -> tuple[str | None, float, str, list[str] 
                 return False
             pending.append(ln)
             return True
-        audio = A.listen_auto(mic, ep, poll=poll)
+        audio = A.listen_auto(mic, ep, poll=poll, on_speech=begin, on_noise=end)
         if audio is None:
             ln = pending[0] if pending else None
             return typed(ln) if ln != "" else ("", 0.0, "text", None)

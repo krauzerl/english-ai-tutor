@@ -128,9 +128,11 @@ class Mic:
             self.stream = None
 
 
-def listen_auto(mic, ep: Endpointer, *, poll=None, timeout=None, preroll=10):
-    """Czeka na wypowiedź. Zwraca float32 16k, 'None' przy timeout lub gdy poll() zwróci True."""
+def listen_auto(mic, ep: Endpointer, *, poll=None, timeout=None, preroll=10, on_speech=None, on_noise=None):
+    """Czeka na wypowiedź. Zwraca float32 16k, 'None' przy timeout lub gdy poll() zwróci True.
+    `on_speech`: początek mowy (raz na wypowiedź); `on_noise`: odrzucony impuls (kliknięcie)."""
     pre, buf, t0 = collections.deque(maxlen=preroll), [], time.monotonic()
+    speaking = False
     ep.reset()
     while True:
         if (poll and poll()) or (timeout and time.monotonic() - t0 > timeout):
@@ -142,6 +144,9 @@ def listen_auto(mic, ep: Endpointer, *, poll=None, timeout=None, preroll=10):
         if st == "idle":
             pre.append(b)
         elif st == "speech":
+            if not speaking and on_speech:
+                on_speech()
+            speaking = True
             if pre:
                 buf.extend(pre)
                 pre.clear()
@@ -152,6 +157,9 @@ def listen_auto(mic, ep: Endpointer, *, poll=None, timeout=None, preroll=10):
             return np.concatenate(buf[:keep])
         elif st == "noise":
             buf.clear()
+            if speaking and on_noise:
+                on_noise()
+            speaking = False
 
 
 def record_manual(mic, stop: threading.Event) -> np.ndarray:

@@ -43,12 +43,17 @@ class SessionService:
         self._kick()
         return n
 
-    def user_turn(self, text: str, *, input_mode: str = "text", low_probs: list[str] | None = None) -> int:
-        """Zapisuje turę ucznia (cudza sesja ⇒ IntegrityError), wstrzymuje ocenę i anuluje trwającą."""
+    def begin_activity(self) -> None:
+        """Uczeń zaczyna wypowiedź (nagrywanie/pisanie): wstrzymaj nowe oceny i anuluj trwającą. Kończy je `tutor_done`
+        (po odpowiedzi, błędzie STT, braku rozpoznania, Ctrl+C...)."""
         with self._lock:
             self._active = True
             if self._token:
                 self._token.set()
+
+    def user_turn(self, text: str, *, input_mode: str = "text", low_probs: list[str] | None = None) -> int:
+        """Zapisuje turę ucznia (cudza sesja ⇒ IntegrityError), wstrzymuje ocenę i anuluje trwającą."""
+        self.begin_activity()
         tid = self._repo.add_turn(self._pid, self._sid, "user", text, input_mode=input_mode, low_probs=low_probs)
         # głosowa bez STT-prob nie jest oceniana (patrz `list_pending_turns`)
         if self._q is not None and (input_mode == "text" or low_probs is not None):
@@ -56,9 +61,11 @@ class SessionService:
         return tid
 
     def tutor_done(self) -> None:
+        """Koniec cyklu rozmowy (także przerwanego): zwalnia ocenianie. Po `close` nic nie robi."""
         with self._lock:
             self._active = False
-        self._kick()
+        if not self._closed:
+            self._kick()
 
     def wait_idle(self, timeout: float | None = None) -> bool:
         return self._idle.wait(timeout)
