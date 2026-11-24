@@ -55,6 +55,9 @@ def parse(argv: list[str]) -> argparse.Namespace:
     ap.add_argument("--achievements", action="store_true", help="osiągnięcia i zakończ")
     ap.add_argument("--exam", nargs="?", const="list", metavar="ŚCIEŻKA",
                     help="ścieżki egzaminacyjne: bez argumentu lista i gotowość; ŚCIEŻKA = sesja ćwiczeń")
+    ap.add_argument("--history", action="store_true", help="historia nauki z zapisów i zakończ")
+    ap.add_argument("--set", action="append", metavar="KLUCZ=WARTOŚĆ",
+                    help="ustawienie profilu, np. speed=1.1 lub correction=periodic; `--set ?` pokazuje wszystkie")
     ap.add_argument("--no-placement", action="store_true", help=argparse.SUPPRESS)   # zgodność wsteczna (no-op)
     ap.add_argument("--no-audio", action="store_true", help="bez mikrofonu i głośnika (tekst -> tekst)")
     ap.add_argument("--list-devices", action="store_true")
@@ -88,6 +91,12 @@ def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, l
         from tutor.pedagogy import content as C
         for ln in PG.render(PG.build(repo, C.load(p["target_lang"]), p["id"], datetime.now(UTC))):
             out(ln)
+        if db is None:
+            conn.close()
+        return 0
+    _apply_settings(a, argv, repo, p)
+    if a.history or a.set:
+        _history_settings(a, repo, p, out)
         if db is None:
             conn.close()
         return 0
@@ -398,6 +407,43 @@ def _placement_phase(a, repo, p, llm, tts, sink, mic, stt, lines, out) -> bool:
         return False
     repo.end_session(p["id"], sid)
     return True
+
+
+def _apply_settings(a, argv, repo, p) -> None:
+    """Ustawienia profilu wypełniają tylko te opcje, których NIE podano w wierszu poleceń (CLI wygrywa)."""
+    from tutor.app import settings as ST
+    eff = ST.effective(repo, p["id"])
+    given = lambda *names: any(x == n or x.startswith(n + "=") for x in argv for n in names)  # noqa: E731
+    if not given("--tts-voice"):
+        a.tts_voice = eff["tts_voice"]
+    if not given("--speed"):
+        a.speed = float(eff["speed"])
+    if not given("--mode"):
+        a.mode = eff["mic_mode"]
+    if not given("--stt-model"):
+        a.stt_model = eff["stt_model"]
+
+
+def _history_settings(a, repo, p, out) -> None:
+    from tutor.app import history as H
+    from tutor.app import settings as ST
+    if a.set:
+        changes = {}
+        for kv in a.set:
+            k, _, v = kv.partition("=")
+            if kv.strip() == "?" or not v:
+                for key, val in ST.effective(repo, p["id"]).items():
+                    out(f"  {key} = {val}")
+                return
+            changes[k.strip()] = v.strip()
+        try:
+            for key, val in ST.update(repo, p["id"], changes).items():
+                out(f"  {key} = {val}")
+        except ST.SettingError as e:
+            out(f"Błąd ustawień: {e}")
+    if a.history:
+        for ln in H.render(repo, p["id"]):
+            out(ln)
 
 
 def _exam_list(repo, p, out) -> None:
