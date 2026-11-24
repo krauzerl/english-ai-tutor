@@ -20,7 +20,7 @@ NO_DIAGNOSIS = "To jest wybór startowy, nie jest wynikiem diagnozy."
 @dataclass(frozen=True)
 class Choice:
     skill_id: str
-    source: str            # starter | plan
+    source: str            # starter | plan | error
     reason: str
     provisional: bool      # poziom niezweryfikowany diagnozą
 
@@ -82,7 +82,20 @@ def choose(repo, pack: C.Pack, profile_id: int, now: datetime, _use_easy: bool =
         return f"Powtórka: poprzednia lekcja {d['ok']}/{d['total']} — pomyłki do utrwalenia. " \
             if d["ok"] < d["total"] else None
 
-    for t in planner.plan(inp)["practice"]:
+    plan = planner.plan(inp)
+    for e in sorted(repo.list_errors(profile_id), key=lambda e: (-(e.get("severity_max") or 1), e["category"])):
+        recurring = e.get("status") == "recurring" or (
+            e.get("count", 0) >= 3 and e.get("status") not in ("resolved", "improving"))
+        if not recurring:
+            continue
+        cat, parent = e["category"], e["category"].split(".")[0]
+        rank = {sid: 0 if cat in pack.skills[sid].error_categories else 1 for sid in pack.skills
+                if {cat, parent} & set(pack.skills[sid].error_categories)}
+        for sid in sorted(rank, key=lambda x: (rank[x], x)):      # dokładna kategoria przed jej rodzicem
+            if usable(sid) is not None:
+                return Choice(sid, "error", f"Powtarzający się błąd w rozmowach ({cat}). To sugestia modelu, "
+                              "niezweryfikowana — sprawdzimy to w zadaniach.", True)
+    for t in plan["practice"]:
         pre = usable(t["skill_id"])
         if pre is None:
             continue
