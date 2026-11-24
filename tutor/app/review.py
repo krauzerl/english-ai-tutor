@@ -79,14 +79,15 @@ def postpone(repo, pid: int, skill_id: str, now: datetime, days: int = 1) -> Non
 
 def run(repo, pack: C.Pack, pid: int, sid: int, ask: Callable[[C.Item, int], L.Answer | None],
         say: Callable[[str], None], *, now: datetime, speak: Callable[[str], None] | None = None,
-        allow: bool = True) -> Result:
+        allow: bool = True, only: list[str] | None = None) -> Result:
+    """`only` = ćwiczenia ukierunkowane (dziennik słabych stron): podane umiejętności zamiast zaległych kart."""
     speak = speak or (lambda _t: None)
     res = Result()
     plan = repo.get_session_plan(pid, sid) or {}
     st = plan.get("review") or {"done": [], "ok": [], "postponed": []}
     day = now.strftime("%Y-%m-%d")
     budget = DAILY_CAP - done_today(repo, pid, day)
-    planned = plan.get("review_skills") or due_skills(repo, pack, pid, now, allow)
+    planned = plan.get("review_skills") or only or due_skills(repo, pack, pid, now, allow)
     skills = [s for s in planned if s not in st["postponed"]]
     if not skills:
         res.nothing_due = True

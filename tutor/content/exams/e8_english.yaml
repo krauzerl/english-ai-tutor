@@ -1,0 +1,54 @@
+# Ścieżka DEMONSTRACYJNA: egzamin ósmoklasisty z języka angielskiego. To struktura przygotowania, NIE arkusz CKE.
+# Zadania pochodzą z biblioteki aplikacji (własne, A1–B1), nie z arkuszy CKE (brak kopiowania cudzych treści).
+# Dane „official” pochodzą z publicznych serwisów informacyjnych (sesja 13.05.2026) i mają status `confirm_in_cke_informator`:
+# przed użyciem w produkcie zweryfikuj w Informatorze CKE (https://cke.gov.pl/egzamin-osmoklasisty/informatory/).
+id: e8_english
+name_pl: Egzamin ósmoklasisty — język angielski (ścieżka demonstracyjna)
+lang: en
+official:
+  duration_min: 110
+  max_points: 55
+  status: confirm_in_cke_informator
+  checked_on: "2026-11-24"
+  sources:
+    - https://www.gov.pl/web/edukacja/egzamin-osmoklasisty-2026
+    - https://cke.gov.pl/egzamin-osmoklasisty/informatory/
+  note_pl: Podział punktów i dokładny opis zadań należy potwierdzić w Informatorze CKE; aplikacja ich nie odtwarza.
+cefr_range: [A1, B1]
+disclaimer_pl: >
+  To ćwiczenia przygotowawcze na materiałach aplikacji. Wynik nie jest oficjalnym wynikiem egzaminu ani jego
+  prognozą punktową; ocena gotowości pokazuje tylko, co i jak pewnie sprawdzono.
+sections:
+  - id: listening
+    name_pl: Słuchanie
+    area: listening
+    cefr: [A1, A2, B1]
+    types: [listening_mc]
+    per_session: 3
+    minutes: 8
+  - id: reading
+    name_pl: Czytanie
+    area: reading
+    cefr: [A1, A2, B1]
+    types: [reading_mc]
+    per_session: 3
+    minutes: 8
+  - id: language_use
+    name_pl: Gramatyka i słownictwo
+    areas: [grammar, vocabulary]
+    cefr: [A1, A2, B1]
+    types: [gap, mc]
+    per_session: 6
+    minutes: 10
+  - id: writing
+    name_pl: Wypowiedź pisemna (e-mail)
+    area: writing
+    status: no_materials
+    note_pl: Brak zweryfikowanych materiałów i automatycznej oceny — ten obszar nie jest sprawdzany przez aplikację.
+speaking_extra:
+  note_pl: Egzamin nie ma części ustnej; mówienie ćwiczymy dodatkowo w Quick Chat na tematach egzaminacyjnych.
+  topics:
+    - {id: e8.school, pl: Szkoła i nauka, q: "Tell me about your school day. What subjects do you like?"}
+    - {id: e8.free_time, pl: Czas wolny, q: "What do you usually do in your free time?"}
+    - {id: e8.holidays, pl: Wakacje, q: "Where did you spend your last holidays?"}
+    - {id: e8.friends, pl: Znajomi i rodzina, q: "Describe your best friend or someone in your family."}

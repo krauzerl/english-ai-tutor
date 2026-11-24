@@ -1,0 +1,59 @@
+# Tematy Quick Chat (oryginalne, krótkie). `q` = pytanie otwierające po angielsku; `pl` = etykieta dla ucznia.
+categories:
+  daily_life:
+    pl: Codzienność
+    topics:
+      - {id: dl.morning, pl: Poranna rutyna, q: "What does your usual morning look like?"}
+      - {id: dl.weekend, pl: Plany na weekend, q: "What would you like to do this weekend?"}
+      - {id: dl.home, pl: Dom i okolica, q: "What do you like most about the place where you live?"}
+      - {id: dl.shopping, pl: Zakupy, q: "Do you enjoy shopping, or do you try to avoid it?"}
+      - {id: dl.day, pl: Ostatni dzień, q: "Tell me about yesterday. What did you do?"}
+  food:
+    pl: Jedzenie
+    topics:
+      - {id: fd.favorite, pl: Ulubione danie, q: "What is your favourite dish, and who usually cooks it?"}
+      - {id: fd.restaurant, pl: Restauracja, q: "When did you last eat in a restaurant? What did you order?"}
+      - {id: fd.cooking, pl: Gotowanie, q: "Do you like cooking? What can you make well?"}
+      - {id: fd.local, pl: Kuchnia regionu, q: "What food is typical for your region?"}
+  travel:
+    pl: Podróże
+    topics:
+      - {id: tr.last_trip, pl: Ostatnia podróż, q: "Where did you travel last, and what did you enjoy there?"}
+      - {id: tr.dream, pl: Wymarzone miejsce, q: "If you could go anywhere tomorrow, where would you go?"}
+      - {id: tr.transport, pl: Transport, q: "How do you usually get around the city?"}
+      - {id: tr.holiday, pl: Wakacje, q: "What is your perfect holiday?"}
+  work:
+    pl: Praca i nauka
+    topics:
+      - {id: wk.job, pl: Moja praca, q: "What do you do, and what does a normal day at work look like?"}
+      - {id: wk.team, pl: Zespół, q: "Tell me about the people you work or study with."}
+      - {id: wk.goal, pl: Cele zawodowe, q: "What would you like to achieve in your career in two years?"}
+      - {id: wk.remote, pl: Praca zdalna, q: "Do you prefer working from home or from an office? Why?"}
+  tech:
+    pl: Technologia
+    topics:
+      - {id: tc.apps, pl: Ulubione aplikacje, q: "Which app do you use the most every day?"}
+      - {id: tc.ai, pl: Sztuczna inteligencja, q: "How do you use AI tools in your life or work?"}
+      - {id: tc.gadget, pl: Gadżety, q: "What was the last gadget you bought?"}
+      - {id: tc.online, pl: Życie online, q: "How much time do you spend online every day?"}
+  hobbies:
+    pl: Hobby
+    topics:
+      - {id: hb.sport, pl: Sport, q: "Do you play any sport, or do you prefer to watch it?"}
+      - {id: hb.music, pl: Muzyka, q: "What kind of music do you listen to, and when?"}
+      - {id: hb.film, pl: Filmy i seriale, q: "What was the last film or series you really liked?"}
+      - {id: hb.books, pl: Książki, q: "Do you read much? What are you reading now?"}
+      - {id: hb.free, pl: Wolny czas, q: "What do you do to relax after a hard day?"}
+  people:
+    pl: Ludzie
+    topics:
+      - {id: pp.family, pl: Rodzina, q: "Tell me about your family. Who are you closest to?"}
+      - {id: pp.friend, pl: Przyjaciel, q: "Describe a good friend of yours."}
+      - {id: pp.celebration, pl: Święta i urodziny, q: "How do you usually celebrate your birthday?"}
+  ideas:
+    pl: Pomysły i opinie
+    topics:
+      - {id: id.city_country, pl: Miasto czy wieś, q: "Would you rather live in a big city or in the countryside?"}
+      - {id: id.superpower, pl: Supermoc, q: "If you could have one superpower, what would it be?"}
+      - {id: id.future, pl: Przyszłość, q: "What do you think life will be like in twenty years?"}
+      - {id: id.advice, pl: Rada, q: "What is the best advice you have ever received?"}
