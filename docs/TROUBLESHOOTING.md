@@ -1,0 +1,16 @@
+# Troubleshooting
+
+Each entry below was reproduced or taken from the application's own messages.
+
+| Symptom | Cause and fix |
+|---|---|
+| ``Ollama nie odpowiada: uruchom `ollama serve`.`` | The Ollama server is not running. Start the service or run `ollama serve`. Check `http://localhost:11434`. |
+| Model not found, or the `think` option is rejected | Pull the model (`ollama pull qwen3:8b`). The `think` setting needs Ollama 0.9.0 or newer (`ollama --version`). |
+| `Brak profilu. Utwórz: python main.py profile create NAZWA` | No profile yet. Run `python main.py profile create NAME`. |
+| `ModuleNotFoundError: No module named 'onnxruntime'` (also with `--no-audio`) | Text mode still builds the Kokoro voice. Install the voice extra: `pip install -e ".[voice]"`. |
+| `onnxruntime ... NO_SUCHFILE ... kokoro-v1.0.int8.onnx` | The Kokoro files are missing. Put `kokoro-v1.0.int8.onnx` and `voices-v1.0.bin` in `~/.local/share/english-ai-tutor/models/kokoro/` (download links in the README). |
+| `Brak biblioteki PortAudio (sudo apt install libportaudio2)` | PortAudio is missing, so no microphone or speaker. Install `libportaudio2`, or keep using `--no-audio`. |
+| `[brak mikrofonu: ...] Tryb tekstowy` | No input device was opened. The tutor still speaks; type your answers. List devices with `--list-devices`. |
+| `pip install -e ".[dev]"` fails with `ResolutionImpossible` | Seen once on a fresh environment and gone on retry, cause unknown. Upgrade pip and run the command again. |
+| Warnings about a missing local extract (`brehe`, `twe`) from `content validate` | Expected. Source textbooks are not in the repository, so the overlap check is skipped. The command still ends with `OK`. |
+| Corrections look wrong | Corrections from conversation are model suggestions and can be mistaken. Lower the intensity with `--correction summary`. |
