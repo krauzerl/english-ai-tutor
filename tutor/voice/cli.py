@@ -53,6 +53,8 @@ def parse(argv: list[str]) -> argparse.Namespace:
     ap.add_argument("--weakspots", action="store_true", help="dziennik słabych stron i zakończ")
     ap.add_argument("--drill", metavar="CEL", help="ćwiczenia słabej strony: NUMER z --weakspots, kategoria lub skill")
     ap.add_argument("--achievements", action="store_true", help="osiągnięcia i zakończ")
+    ap.add_argument("--exam", nargs="?", const="list", metavar="ŚCIEŻKA",
+                    help="ścieżki egzaminacyjne: bez argumentu lista i gotowość; ŚCIEŻKA = sesja ćwiczeń")
     ap.add_argument("--no-placement", action="store_true", help=argparse.SUPPRESS)   # zgodność wsteczna (no-op)
     ap.add_argument("--no-audio", action="store_true", help="bez mikrofonu i głośnika (tekst -> tekst)")
     ap.add_argument("--list-devices", action="store_true")
@@ -86,6 +88,11 @@ def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, l
         from tutor.pedagogy import content as C
         for ln in PG.render(PG.build(repo, C.load(p["target_lang"]), p["id"], datetime.now(UTC))):
             out(ln)
+        if db is None:
+            conn.close()
+        return 0
+    if a.exam == "list":
+        _exam_list(repo, p, out)
         if db is None:
             conn.close()
         return 0
@@ -126,6 +133,10 @@ def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, l
     lines = q
     if a.placement:                                   # dobrowolne: nigdy automatycznie przy pierwszej lekcji
         _placement_phase(a, repo, p, llm, tts, sink, mic, stt, lines, out)
+        _shutdown(mic, sink, conn, db)
+        return 0
+    if a.exam:
+        _exam_phase(a, repo, p, llm, tts, sink, mic, stt, lines, out)
         _shutdown(mic, sink, conn, db)
         return 0
     if a.review or a.drill:
@@ -387,6 +398,52 @@ def _placement_phase(a, repo, p, llm, tts, sink, mic, stt, lines, out) -> bool:
         return False
     repo.end_session(p["id"], sid)
     return True
+
+
+def _exam_list(repo, p, out) -> None:
+    from tutor.app import exams as EX
+    from tutor.pedagogy import content as C
+    pack = C.load(p["target_lang"])
+    for path in EX.load_all().values():
+        for ln in EX.render(EX.readiness(repo, pack, p["id"], path, bool(p["allow_unreviewed_practice"]))):
+            out(ln)
+        out(f"Uruchom ćwiczenia: `--exam {path['id']}`")
+
+
+def _exam_phase(a, repo, p, llm, tts, sink, mic, stt, lines, out) -> None:
+    from tutor.app import exams as EX
+    from tutor.pedagogy import content as C
+    pack = C.load(p["target_lang"])
+    try:
+        path = EX.get(a.exam)
+    except EX.ExamError as e:
+        out(str(e))
+        return
+    cur = repo.find_open_session(p["id"])
+    same = cur and cur["kind"] == "exam" and \
+        repo.get_session_plan(p["id"], cur["id"]).get("exam", {}).get("path") == path["id"]
+    if same:
+        sid = cur["id"]
+        repo.resume_session(p["id"], sid)
+        out(f"Wznawiam ćwiczenia (sesja #{sid}).")
+    else:
+        if cur:
+            repo.pause_session(p["id"], cur["id"])
+        sid = repo.start_session(p["id"], "exam")
+    q = lines or _lines()
+    speak = None if a.no_audio else _speaker(VoiceTutor(repo, p["id"], sid, llm, tts, sink), q, mic, None, out)
+    ask = _asker(a, q, mic, stt, A.Endpointer(), None, speak, out)
+    try:
+        res = EX.run(repo, pack, p["id"], sid, path, ask, out, now=datetime.now(UTC), speak=speak,
+                     allow=bool(p["allow_unreviewed_practice"]))
+    except KeyboardInterrupt:
+        repo.pause_session(p["id"], sid)
+        return
+    if res["finished"]:
+        repo.end_session(p["id"], sid)
+    else:
+        repo.pause_session(p["id"], sid)
+        out("Ćwiczenia przerwane — wznowisz je tym samym poleceniem.")
 
 
 def _reports(a, repo, p, out) -> None:
