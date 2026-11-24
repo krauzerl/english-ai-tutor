@@ -242,7 +242,7 @@ Next, roughly in this order and without dates:
 
 1. Accept voice sessions on a real microphone and optimise latency.
 2. Human review of the exercise bank and of the benchmark gold standard; validate that the lessons actually teach.
-3. A local graphical interface in a 1990s educational-software style ([proposal](docs/ai-work/UI_PROPOSAL.md), not final).
+3. A local graphical interface in a 1990s educational-software style (a proposal exists, nothing is designed or built yet).
 4. More exam paths, with data confirmed against official sources.
 5. More learning languages through additional `tutor/content/<lang>/` packs, and interface translations.
 
@@ -251,12 +251,12 @@ Next, roughly in this order and without dates:
 Small, focused pull requests are easiest to review. Setup, checks and content rules are in [CONTRIBUTING.md](CONTRIBUTING.md).
 Report bugs and ideas in [GitHub issues](https://github.com/krauzerl/english-ai-tutor/issues); report vulnerabilities
 privately as described in [SECURITY.md](SECURITY.md). No response times are promised. Common problems are in
-[docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md); internal design notes and reports are in [docs/ai-work/](docs/ai-work/).
+[docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md).
 
 ## Licence
 
 **The project has no licence yet**, so all rights are reserved by the author and the code is not licensed for reuse.
-A split licence is proposed in [LICENSING_PROPOSAL.md](docs/ai-work/LICENSING_PROPOSAL.md) and awaits the owner's decision.
+A licence decision is pending with the owner.
 
 Teaching material is adapted from third-party works under CC BY 4.0 and CC BY-SA 4.0, with attribution and change
 notices: see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) and [`tutor/content/en/ATTRIBUTION.md`](tutor/content/en/ATTRIBUTION.md).
