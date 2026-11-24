@@ -34,10 +34,12 @@ class TurnResult:
 
 class VoiceTutor:
     def __init__(self, repo, profile_id, session_id, llm, tts, sink, *, system=SYSTEM_PROMPT,
-                 context_window=8192, max_tokens=100, temperature=0.7, clock=time.monotonic, echo=None):
+                 context_window=8192, max_tokens=100, temperature=0.7, clock=time.monotonic, echo=None,
+                 record_user_turn=None):
         self.repo, self.pid, self.sid, self.llm, self.tts, self.sink = repo, profile_id, session_id, llm, tts, sink
         self.system, self.window, self.max_tokens, self.temp = system, context_window, max_tokens, temperature
         self.clock, self.echo = clock, echo or (lambda s: None)
+        self.record_user_turn = record_user_turn   # np. SessionService.user_turn: jedyna ścieżka zapisu tury ucznia
         self._tok: CancelToken | None = None
 
     def cancel(self) -> None:
@@ -53,7 +55,10 @@ class VoiceTutor:
         res = TurnResult(user_text)
         ctx = build_context(self.repo, self.pid, self.sid, self.system, user_text,
                             context_window=self.window, reserve_out=self.max_tokens)
-        self.repo.add_turn(self.pid, self.sid, "user", user_text, input_mode=input_mode, low_probs=low_probs)
+        if self.record_user_turn:
+            self.record_user_turn(user_text, input_mode=input_mode, low_probs=low_probs)
+        else:
+            self.repo.add_turn(self.pid, self.sid, "user", user_text, input_mode=input_mode, low_probs=low_probs)
         tok = self._tok = CancelToken()
         tok.on_cancel(self.sink.stop)
         sents: queue.Queue = queue.Queue()

@@ -63,14 +63,23 @@ class SessionService:
     def wait_idle(self, timeout: float | None = None) -> bool:
         return self._idle.wait(timeout)
 
-    def close(self) -> None:
+    @property
+    def pending(self) -> int:
+        return len(self._q) if self._q is not None else 0
+
+    @property
+    def dropped(self) -> list[int]:
+        return list(self._q.dropped) if self._q is not None else []
+
+    def close(self, timeout: float = 1.0) -> None:
+        """Nie czeka na trwającą ocenę dłużej niż `timeout`: przerwana tura wróci po restarcie z SQLite."""
         self._closed = True
         with self._lock:
             if self._token:
                 self._token.set()
         self._wake.set()
         if self._thread:
-            self._thread.join(5)
+            self._thread.join(timeout)
 
     def _kick(self) -> None:
         with self._lock:                    # pod blokadą: bez wyścigu z końcem przebiegu roboczego

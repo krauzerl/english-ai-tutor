@@ -44,7 +44,7 @@ def _lines() -> queue.Queue:
 
 
 def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, lines=None,
-        out=print, db=None) -> int:
+        out=print, db=None, eval_llm=None) -> int:
     a = parse(argv)
     if a.list_devices:
         try:
@@ -59,6 +59,7 @@ def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, l
     if p is None:
         print("Brak profilu. Utwórz: python main.py profile create NAZWA", file=sys.stderr)
         return 1
+    build_eval = llm is None and eval_llm is None     # produkcja: modele z config.toml; wstrzyknięte `llm` = bez oceny
     if llm is None:
         llm = build_provider("conversation")
     if llm.external:
@@ -86,12 +87,21 @@ def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, l
         from tutor.voice.tts import build_tts
         tts = build_tts(a.tts, a.tts_voice, a.speed)
 
-    sid = repo.start_session(p["id"], "voice")
-    tutor = VoiceTutor(repo, p["id"], sid, llm, tts, sink, context_window=cw, echo=lambda s: out(f"Tutor: {s}"))
+    cur = repo.find_open_session(p["id"])
+    if cur and cur["kind"] == "voice":                 # niezakończona sesja (Ctrl+C / awaria): wznów, bez duplikatów
+        sid = cur["id"]
+        repo.resume_session(p["id"], sid)
+        out(f"Wznawiam sesję #{sid}.")
+    else:
+        sid = repo.start_session(p["id"], "voice")
+    svc = _eval_service(repo, conn, p, sid, eval_llm, build_eval, out)
+    tutor = VoiceTutor(repo, p["id"], sid, llm, tts, sink, context_window=cw, echo=lambda s: out(f"Tutor: {s}"),
+                       record_user_turn=svc.user_turn if svc else None)
     q = lines or _lines()
     out(f"Profil: {p['name']} · LLM: {llm.model} · TTS: {tts.name}/{tts.voice} · tryb: {a.mode if mic else 'tekst'}")
     out(HELP)
     ep = A.Endpointer()
+    clean = False
     try:
         while True:
             text, t_end, mode, low = _listen(a, q, mic, stt, ep, out)
@@ -106,20 +116,36 @@ def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, l
             watcher.start()
             if mic:
                 mic.mute(3600)  # half-duplex: nie transkrybuj własnego głosu tutora
-            r = tutor.respond(text, t_end, input_mode=mode, low_probs=low)
+            try:
+                r = tutor.respond(text, t_end, input_mode=mode, low_probs=low)
+            except Exception as e:  # noqa: BLE001 - błąd odpowiedzi nie kończy rozmowy ani nie blokuje oceny
+                out(f"[błąd tutora: {e}]")
+                r = None
+            finally:
+                if svc:
+                    svc.tutor_done()
             speaking.clear()
             watcher.join(timeout=0.3)
             if mic:
                 mic.mute(SPEAK_TAIL_S)
+            if r is None:
+                continue
             if r.error:
                 out(f"[{r.error}]")
             m = r.m
             out(f"  ({'przerwano · ' if r.cancelled else ''}start mowy {m.get('first_audio', '-')} s, "
                 f"1. token {m.get('llm_first_token', '-')} s)")
+        clean = True
     except KeyboardInterrupt:
         pass
     finally:
-        repo.end_session(p["id"], sid)
+        if svc:
+            svc.close()
+            _report(svc, out)
+        if clean:
+            repo.end_session(p["id"], sid)
+        else:
+            repo.pause_session(p["id"], sid)           # Ctrl+C / wyjątek: sesję można wznowić
         if mic:
             mic.close()
         if hasattr(sink, "close"):
@@ -127,6 +153,41 @@ def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, l
         if db is None:
             conn.close()
     return 0
+
+
+def _eval_service(repo, conn, p, sid, eval_llm, build_eval, out):
+    """SessionService z kolejką oceny na modelu `evaluation`; None = tury tylko zapisujemy (ocena po wznowieniu)."""
+    if build_eval:
+        eval_llm = build_provider("evaluation")
+    if eval_llm is None:
+        return None
+    if eval_llm.external or not eval_llm.health():
+        out("[ocena wyłączona: model oceny niedostępny lokalnie; wypowiedzi zostaną ocenione później]")
+        return None
+    from tutor.app.eval_runner import make_queue
+    from tutor.app.session_service import SessionService
+    from tutor.llm.structured import structured
+    from tutor.pedagogy import content as C
+    pack = C.load(p["target_lang"])
+    path = conn.execute("PRAGMA database_list").fetchone()[2]
+    svc = SessionService(
+        repo, lambda: Repo(open_db(path)),
+        lambda wrepo: make_queue(wrepo, pack, eval_llm, structured, profile_id=p["id"], session_id=sid, goals={}),
+        p["id"], sid)
+    n = svc.start()
+    if n:
+        out(f"[do oceny z poprzedniej sesji: {n}]")
+    return svc
+
+
+def _report(svc, out) -> None:
+    """Błędy i zaległości oceny są widoczne (nie udajemy sukcesu)."""
+    if svc.last_error:
+        out(f"[ocena: błąd zapisu: {svc.last_error}]")
+    if svc.dropped:
+        out(f"[ocena: porzucono {len(svc.dropped)} wypowiedzi po powtórzonych błędach modelu]")
+    if svc.pending:
+        out(f"[ocena: {svc.pending} wypowiedzi oczekuje na ocenę — zostaną ocenione po wznowieniu]")
 
 
 def _cancel_on_enter(q, tutor, speaking: threading.Event) -> None:
