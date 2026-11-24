@@ -38,12 +38,22 @@ def completed(repo, profile_id: int) -> dict[str, dict]:
     return out
 
 
+def declared_easy(repo, profile_id: int) -> set[str]:
+    """Cele, które uczeń uznał za łatwe/znane (niepotwierdzone): pomijane przy wyborze, bez wpływu na mastery."""
+    out = set()
+    for s in repo.list_sessions(profile_id):
+        plan = repo.get_session_plan(profile_id, s["id"]) if s["kind"] == "lesson" else {}
+        if plan.get("declared_easy") and plan.get("lesson"):
+            out.add(plan["lesson"])
+    return out
+
+
 def _state(r: dict) -> SkillState:
     return SkillState(r["skill_id"], r["p_mastery"], r["status"], r["attempts"], r["mastered_at"],
                       r["verify_due_at"], r["verified_7d_at"], r["verified_30d_at"], r["relapses"])
 
 
-def choose(repo, pack: C.Pack, profile_id: int, now: datetime) -> Choice | None:
+def choose(repo, pack: C.Pack, profile_id: int, now: datetime, _use_easy: bool = True) -> Choice | None:
     allow = bool(repo.get_profile(profile_id)["allow_unreviewed_practice"])
     comp: dict[str, dict] = {}
     for r in repo.list_competence(profile_id):          # od najstarszego: ostatni pomiar wygrywa
@@ -56,9 +66,12 @@ def choose(repo, pack: C.Pack, profile_id: int, now: datetime) -> Choice | None:
         errors=repo.list_errors(profile_id), allow_unreviewed_practice=allow,
         provisional_areas={a for a, r in comp.items() if r["source"] != "diagnosis"})
     done = completed(repo, profile_id)
+    easy = declared_easy(repo, profile_id) if _use_easy else set()
 
     def usable(sid: str) -> str | None:
         """None = pomiń; inaczej prefiks uzasadnienia powtórki ('' gdy to nie powtórka)."""
+        if sid in easy:
+            return None
         try:
             L.prepare(pack, sid, allow_unreviewed=allow)
         except L.LessonError:
@@ -88,4 +101,4 @@ def choose(repo, pack: C.Pack, profile_id: int, now: datetime) -> Choice | None:
     for sid in [L.DEFAULT_SKILL, *sorted(pack.skills, key=lambda s: (pack.skills[s].cefr, s))]:
         if sid in pack.skills and usable(sid) == "":                # plan nic nie dał: najprostszy dostępny cel
             return Choice(sid, "starter", f"Wybór startowy: pierwszy cel z materiałami. {NO_DIAGNOSIS}", True)
-    return None
+    return choose(repo, pack, profile_id, now, _use_easy=False) if easy else None   # wszystko „łatwe”: wróć do nich

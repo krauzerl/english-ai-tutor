@@ -40,6 +40,9 @@ def parse(argv: list[str]) -> argparse.Namespace:
                     help="styl korekt w tej sesji (domyślnie ze stylu profilu; summary = tylko podsumowanie na końcu)")
     ap.add_argument("--summary-wait", type=float, default=8.0, metavar="S",
                     help="na końcu rozmowy czekaj do S sekund na ocenę ostatnich wypowiedzi (podsumowanie korekt)")
+    ap.add_argument("--placement", action="store_true",
+                    help="wstępne dopasowanie poziomu (gramatyka, słownictwo; głosem lub tekstem), potem koniec")
+    ap.add_argument("--no-placement", action="store_true", help="bez automatycznego dopasowania przy pierwszej lekcji")
     ap.add_argument("--no-audio", action="store_true", help="bez mikrofonu i głośnika (tekst -> tekst)")
     ap.add_argument("--list-devices", action="store_true")
     return ap.parse_args(argv)
@@ -95,6 +98,12 @@ def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, l
         from tutor.voice.tts import build_tts
         tts = build_tts(a.tts, a.tts_voice, a.speed)
 
+    from tutor.app import placement as PL
+    if a.placement or (a.lesson == "default" and not a.no_placement and PL.needs_placement(repo, p["id"])):
+        done = _placement_phase(a, repo, p, llm, tts, sink, mic, stt, lines, out)
+        if not done or a.placement:
+            _shutdown(mic, sink, conn, db)
+            return 0
     lesson_pack = skill = items = choice = None
     kind = "voice"
     allow = bool(p["allow_unreviewed_practice"])
@@ -228,6 +237,75 @@ def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, l
     return 0
 
 
+def _shutdown(mic, sink, conn, db) -> None:
+    if mic:
+        mic.close()
+    if hasattr(sink, "close"):
+        sink.close()
+    if db is None:
+        conn.close()
+
+
+def _asker(a, q, mic, stt, ep, svc, speak, out):
+    """Pobiera odpowiedź ucznia (tekst/głos) jako `lesson.Answer`; None = koniec. Wspólne dla lekcji i dopasowania."""
+    from tutor.app import lesson as L
+    from tutor.app import lesson_voice as LV
+
+    def ask(item, i):
+        while True:
+            try:
+                text, _, mode, low = _listen(a, q, mic, stt, ep, out, svc.begin_activity if svc else (lambda: None),
+                                             svc.tutor_done if svc else (lambda: None))
+            finally:
+                if svc:
+                    svc.tutor_done()
+            if text is None:
+                return None
+            if text:
+                return L.Answer(text, mode, low)
+            if mode == "voice" and speak:
+                speak(LV.silence())
+    return ask
+
+
+def _placement_phase(a, repo, p, llm, tts, sink, mic, stt, lines, out) -> bool:
+    """Dopasowanie poziomu. True = ukończone; False = przerwane (sesja wstrzymana, wznowienie `--placement`)."""
+    from datetime import UTC, datetime
+
+    from tutor.app import placement as PL
+    from tutor.pedagogy import content as C
+    pack = C.load(p["target_lang"])
+    cur = repo.find_open_session(p["id"])
+    if cur and cur["kind"] == "placement":
+        sid = cur["id"]
+        repo.resume_session(p["id"], sid)
+        out(f"Wznawiam dopasowanie (sesja #{sid}).")
+    else:
+        if cur:
+            repo.pause_session(p["id"], cur["id"])
+        sid = repo.start_session(p["id"], "placement")
+    q = lines or _lines()
+    tutor = VoiceTutor(repo, p["id"], sid, llm, tts, sink)
+    speak = None if a.no_audio else _speaker(tutor, q, mic, None, out)
+    out("Wstępne dopasowanie: kilka krótkich pytań o gramatykę i słownictwo (q = przerwij i wznów później). "
+        "To nie jest diagnoza CEFR; niepewne rozpoznanie mowy nie obniża wyniku.")
+    if speak:
+        speak("Let's start with a few short questions. Please answer in whole sentences.")
+    ask = _asker(a, q, mic, stt, A.Endpointer(), None, speak, out)
+    try:
+        rep = PL.run(repo, pack, p["id"], sid, ask, out, now=datetime.now(UTC), speak=speak,
+                     allow_unreviewed=bool(p["allow_unreviewed_practice"]), mode="voice" if mic else "text")
+    except KeyboardInterrupt:
+        repo.pause_session(p["id"], sid)
+        return False
+    if rep.quit:
+        repo.pause_session(p["id"], sid)
+        out("Dopasowanie przerwane — wznowisz je poleceniem `--placement`.")
+        return False
+    repo.end_session(p["id"], sid)
+    return True
+
+
 def _eval_service(repo, conn, p, sid, eval_llm, build_eval, out, goals=None, pack=None):
     """SessionService z kolejką oceny na modelu `evaluation`; None = tury tylko zapisujemy (ocena po wznowieniu)."""
     if build_eval:
@@ -301,25 +379,16 @@ def _lesson(L, repo, pack, p, sid, sk, items, svc, a, q, mic, stt, ep, out, spea
     else:
         say(LV.welcome_back())
 
-    def ask(item, i):
-        while True:
-            try:
-                text, _, mode, low = _listen(a, q, mic, stt, ep, out, svc.begin_activity if svc else (lambda: None),
-                                             svc.tutor_done if svc else (lambda: None))
-            finally:
-                if svc:
-                    svc.tutor_done()
-            if text is None:
-                return None
-            if text:
-                return L.Answer(text, mode, low)
-            if mode == "voice" and speak:
-                speak(LV.silence())
+    ask = _asker(a, q, mic, stt, ep, svc, speak, out)
 
     res = L.run_exercises(repo, pack, p["id"], sid, sk, items, ask, out, now=datetime.now(UTC), speak=speak)
     if res.quit:
         out("Lekcja przerwana — wznowisz ją przy następnym uruchomieniu z tym samym `--lesson`.")
         return False
+    if res.moved_on and res.declared_easy:      # „to łatwe”: zmiana celu na następnej lekcji, bez mastery
+        repo.set_session_plan(p["id"], sid, {**repo.get_session_plan(p["id"], sid), "declared_easy": True})
+        out("Zapisano, że ten cel wydaje Ci się łatwy — następna lekcja dobierze inny cel. To nie jest potwierdzenie "
+            "opanowania (umiejętność zostaje do sprawdzenia).")
     if res.skipped and not res.moved_on:
         out(L.summary(res))
         out("Lekcja niedokończona — wróć do pominiętych zadań poleceniem `--lesson`.")
