@@ -115,14 +115,17 @@ class Repo:
         return self.conn.execute(
             "INSERT INTO turn(session_id,profile_id,role,text,input_mode,low_prob_json) VALUES (?,?,?,?,?,?)",
             (session_id, profile_id, role, text, input_mode,
-             json.dumps(sorted(low_probs)) if low_probs else None)).lastrowid
+             json.dumps(sorted(low_probs)) if low_probs is not None else None)).lastrowid
 
     def list_pending_turns(self, profile_id: int, session_id: int) -> list[dict]:
-        """Tury ucznia bez wiersza `turn_meta` (nieocenione, niezastosowane, nieporzucone). Porzucone mają wiersz."""
+        """Tury ucznia bez wiersza `turn_meta` (nieocenione, niezastosowane, nieporzucone). Porzucone mają wiersz.
+        Tura głosowa bez zapisanych `low_probs` (brak `transcribe_detailed`) NIE jest oceniana — ocena jak tekstu
+        dawałaby zbyt łagodne kryteria STT."""
         out = []
         for r in self.conn.execute(
                 "SELECT t.id, t.text, t.input_mode, t.low_prob_json FROM turn t WHERE t.profile_id=? AND"
-                " t.session_id=? AND t.role='user' AND NOT EXISTS (SELECT 1 FROM turn_meta m WHERE m.turn_id=t.id)"
+                " t.session_id=? AND t.role='user' AND NOT (t.input_mode='voice' AND t.low_prob_json IS NULL)"
+                " AND NOT EXISTS (SELECT 1 FROM turn_meta m WHERE m.turn_id=t.id)"
                 " ORDER BY t.id", (profile_id, session_id)):
             out.append({"turn_id": r["id"], "text": r["text"], "input_mode": r["input_mode"],
                         "low_probs": json.loads(r["low_prob_json"]) if r["low_prob_json"] else []})

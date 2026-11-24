@@ -51,7 +51,7 @@ class VoiceTutor:
         res = TurnResult(user_text)
         ctx = build_context(self.repo, self.pid, self.sid, self.system, user_text,
                             context_window=self.window, reserve_out=self.max_tokens)
-        self.repo.add_turn(self.pid, self.sid, "user", user_text)
+        self.repo.add_turn(self.pid, self.sid, "user", user_text, input_mode="voice")
         tok = self._tok = CancelToken()
         tok.on_cancel(self.sink.stop)
         sents: queue.Queue = queue.Queue()
