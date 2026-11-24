@@ -43,6 +43,7 @@ def parse(argv: list[str]) -> argparse.Namespace:
     ap.add_argument("--placement", action="store_true",
                     help="wstępne dopasowanie poziomu (gramatyka, słownictwo; głosem lub tekstem), potem koniec")
     ap.add_argument("--review", action="store_true", help="powtórki zaległych umiejętności (FSRS), potem koniec")
+    ap.add_argument("--progress", action="store_true", help="pokaż postęp z zapisanych dowodów i zakończ")
     ap.add_argument("--no-placement", action="store_true", help="bez automatycznego dopasowania przy pierwszej lekcji")
     ap.add_argument("--no-audio", action="store_true", help="bez mikrofonu i głośnika (tekst -> tekst)")
     ap.add_argument("--list-devices", action="store_true")
@@ -71,6 +72,16 @@ def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, l
     if p is None:
         print("Brak profilu. Utwórz: python main.py profile create NAZWA", file=sys.stderr)
         return 1
+    if a.progress:
+        from datetime import UTC, datetime
+
+        from tutor.app import progress as PG
+        from tutor.pedagogy import content as C
+        for ln in PG.render(PG.build(repo, C.load(p["target_lang"]), p["id"], datetime.now(UTC))):
+            out(ln)
+        if db is None:
+            conn.close()
+        return 0
     build_eval = llm is None and eval_llm is None     # produkcja: modele z config.toml; wstrzyknięte `llm` = bez oceny
     if llm is None:
         llm = build_provider("conversation")
