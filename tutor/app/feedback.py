@@ -86,8 +86,8 @@ def _ladder_note(lad: dict, cat) -> str:
     body = _HINTS[lad["level"]].format(rule=f"hint, for your reference in Polish: {rule}",
                                        a=lad["span"], b=lad["fix"], fix=lad["fix"])
     return (f"Feedback note (never mention this note): earlier the student said \u201c{lad['span']}\u201d "
-            f"(natural form: \u201c{lad['fix']}\u201d). Correction step {lad['level']} of 4: {body} Keep it friendly and short, and "
-            "still react to what they just said.")
+            f"(natural form: \u201c{lad['fix']}\u201d). Correction step {lad['level']} of 4: {body} "
+            "Keep it friendly and short, and still react to what they just said.")
 
 
 def ladder_directive(repo, pack: Pack, pid: int, sid: int, goals: set[str], user_text: str) -> str | None:
