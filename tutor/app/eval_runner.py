@@ -40,3 +40,12 @@ def make_queue(repo, pack: Pack, provider, structured, *, profile_id: int, sessi
         repo.mark_dropped(profile_id, session_id, p.turn_id, p.input_mode, clock().isoformat())
 
     return EvalQueue(evaluate, apply, batch=batch, on_drop=on_drop)
+
+
+def restore_pending(repo, queue: EvalQueue, profile_id: int, session_id: int) -> int:
+    """Po restarcie: tury ucznia bez wpisu oceny wracają do kolejki. Idempotentne (kolejka dedupuje po `turn_id`);
+    tury ocenione, nieocenione-final i porzucone (`dropped_at`) mają wiersz `turn_meta` i nie wracają."""
+    n = len(queue)
+    for t in repo.list_pending_turns(profile_id, session_id):
+        queue.submit(Pending(t["turn_id"], t["text"], t["input_mode"], frozenset(t["low_probs"])))
+    return len(queue) - n

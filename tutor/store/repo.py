@@ -83,17 +83,50 @@ class Repo:
 
     def end_session(self, profile_id: int, session_id: int) -> None:
         self.conn.execute(
-            "UPDATE session SET ended_at=strftime('%Y-%m-%dT%H:%M:%fZ','now')"
-            " WHERE id=? AND profile_id=?", (session_id, profile_id))
+            "UPDATE session SET ended_at=strftime('%Y-%m-%dT%H:%M:%fZ','now'), status='ended'"
+            " WHERE id=? AND profile_id=? AND status!='ended'", (session_id, profile_id))
+
+    def get_session(self, profile_id: int, session_id: int) -> dict | None:
+        r = self.conn.execute("SELECT * FROM session WHERE id=? AND profile_id=?", (session_id, profile_id)).fetchone()
+        return dict(r) if r else None
+
+    def _set_status(self, profile_id: int, session_id: int, frm: str, to: str) -> bool:
+        return self.conn.execute("UPDATE session SET status=? WHERE id=? AND profile_id=? AND status=?",
+                                 (to, session_id, profile_id, frm)).rowcount == 1
+
+    def pause_session(self, profile_id: int, session_id: int) -> bool:
+        return self._set_status(profile_id, session_id, "active", "paused")
+
+    def resume_session(self, profile_id: int, session_id: int) -> bool:
+        """Zakończona sesja nie wraca (False)."""
+        return self._set_status(profile_id, session_id, "paused", "active")
+
+    def find_open_session(self, profile_id: int) -> dict | None:
+        r = self.conn.execute("SELECT * FROM session WHERE profile_id=? AND status!='ended' ORDER BY id DESC LIMIT 1",
+                              (profile_id,)).fetchone()
+        return dict(r) if r else None
 
     def list_sessions(self, profile_id: int) -> list[dict]:
         return _rows(self.conn.execute(
             "SELECT * FROM session WHERE profile_id=? ORDER BY id", (profile_id,)))
 
-    def add_turn(self, profile_id: int, session_id: int, role: str, text: str) -> int:
+    def add_turn(self, profile_id: int, session_id: int, role: str, text: str, *, input_mode: str = "text",
+                 low_probs: list[str] | None = None) -> int:
         return self.conn.execute(
-            "INSERT INTO turn(session_id,profile_id,role,text) VALUES (?,?,?,?)",
-            (session_id, profile_id, role, text)).lastrowid
+            "INSERT INTO turn(session_id,profile_id,role,text,input_mode,low_prob_json) VALUES (?,?,?,?,?,?)",
+            (session_id, profile_id, role, text, input_mode,
+             json.dumps(sorted(low_probs)) if low_probs else None)).lastrowid
+
+    def list_pending_turns(self, profile_id: int, session_id: int) -> list[dict]:
+        """Tury ucznia bez wiersza `turn_meta` (nieocenione, niezastosowane, nieporzucone). Porzucone mają wiersz."""
+        out = []
+        for r in self.conn.execute(
+                "SELECT t.id, t.text, t.input_mode, t.low_prob_json FROM turn t WHERE t.profile_id=? AND"
+                " t.session_id=? AND t.role='user' AND NOT EXISTS (SELECT 1 FROM turn_meta m WHERE m.turn_id=t.id)"
+                " ORDER BY t.id", (profile_id, session_id)):
+            out.append({"turn_id": r["id"], "text": r["text"], "input_mode": r["input_mode"],
+                        "low_probs": json.loads(r["low_prob_json"]) if r["low_prob_json"] else []})
+        return out
 
     def list_turns(self, profile_id: int, session_id: int) -> list[dict]:
         return _rows(self.conn.execute(
