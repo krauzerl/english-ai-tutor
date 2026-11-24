@@ -278,12 +278,14 @@ def apply_item_attempt(repo: Repo, pack: Pack, profile_id: int, session_id: int 
                        skill_id: str, correct: bool, *, source: str, dedupe_key: str, now: datetime,
                        response: str | None = None, hint_level: int = 0, elapsed_ms: int | None = None,
                        n_options: int | None = None, bkt: str = "production", delay_days: int | None = None,
-                       theta: float | None = None, agv: dict | None = None, allow_mastery: bool = True) -> dict:
+                       theta: float | None = None, agv: dict | None = None, allow_mastery: bool = True,
+                       extra: dict | None = None) -> dict:
     """Próba zadania z banku (diagnoza/ćwiczenie/naprawa/test trwałości). `dedupe_key` obowiązkowy:
     to ten sam klucz, który powtórzone wywołanie wyśle drugi raz ⇒ drugi raz nic nie zmienia."""
     with repo.transaction():
         fb = {"bkt": bkt, "n_options": n_options, "item_id": item_id, **({"agv": agv} if agv else {}),
-              **({} if allow_mastery else {"no_mastery": True})}   # dowód ćwiczeniowy: liczy się do p, nie do statusu
+              **({} if allow_mastery else {"no_mastery": True}),     # dowód ćwiczeniowy: do p, nie do statusu
+              **(extra or {})}
         if delay_days is not None:
             fb["delay_days"] = delay_days
         aid = repo.add_attempt(profile_id, skill_id, correct, session_id=session_id, item_id=item_id,

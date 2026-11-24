@@ -42,6 +42,7 @@ def parse(argv: list[str]) -> argparse.Namespace:
                     help="na końcu rozmowy czekaj do S sekund na ocenę ostatnich wypowiedzi (podsumowanie korekt)")
     ap.add_argument("--placement", action="store_true",
                     help="wstępne dopasowanie poziomu (gramatyka, słownictwo; głosem lub tekstem), potem koniec")
+    ap.add_argument("--review", action="store_true", help="powtórki zaległych umiejętności (FSRS), potem koniec")
     ap.add_argument("--no-placement", action="store_true", help="bez automatycznego dopasowania przy pierwszej lekcji")
     ap.add_argument("--no-audio", action="store_true", help="bez mikrofonu i głośnika (tekst -> tekst)")
     ap.add_argument("--list-devices", action="store_true")
@@ -104,6 +105,10 @@ def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, l
         if not done or a.placement:
             _shutdown(mic, sink, conn, db)
             return 0
+    if a.review:
+        _review_phase(a, repo, p, llm, tts, sink, mic, stt, lines, out)
+        _shutdown(mic, sink, conn, db)
+        return 0
     lesson_pack = skill = items = choice = None
     kind = "voice"
     allow = bool(p["allow_unreviewed_practice"])
@@ -304,6 +309,39 @@ def _placement_phase(a, repo, p, llm, tts, sink, mic, stt, lines, out) -> bool:
         return False
     repo.end_session(p["id"], sid)
     return True
+
+
+def _review_phase(a, repo, p, llm, tts, sink, mic, stt, lines, out) -> None:
+    from datetime import UTC, datetime
+
+    from tutor.app import review as RV
+    from tutor.pedagogy import content as C
+    pack = C.load(p["target_lang"])
+    cur = repo.find_open_session(p["id"])
+    if cur and cur["kind"] == "review":
+        sid = cur["id"]
+        repo.resume_session(p["id"], sid)
+        out(f"Wznawiam powtórki (sesja #{sid}).")
+    else:
+        if cur:
+            repo.pause_session(p["id"], cur["id"])
+        sid = repo.start_session(p["id"], "review")
+    q = lines or _lines()
+    speak = None if a.no_audio else _speaker(VoiceTutor(repo, p["id"], sid, llm, tts, sink), q, mic, None, out)
+    ask = _asker(a, q, mic, stt, A.Endpointer(), None, speak, out)
+    try:
+        res = RV.run(repo, pack, p["id"], sid, ask, out, now=datetime.now(UTC), speak=speak,
+                     allow=bool(p["allow_unreviewed_practice"]))
+    except KeyboardInterrupt:
+        repo.pause_session(p["id"], sid)
+        return
+    if res.nothing_due:
+        out("Brak zaległych powtórek na dziś.")
+    if res.quit:
+        repo.pause_session(p["id"], sid)
+        out("Powtórki przerwane — wznowisz je poleceniem `--review`.")
+    else:
+        repo.end_session(p["id"], sid)
 
 
 def _eval_service(repo, conn, p, sid, eval_llm, build_eval, out, goals=None, pack=None):
