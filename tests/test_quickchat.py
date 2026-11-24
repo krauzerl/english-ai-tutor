@@ -152,3 +152,12 @@ def test_settings_isolated_per_profile(repo):
     a, b = repo.create_profile("a"), repo.create_profile("b")
     ST.update(repo, a, {"speed": 0.8})
     assert ST.effective(repo, b)["speed"] == 1.0
+
+
+def test_change_topic_instruction_applies_to_one_reply_only(env):
+    conv = FakeProvider(chunks=["Ok. "])
+    env.go(Gated({}, "hi", "can we change the topic please", "and now?", "q"), ["--no-audio", "--chat", "fd.favorite"],
+           llm=conv, ev=EvalProv())
+    plan = env.repo.get_session_plan(env.pid, env.repo.list_sessions(env.pid)[0]["id"])
+    q = plan["topic"]["q"]
+    assert q in conv.calls[1][0].content and q not in conv.calls[2][0].content and q not in conv.calls[0][0].content

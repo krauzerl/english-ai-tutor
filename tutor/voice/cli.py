@@ -244,6 +244,7 @@ def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, l
                     speak(QC.opener(chat_topic))
         if a.lesson:
             proceed = _lesson(L, repo, lesson_pack, p, sid, skill, items, svc, a, q, mic, stt, ep, out, speak)
+        switched = None
         while proceed:
             if a.chat and QC.time_up(repo, p["id"], sid, datetime.now(UTC)):
                 out("Czas rozmowy minął — kończymy.")
@@ -262,7 +263,9 @@ def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, l
                 if a.chat and INTENT.detect(text) == "skip":          # „zmień temat”: nowy temat z generatora
                     nxt = T.suggest(repo, p["id"], 1, exclude={t["id"] for t in repo.get_session_plan(
                         p["id"], sid).get("topics", []) if t.get("id")})[0]
-                    tutor.system = QC.switch(repo, p["id"], sid, nxt)
+                    base = QC.switch(repo, p["id"], sid, nxt)
+                    tutor.system = base + QC.switch_note(nxt)       # tylko na tę jedną odpowiedź
+                    switched = base
                     out(f"[nowy temat: {nxt['pl']}]")
                 speaking = threading.Event()
                 watcher = threading.Thread(target=_cancel_on_enter, args=(q, tutor, speaking), daemon=True)
@@ -275,6 +278,8 @@ def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, l
                 except Exception as e:  # noqa: BLE001 - błąd odpowiedzi nie kończy rozmowy ani nie blokuje oceny
                     out(f"[błąd tutora: {e}]")
                     r = None
+                if switched:
+                    tutor.system, switched = switched, None
                 speaking.clear()
                 watcher.join(timeout=0.3)
                 if mic:

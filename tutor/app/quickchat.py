@@ -24,6 +24,11 @@ def system_prompt(topic: dict) -> str:
             "Stay on this topic unless the student changes it; the student leads, you follow with interest.")
 
 
+def switch_note(topic: dict) -> str:
+    return (f" The student asked to change the topic. In this reply, agree in a few words and then ask exactly this "
+            f"question: \u201c{topic['q']}\u201d")
+
+
 def opener(topic: dict) -> str:
     return topic["q"]
 

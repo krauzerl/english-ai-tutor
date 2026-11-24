@@ -208,3 +208,19 @@ and keep their own licences.
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md). Report vulnerabilities as described in [SECURITY.md](SECURITY.md).
+
+## Polecenia nauczyciela (CLI, lokalnie)
+
+```bash
+python main.py --voice --chat                      # Quick Chat: wybór tematu (numer, r = losuj, własny tekst)
+python main.py --voice --chat fd.cooking --minutes 10
+python main.py --voice --lesson                    # lekcja dobrana z danych ucznia (diagnoza nie jest wymagana)
+python main.py --voice --lesson en.gram.to_be_present
+python main.py --voice --placement                 # dobrowolne określanie poziomu (wynik wstępny)
+python main.py --voice --review                    # powtórki FSRS
+python main.py --voice --weakspots                 # dziennik słabych stron;  --drill NUMER ćwiczy wybrany wpis
+python main.py --voice --exam                      # ścieżki egzaminacyjne i gotowość;  --exam e8_english = ćwiczenia
+python main.py --voice --progress | --history | --achievements
+python main.py --voice --set speed=1.1 --set correction=periodic    # ustawienia profilu (--set ? = lista)
+```
+Dodaj `--no-audio`, by pracować tylko tekstem. Wyniki to szacunki z zapisanych dowodów, nie oficjalne oceny.
