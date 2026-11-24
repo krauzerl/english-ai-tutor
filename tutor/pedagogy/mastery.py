@@ -83,6 +83,7 @@ def update_status(st: SkillState, p: float, attempts: list[dict], area: str, rub
         return replace(st, p=p, attempts=n)
     receptive = area in m["receptive_areas"]
     days = {a["day"] for a in attempts if a["correct"] and a.get("hint_level", 0) == 0
+            and not a.get("no_mastery")                    # próby ćwiczeniowe / niepewne STT nie dają statusu
             and (receptive or a["bkt"] in PRODUCTIVE_SRC)}
     if p >= m["p_master"] and len(days) >= m["min_days"]:
         return replace(st, p=p, attempts=n, status="mastered", mastered_at=_iso(now),
