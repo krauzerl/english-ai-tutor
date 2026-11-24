@@ -41,6 +41,17 @@ def test_stt_roundtrip_on_synthetic_speech():
     assert "london" in text.lower() and "museum" in text.lower()
 
 
+def test_stt_detailed_gives_real_word_probabilities():
+    need("piper/en_US-lessac-medium.onnx")
+    from tutor.voice.stt import WhisperSTT
+    t = build_tts("piper", "en_US-lessac-medium")
+    audio = to16k(t.synth(TEXT), t.sample_rate)
+    tr = WhisperSTT("small.en").transcribe_detailed(audio)
+    assert "london" in tr.text.lower()
+    assert isinstance(tr.low_probs, list)          # [] lub słowa: Whisper podał pewność (nie None)
+    assert all(w == w.lower() for w in tr.low_probs)
+
+
 def test_stt_silence_and_noise_give_empty_text():
     from tutor.voice.stt import WhisperSTT
     stt = WhisperSTT("small.en")

@@ -12,7 +12,8 @@ from tutor.llm import build_provider, context_window
 from tutor.store.db import open_db
 from tutor.store.repo import Repo
 from tutor.voice import audio as A
-from tutor.voice.conversation import SPEAK_TAIL_S, VoiceTutor
+from tutor.voice.conversation import SPEAK_TAIL_S, SYSTEM_PROMPT, VoiceTutor
+from tutor.voice.text import clean_for_speech
 
 HELP = ("[Enter] nagrywaj/zatrzymaj nagrywanie · [Enter] w trakcie mowy tutora = przerwij · "
         "wpisz tekst + Enter = wyślij tekstowo · q = wyjście")
@@ -32,6 +33,13 @@ def parse(argv: list[str]) -> argparse.Namespace:
     ap.add_argument("--input-device", default=v.get("input_device"))
     ap.add_argument("--output-device", default=v.get("output_device"))
     ap.add_argument("--profile", help="nazwa lub id profilu (domyślnie ostatnio wybrany)")
+    ap.add_argument("--lesson", nargs="?", const="default", metavar="SKILL",
+                    help="lekcja (wyjaśnienie, ćwiczenia, rozmowa). Bez SKILL: tutor dobiera cel z danych ucznia "
+                         "lub wznawia rozpoczętą lekcję")
+    ap.add_argument("--correction", choices=["summary", "periodic", "intensive"], default=None,
+                    help="styl korekt w tej sesji (domyślnie ze stylu profilu; summary = tylko podsumowanie na końcu)")
+    ap.add_argument("--summary-wait", type=float, default=8.0, metavar="S",
+                    help="na końcu rozmowy czekaj do S sekund na ocenę ostatnich wypowiedzi (podsumowanie korekt)")
     ap.add_argument("--no-audio", action="store_true", help="bez mikrofonu i głośnika (tekst -> tekst)")
     ap.add_argument("--list-devices", action="store_true")
     return ap.parse_args(argv)
@@ -44,7 +52,7 @@ def _lines() -> queue.Queue:
 
 
 def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, lines=None,
-        out=print, db=None) -> int:
+        out=print, db=None, eval_llm=None) -> int:
     a = parse(argv)
     if a.list_devices:
         try:
@@ -59,6 +67,7 @@ def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, l
     if p is None:
         print("Brak profilu. Utwórz: python main.py profile create NAZWA", file=sys.stderr)
         return 1
+    build_eval = llm is None and eval_llm is None     # produkcja: modele z config.toml; wstrzyknięte `llm` = bez oceny
     if llm is None:
         llm = build_provider("conversation")
     if llm.external:
@@ -86,40 +95,130 @@ def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, l
         from tutor.voice.tts import build_tts
         tts = build_tts(a.tts, a.tts_voice, a.speed)
 
-    sid = repo.start_session(p["id"], "voice")
-    tutor = VoiceTutor(repo, p["id"], sid, llm, tts, sink, context_window=cw, echo=lambda s: out(f"Tutor: {s}"))
+    lesson_pack = skill = items = choice = None
+    kind = "voice"
+    allow = bool(p["allow_unreviewed_practice"])
+    cur = repo.find_open_session(p["id"])
+    if a.lesson:
+        from datetime import UTC, datetime
+
+        from tutor.app import goal as G
+        from tutor.app import lesson as L
+        from tutor.pedagogy import content as C
+        lesson_pack = C.load(p["target_lang"])
+        open_plan = repo.get_session_plan(p["id"], cur["id"]) if cur and cur["kind"] == "lesson" else {}
+        if a.lesson != "default":                      # ręczny cel: `--lesson SKILL_ID`
+            goal = a.lesson
+            choice = {"source": "manual", "reason": "Cel wskazany ręcznie (--lesson).", "provisional": False}
+        elif open_plan.get("lesson"):                  # wznowienie rozpoczętej lekcji: ten sam cel
+            goal = open_plan["lesson"]
+        else:                                          # automatyczny wybór z danych ucznia
+            ch = G.choose(repo, lesson_pack, p["id"], datetime.now(UTC))
+            if ch is None:
+                print("Brak celu lekcji z dostępnymi materiałami (wyjaśnienie i zadania).", file=sys.stderr)
+                return 1
+            goal, choice = ch.skill_id, {"source": ch.source, "reason": ch.reason, "provisional": ch.provisional}
+        try:
+            L.prepare(lesson_pack, goal, allow_unreviewed=allow)
+        except L.LessonError as e:
+            print(e, file=sys.stderr)
+            return 1
+        kind = "lesson"
+    if cur and cur["kind"] == kind and (not a.lesson or
+                                        repo.get_session_plan(p["id"], cur["id"]).get("lesson") == goal):
+        sid = cur["id"]                                # niezakończona sesja (Ctrl+C / awaria): wznów, bez duplikatów
+        repo.resume_session(p["id"], sid)
+        out(f"Wznawiam sesję #{sid}.")
+    else:
+        if cur:
+            repo.pause_session(p["id"], cur["id"])     # inna otwarta sesja zostaje wznawialna
+        sid = repo.start_session(p["id"], kind)
+    goals = {}
+    system = SYSTEM_PROMPT
+    if a.lesson:
+        skill, items = L.begin(repo, lesson_pack, p["id"], sid, goal, choice, allow)
+        goals = {skill.id: skill.can_do_pl}            # cel lekcji trafia do oceny wypowiedzi
+        system += L.system_focus(lesson_pack, skill)
+    conv_pack = lesson_pack
+    if conv_pack is None and (build_eval or eval_llm is not None):
+        from tutor.pedagogy import content as C
+        conv_pack = C.load(p["target_lang"])
+    svc = _eval_service(repo, conn, p, sid, eval_llm, build_eval, out, goals, conv_pack)
+    feedback = None
+    if svc and conv_pack:
+        from tutor.app import feedback as FB
+        from tutor.pedagogy.correction import effective_style
+        style = a.correction or effective_style(p["correction_style"], conv_pack.rubric)["style"]
+        feedback = lambda: FB.recast_directive(repo, conv_pack, p["id"], sid, style, set(goals))  # noqa: E731
+    tutor = VoiceTutor(repo, p["id"], sid, llm, tts, sink, system=system, context_window=cw,
+                       echo=lambda s: out(f"Tutor: {s}"), record_user_turn=svc.user_turn if svc else None,
+                       feedback=feedback)
     q = lines or _lines()
+    speak = None if a.no_audio else _speaker(tutor, q, mic, svc, out)       # lekcja głosowa; --no-audio = sam tekst
     out(f"Profil: {p['name']} · LLM: {llm.model} · TTS: {tts.name}/{tts.voice} · tryb: {a.mode if mic else 'tekst'}")
     out(HELP)
     ep = A.Endpointer()
+    clean = False
+    proceed = True
     try:
-        while True:
-            text, t_end = _listen(a, q, mic, stt, ep, out)
-            if text is None:
-                break
-            if not text:
-                continue
-            out(f"You: {text}")
-            speaking = threading.Event()
-            watcher = threading.Thread(target=_cancel_on_enter, args=(q, tutor, speaking), daemon=True)
-            speaking.set()
-            watcher.start()
-            if mic:
-                mic.mute(3600)  # half-duplex: nie transkrybuj własnego głosu tutora
-            r = tutor.respond(text, t_end)
-            speaking.clear()
-            watcher.join(timeout=0.3)
-            if mic:
-                mic.mute(SPEAK_TAIL_S)
-            if r.error:
-                out(f"[{r.error}]")
-            m = r.m
-            out(f"  ({'przerwano · ' if r.cancelled else ''}start mowy {m.get('first_audio', '-')} s, "
-                f"1. token {m.get('llm_first_token', '-')} s)")
+        if a.lesson:
+            proceed = _lesson(L, repo, lesson_pack, p, sid, skill, items, svc, a, q, mic, stt, ep, out, speak)
+        while proceed:
+            try:
+                text, t_end, mode, low = _listen(a, q, mic, stt, ep, out,
+                                                 svc.begin_activity if svc else (lambda: None),
+                                                 svc.tutor_done if svc else (lambda: None))
+                if text is None:
+                    break
+                if not text:
+                    continue
+                out(f"You: {text}")
+                speaking = threading.Event()
+                watcher = threading.Thread(target=_cancel_on_enter, args=(q, tutor, speaking), daemon=True)
+                speaking.set()
+                watcher.start()
+                if mic:
+                    mic.mute(3600)  # half-duplex: nie transkrybuj własnego głosu tutora
+                try:
+                    r = tutor.respond(text, t_end, input_mode=mode, low_probs=low)
+                except Exception as e:  # noqa: BLE001 - błąd odpowiedzi nie kończy rozmowy ani nie blokuje oceny
+                    out(f"[błąd tutora: {e}]")
+                    r = None
+                speaking.clear()
+                watcher.join(timeout=0.3)
+                if mic:
+                    mic.mute(SPEAK_TAIL_S)
+                if r is None:
+                    continue
+                if r.error:
+                    out(f"[{r.error}]")
+                m = r.m
+                out(f"  ({'przerwano · ' if r.cancelled else ''}start mowy {m.get('first_audio', '-')} s, "
+                    f"1. token {m.get('llm_first_token', '-')} s)")
+            finally:
+                if svc:
+                    svc.tutor_done()     # każdy cykl (też przerwany: STT, TTS, Ctrl+C) zwalnia ocenianie
+        if proceed and svc and conv_pack:
+            if a.summary_wait and svc.pending:             # ograniczone czekanie na ocenę ostatnich wypowiedzi
+                svc.wait_idle(a.summary_wait)
+            from tutor.app import feedback as FB
+            notes = FB.summary_lines(repo, conv_pack, p["id"], sid)
+            for ln in notes:
+                out(ln)
+            if speak and a.lesson:
+                from tutor.app import lesson_voice as LV
+                speak(LV.farewell(bool(notes)))
+        clean = proceed                               # `q` w trakcie ćwiczeń = pauza (lekcję można wznowić)
     except KeyboardInterrupt:
         pass
     finally:
-        repo.end_session(p["id"], sid)
+        if svc:
+            svc.close()
+            _report(svc, out)
+        if clean and not (svc and svc.pending):
+            repo.end_session(p["id"], sid)
+        else:
+            repo.pause_session(p["id"], sid)           # Ctrl+C / wyjątek / nieocenione tury: sesję można wznowić
         if mic:
             mic.close()
         if hasattr(sink, "close"):
@@ -127,6 +226,122 @@ def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, l
         if db is None:
             conn.close()
     return 0
+
+
+def _eval_service(repo, conn, p, sid, eval_llm, build_eval, out, goals=None, pack=None):
+    """SessionService z kolejką oceny na modelu `evaluation`; None = tury tylko zapisujemy (ocena po wznowieniu)."""
+    if build_eval:
+        eval_llm = build_provider("evaluation")
+    if eval_llm is None:
+        return None
+    if eval_llm.external or not eval_llm.health():
+        out("[ocena wyłączona: model oceny niedostępny lokalnie; wypowiedzi zostaną ocenione później]")
+        return None
+    from tutor.app.eval_runner import make_queue
+    from tutor.app.session_service import SessionService
+    from tutor.llm.structured import structured
+    from tutor.pedagogy import content as C
+    pack = pack or C.load(p["target_lang"])
+    path = conn.execute("PRAGMA database_list").fetchone()[2]
+    svc = SessionService(
+        repo, lambda: Repo(open_db(path)),
+        lambda wrepo: make_queue(wrepo, pack, eval_llm, structured, profile_id=p["id"], session_id=sid,
+                                goals=goals or {}),
+        p["id"], sid)
+    n = svc.start()
+    if n:
+        out(f"[do oceny z poprzedniej sesji: {n}]")
+    return svc
+
+
+def _speaker(tutor, q, mic, svc, out):
+    """Bezpieczne mówienie gotowych komunikatów: mikrofon wyciszony, Enter przerywa, ocena w tle wstrzymana,
+    błąd TTS = jedna informacja i dalej sam tekst."""
+    state = {"on": True}
+
+    def speak(text: str) -> None:
+        text = clean_for_speech(text)
+        if not state["on"] or not text:
+            return
+        if svc:
+            svc.begin_activity()
+        speaking = threading.Event()
+        speaking.set()
+        watcher = threading.Thread(target=_cancel_on_enter, args=(q, tutor, speaking), daemon=True)
+        watcher.start()
+        if mic:
+            mic.mute(3600)
+        try:
+            tutor.say(text)
+            if tutor.last_error:
+                out(f"[błąd TTS: {tutor.last_error} — dalej bez głosu]")
+                state["on"] = False
+        finally:
+            speaking.clear()
+            watcher.join(timeout=0.3)
+            if mic:
+                mic.mute(SPEAK_TAIL_S)
+            if svc:
+                svc.tutor_done()
+    return speak
+
+
+def _lesson(L, repo, pack, p, sid, sk, items, svc, a, q, mic, stt, ep, out, speak=None) -> bool:
+    """Wyjaśnienie + ćwiczenia (odpowiedzi tekstem lub głosem). True = idziemy do rozmowy; False = uczeń przerwał."""
+    from datetime import UTC, datetime
+
+    from tutor.app import lesson_voice as LV
+    say = speak or (lambda _t: None)
+    plan = repo.get_session_plan(p["id"], sid)
+    if not plan.get("done"):
+        out(L.intro(pack, sk, plan.get("choice")))
+        say(LV.greeting(sk))
+        for part in LV.explanation(pack, sk):
+            say(part)
+    else:
+        say(LV.welcome_back())
+
+    def ask(item, i):
+        while True:
+            try:
+                text, _, mode, low = _listen(a, q, mic, stt, ep, out, svc.begin_activity if svc else (lambda: None),
+                                             svc.tutor_done if svc else (lambda: None))
+            finally:
+                if svc:
+                    svc.tutor_done()
+            if text is None:
+                return None
+            if text:
+                return L.Answer(text, mode, low)
+            if mode == "voice" and speak:
+                speak(LV.silence())
+
+    res = L.run_exercises(repo, pack, p["id"], sid, sk, items, ask, out, now=datetime.now(UTC), speak=speak)
+    if res.quit:
+        out("Lekcja przerwana — wznowisz ją przy następnym uruchomieniu z tym samym `--lesson`.")
+        return False
+    if res.skipped and not res.moved_on:
+        out(L.summary(res))
+        out("Lekcja niedokończona — wróć do pominiętych zadań poleceniem `--lesson`.")
+        return False
+    if not plan.get("done") or len(plan["done"]) < len(items):
+        out(L.summary(res))
+        out("\nTeraz krótka rozmowa po angielsku — użyj tego, co ćwiczysz (q = koniec).")
+        say(LV.chat_start(res.correct, res.total))
+        say(LV.CHAT_Q)
+        out(f"Tutor: {LV.CHAT_Q}")
+        repo.add_turn(p["id"], sid, "assistant", LV.CHAT_Q)    # pytanie otwierające jest w historii rozmowy
+    return True
+
+
+def _report(svc, out) -> None:
+    """Błędy i zaległości oceny są widoczne (nie udajemy sukcesu)."""
+    if svc.last_error:
+        out(f"[ocena: błąd zapisu: {svc.last_error}]")
+    if svc.dropped:
+        out(f"[ocena: porzucono {len(svc.dropped)} wypowiedzi po powtórzonych błędach modelu]")
+    if svc.pending:
+        out(f"[ocena: {svc.pending} wypowiedzi oczekuje na ocenę — zostaną ocenione po wznowieniu]")
 
 
 def _cancel_on_enter(q, tutor, speaking: threading.Event) -> None:
@@ -139,14 +354,20 @@ def _cancel_on_enter(q, tutor, speaking: threading.Event) -> None:
         time.sleep(0.05)
 
 
-def _listen(a, q, mic, stt, ep, out) -> tuple[str | None, float]:
+def _listen(a, q, mic, stt, ep, out, begin=lambda: None,
+            end=lambda: None) -> tuple[str | None, float, str, list[str] | None]:
+    """`begin()` = uczeń zaczyna wypowiedź (nagrywanie/wpisanie linii); `end()` = odrzucony impuls (kliknięcie).
+    Koniec cyklu po rozpoznaniu i odpowiedzi sygnalizuje pętla w `run`."""
     def typed(ln):
-        return (None, 0.0) if ln in (None, "q", "quit") else (ln, time.monotonic())
+        if ln in (None, "q", "quit"):
+            return None, 0.0, "text", None
+        begin()
+        return ln, time.monotonic(), "text", None
 
     if mic is None:
         out("> ")
         ln = q.get()
-        return typed(ln) if ln != "" else ("", 0.0)
+        return typed(ln) if ln != "" else ("", 0.0, "text", None)
     if a.mode == "ptt":
         ln = q.get()
         if ln != "":
@@ -156,13 +377,14 @@ def _listen(a, q, mic, stt, ep, out) -> tuple[str | None, float]:
         res: list = []
         th = threading.Thread(target=lambda: res.append(A.record_manual(mic, stop)), daemon=True)
         mic.mute(0)
+        begin()                                # przed nagrywaniem: ocena nie rusza i trwająca jest anulowana
         th.start()
         ln = q.get()
         stop.set()
         th.join()
         audio = res[0]
         if ln in ("q", "quit"):
-            return None, 0.0
+            return None, 0.0, "text", None
     else:
         out("(słucham… mów; q = wyjście)")
         pending: list = []
@@ -174,14 +396,23 @@ def _listen(a, q, mic, stt, ep, out) -> tuple[str | None, float]:
                 return False
             pending.append(ln)
             return True
-        audio = A.listen_auto(mic, ep, poll=poll)
+        audio = A.listen_auto(mic, ep, poll=poll, on_speech=begin, on_noise=end)
         if audio is None:
             ln = pending[0] if pending else None
-            return typed(ln) if ln != "" else ("", 0.0)
+            return typed(ln) if ln != "" else ("", 0.0, "text", None)
     t_end = time.monotonic()
     t0 = time.monotonic()
-    text = stt.transcribe(audio) if len(audio) else ""
+    text, low = "", None
+    if len(audio):
+        try:                                   # błąd STT nie kończy rozmowy: tura nie powstaje
+            if hasattr(stt, "transcribe_detailed"):
+                tr = stt.transcribe_detailed(audio)
+                text, low = tr.text, tr.low_probs
+            else:
+                text = stt.transcribe(audio)
+        except Exception as e:  # noqa: BLE001
+            out(f"[błąd rozpoznawania mowy: {e}]")
     out(f"  (STT {time.monotonic() - t0:.2f} s, {len(audio) / A.MIC_SR:.1f} s nagrania)")
     if not text:
         out("(nic nie zrozumiałem — spróbuj jeszcze raz)")
-    return text, t_end
+    return text, t_end, "voice", low
