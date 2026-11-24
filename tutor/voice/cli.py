@@ -50,6 +50,9 @@ def parse(argv: list[str]) -> argparse.Namespace:
     ap.add_argument("--chat", nargs="?", const="ask", metavar="TEMAT",
                     help="Quick Chat: swobodna rozmowa bez celu lekcji (bez TEMAT: wybierzesz z propozycji)")
     ap.add_argument("--minutes", type=int, default=None, help="limit czasu Quick Chat w minutach")
+    ap.add_argument("--weakspots", action="store_true", help="dziennik słabych stron i zakończ")
+    ap.add_argument("--drill", metavar="CEL", help="ćwiczenia słabej strony: NUMER z --weakspots, kategoria lub skill")
+    ap.add_argument("--achievements", action="store_true", help="osiągnięcia i zakończ")
     ap.add_argument("--no-placement", action="store_true", help=argparse.SUPPRESS)   # zgodność wsteczna (no-op)
     ap.add_argument("--no-audio", action="store_true", help="bez mikrofonu i głośnika (tekst -> tekst)")
     ap.add_argument("--list-devices", action="store_true")
@@ -83,6 +86,11 @@ def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, l
         from tutor.pedagogy import content as C
         for ln in PG.render(PG.build(repo, C.load(p["target_lang"]), p["id"], datetime.now(UTC))):
             out(ln)
+        if db is None:
+            conn.close()
+        return 0
+    if a.weakspots or a.achievements:
+        _reports(a, repo, p, out)
         if db is None:
             conn.close()
         return 0
@@ -120,7 +128,7 @@ def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, l
         _placement_phase(a, repo, p, llm, tts, sink, mic, stt, lines, out)
         _shutdown(mic, sink, conn, db)
         return 0
-    if a.review:
+    if a.review or a.drill:
         _review_phase(a, repo, p, llm, tts, sink, mic, stt, lines, out)
         _shutdown(mic, sink, conn, db)
         return 0
@@ -381,26 +389,53 @@ def _placement_phase(a, repo, p, llm, tts, sink, mic, stt, lines, out) -> bool:
     return True
 
 
+def _reports(a, repo, p, out) -> None:
+    from tutor.app import achievements as AC
+    from tutor.app import weakspots as WS
+    from tutor.pedagogy import content as C
+    now = datetime.now(UTC)
+    if a.weakspots:
+        for ln in WS.render(WS.build(repo, C.load(p["target_lang"]), p["id"], now)):
+            out(ln)
+    if a.achievements:
+        for n in AC.award(repo, p["id"], now):
+            out(f"★ Nowe osiągnięcie: {n['name']} — {n['description']}")
+        ov = AC.overview(repo, p["id"], now)
+        out(f"Osiągnięcia: {ov['earned']}/{ov['total']} ({ov['note']})")
+        for i in ov["items"]:
+            mark = "✓" if i["earned"] else f"{i['progress']}/{i['target']}"
+            out(f"  [{mark}] {AC.CATEGORIES[i['category']]}: {i['name']}")
+
+
 def _review_phase(a, repo, p, llm, tts, sink, mic, stt, lines, out) -> None:
 
     from tutor.app import review as RV
     from tutor.pedagogy import content as C
     pack = C.load(p["target_lang"])
+    only = None
+    if a.drill:
+        from tutor.app import weakspots as WS
+        rep = WS.build(repo, pack, p["id"], datetime.now(UTC))
+        only = WS.resolve_drill(rep, pack, a.drill, bool(p["allow_unreviewed_practice"]))
+        if not only:
+            out("Brak materiałów do ćwiczeń dla tego celu — wybierz inny wpis z `--weakspots`.")
+            return
+    kind = "drill" if a.drill else "review"
     cur = repo.find_open_session(p["id"])
-    if cur and cur["kind"] == "review":
+    if cur and cur["kind"] == kind:
         sid = cur["id"]
         repo.resume_session(p["id"], sid)
-        out(f"Wznawiam powtórki (sesja #{sid}).")
+        out(f"Wznawiam {'ćwiczenia' if a.drill else 'powtórki'} (sesja #{sid}).")
     else:
         if cur:
             repo.pause_session(p["id"], cur["id"])
-        sid = repo.start_session(p["id"], "review")
+        sid = repo.start_session(p["id"], kind)
     q = lines or _lines()
     speak = None if a.no_audio else _speaker(VoiceTutor(repo, p["id"], sid, llm, tts, sink), q, mic, None, out)
     ask = _asker(a, q, mic, stt, A.Endpointer(), None, speak, out)
     try:
         res = RV.run(repo, pack, p["id"], sid, ask, out, now=datetime.now(UTC), speak=speak,
-                     allow=bool(p["allow_unreviewed_practice"]))
+                     allow=bool(p["allow_unreviewed_practice"]), only=only)
     except KeyboardInterrupt:
         repo.pause_session(p["id"], sid)
         return
