@@ -94,7 +94,7 @@ def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, l
     ep = A.Endpointer()
     try:
         while True:
-            text, t_end = _listen(a, q, mic, stt, ep, out)
+            text, t_end, mode, low = _listen(a, q, mic, stt, ep, out)
             if text is None:
                 break
             if not text:
@@ -106,7 +106,7 @@ def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, l
             watcher.start()
             if mic:
                 mic.mute(3600)  # half-duplex: nie transkrybuj własnego głosu tutora
-            r = tutor.respond(text, t_end)
+            r = tutor.respond(text, t_end, input_mode=mode, low_probs=low)
             speaking.clear()
             watcher.join(timeout=0.3)
             if mic:
@@ -139,14 +139,14 @@ def _cancel_on_enter(q, tutor, speaking: threading.Event) -> None:
         time.sleep(0.05)
 
 
-def _listen(a, q, mic, stt, ep, out) -> tuple[str | None, float]:
+def _listen(a, q, mic, stt, ep, out) -> tuple[str | None, float, str, list[str] | None]:
     def typed(ln):
-        return (None, 0.0) if ln in (None, "q", "quit") else (ln, time.monotonic())
+        return (None, 0.0, "text", None) if ln in (None, "q", "quit") else (ln, time.monotonic(), "text", None)
 
     if mic is None:
         out("> ")
         ln = q.get()
-        return typed(ln) if ln != "" else ("", 0.0)
+        return typed(ln) if ln != "" else ("", 0.0, "text", None)
     if a.mode == "ptt":
         ln = q.get()
         if ln != "":
@@ -162,7 +162,7 @@ def _listen(a, q, mic, stt, ep, out) -> tuple[str | None, float]:
         th.join()
         audio = res[0]
         if ln in ("q", "quit"):
-            return None, 0.0
+            return None, 0.0, "text", None
     else:
         out("(słucham… mów; q = wyjście)")
         pending: list = []
@@ -177,11 +177,20 @@ def _listen(a, q, mic, stt, ep, out) -> tuple[str | None, float]:
         audio = A.listen_auto(mic, ep, poll=poll)
         if audio is None:
             ln = pending[0] if pending else None
-            return typed(ln) if ln != "" else ("", 0.0)
+            return typed(ln) if ln != "" else ("", 0.0, "text", None)
     t_end = time.monotonic()
     t0 = time.monotonic()
-    text = stt.transcribe(audio) if len(audio) else ""
+    text, low = "", None
+    if len(audio):
+        try:                                   # błąd STT nie kończy rozmowy: tura nie powstaje
+            if hasattr(stt, "transcribe_detailed"):
+                tr = stt.transcribe_detailed(audio)
+                text, low = tr.text, tr.low_probs
+            else:
+                text = stt.transcribe(audio)
+        except Exception as e:  # noqa: BLE001
+            out(f"[błąd rozpoznawania mowy: {e}]")
     out(f"  (STT {time.monotonic() - t0:.2f} s, {len(audio) / A.MIC_SR:.1f} s nagrania)")
     if not text:
         out("(nic nie zrozumiałem — spróbuj jeszcze raz)")
-    return text, t_end
+    return text, t_end, "voice", low

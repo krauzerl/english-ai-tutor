@@ -45,13 +45,15 @@ class VoiceTutor:
         if self._tok:
             self._tok.set()
 
-    def respond(self, user_text: str, t_end: float | None = None) -> TurnResult:
+    def respond(self, user_text: str, t_end: float | None = None, *, input_mode: str = "voice",
+                low_probs: list[str] | None = None) -> TurnResult:
+        """`low_probs`: None = brak danych STT (tura głosowa nie będzie oceniana), [] = STT pewny wszystkich słów."""
         user_text = user_text.strip()
         t_end = self.clock() if t_end is None else t_end
         res = TurnResult(user_text)
         ctx = build_context(self.repo, self.pid, self.sid, self.system, user_text,
                             context_window=self.window, reserve_out=self.max_tokens)
-        self.repo.add_turn(self.pid, self.sid, "user", user_text, input_mode="voice")
+        self.repo.add_turn(self.pid, self.sid, "user", user_text, input_mode=input_mode, low_probs=low_probs)
         tok = self._tok = CancelToken()
         tok.on_cancel(self.sink.stop)
         sents: queue.Queue = queue.Queue()
