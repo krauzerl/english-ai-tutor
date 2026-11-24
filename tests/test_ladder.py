@@ -25,8 +25,8 @@ def test_ladder_climbs_one_level_per_turn_and_ends_with_the_form(repo, pack):
         repo.add_turn(pid, sid, "user", t)
         notes.append(FB.directive(repo, pack, pid, sid, "intensive", set(), t))
     assert all(notes[:4]) and [f"step {i} of 4" in n for i, n in enumerate(notes, 1)] == [True] * 4
-    assert "Do NOT give the correct form" in notes[0] and "went" in notes[3] and "Now say the correct form" in notes[3]
-    assert "went or goed" in notes[2] or "goed or went" in notes[2]
+    assert "Do NOT give the correct form" in notes[0] and "went" in notes[3] and "must contain the exact words" in notes[3]
+    assert "Which is right" in notes[2] and "goed" in notes[2] and "went" in notes[2]
     repo.add_turn(pid, sid, "user", "ok")
     assert FB.directive(repo, pack, pid, sid, "intensive", set(), "ok") is None          # po L4 koniec drabiny
 

@@ -100,7 +100,10 @@ def choose(repo, pack: C.Pack, profile_id: int, now: datetime, _use_easy: bool =
         if pre is None:
             continue
         sid, st = t["skill_id"], inp.states.get(t["skill_id"])
-        if t["kind"] == "learning":
+        if t["kind"] == "learning" and st and st.attempts < 3:
+            why = (f"Umiejętność sprawdzona dotąd tylko {st.attempts}× (np. w dopasowaniu) — za mało, by cokolwiek "
+                   "twierdzić; poćwiczymy ją.")
+        elif t["kind"] == "learning":
             why = (f"Kontynuacja: umiejętność w trakcie nauki (szacunkowe p={st.p:.2f}, to nie jest potwierdzone "
                    "opanowanie).")
         elif t["kind"] == "new" and not comp:

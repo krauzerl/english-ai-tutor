@@ -86,3 +86,7 @@ def test_attempts_from_uncertain_transcripts_never_count_as_mastery_evidence(rep
     r = ingest.apply_item_attempt(repo, pack, pid, sid, "en.f46.gram.a1.01", SKILL, True, source="remediation",
                                   dedupe_key="x1", now=NOW)
     assert r["to"] == "learning"
+
+
+def test_quality_gate_still_closed_and_mastery_unreachable_from_conversation(pack):
+    assert pack.rubric.correction["quality_gate"]["trusted_categories"] == []

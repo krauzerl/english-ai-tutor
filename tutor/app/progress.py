@@ -77,10 +77,13 @@ def render(rep: dict) -> list[str]:
     s = rep["skills"]
     out.append("\nUmiejętności:")
     for title, key in (("opanowane (potwierdzone przez silnik)", "mastered"), ("w nauce", "working"),
-                       ("sprawiają trudność", "struggling"), ("za mało prób, by coś twierdzić", "too_few")):
+                       ("sprawiają trudność", "struggling")):
         for r in s[key]:
             out.append(f"  • {title}: {r['skill']} — {r['correct']}/{r['attempts']} poprawnych prób, "
                        f"na nowych zadaniach {r['new_items']}")
+    if s["too_few"]:                      # jedna linia: mało prób = brak podstaw do twierdzeń
+        names = ", ".join(r["skill"] for r in s["too_few"][:6]) + (" …" if len(s["too_few"]) > 6 else "")
+        out.append(f"  • za mało prób, by coś twierdzić ({len(s['too_few'])}): {names}")
     if not any(s.values()):
         out.append("  (brak prób — zacznij lekcję: `--lesson`)")
     if rep["changes"]:

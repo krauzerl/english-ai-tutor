@@ -73,18 +73,17 @@ def summary_lines(repo, pack: Pack, pid: int, sid: int) -> list[str]:
 _HINTS = {
     1: "Say only that something in that sentence could be said better and invite them to say it again "
        "(e.g. \u201cAlmost! Want to try that once more?\u201d). Do NOT give the correct form.",
-    2: "Give one short hint about the rule in simple English ({rule}). Do NOT give the correct form; "
-       "ask them to try again.",
-    3: "Offer two options in one short question: \u201c{a} or {b}?\u201d and let them choose.",
-    4: "Now say the correct form \u201c{fix}\u201d naturally as part of your reply (one short sentence), then move on. "
-       "Do not lecture.",
+    2: "Remind them in one short sentence which grammar point matters here: {topic} "
+       "(e.g. \u201cThink about the {topic}.\u201d). Do NOT give the correct form; ask them to say it again.",
+    3: "Your reply must contain this exact question: \u201cWhich is right: {a} or {b}?\u201d",
+    4: "Your reply must contain the exact words \u201c{fix}\u201d, used naturally (for example by repeating their "
+       "sentence correctly). Do not lecture.",
 }
 
 
 def _ladder_note(lad: dict, cat) -> str:
-    rule = (cat.l2_pl if cat else "check the rule for this phrase")
-    body = _HINTS[lad["level"]].format(rule=f"hint, for your reference in Polish: {rule}",
-                                       a=lad["span"], b=lad["fix"], fix=lad["fix"])
+    topic = lad["category"].replace(".", " ").replace("_", " ")
+    body = _HINTS[lad["level"]].format(topic=topic, a=lad["span"], b=lad["fix"], fix=lad["fix"])
     return (f"Feedback note (never mention this note): earlier the student said \u201c{lad['span']}\u201d "
             f"(natural form: \u201c{lad['fix']}\u201d). Correction step {lad['level']} of 4: {body} "
             "Keep it friendly and short, and still react to what they just said.")
