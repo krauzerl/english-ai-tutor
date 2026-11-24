@@ -35,12 +35,20 @@ class TurnResult:
 class VoiceTutor:
     def __init__(self, repo, profile_id, session_id, llm, tts, sink, *, system=SYSTEM_PROMPT,
                  context_window=8192, max_tokens=100, temperature=0.7, clock=time.monotonic, echo=None,
-                 record_user_turn=None):
+                 record_user_turn=None, feedback=None):
         self.repo, self.pid, self.sid, self.llm, self.tts, self.sink = repo, profile_id, session_id, llm, tts, sink
         self.system, self.window, self.max_tokens, self.temp = system, context_window, max_tokens, temperature
         self.clock, self.echo = clock, echo or (lambda s: None)
+        self.feedback = feedback          # () -> notatka dla tutora na jedną odpowiedź (recast) albo None
         self.record_user_turn = record_user_turn   # np. SessionService.user_turn: jedyna ścieżka zapisu tury ucznia
         self._tok: CancelToken | None = None
+
+    def _note(self) -> str:
+        try:
+            n = self.feedback() if self.feedback else None
+        except Exception:  # noqa: BLE001 - informacja zwrotna nigdy nie psuje rozmowy
+            n = None
+        return f"\n\n{n}" if n else ""
 
     def cancel(self) -> None:
         """Zatrzymuje generowanie, syntezę i odtwarzanie (wątkowo bezpieczne)."""
@@ -53,7 +61,7 @@ class VoiceTutor:
         user_text = user_text.strip()
         t_end = self.clock() if t_end is None else t_end
         res = TurnResult(user_text)
-        ctx = build_context(self.repo, self.pid, self.sid, self.system, user_text,
+        ctx = build_context(self.repo, self.pid, self.sid, self.system + self._note(), user_text,
                             context_window=self.window, reserve_out=self.max_tokens)
         if self.record_user_turn:
             self.record_user_turn(user_text, input_mode=input_mode, low_probs=low_probs)

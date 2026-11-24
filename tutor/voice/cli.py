@@ -35,6 +35,10 @@ def parse(argv: list[str]) -> argparse.Namespace:
     ap.add_argument("--lesson", nargs="?", const="default", metavar="SKILL",
                     help="lekcja (wyjaśnienie, ćwiczenia, rozmowa). Bez SKILL: tutor dobiera cel z danych ucznia "
                          "lub wznawia rozpoczętą lekcję")
+    ap.add_argument("--correction", choices=["summary", "periodic", "intensive"], default=None,
+                    help="styl korekt w tej sesji (domyślnie ze stylu profilu; summary = tylko podsumowanie na końcu)")
+    ap.add_argument("--summary-wait", type=float, default=8.0, metavar="S",
+                    help="na końcu rozmowy czekaj do S sekund na ocenę ostatnich wypowiedzi (podsumowanie korekt)")
     ap.add_argument("--no-audio", action="store_true", help="bez mikrofonu i głośnika (tekst -> tekst)")
     ap.add_argument("--list-devices", action="store_true")
     return ap.parse_args(argv)
@@ -133,10 +137,21 @@ def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, l
     if a.lesson:
         skill, items = L.begin(repo, lesson_pack, p["id"], sid, goal, choice, allow)
         goals = {skill.id: skill.can_do_pl}            # cel lekcji trafia do oceny wypowiedzi
-        system += L.system_focus(skill)
-    svc = _eval_service(repo, conn, p, sid, eval_llm, build_eval, out, goals, lesson_pack)
+        system += L.system_focus(lesson_pack, skill)
+    conv_pack = lesson_pack
+    if conv_pack is None and (build_eval or eval_llm is not None):
+        from tutor.pedagogy import content as C
+        conv_pack = C.load(p["target_lang"])
+    svc = _eval_service(repo, conn, p, sid, eval_llm, build_eval, out, goals, conv_pack)
+    feedback = None
+    if svc and conv_pack:
+        from tutor.app import feedback as FB
+        from tutor.pedagogy.correction import effective_style
+        style = a.correction or effective_style(p["correction_style"], conv_pack.rubric)["style"]
+        feedback = lambda: FB.recast_directive(repo, conv_pack, p["id"], sid, style, set(goals))  # noqa: E731
     tutor = VoiceTutor(repo, p["id"], sid, llm, tts, sink, system=system, context_window=cw,
-                       echo=lambda s: out(f"Tutor: {s}"), record_user_turn=svc.user_turn if svc else None)
+                       echo=lambda s: out(f"Tutor: {s}"), record_user_turn=svc.user_turn if svc else None,
+                       feedback=feedback)
     q = lines or _lines()
     out(f"Profil: {p['name']} · LLM: {llm.model} · TTS: {tts.name}/{tts.voice} · tryb: {a.mode if mic else 'tekst'}")
     out(HELP)
@@ -181,6 +196,12 @@ def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, l
             finally:
                 if svc:
                     svc.tutor_done()     # każdy cykl (też przerwany: STT, TTS, Ctrl+C) zwalnia ocenianie
+        if proceed and svc and conv_pack:
+            if a.summary_wait and svc.pending:             # ograniczone czekanie na ocenę ostatnich wypowiedzi
+                svc.wait_idle(a.summary_wait)
+            from tutor.app import feedback as FB
+            for ln in FB.summary_lines(repo, conv_pack, p["id"], sid):
+                out(ln)
         clean = proceed                               # `q` w trakcie ćwiczeń = pauza (lekcję można wznowić)
     except KeyboardInterrupt:
         pass
@@ -250,6 +271,10 @@ def _lesson(L, repo, pack, p, sid, sk, items, svc, a, q, mic, stt, ep, out) -> b
     res = L.run_exercises(repo, pack, p["id"], sid, sk, items, ask, out, now=datetime.now(UTC))
     if res.quit:
         out("Lekcja przerwana — wznowisz ją przy następnym uruchomieniu z tym samym `--lesson`.")
+        return False
+    if res.skipped:
+        out(L.summary(res))
+        out("Lekcja niedokończona — wróć do pominiętych zadań poleceniem `--lesson`.")
         return False
     if not plan.get("done") or len(plan["done"]) < len(items):
         out(L.summary(res))

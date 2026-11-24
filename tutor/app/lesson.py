@@ -35,6 +35,7 @@ class Result:
     correct: int = 0
     total: int = 0
     quit: bool = False
+    skipped: int = 0       # zadania bez rozstrzygnięcia (niepewne STT): nie są „zrobione”, wrócą po wznowieniu
 
 
 def prepare(pack: C.Pack, skill_id: str, n: int = N_ITEMS,
@@ -71,7 +72,13 @@ def check(pack: C.Pack, item: C.Item, text: str) -> bool:
             t = item.options[int(t) - 1] if 1 <= int(t) <= len(item.options) else ""
         elif len(t) == 1 and t.lower() in "abcdefgh"[:len(item.options)]:
             t = item.options["abcdefgh".index(t.lower())]
-    return bool(t) and C.answer_ok(item, t, pack.variants)
+    if not t:
+        return False
+    if item.type == "gap" and "___" in item.prompt:    # uczeń mówi całe zdanie zamiast samego brakującego słowa
+        full = C.norm_answer(t)
+        if any(full == C.norm_answer(item.prompt.replace("___", a)) for a in item.answers):
+            return True
+    return C.answer_ok(item, t, pack.variants)
 
 
 def _category(pack: C.Pack, sk: C.Skill):
@@ -105,6 +112,7 @@ def run_exercises(repo, pack: C.Pack, profile_id: int, session_id: int, sk: C.Sk
     plan = repo.get_session_plan(profile_id, session_id) or {"lesson": sk.id, "items": [i.id for i in items]}
     done, ok = list(plan.get("done", [])), list(plan.get("ok", []))
     cat = _category(pack, sk)
+    skipped = 0
     for idx, item in enumerate(items):
         if item.id in done:
             continue
@@ -125,7 +133,10 @@ def run_exercises(repo, pack: C.Pack, profile_id: int, session_id: int, sk: C.Sk
                 # niska pewność STT (lub brak danych) nie jest dowodem błędu językowego
                 reasks += 1
                 if reasks > MAX_REASK:
-                    say("Pomijam to zadanie: rozpoznawanie mowy jest niepewne. Wpisz odpowiedź następnym razem.")
+                    say("Pomijam to zadanie: rozpoznawanie mowy jest niepewne. Wpisz odpowiedź albo wróć do niego "
+                        "po wznowieniu lekcji.")
+                    skipped += 1
+                    item = None
                     break
                 say(f"Nie jestem pewien, czy dobrze usłyszałem („{a.text}”). Powiedz jeszcze raz albo wpisz odpowiedź.")
                 continue
@@ -136,9 +147,11 @@ def run_exercises(repo, pack: C.Pack, profile_id: int, session_id: int, sk: C.Sk
             say(f"Poprawna odpowiedź: {item.answers[0]}" + (f"\n{item.explanation_pl}" if item.explanation_pl else ""))
             _record(repo, pack, profile_id, session_id, sk, item, False, a, 4, now)
             break
+        if item is None:                                   # pominięte: zostaje do zrobienia
+            continue
         done.append(item.id)
         repo.set_session_plan(profile_id, session_id, {**plan, "done": done, "ok": ok})
-    return Result(len(ok), len(done))
+    return Result(len(ok), len(done), skipped=skipped)
 
 
 def _record(repo, pack, pid, sid, sk, item, correct, a: Answer, hint_level, now) -> None:
@@ -149,6 +162,9 @@ def _record(repo, pack, pid, sid, sk, item, correct, a: Answer, hint_level, now)
 
 
 def summary(res: Result) -> str:
+    if res.skipped:
+        return (f"\nPominięto {res.skipped} zadań z powodu niepewnego rozpoznania mowy — wrócą po wznowieniu lekcji "
+                f"(to samo polecenie `--lesson`). Rozwiązane: {res.correct}/{res.total}.")
     return (f"\nWynik ćwiczeń: {res.correct}/{res.total} poprawnie. To wynik ćwiczeń, który nie oznacza opanowania "
             "umiejętności — opanowanie wymaga potwierdzenia w kolejnych dniach.")
 
@@ -159,6 +175,14 @@ def intro(pack: C.Pack, sk: C.Skill, choice: dict | None = None) -> str:
             "Ćwiczenia: odpowiadaj tekstem lub głosem (q = przerwij, lekcję można wznowić).")
 
 
-def system_focus(sk: C.Skill) -> str:
-    return (f" Lesson focus: the student has just practised '{sk.id}' ({sk.can_do_pl}). Steer the chat so that "
-            "they naturally need this structure; do not quiz them and do not announce the lesson.")
+def _examples(pack: C.Pack, sk: C.Skill, n: int = 3) -> list[str]:
+    _, body = C._split_front((pack.root / sk.explanation_ref).read_text(encoding="utf-8"))
+    m = re.search(r"^## Poprawnie\s*$(.*?)(?=^## |\Z)", body, re.M | re.S)
+    return [ln[2:].strip() for ln in (m.group(1).splitlines() if m else []) if ln.startswith("- ")][:n]
+
+
+def system_focus(pack: C.Pack, sk: C.Skill) -> str:
+    ex = "; ".join(_examples(pack, sk))
+    return (f" Lesson focus: the student has just practised '{sk.id}' ({sk.can_do_pl}). Target forms, e.g.: {ex}. "
+            "Ask questions whose natural answers need these forms, one question per turn. Do not quiz them, "
+            "do not announce the lesson and do not explain the rule unless asked.")

@@ -63,7 +63,7 @@ class Env:
 
     def go(self, lines, argv=(), llm=None, ev=None, **kw):
         out = []
-        code = run(["--voice", "--profile", "ann", *argv], llm=llm or FakeProvider(chunks=["Nice. ", "Go on."]),
+        code = run(["--voice", "--profile", "ann", "--summary-wait", "0", *argv], llm=llm or FakeProvider(chunks=["Nice. ", "Go on."]),
                    eval_llm=ev, tts=FakeTTS(), lines=lines, out=out.append, db=self.conn, **kw)
         return code, out
 
