@@ -44,7 +44,7 @@ def parse(argv: list[str]) -> argparse.Namespace:
                     help="wstępne dopasowanie poziomu (gramatyka, słownictwo; głosem lub tekstem), potem koniec")
     ap.add_argument("--review", action="store_true", help="powtórki zaległych umiejętności (FSRS), potem koniec")
     ap.add_argument("--progress", action="store_true", help="pokaż postęp z zapisanych dowodów i zakończ")
-    ap.add_argument("--no-placement", action="store_true", help="bez automatycznego dopasowania przy pierwszej lekcji")
+    ap.add_argument("--no-placement", action="store_true", help=argparse.SUPPRESS)   # zgodność wsteczna (no-op)
     ap.add_argument("--no-audio", action="store_true", help="bez mikrofonu i głośnika (tekst -> tekst)")
     ap.add_argument("--list-devices", action="store_true")
     return ap.parse_args(argv)
@@ -110,12 +110,10 @@ def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, l
         from tutor.voice.tts import build_tts
         tts = build_tts(a.tts, a.tts_voice, a.speed)
 
-    from tutor.app import placement as PL
-    if a.placement or (a.lesson == "default" and not a.no_placement and PL.needs_placement(repo, p["id"])):
-        done = _placement_phase(a, repo, p, llm, tts, sink, mic, stt, lines, out)
-        if not done or a.placement:
-            _shutdown(mic, sink, conn, db)
-            return 0
+    if a.placement:                                   # dobrowolne: nigdy automatycznie przy pierwszej lekcji
+        _placement_phase(a, repo, p, llm, tts, sink, mic, stt, lines, out)
+        _shutdown(mic, sink, conn, db)
+        return 0
     if a.review:
         _review_phase(a, repo, p, llm, tts, sink, mic, stt, lines, out)
         _shutdown(mic, sink, conn, db)

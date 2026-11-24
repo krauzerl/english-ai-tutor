@@ -167,12 +167,10 @@ def test_cli_placement_text_end_to_end_then_exit(env, pack):
     assert any("nie jest diagnoz" in x for x in out)
 
 
-def test_cli_first_bare_lesson_runs_placement_then_lesson_from_planner(env, pack):
-    gap = [sentence(i) for i in pack.items.values() if i.type == "gap"] * 4
-    code, out = env.go(Gated({}, *gap[:60], "q"), ["--no-audio", "--lesson"], ev=EvalProv())
+def test_cli_first_bare_lesson_never_starts_placement_automatically(env, pack):
+    code, out = env.go(Gated({}, "q"), ["--no-audio", "--lesson"], ev=EvalProv())
     kinds = [x["kind"] for x in env.repo.list_sessions(env.pid)]
-    assert "placement" in kinds and env.repo.list_competence(env.pid)
-    assert code in (0, 1)
+    assert code == 0 and kinds == ["lesson"] and env.repo.list_competence(env.pid) == []     # nauka bez diagnozy
 
 
 def test_cli_manual_lesson_and_no_placement_skip_it(env, pack):
