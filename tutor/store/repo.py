@@ -445,3 +445,33 @@ class Repo:
         r = self.conn.execute("SELECT plan_json FROM session WHERE id=? AND profile_id=?",
                               (session_id, profile_id)).fetchone()
         return json.loads(r[0]) if r and r[0] else {}
+
+    # --- osiągnięcia i ustawienia (migracja 007) ---
+    def add_achievement(self, profile_id: int, code: str, evidence: dict | None = None) -> bool:
+        """True tylko przy pierwszym przyznaniu (PK): wznowienie sesji nie nalicza drugi raz."""
+        cur = self.conn.execute("INSERT OR IGNORE INTO achievement(profile_id,code,evidence_json) VALUES (?,?,?)",
+                                (profile_id, code, json.dumps(evidence or {}, ensure_ascii=False)))
+        return cur.rowcount == 1
+
+    def list_achievements(self, profile_id: int) -> list[dict]:
+        return _rows(self.conn.execute("SELECT * FROM achievement WHERE profile_id=? ORDER BY earned_at, code",
+                                       (profile_id,)))
+
+    def get_settings(self, profile_id: int) -> dict:
+        return {r[0]: json.loads(r[1]) for r in self.conn.execute(
+            "SELECT key, value_json FROM profile_setting WHERE profile_id=?", (profile_id,))}
+
+    def set_setting(self, profile_id: int, key: str, value) -> None:
+        self.conn.execute("INSERT INTO profile_setting(profile_id,key,value_json) VALUES (?,?,?) "
+                          "ON CONFLICT(profile_id,key) DO UPDATE SET value_json=excluded.value_json",
+                          (profile_id, key, json.dumps(value)))
+
+    def update_profile_columns(self, profile_id: int, **cols) -> None:
+        allowed = {"correction_style", "daily_minutes", "allow_unreviewed_practice", "target_lang"}
+        bad = set(cols) - allowed
+        if bad:
+            raise ValueError(f"niedozwolone kolumny: {bad}")
+        if cols:
+            self.conn.execute(f"UPDATE profile SET {', '.join(f'{k}=?' for k in cols)} WHERE id=?",
+                              (*cols.values(), profile_id))
+

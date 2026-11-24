@@ -6,8 +6,11 @@ import queue
 import sys
 import threading
 import time
+from datetime import UTC, datetime
 
 from tutor import config
+from tutor.app import intent as INTENT
+from tutor.app import topics as T
 from tutor.llm import build_provider, context_window
 from tutor.store.db import open_db
 from tutor.store.repo import Repo
@@ -44,6 +47,9 @@ def parse(argv: list[str]) -> argparse.Namespace:
                     help="wstępne dopasowanie poziomu (gramatyka, słownictwo; głosem lub tekstem), potem koniec")
     ap.add_argument("--review", action="store_true", help="powtórki zaległych umiejętności (FSRS), potem koniec")
     ap.add_argument("--progress", action="store_true", help="pokaż postęp z zapisanych dowodów i zakończ")
+    ap.add_argument("--chat", nargs="?", const="ask", metavar="TEMAT",
+                    help="Quick Chat: swobodna rozmowa bez celu lekcji (bez TEMAT: wybierzesz z propozycji)")
+    ap.add_argument("--minutes", type=int, default=None, help="limit czasu Quick Chat w minutach")
     ap.add_argument("--no-placement", action="store_true", help=argparse.SUPPRESS)   # zgodność wsteczna (no-op)
     ap.add_argument("--no-audio", action="store_true", help="bez mikrofonu i głośnika (tekst -> tekst)")
     ap.add_argument("--list-devices", action="store_true")
@@ -73,8 +79,6 @@ def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, l
         print("Brak profilu. Utwórz: python main.py profile create NAZWA", file=sys.stderr)
         return 1
     if a.progress:
-        from datetime import UTC, datetime
-
         from tutor.app import progress as PG
         from tutor.pedagogy import content as C
         for ln in PG.render(PG.build(repo, C.load(p["target_lang"]), p["id"], datetime.now(UTC))):
@@ -110,6 +114,8 @@ def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, l
         from tutor.voice.tts import build_tts
         tts = build_tts(a.tts, a.tts_voice, a.speed)
 
+    q = lines or _lines()
+    lines = q
     if a.placement:                                   # dobrowolne: nigdy automatycznie przy pierwszej lekcji
         _placement_phase(a, repo, p, llm, tts, sink, mic, stt, lines, out)
         _shutdown(mic, sink, conn, db)
@@ -122,9 +128,18 @@ def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, l
     kind = "voice"
     allow = bool(p["allow_unreviewed_practice"])
     cur = repo.find_open_session(p["id"])
+    chat_topic = None
+    if a.chat:
+        from tutor.app import quickchat as QC
+        kind = "chat"
+        if cur and cur["kind"] == "chat":
+            chat_topic = repo.get_session_plan(p["id"], cur["id"]).get("topic")
+        if chat_topic is None:
+            chat_topic = _choose_topic(a, repo, p, q, out)
+            if chat_topic is None:
+                _shutdown(mic, sink, conn, db)
+                return 0
     if a.lesson:
-        from datetime import UTC, datetime
-
         from tutor.app import goal as G
         from tutor.app import lesson as L
         from tutor.pedagogy import content as C
@@ -147,7 +162,11 @@ def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, l
             print(e, file=sys.stderr)
             return 1
         kind = "lesson"
-    if cur and cur["kind"] == kind and (not a.lesson or
+    if a.chat and not (cur and cur["kind"] == "chat"):
+        if cur:
+            repo.pause_session(p["id"], cur["id"])
+        sid = QC.start(repo, p["id"], chat_topic, a.minutes, a.correction)
+    elif cur and cur["kind"] == kind and (not a.lesson or
                                         repo.get_session_plan(p["id"], cur["id"]).get("lesson") == goal):
         sid = cur["id"]                                # niezakończona sesja (Ctrl+C / awaria): wznów, bez duplikatów
         repo.resume_session(p["id"], sid)
@@ -158,6 +177,10 @@ def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, l
         sid = repo.start_session(p["id"], kind)
     goals = {}
     system = SYSTEM_PROMPT
+    if a.chat:
+        system = QC.system_prompt(chat_topic)
+        if a.minutes is None:
+            a.minutes = repo.get_session_plan(p["id"], sid).get("minutes")
     if a.lesson:
         skill, items = L.begin(repo, lesson_pack, p["id"], sid, goal, choice, allow)
         goals = {skill.id: skill.can_do_pl}            # cel lekcji trafia do oceny wypowiedzi
@@ -176,7 +199,6 @@ def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, l
     tutor = VoiceTutor(repo, p["id"], sid, llm, tts, sink, system=system, context_window=cw,
                        echo=lambda s: out(f"Tutor: {s}"), record_user_turn=svc.user_turn if svc else None,
                        feedback=feedback)
-    q = lines or _lines()
     speak = None if a.no_audio else _speaker(tutor, q, mic, svc, out)       # lekcja głosowa; --no-audio = sam tekst
     out(f"Profil: {p['name']} · LLM: {llm.model} · TTS: {tts.name}/{tts.voice} · tryb: {a.mode if mic else 'tekst'}")
     out(HELP)
@@ -184,9 +206,22 @@ def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, l
     clean = False
     proceed = True
     try:
+        if a.chat:
+            fresh = not repo.list_turns(p["id"], sid)
+            out(f"Quick Chat — temat: {chat_topic['pl']}. (Powiedz „change the topic”, by zmienić; q = koniec.)")
+            if fresh:
+                out(f"Tutor: {QC.opener(chat_topic)}")
+                repo.add_turn(p["id"], sid, "assistant", QC.opener(chat_topic))
+                if speak:
+                    speak(QC.opener(chat_topic))
         if a.lesson:
             proceed = _lesson(L, repo, lesson_pack, p, sid, skill, items, svc, a, q, mic, stt, ep, out, speak)
         while proceed:
+            if a.chat and QC.time_up(repo, p["id"], sid, datetime.now(UTC)):
+                out("Czas rozmowy minął — kończymy.")
+                if speak:
+                    speak("Our time is up. That was a nice chat. See you next time.")
+                break
             try:
                 text, t_end, mode, low = _listen(a, q, mic, stt, ep, out,
                                                  svc.begin_activity if svc else (lambda: None),
@@ -196,6 +231,11 @@ def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, l
                 if not text:
                     continue
                 out(f"You: {text}")
+                if a.chat and INTENT.detect(text) == "skip":          # „zmień temat”: nowy temat z generatora
+                    nxt = T.suggest(repo, p["id"], 1, exclude={t["id"] for t in repo.get_session_plan(
+                        p["id"], sid).get("topics", []) if t.get("id")})[0]
+                    tutor.system = QC.switch(repo, p["id"], sid, nxt)
+                    out(f"[nowy temat: {nxt['pl']}]")
                 speaking = threading.Event()
                 watcher = threading.Thread(target=_cancel_on_enter, args=(q, tutor, speaking), daemon=True)
                 speaking.set()
@@ -251,6 +291,28 @@ def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, l
     return 0
 
 
+def _choose_topic(a, repo, p, q, out) -> dict | None:
+    """`--chat TEMAT` = własny temat; bez argumentu: propozycje (numer, `r` = losuj nowe, własny tekst, q = anuluj)."""
+    from tutor.app import quickchat as QC
+    from tutor.app import topics as T
+    if a.chat != "ask":
+        return T.get(a.chat) or T.custom(a.chat)
+    shown, n = T.suggest(repo, p["id"], 4), 0
+    while True:
+        out("Wybierz temat rozmowy (numer), `r` = wylosuj inne, albo wpisz własny temat; q = anuluj:")
+        for i, t in enumerate(shown, 1):
+            out(f"  {i}. {t['pl']} ({t['category_pl']})")
+        ln = q.get()
+        if ln in (None, "q", "quit"):
+            return None
+        n += 1
+        kind, val = QC.pick(repo, p["id"], ln, shown, n)
+        if kind == "topic":
+            return val
+        if kind == "list":
+            shown = val
+
+
 def _shutdown(mic, sink, conn, db) -> None:
     if mic:
         mic.close()
@@ -284,7 +346,6 @@ def _asker(a, q, mic, stt, ep, svc, speak, out):
 
 def _placement_phase(a, repo, p, llm, tts, sink, mic, stt, lines, out) -> bool:
     """Dopasowanie poziomu. True = ukończone; False = przerwane (sesja wstrzymana, wznowienie `--placement`)."""
-    from datetime import UTC, datetime
 
     from tutor.app import placement as PL
     from tutor.pedagogy import content as C
@@ -321,7 +382,6 @@ def _placement_phase(a, repo, p, llm, tts, sink, mic, stt, lines, out) -> bool:
 
 
 def _review_phase(a, repo, p, llm, tts, sink, mic, stt, lines, out) -> None:
-    from datetime import UTC, datetime
 
     from tutor.app import review as RV
     from tutor.pedagogy import content as C
@@ -413,7 +473,6 @@ def _speaker(tutor, q, mic, svc, out):
 
 def _lesson(L, repo, pack, p, sid, sk, items, svc, a, q, mic, stt, ep, out, speak=None) -> bool:
     """Wyjaśnienie + ćwiczenia (odpowiedzi tekstem lub głosem). True = idziemy do rozmowy; False = uczeń przerwał."""
-    from datetime import UTC, datetime
 
     from tutor.app import lesson_voice as LV
     say = speak or (lambda _t: None)
