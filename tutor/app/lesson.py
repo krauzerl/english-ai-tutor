@@ -37,14 +37,16 @@ class Result:
     quit: bool = False
 
 
-def prepare(pack: C.Pack, skill_id: str, n: int = N_ITEMS) -> tuple[C.Skill, list[C.Item]]:
+def prepare(pack: C.Pack, skill_id: str, n: int = N_ITEMS,
+            allow_unreviewed: bool = True) -> tuple[C.Skill, list[C.Item]]:
     sk = pack.skills.get(skill_id)
     if sk is None:
         raise LessonError(f"Nieznany cel lekcji: {skill_id}")
     if not sk.explanation_ref or sk.explanation_ref not in pack.explanations or \
             not (pack.root / sk.explanation_ref).exists():
         raise LessonError(f"Cel {skill_id} nie ma wyjaśnienia — nie da się poprowadzić lekcji.")
-    items = [i for i in C.select_items(pack, pool="practice", purpose="practice", skill_id=skill_id)
+    items = [i for i in C.select_items(pack, pool="practice", purpose="practice", skill_id=skill_id,
+                             allow_unreviewed_practice=allow_unreviewed)
              if i.type not in C.OPEN_TYPES and i.answers]
     items.sort(key=lambda i: (i.difficulty, i.id))
     if not items:
@@ -82,16 +84,17 @@ def _show(item: C.Item, idx: int, n: int) -> str:
     return f"\nZadanie {idx + 1}/{n}: {item.prompt}{opts}"
 
 
-def begin(repo, pack: C.Pack, profile_id: int, session_id: int, skill_id: str) -> tuple[C.Skill, list[C.Item]]:
+def begin(repo, pack: C.Pack, profile_id: int, session_id: int, skill_id: str,
+          choice: dict | None = None, allow_unreviewed: bool = True) -> tuple[C.Skill, list[C.Item]]:
     """Nowa lekcja zapisuje plan w sesji; wznowiona używa zapisanych zadań (te same, w tej samej kolejności)."""
     plan = repo.get_session_plan(profile_id, session_id)
-    sk, items = prepare(pack, skill_id)
+    sk, items = prepare(pack, skill_id, allow_unreviewed=allow_unreviewed)
     if plan.get("lesson") == skill_id:
         by = {i.id: i for i in pack.items.values()}
         saved = [by[x] for x in plan.get("items", []) if x in by]
         return sk, saved or items
     repo.set_session_plan(profile_id, session_id,
-                          {"lesson": skill_id, "items": [i.id for i in items], "done": [], "ok": []})
+                          {"lesson": skill_id, "items": [i.id for i in items], "done": [], "ok": [], "choice": choice})
     return sk, items
 
 
@@ -150,8 +153,9 @@ def summary(res: Result) -> str:
             "umiejętności — opanowanie wymaga potwierdzenia w kolejnych dniach.")
 
 
-def intro(pack: C.Pack, sk: C.Skill) -> str:
-    return (f"Cel lekcji: {sk.id} ({sk.cefr}) — {sk.can_do_pl}\n\n{explanation(pack, sk)}\n\n"
+def intro(pack: C.Pack, sk: C.Skill, choice: dict | None = None) -> str:
+    why = f"Dlaczego ten cel: {choice['reason']}\n\n" if choice else ""
+    return (f"Cel lekcji: {sk.id} ({sk.cefr}) — {sk.can_do_pl}\n{why}\n{explanation(pack, sk)}\n\n"
             "Ćwiczenia: odpowiadaj tekstem lub głosem (q = przerwij, lekcję można wznowić).")
 
 

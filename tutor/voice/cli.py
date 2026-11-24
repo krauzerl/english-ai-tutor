@@ -33,7 +33,8 @@ def parse(argv: list[str]) -> argparse.Namespace:
     ap.add_argument("--output-device", default=v.get("output_device"))
     ap.add_argument("--profile", help="nazwa lub id profilu (domyślnie ostatnio wybrany)")
     ap.add_argument("--lesson", nargs="?", const="default", metavar="SKILL",
-                    help="lekcja z celem (domyślnie en.gram.to_be_present): wyjaśnienie, ćwiczenia, rozmowa")
+                    help="lekcja (wyjaśnienie, ćwiczenia, rozmowa). Bez SKILL: tutor dobiera cel z danych ucznia "
+                         "lub wznawia rozpoczętą lekcję")
     ap.add_argument("--no-audio", action="store_true", help="bez mikrofonu i głośnika (tekst -> tekst)")
     ap.add_argument("--list-devices", action="store_true")
     return ap.parse_args(argv)
@@ -89,20 +90,35 @@ def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, l
         from tutor.voice.tts import build_tts
         tts = build_tts(a.tts, a.tts_voice, a.speed)
 
-    lesson_pack = skill = items = None
+    lesson_pack = skill = items = choice = None
     kind = "voice"
+    allow = bool(p["allow_unreviewed_practice"])
+    cur = repo.find_open_session(p["id"])
     if a.lesson:
+        from datetime import UTC, datetime
+
+        from tutor.app import goal as G
         from tutor.app import lesson as L
         from tutor.pedagogy import content as C
-        goal = L.DEFAULT_SKILL if a.lesson == "default" else a.lesson
         lesson_pack = C.load(p["target_lang"])
+        open_plan = repo.get_session_plan(p["id"], cur["id"]) if cur and cur["kind"] == "lesson" else {}
+        if a.lesson != "default":                      # ręczny cel: `--lesson SKILL_ID`
+            goal = a.lesson
+            choice = {"source": "manual", "reason": "Cel wskazany ręcznie (--lesson).", "provisional": False}
+        elif open_plan.get("lesson"):                  # wznowienie rozpoczętej lekcji: ten sam cel
+            goal = open_plan["lesson"]
+        else:                                          # automatyczny wybór z danych ucznia
+            ch = G.choose(repo, lesson_pack, p["id"], datetime.now(UTC))
+            if ch is None:
+                print("Brak celu lekcji z dostępnymi materiałami (wyjaśnienie i zadania).", file=sys.stderr)
+                return 1
+            goal, choice = ch.skill_id, {"source": ch.source, "reason": ch.reason, "provisional": ch.provisional}
         try:
-            L.prepare(lesson_pack, goal)
+            L.prepare(lesson_pack, goal, allow_unreviewed=allow)
         except L.LessonError as e:
             print(e, file=sys.stderr)
             return 1
         kind = "lesson"
-    cur = repo.find_open_session(p["id"])
     if cur and cur["kind"] == kind and (not a.lesson or
                                         repo.get_session_plan(p["id"], cur["id"]).get("lesson") == goal):
         sid = cur["id"]                                # niezakończona sesja (Ctrl+C / awaria): wznów, bez duplikatów
@@ -115,7 +131,7 @@ def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, l
     goals = {}
     system = SYSTEM_PROMPT
     if a.lesson:
-        skill, items = L.begin(repo, lesson_pack, p["id"], sid, goal)
+        skill, items = L.begin(repo, lesson_pack, p["id"], sid, goal, choice, allow)
         goals = {skill.id: skill.can_do_pl}            # cel lekcji trafia do oceny wypowiedzi
         system += L.system_focus(skill)
     svc = _eval_service(repo, conn, p, sid, eval_llm, build_eval, out, goals, lesson_pack)
@@ -216,7 +232,7 @@ def _lesson(L, repo, pack, p, sid, sk, items, svc, a, q, mic, stt, ep, out) -> b
     from datetime import UTC, datetime
     plan = repo.get_session_plan(p["id"], sid)
     if not plan.get("done"):
-        out(L.intro(pack, sk))
+        out(L.intro(pack, sk, plan.get("choice")))
 
     def ask(item, i):
         while True:
