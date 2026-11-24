@@ -12,7 +12,7 @@ from tutor.llm import build_provider, context_window
 from tutor.store.db import open_db
 from tutor.store.repo import Repo
 from tutor.voice import audio as A
-from tutor.voice.conversation import SPEAK_TAIL_S, VoiceTutor
+from tutor.voice.conversation import SPEAK_TAIL_S, SYSTEM_PROMPT, VoiceTutor
 
 HELP = ("[Enter] nagrywaj/zatrzymaj nagrywanie · [Enter] w trakcie mowy tutora = przerwij · "
         "wpisz tekst + Enter = wyślij tekstowo · q = wyjście")
@@ -32,6 +32,8 @@ def parse(argv: list[str]) -> argparse.Namespace:
     ap.add_argument("--input-device", default=v.get("input_device"))
     ap.add_argument("--output-device", default=v.get("output_device"))
     ap.add_argument("--profile", help="nazwa lub id profilu (domyślnie ostatnio wybrany)")
+    ap.add_argument("--lesson", nargs="?", const="default", metavar="SKILL",
+                    help="lekcja z celem (domyślnie en.gram.to_be_present): wyjaśnienie, ćwiczenia, rozmowa")
     ap.add_argument("--no-audio", action="store_true", help="bez mikrofonu i głośnika (tekst -> tekst)")
     ap.add_argument("--list-devices", action="store_true")
     return ap.parse_args(argv)
@@ -87,23 +89,48 @@ def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, l
         from tutor.voice.tts import build_tts
         tts = build_tts(a.tts, a.tts_voice, a.speed)
 
+    lesson_pack = skill = items = None
+    kind = "voice"
+    if a.lesson:
+        from tutor.app import lesson as L
+        from tutor.pedagogy import content as C
+        goal = L.DEFAULT_SKILL if a.lesson == "default" else a.lesson
+        lesson_pack = C.load(p["target_lang"])
+        try:
+            L.prepare(lesson_pack, goal)
+        except L.LessonError as e:
+            print(e, file=sys.stderr)
+            return 1
+        kind = "lesson"
     cur = repo.find_open_session(p["id"])
-    if cur and cur["kind"] == "voice":                 # niezakończona sesja (Ctrl+C / awaria): wznów, bez duplikatów
-        sid = cur["id"]
+    if cur and cur["kind"] == kind and (not a.lesson or
+                                        repo.get_session_plan(p["id"], cur["id"]).get("lesson") == goal):
+        sid = cur["id"]                                # niezakończona sesja (Ctrl+C / awaria): wznów, bez duplikatów
         repo.resume_session(p["id"], sid)
         out(f"Wznawiam sesję #{sid}.")
     else:
-        sid = repo.start_session(p["id"], "voice")
-    svc = _eval_service(repo, conn, p, sid, eval_llm, build_eval, out)
-    tutor = VoiceTutor(repo, p["id"], sid, llm, tts, sink, context_window=cw, echo=lambda s: out(f"Tutor: {s}"),
-                       record_user_turn=svc.user_turn if svc else None)
+        if cur:
+            repo.pause_session(p["id"], cur["id"])     # inna otwarta sesja zostaje wznawialna
+        sid = repo.start_session(p["id"], kind)
+    goals = {}
+    system = SYSTEM_PROMPT
+    if a.lesson:
+        skill, items = L.begin(repo, lesson_pack, p["id"], sid, goal)
+        goals = {skill.id: skill.can_do_pl}            # cel lekcji trafia do oceny wypowiedzi
+        system += L.system_focus(skill)
+    svc = _eval_service(repo, conn, p, sid, eval_llm, build_eval, out, goals, lesson_pack)
+    tutor = VoiceTutor(repo, p["id"], sid, llm, tts, sink, system=system, context_window=cw,
+                       echo=lambda s: out(f"Tutor: {s}"), record_user_turn=svc.user_turn if svc else None)
     q = lines or _lines()
     out(f"Profil: {p['name']} · LLM: {llm.model} · TTS: {tts.name}/{tts.voice} · tryb: {a.mode if mic else 'tekst'}")
     out(HELP)
     ep = A.Endpointer()
     clean = False
+    proceed = True
     try:
-        while True:
+        if a.lesson:
+            proceed = _lesson(L, repo, lesson_pack, p, sid, skill, items, svc, a, q, mic, stt, ep, out)
+        while proceed:
             try:
                 text, t_end, mode, low = _listen(a, q, mic, stt, ep, out,
                                                  svc.begin_activity if svc else (lambda: None),
@@ -138,17 +165,17 @@ def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, l
             finally:
                 if svc:
                     svc.tutor_done()     # każdy cykl (też przerwany: STT, TTS, Ctrl+C) zwalnia ocenianie
-        clean = True
+        clean = proceed                               # `q` w trakcie ćwiczeń = pauza (lekcję można wznowić)
     except KeyboardInterrupt:
         pass
     finally:
         if svc:
             svc.close()
             _report(svc, out)
-        if clean:
+        if clean and not (svc and svc.pending):
             repo.end_session(p["id"], sid)
         else:
-            repo.pause_session(p["id"], sid)           # Ctrl+C / wyjątek: sesję można wznowić
+            repo.pause_session(p["id"], sid)           # Ctrl+C / wyjątek / nieocenione tury: sesję można wznowić
         if mic:
             mic.close()
         if hasattr(sink, "close"):
@@ -158,7 +185,7 @@ def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, l
     return 0
 
 
-def _eval_service(repo, conn, p, sid, eval_llm, build_eval, out):
+def _eval_service(repo, conn, p, sid, eval_llm, build_eval, out, goals=None, pack=None):
     """SessionService z kolejką oceny na modelu `evaluation`; None = tury tylko zapisujemy (ocena po wznowieniu)."""
     if build_eval:
         eval_llm = build_provider("evaluation")
@@ -171,16 +198,47 @@ def _eval_service(repo, conn, p, sid, eval_llm, build_eval, out):
     from tutor.app.session_service import SessionService
     from tutor.llm.structured import structured
     from tutor.pedagogy import content as C
-    pack = C.load(p["target_lang"])
+    pack = pack or C.load(p["target_lang"])
     path = conn.execute("PRAGMA database_list").fetchone()[2]
     svc = SessionService(
         repo, lambda: Repo(open_db(path)),
-        lambda wrepo: make_queue(wrepo, pack, eval_llm, structured, profile_id=p["id"], session_id=sid, goals={}),
+        lambda wrepo: make_queue(wrepo, pack, eval_llm, structured, profile_id=p["id"], session_id=sid,
+                                goals=goals or {}),
         p["id"], sid)
     n = svc.start()
     if n:
         out(f"[do oceny z poprzedniej sesji: {n}]")
     return svc
+
+
+def _lesson(L, repo, pack, p, sid, sk, items, svc, a, q, mic, stt, ep, out) -> bool:
+    """Wyjaśnienie + ćwiczenia (odpowiedzi tekstem lub głosem). True = idziemy do rozmowy; False = uczeń przerwał."""
+    from datetime import UTC, datetime
+    plan = repo.get_session_plan(p["id"], sid)
+    if not plan.get("done"):
+        out(L.intro(pack, sk))
+
+    def ask(item, i):
+        while True:
+            try:
+                text, _, mode, low = _listen(a, q, mic, stt, ep, out, svc.begin_activity if svc else (lambda: None),
+                                             svc.tutor_done if svc else (lambda: None))
+            finally:
+                if svc:
+                    svc.tutor_done()
+            if text is None:
+                return None
+            if text:
+                return L.Answer(text, mode, low)
+
+    res = L.run_exercises(repo, pack, p["id"], sid, sk, items, ask, out, now=datetime.now(UTC))
+    if res.quit:
+        out("Lekcja przerwana — wznowisz ją przy następnym uruchomieniu z tym samym `--lesson`.")
+        return False
+    if not plan.get("done") or len(plan["done"]) < len(items):
+        out(L.summary(res))
+        out("\nTeraz krótka rozmowa po angielsku — użyj tego, co ćwiczysz (q = koniec).")
+    return True
 
 
 def _report(svc, out) -> None:
