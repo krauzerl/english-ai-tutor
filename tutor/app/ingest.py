@@ -76,7 +76,8 @@ def _recompute_skill(repo: Repo, pack: Pack, profile_id: int, skill_id: str, now
             last_reset = i
         atts.append({"correct": bool(a["correct"]), "bkt": fb.get("bkt") or mastery.bkt_source(
             a["source"], a["hint_level"], rb), "n_options": fb.get("n_options"), "day": a["day"],
-            "hint_level": a["hint_level"], "reset": bool(fb.get("relapse_reset"))})
+            "hint_level": a["hint_level"], "reset": bool(fb.get("relapse_reset")),
+            "no_mastery": bool(fb.get("no_mastery") or fb.get("stt_uncertain"))})
     sk = pack.skills.get(skill_id)
     p = rb.mastery["p_init_clamp"][0] if sk is None else mastery.p_init(theta, level_index(sk.cefr), rb)
     for a in atts:
@@ -277,11 +278,14 @@ def apply_item_attempt(repo: Repo, pack: Pack, profile_id: int, session_id: int 
                        skill_id: str, correct: bool, *, source: str, dedupe_key: str, now: datetime,
                        response: str | None = None, hint_level: int = 0, elapsed_ms: int | None = None,
                        n_options: int | None = None, bkt: str = "production", delay_days: int | None = None,
-                       theta: float | None = None, agv: dict | None = None, allow_mastery: bool = True) -> dict:
+                       theta: float | None = None, agv: dict | None = None, allow_mastery: bool = True,
+                       extra: dict | None = None) -> dict:
     """Próba zadania z banku (diagnoza/ćwiczenie/naprawa/test trwałości). `dedupe_key` obowiązkowy:
     to ten sam klucz, który powtórzone wywołanie wyśle drugi raz ⇒ drugi raz nic nie zmienia."""
     with repo.transaction():
-        fb = {"bkt": bkt, "n_options": n_options, "item_id": item_id, **({"agv": agv} if agv else {})}
+        fb = {"bkt": bkt, "n_options": n_options, "item_id": item_id, **({"agv": agv} if agv else {}),
+              **({} if allow_mastery else {"no_mastery": True}),     # dowód ćwiczeniowy: do p, nie do statusu
+              **(extra or {})}
         if delay_days is not None:
             fb["delay_days"] = delay_days
         aid = repo.add_attempt(profile_id, skill_id, correct, session_id=session_id, item_id=item_id,
@@ -290,13 +294,6 @@ def apply_item_attempt(repo: Repo, pack: Pack, profile_id: int, session_id: int 
         if aid is None:
             return {"applied": False, "reason": "already_applied"}
         prev, new = _recompute_skill(repo, pack, profile_id, skill_id, now, theta)
-        if not allow_mastery and new.status == "mastered" and prev.status not in mastery.MASTERED:
-            # ćwiczenia nie nadają statusu opanowania (wymaga zrecenzowanego potwierdzenia): zostaje `learning`
-            new = dataclasses.replace(new, status="learning", mastered_at=None, verify_due_at=None)
-            repo.upsert_skill_state(profile_id, skill_id, new.p, new.attempts, None, status="learning",
-                                    verify_due_at=None, verified_7d_at=new.verified_7d_at,
-                                    verified_30d_at=new.verified_30d_at, relapses=new.relapses,
-                                    last_seen=_iso(now))
         _srs(repo, pack, profile_id, "skill_check" if prev.status in mastery.MASTERED else "construction",
              skill_id, correct, now, hint_level=hint_level, elapsed_ms=elapsed_ms,
              item_type=pack.items[item_id].type if item_id in pack.items else None)

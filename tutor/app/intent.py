@@ -18,12 +18,18 @@ _HELP = re.compile(
     r"|explain|repeat (that|the question|please)|say (that|it) again)\b", re.I)
 
 
+_UNKNOWN = re.compile(r"\b(i (do not|don'?t) know|no idea|i have no idea|i'?m not sure|not sure)\b", re.I)
+
+
 def detect(text: str) -> str | None:
+    """skip | help | unknown (krótkie „nie wiem”: brak odpowiedzi, nie błąd językowy) | None."""
     t = text.replace("’", "'")
     if _SKIP.search(t):
         return "skip"
     if _HELP.search(t):
         return "help"
+    if len(t.split()) <= 6 and _UNKNOWN.search(t):
+        return "unknown"
     return None
 
 

@@ -236,7 +236,7 @@ def test_allow_mastery_guard_is_opt_in_default_engine_unchanged(repo, pack):
     sid2 = repo.start_session(pid2, "lesson")
     for day in range(1, 4):
         repo.add_attempt(pid2, SKILL, True, session_id=sid2, created_at=f"2026-01-0{day}T10:00:00.000Z",
-                         source="practice", feedback={"bkt": "production"}, dedupe_key=f"h{day}")
+                         source="practice", feedback={"bkt": "production", "no_mastery": True}, dedupe_key=f"h{day}")
     r = ingest.apply_item_attempt(repo, pack, pid2, sid2, "en.f46.gram.a1.01", SKILL, True, source="practice",
                                   dedupe_key="x1", now=NOW, allow_mastery=False)
     assert r["to"] == "learning" and repo.get_skill_state(pid2, SKILL)["status"] == "learning"

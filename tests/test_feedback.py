@@ -111,7 +111,7 @@ def test_feedback_hook_extends_system_for_that_turn_only_and_survives_errors(rep
     llm = FakeProvider(chunks=["Nice. "])
     notes = ["NOTE-1", None, RuntimeError("boom")]
 
-    def fb():
+    def fb(_text=""):
         n = notes.pop(0)
         if isinstance(n, Exception):
             raise n

@@ -113,7 +113,7 @@ def test_cli_auto_lesson_records_choice_and_passes_goal_to_evaluation(env, pack)
     _, items = L.prepare(pack, c.skill_id)
     ev = EvalProv()
     code, out = env.go(WaitLines(lambda: env.applied() >= 1, *[i.answers[0] for i in items], "I am here"),
-                       ["--no-audio", "--lesson"], ev=ev)
+                       ["--no-audio", "--no-placement", "--lesson"], ev=ev)
     text = "\n".join(out)
     assert code == 0 and f"Cel lekcji: {c.skill_id}" in text and "Dlaczego ten cel" in text and c.reason in text
     s = env.repo.list_sessions(env.pid)[0]
@@ -140,12 +140,12 @@ def Lines_(*ls):
 def test_cli_auto_lesson_resumes_same_goal_after_interrupt(env, pack):
     c = G.choose(env.repo, pack, env.pid, NOW)
     _, items = L.prepare(pack, c.skill_id)
-    env.go(Interrupt(items[0].answers[0]), ["--no-audio", "--lesson"], ev=EvalProv())
+    env.go(Interrupt(items[0].answers[0]), ["--no-audio", "--no-placement", "--lesson"], ev=EvalProv())
     s = env.repo.list_sessions(env.pid)
     assert len(s) == 1 and s[0]["status"] == "paused"
     # stan ucznia zmienił się w międzyczasie: wznowienie i tak zostaje przy rozpoczętym celu
     learning(env.repo, env.pid, "en.gram.present_simple", 0.5)
-    code, out = env.go(Lines_(*[i.answers[0] for i in items[1:]], "q"), ["--no-audio", "--lesson"], ev=EvalProv())
+    code, out = env.go(Lines_(*[i.answers[0] for i in items[1:]], "q"), ["--no-audio", "--no-placement", "--lesson"], ev=EvalProv())
     text = "\n".join(out)
     assert "Wznawiam" in text and len(env.repo.list_sessions(env.pid)) == 1
     assert len(env.repo.attempt_history(env.pid, c.skill_id)) == len(items) and items[0].prompt not in text
@@ -154,8 +154,8 @@ def test_cli_auto_lesson_resumes_same_goal_after_interrupt(env, pack):
 def test_cli_auto_lesson_next_run_picks_different_goal_after_completion(env, pack):
     c1 = G.choose(env.repo, pack, env.pid, NOW)
     _, items = L.prepare(pack, c1.skill_id)
-    env.go(Lines_(*[i.answers[0] for i in items], "q"), ["--no-audio", "--lesson"], ev=EvalProv())
+    env.go(Lines_(*[i.answers[0] for i in items], "q"), ["--no-audio", "--no-placement", "--lesson"], ev=EvalProv())
     assert env.repo.list_sessions(env.pid)[0]["status"] == "ended"
-    env.go(Lines_("q"), ["--no-audio", "--lesson"], ev=EvalProv())
+    env.go(Lines_("q"), ["--no-audio", "--no-placement", "--lesson"], ev=EvalProv())
     plans = [env.repo.get_session_plan(env.pid, s["id"]) for s in env.repo.list_sessions(env.pid)]
     assert len(plans) == 2 and plans[1]["lesson"] != c1.skill_id

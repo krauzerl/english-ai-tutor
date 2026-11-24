@@ -17,6 +17,7 @@ from tutor.pedagogy import content as C
 DEFAULT_SKILL = "en.gram.to_be_present"
 N_ITEMS = 3
 MAX_INTENT_WORDS = 14  # dłuższa wypowiedź to raczej próba odpowiedzi niż polecenie
+_EASY = re.compile(r"\b(easy|basic|already know|know this|too simple|simple)\b", re.I)
 MAX_HELP = 3           # tyle razy wyjaśniamy na prośbę ucznia, zanim zadanie liczy się jak zwykle
 MAX_REASK = 2          # tyle razy prosimy o powtórzenie niepewnie rozpoznanej odpowiedzi głosowej
 
@@ -37,6 +38,7 @@ class Result:
     correct: int = 0
     total: int = 0
     quit: bool = False
+    declared_easy: bool = False  # uczeń napisał, że to łatwe/znane: niepotwierdzone, bez wpływu na mastery
     moved_on: bool = False  # uczeń sam zakończył ćwiczenia (nie oznacza opanowania)
     skipped: int = 0       # zadania bez rozstrzygnięcia (niepewne STT): nie są „zrobione”, wrócą po wznowieniu
 
@@ -202,21 +204,21 @@ def run_exercises(repo, pack: C.Pack, profile_id: int, session_id: int, sk: C.Sk
                 return Result(len(ok), len(done), quit=True)
             if a.mode == "voice":                          # uczeń widzi, co usłyszał system (tylko na ekranie)
                 say(_heard(a))
-            if check(pack, item, a.text):
+            verdict = judge(pack, sk.id, item, a)
+            if verdict == "correct":
                 say("✓ Dobrze." + (" (po podpowiedzi)" if tries else "")
                     + (f" {item.explanation_pl}" if item.explanation_pl else ""))
                 speak(V.correct(tries))
                 _record(repo, pack, profile_id, session_id, sk, item, True, a, tries, now)
                 ok.append(item.id)
                 break
-            # jasny sygnał ucznia (krótka wypowiedź); nigdy nie oznacza opanowania
-            sig = intent.detect(a.text) if len(a.text.split()) <= MAX_INTENT_WORDS else None
-            if sig == "skip":
+            if verdict == "skip":
                 say("Dobrze, kończymy ćwiczenia. To nie oznacza opanowania umiejętności — nic nie zapisano jako "
                     "zrobione. Do zadań wrócisz poleceniem `--lesson`.")
                 speak(V.stop_exercises())
-                return Result(len(ok), len(done), moved_on=True, skipped=skipped)
-            if sig == "help" and helps < MAX_HELP:
+                return Result(len(ok), len(done), moved_on=True, skipped=skipped,
+                              declared_easy=bool(_EASY.search(a.text)))
+            if verdict == "help" and helps < MAX_HELP:
                 helps += 1
                 ex = _examples(pack, sk)
                 say("Przypomnienie — poprawne przykłady: " + "; ".join(ex) if ex else "Przypomnienie: " + sk.can_do_pl)
@@ -224,9 +226,7 @@ def run_exercises(repo, pack: C.Pack, profile_id: int, session_id: int, sk: C.Sk
                 say(_show(item, idx, len(items)))
                 speak(V.task(item, idx, len(items)))
                 continue
-            heard = set(C.norm_answer(a.text).split())
-            unsure = a.mode == "voice" and (a.low_probs is None or bool(heard & set(a.low_probs)))
-            if a.mode == "voice" and (unsure or not clear_attempt(pack, sk.id, item, a.text)):
+            if verdict == "unclear":
                 # niska pewność STT albo niejasna wypowiedź nie jest dowodem błędu językowego i nie jest dopasowywana
                 reasks += 1
                 if reasks > MAX_REASK:
@@ -266,6 +266,21 @@ def _heard(a: Answer) -> str:
     low = f" (niepewne słowa: {', '.join(a.low_probs)})" if a.low_probs else \
         " (brak danych o pewności rozpoznania)" if a.low_probs is None else ""
     return f"  Usłyszałem: „{a.text}”{low}"
+
+
+def judge(pack: C.Pack, skill_id: str, item: C.Item, a: Answer) -> str:
+    """correct | skip | help | unknown | unclear | wrong. `unclear` = niska pewność STT albo niejasna wypowiedź
+    (nie jest błędem językowym i nie jest dopasowywana do oczekiwanej odpowiedzi); `unknown` = „nie wiem”."""
+    if check(pack, item, a.text):
+        return "correct"
+    sig = intent.detect(a.text) if len(a.text.split()) <= MAX_INTENT_WORDS else None
+    if sig:
+        return sig
+    if a.mode == "voice":
+        heard = set(C.norm_answer(a.text).split())
+        if a.low_probs is None or heard & set(a.low_probs) or not clear_attempt(pack, skill_id, item, a.text):
+            return "unclear"
+    return "wrong"
 
 
 def summary(res: Result) -> str:
