@@ -25,8 +25,8 @@ class Pending:
 
 class EvalQueue:
     def __init__(self, evaluate: Callable[[list[Pending]], list], apply: Callable[[Pending, object], None],
-                 *, batch: int = 5):
-        self._evaluate, self._apply, self._batch = evaluate, apply, batch
+                 *, batch: int = 5, on_drop: Callable[[Pending], None] | None = None):
+        self._evaluate, self._apply, self._batch, self._on_drop = evaluate, apply, batch, on_drop
         self._q: list[Pending] = []
         self._tries: dict[int, int] = {}
         self._lock = threading.Lock()
@@ -36,6 +36,8 @@ class EvalQueue:
         with self._lock:
             if all(x.turn_id != p.turn_id for x in self._q):
                 self._q.append(p)
+                self._tries.pop(p.turn_id, None)           # ponowne zgłoszenie = nowy cykl prób
+                self.dropped = [i for i in self.dropped if i != p.turn_id]
 
     def __len__(self) -> int:
         return len(self._q)
@@ -59,6 +61,7 @@ class EvalQueue:
                 break
             for p, r in zip(batch, results, strict=True):
                 self._apply(p, r)
+                self._tries.pop(p.turn_id, None)
             with self._lock:
                 ids = {p.turn_id for p in batch}
                 self._q = [x for x in self._q if x.turn_id not in ids]
@@ -66,9 +69,14 @@ class EvalQueue:
         return done
 
     def _fail(self, batch: list[Pending]) -> None:
+        gone = []
         with self._lock:
             for p in batch:
                 n = self._tries[p.turn_id] = self._tries.get(p.turn_id, 0) + 1
                 if n >= MAX_TRIES:
+                    gone.append(p)
                     self.dropped.append(p.turn_id)
-            self._q = [x for x in self._q if x.turn_id not in self.dropped]
+            self._q = [x for x in self._q if x not in gone]
+        for p in gone:
+            if self._on_drop:
+                self._on_drop(p)

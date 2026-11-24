@@ -276,6 +276,23 @@ class Repo:
                               (profile_id, turn_id)).fetchone()
         return dict(r) if r else None
 
+    def mark_dropped(self, profile_id: int, session_id: int, turn_id: int, input_mode: str, now: str) -> None:
+        """Trwały ślad porzuconej oceny (F5.2). Nie rusza tury już zastosowanej ani cudzej."""
+        self.conn.execute(
+            "INSERT INTO turn_meta(turn_id,session_id,profile_id,input_mode,dropped_at) VALUES (?,?,?,?,?)"
+            " ON CONFLICT(turn_id) DO UPDATE SET dropped_at=excluded.dropped_at"
+            " WHERE turn_meta.applied_at IS NULL AND turn_meta.profile_id=excluded.profile_id"
+            " AND turn_meta.session_id=excluded.session_id", (turn_id, session_id, profile_id, input_mode, now))
+
+    def clear_dropped(self, profile_id: int, turn_id: int) -> None:
+        self.conn.execute("UPDATE turn_meta SET dropped_at=NULL WHERE profile_id=? AND turn_id=?",
+                          (profile_id, turn_id))
+
+    def list_dropped(self, profile_id: int, session_id: int) -> list[dict]:
+        return _rows(self.conn.execute(
+            "SELECT * FROM turn_meta WHERE profile_id=? AND session_id=? AND dropped_at IS NOT NULL"
+            " ORDER BY turn_id", (profile_id, session_id)))
+
     def list_turn_meta(self, profile_id: int, session_id: int) -> list[dict]:
         return _rows(self.conn.execute(
             "SELECT * FROM turn_meta WHERE profile_id=? AND session_id=? ORDER BY turn_id",
