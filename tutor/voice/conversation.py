@@ -51,9 +51,9 @@ class VoiceTutor:
         self._tok: CancelToken | None = None
         self.last_error: str | None = None
 
-    def _note(self) -> str:
+    def _note(self, user_text: str = "") -> str:
         try:
-            n = self.feedback() if self.feedback else None
+            n = self.feedback(user_text) if self.feedback else None
         except Exception:  # noqa: BLE001 - informacja zwrotna nigdy nie psuje rozmowy
             n = None
         return f"\n\n{n}" if n else ""
@@ -101,8 +101,8 @@ class VoiceTutor:
         sig = INTENT.detect(user_text)                     # jasny sygnał ucznia → notatka na tę jedną odpowiedź
         guard = Guard([t["text"] for t in self.repo.list_turns(self.pid, self.sid)
                        if t["role"] == "assistant"][-3:], repeats=sig != "help")
-        ctx = build_context(self.repo, self.pid, self.sid, self.system + self._note() + INTENT.NOTES.get(sig, ""),
-                            user_text,
+        system = self.system + self._note(user_text) + INTENT.NOTES.get(sig, "")
+        ctx = build_context(self.repo, self.pid, self.sid, system, user_text,
                             context_window=self.window, reserve_out=self.max_tokens)
         if self.record_user_turn:
             self.record_user_turn(user_text, input_mode=input_mode, low_probs=low_probs)

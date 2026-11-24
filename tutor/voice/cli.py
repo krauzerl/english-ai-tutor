@@ -163,7 +163,7 @@ def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, l
         from tutor.app import feedback as FB
         from tutor.pedagogy.correction import effective_style
         style = a.correction or effective_style(p["correction_style"], conv_pack.rubric)["style"]
-        feedback = lambda: FB.recast_directive(repo, conv_pack, p["id"], sid, style, set(goals))  # noqa: E731
+        feedback = lambda text: FB.directive(repo, conv_pack, p["id"], sid, style, set(goals), text)  # noqa: E731
     tutor = VoiceTutor(repo, p["id"], sid, llm, tts, sink, system=system, context_window=cw,
                        echo=lambda s: out(f"Tutor: {s}"), record_user_turn=svc.user_turn if svc else None,
                        feedback=feedback)
