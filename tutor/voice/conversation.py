@@ -6,8 +6,10 @@ import threading
 import time
 from dataclasses import dataclass, field
 
+from tutor.app import intent as INTENT
 from tutor.llm.base import CancelToken, LLMError
 from tutor.llm.context import build_context, make_checkpoint, needs_checkpoint
+from tutor.voice.guard import Guard
 from tutor.voice.text import SentenceSplitter, clean_for_speech
 
 SYSTEM_PROMPT = (
@@ -17,8 +19,13 @@ SYSTEM_PROMPT = (
     "First react to what the student actually said, then ask ONE short follow-up question. "
     "If a mistake would confuse a listener, model the correct phrasing naturally in your reply; "
     "otherwise ignore small slips. You only get a text transcript, so never comment on pronunciation. "
-    "Always answer in English; if the student is stuck and asks in Polish, help in very simple English."
+    "Always answer in English; if the student is stuck and asks in Polish, help in very simple English. "
+    "Do not praise every answer: no stock phrases like \"You're doing great\" or \"Great job\"; comment on what the "
+    "student said instead, and praise only something specific, rarely. "
+    "Never repeat a question you already asked: if the student answered or said they don't know, react and move "
+    "to something new."
 )
+FALLBACK = "Okay. Tell me more about that."
 SPEAK_TAIL_S = 0.4  # ogon echa po mowie, zanim mikrofon znów słucha
 
 
@@ -42,6 +49,7 @@ class VoiceTutor:
         self.feedback = feedback          # () -> notatka dla tutora na jedną odpowiedź (recast) albo None
         self.record_user_turn = record_user_turn   # np. SessionService.user_turn: jedyna ścieżka zapisu tury ucznia
         self._tok: CancelToken | None = None
+        self.last_error: str | None = None
 
     def _note(self) -> str:
         try:
@@ -49,6 +57,35 @@ class VoiceTutor:
         except Exception:  # noqa: BLE001 - informacja zwrotna nigdy nie psuje rozmowy
             n = None
         return f"\n\n{n}" if n else ""
+
+    def say(self, text: str) -> bool:
+        """Mówi gotowy tekst (bez LLM, bez zapisu tury). False = przerwano (cancel) lub błąd TTS (`self.last_error`)."""
+        tok = self._tok = CancelToken()
+        tok.on_cancel(self.sink.stop)
+        self.last_error = None
+        sp, started = SentenceSplitter(), False
+        try:
+            for s in [*sp.feed(text + " "), *sp.flush()]:
+                if tok.is_set() or not (c := clean_for_speech(s)):
+                    continue
+                try:
+                    audio = self.tts.synth(c)
+                except Exception as e:  # noqa: BLE001 - błąd silnika TTS nie może zawiesić lekcji
+                    self.last_error = f"TTS: {type(e).__name__}"
+                    tok.set()
+                    break
+                if tok.is_set():
+                    break
+                if not started:
+                    self.sink.start(self.tts.sample_rate)
+                    started = True
+                self.sink.write(audio)
+            self.sink.seal()
+            if not tok.is_set():
+                self.sink.drain(tok)
+            return not tok.is_set()
+        finally:
+            self._tok = None
 
     def cancel(self) -> None:
         """Zatrzymuje generowanie, syntezę i odtwarzanie (wątkowo bezpieczne)."""
@@ -61,7 +98,11 @@ class VoiceTutor:
         user_text = user_text.strip()
         t_end = self.clock() if t_end is None else t_end
         res = TurnResult(user_text)
-        ctx = build_context(self.repo, self.pid, self.sid, self.system + self._note(), user_text,
+        sig = INTENT.detect(user_text)                     # jasny sygnał ucznia → notatka na tę jedną odpowiedź
+        guard = Guard([t["text"] for t in self.repo.list_turns(self.pid, self.sid)
+                       if t["role"] == "assistant"][-3:], repeats=sig != "help")
+        ctx = build_context(self.repo, self.pid, self.sid, self.system + self._note() + INTENT.NOTES.get(sig, ""),
+                            user_text,
                             context_window=self.window, reserve_out=self.max_tokens)
         if self.record_user_turn:
             self.record_user_turn(user_text, input_mode=input_mode, low_probs=low_probs)
@@ -103,7 +144,7 @@ class VoiceTutor:
 
         def emit(parts: list[str]) -> None:
             for p in parts:
-                if (c := clean_for_speech(p)):
+                if (c := clean_for_speech(p)) and (c := guard(c)):
                     m.setdefault("first_sentence", rel())
                     res.sentences += 1
                     self.echo(c)
@@ -116,6 +157,10 @@ class VoiceTutor:
                 emit(sp.feed(chunk))
             if not tok.is_set():
                 emit(sp.flush())
+            if guard.dropped and not res.sentences and not tok.is_set():
+                res.sentences += 1                         # wszystko było powtórką: krótka neutralna kontynuacja
+                self.echo(FALLBACK)
+                sents.put(FALLBACK)
             if stream.usage:
                 m["in_tokens"], m["out_tokens"] = stream.usage.in_tokens, stream.usage.out_tokens
         except LLMError as e:

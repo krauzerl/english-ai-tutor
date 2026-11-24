@@ -4,6 +4,7 @@ from datetime import UTC, datetime
 import pytest
 
 from tests.test_cli_e2e import Env, EvalProv, Interrupt, WaitLines
+from tests.test_feedback import Gated
 from tests.test_stt_detailed import DetailedSTT
 from tests.voice_fakes import FakeMic, Lines, blocks, tone
 from tutor.app import lesson as L
@@ -179,7 +180,7 @@ def test_cli_lesson_voice_answer_with_stt_data(env, pack):
     mic = FakeMic(loop=blocks(tone(0.1))[0])
     stt = DetailedSTT(Transcript(items[0].answers[0], []))
     ev = EvalProv()
-    env.go(Lines("", "", items[1].answers[0], items[2].answers[0], "q"), ["--mode", "ptt", "--lesson", SKILL],
+    env.go(Gated({}, "", "", items[1].answers[0], items[2].answers[0], "q"), ["--mode", "ptt", "--lesson", SKILL],
            ev=ev, mic=mic, stt=stt, sink=A.SimSink())
     h = env.repo.attempt_history(env.pid, SKILL)
     assert len(h) == 3 and all(a["correct"] == 1 and a["hint_level"] == 0 for a in h)
