@@ -107,6 +107,7 @@ def test_classify_engine_lines():
     assert R.classify("[nowy temat: Transport]") == {"kind": "notice", "text": "nowy temat: Transport"}
     assert R.classify("> ")["kind"] == "prompt"
     assert R.classify("coś innego")["kind"] == "info"
+    assert R.classify("Almost! Check the past form. Spróbuj jeszcze raz.")["kind"] == "hint"
 
 
 def test_runner_one_session_at_a_time_and_errors_are_events():

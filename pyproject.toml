@@ -20,6 +20,8 @@ piper = ["piper-tts>=1.3"]
 gemini = ["google-genai>=1.0"]
 # Tests import numpy and google-genai at module level.
 dev = ["pytest>=8", "ruff>=0.6", "numpy>=2", "google-genai>=1.0"]
+# Browser tests of the GUI (tests/test_browser.py skip without it). Then: playwright install chromium
+browser-tests = ["playwright>=1.50"]
 
 [tool.setuptools.packages.find]
 include = ["tutor*"]

@@ -54,6 +54,8 @@ def classify(line: str) -> dict:
         return {"kind": "prompt", "text": ""}
     if s.startswith(("✓", "✗", "Poprawna odpowiedź", "Wynik ćwiczeń", "Koniec ćwiczeń")) or _SUMMARY.match(s):
         return {"kind": "feedback", "text": s}
+    if s.endswith("Spróbuj jeszcze raz."):           # drabina pomocy w ćwiczeniach (L1–L3)
+        return {"kind": "hint", "text": s}
     if s.startswith("[") and s.endswith("]"):
         return {"kind": "notice", "text": s[1:-1]}
     return {"kind": "info", "text": t}
