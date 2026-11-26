@@ -111,6 +111,8 @@ def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, l
     if p is None:
         err("Brak profilu. Utwórz: python main.py profile create NAZWA")
         return 1
+    from tutor.app.achievements import record_event
+    a.event = lambda kind: record_event(repo, p["id"], kind)       # zdarzenia aplikacji (tylko osiągnięcia)
     if a.progress:
         from tutor.app import progress as PG
         from tutor.pedagogy import content as C
@@ -237,6 +239,8 @@ def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, l
             chat_topic = {**chat_topic, "category": cat["id"], "category_pl": cat["pl"]}
         sid = QC.start(repo, p["id"], chat_topic, a.minutes, a.correction, level=chat_level,
                        level_source=chat_level_src, category=chat_topic.get("category"), mode=a.chat_mode)
+        if not a.no_audio and a.speed <= 0.85:          # F7: osiągnięcie „spokojne tempo” (tylko fakt ustawienia)
+            repo.set_session_plan(p["id"], sid, {**repo.get_session_plan(p["id"], sid), "slow_voice": True})
     elif cur and cur["kind"] == kind and (not a.lesson or
                                         repo.get_session_plan(p["id"], cur["id"]).get("lesson") == goal):
         sid = cur["id"]                                # niezakończona sesja (Ctrl+C / awaria): wznów, bez duplikatów
@@ -696,7 +700,7 @@ def _reports(a, repo, p, out) -> None:
         ov = AC.overview(repo, p["id"], now)
         out(f"Osiągnięcia: {ov['earned']}/{ov['total']} ({ov['note']})")
         for i in ov["items"]:
-            mark = "✓" if i["earned"] else f"{i['progress']}/{i['target']}"
+            mark = "✓" if i["earned"] else "?" if i["progress"] is None else f"{i['progress']}/{i['target']}"
             out(f"  [{mark}] {AC.CATEGORIES[i['category']]}: {i['name']}")
 
 
@@ -723,6 +727,11 @@ def _review_phase(a, repo, p, llm, tts, sink, mic, stt, lines, out) -> None:
         if cur:
             repo.pause_session(p["id"], cur["id"])
         sid = repo.start_session(p["id"], kind)
+    if a.drill:                                      # F7: co było ćwiczone (osiągnięcie „trafiony cel”)
+        cat = (rep["errors"][int(a.drill) - 1]["category"] if a.drill.isdigit() and int(a.drill) <= len(rep["errors"])
+               else a.drill if a.drill in pack.errors.ids() else None)
+        repo.set_session_plan(p["id"], sid, {**repo.get_session_plan(p["id"], sid), "drill": {"target": a.drill,
+                                                                                             "category": cat}})
     q = lines or _lines()
     speak = None if a.no_audio else _speaker(VoiceTutor(repo, p["id"], sid, llm, tts, sink), q, mic, None, out)
     ask = _asker(a, q, mic, stt, A.Endpointer(), None, speak, out)
@@ -931,9 +940,11 @@ def _listen(a, q, mic, stt, ep, out, begin=lambda: None,
         if ln in ("q", "quit"):
             return None, 0.0, "text", None
         if ln.strip().lower() in ("r", "again", "ponownie"):
+            getattr(a, "event", lambda _k: None)("stt_rerecord")
             out("(nagraj jeszcze raz)")
             return "", t_end, "text", None
         if ln.strip() and ln.strip() != text:
+            getattr(a, "event", lambda _k: None)("stt_corrected")
             out("[poprawiona transkrypcja — to nie jest błąd językowy]")
             return ln.strip(), t_end, "text", None
     return text, t_end, "voice", low

@@ -86,7 +86,7 @@ class TutorAPI:
                 "suggested_lesson": dataclasses.asdict(ch) if ch else None,
                 "due_reviews": len(RV.due_skills(self.repo, pack, pid, self.now(),
                                                  bool(p["allow_unreviewed_practice"]))),
-                "streak": AC.stats(self.repo, pid, self.now())["streak"],
+                "streak": AC.facts(self.repo, pid, self.now(), pack).get("streak", 0),
                 "last_session": s[0] if s else None,
                 "placement_done": bool(self.repo.list_competence(pid)),
                 "pending_evals": sum(self.repo.pending_by_session(pid).values()),
@@ -187,8 +187,9 @@ class TutorAPI:
         return WS.build(self.repo, self.pack(pid), pid, self.now())
 
     def achievements(self, pid: int, award: bool = True) -> dict:
-        new = AC.award(self.repo, pid, self.now()) if award else []
-        return {**AC.overview(self.repo, pid, self.now()), "new": new}
+        pack = self.pack(pid)
+        new = AC.award(self.repo, pid, self.now(), pack) if award else []
+        return {**AC.overview(self.repo, pid, self.now(), pack), "new": new}
 
     def history(self, pid: int, limit: int = 50) -> dict:
         return {"totals": H.totals(self.repo, pid), "sessions": H.sessions(self.repo, pid, limit),
@@ -214,7 +215,13 @@ class TutorAPI:
         return {"values": ST.effective(self.repo, pid), "schema": schema}
 
     def update_settings(self, pid: int, changes: dict) -> dict:
+        before = ST.effective(self.repo, pid)
         try:
-            return ST.update(self.repo, pid, changes)
+            out = ST.update(self.repo, pid, changes)
         except ST.SettingError as e:
             raise ServiceError(str(e)) from e
+        for k in changes:                                  # F7: zdarzenia dla osiągnięć (tylko faktyczne zmiany)
+            if out.get(k) != before.get(k):
+                AC.record_event(self.repo, pid, "ui_lang" if k == "ui_lang" else "setting",
+                                {"key": k, "value": out.get(k), "from": before.get(k)})
+        return out

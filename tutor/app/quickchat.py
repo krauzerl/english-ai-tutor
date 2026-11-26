@@ -148,7 +148,7 @@ def time_up(repo, profile_id: int, sid: int, now: datetime) -> bool:
 def active_seconds(repo, profile_id: int, sid: int, gap_cap: int = 120) -> int:
     """Czas rozmowy z zapisów tur: suma odstępów między kolejnymi turami, każdy odstęp ≤ gap_cap s."""
     ts = [_dt(t["created_at"]) for t in repo.list_turns(profile_id, sid)]
-    return int(sum(min((b - a).total_seconds(), gap_cap) for a, b in zip(ts, ts[1:], strict=False)))
+    return int(sum(min(max((b - a).total_seconds(), 0), gap_cap) for a, b in zip(ts, ts[1:], strict=False)))
 
 
 def history(repo, profile_id: int, limit: int = 20) -> list[dict]:

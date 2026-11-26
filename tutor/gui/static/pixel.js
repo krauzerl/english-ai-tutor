@@ -419,26 +419,37 @@ const EMBLEM = {
   challenges: ["ww......ww", ".ww....ww.", "..ww..ww..", "...wwww...", "....ww....", "...wwww...", "..ww..ww..", "dww....wwd", "dd......dd", ".........."],
   milestones: ["ww........", "wwwwwww...", "wwwwwwwww.", "wwwwwwww..", "wwwwwww...", "ww........", "ww........", "ww........", "ww........", "dddd......"],
   mastered: ["..........", "w...ww...w", "ww..ww..ww", "www.ww.www", "wwwwwwwwww", "wwwwwwwwww", "wdwwddwwdw", "wwwwwwwwww", "..........", ".........."],
+  conversation: ["..........", ".wwwww....", "wwwwwww...", "wwdwdww.w.", "wwwwwww.ww", ".wwwww.www", "..w...wwww", ".w....wdww", "......wwww", ".......ww."],
+  assessment: ["...wwww...", "..w....w..", ".w..ww..w.", ".w.wddw.w.", ".w.wddw.w.", ".w..ww..w.", "..w....w..", "...wwww.w.", ".......w.w", "........w."],
+  secrets: ["...wwww...", "..ww..ww..", "......ww..", ".....ww...", "....ww....", "....ww....", "..........", "....ww....", "....ww....", ".........."],
 };
+// Pozycje „run” na pierścieniu medalu: wzór z kodu odznaki czyni każdą ikonę rozpoznawalną (nie 150 kopii).
+const RUNES = [[2, 6], [2, 9], [2, 12], [3, 4], [3, 15], [6, 2], [9, 2], [12, 2], [6, 17], [9, 17], [12, 17], [15, 4],
+  [15, 15], [16, 7], [16, 10], [16, 12]];
+function hash(str) { let x = 2166136261; for (const c of String(str)) { x ^= c.charCodeAt(0); x = Math.imul(x, 16777619); } return x >>> 0; }
 const CAT_COLOR = {
   regularity: ["#e98265", "#9c4a33"], talk_time: ["#79c9bf", "#3c7f77"], lessons: ["#a6d676", "#5d8a3a"],
   reviews: ["#f2be63", "#9c7424"], improvement: ["#c9a2d8", "#7d5a8c"], exams: ["#e7a0b4", "#93506a"],
   challenges: ["#d9715a", "#8a3a2a"], milestones: ["#8fb8d8", "#4a6f8c"], mastered: ["#f2be63", "#9c7424"],
+  conversation: ["#79c9bf", "#3c7f77"], assessment: ["#b9b0e0", "#5f5690"], secrets: ["#2f2a40", "#f2be63"],
+  competence: ["#f2be63", "#9c7424"],
 };
 const TIER = ["#c98a55", "#d9d3c4", "#f2be63"];   // brąz, srebro, złoto — kolejność progu w kategorii
 
-function badgeArt(category, tier, earned, size = 64) {
+function badgeArt(category, tier, earned, size = 64, code = "") {
   const [main, dark] = CAT_COLOR[category] || ["#8b97b8", "#4b5675"];
   const emblem = EMBLEM[category] || EMBLEM.milestones;
+  const hx = hash(code);
   const rows = MEDAL.map((row, y) => {
     let r = row;
     if (y >= 4 && y <= 13) { const e = emblem[y - 4]; r = r.slice(0, 5) + [...e].map((c, i) => (c === "." ? r[5 + i] : c)).join("") + r.slice(15); }
-    return r;
+    return [...r];
   });
+  if (code) RUNES.forEach(([y, x], i) => { if ((hx >>> i) & 1 && rows[y][x] === "I") rows[y][x] = "d"; });
   const pal = earned
     ? { k: "#0e1426", F: TIER[Math.min(tier, 2)], I: main, w: "#ffffff", d: dark }
     : { k: "#211c2e", F: "#40375a", I: "#342d47", w: "#5d5277", d: "#40375a" };
-  return sprite(rows, pal, size, `px badge-art${earned ? " earned" : ""}`);
+  return sprite(rows.map((r) => r.join("")), pal, size, `px badge-art${earned ? " earned" : ""}`);
 }
 
 // ---------- krajobraz (stały, deterministyczny) ----------

@@ -503,3 +503,10 @@ form.settings { display: grid; grid-template-columns: repeat(auto-fill, minmax(2
 .weak.struck { opacity: .6; }
 .weak.struck .example { text-decoration: line-through; }
 .card.danger { border-color: var(--terra-dark); }
+/* F7: sala trofeów — sekrety i subtelne odkrycie */
+.badge-card.secret .badge-art { filter: grayscale(.4); }
+.badge-card.fresh { animation: reveal .9s ease-out 1; }
+@keyframes reveal { 0% { transform: scale(.92); box-shadow: 0 0 0 0 var(--amber); } 60% { transform: scale(1.03); box-shadow: 0 0 0 6px transparent; } 100% { transform: none; } }
+.filters { align-items: center; gap: 10px; flex-wrap: wrap; }
+.filters input[type=search], .filters select { font: inherit; padding: 6px 10px; border-radius: 4px; border: 2px solid var(--line-2); background: var(--plum-2); color: var(--text); }
+@media (prefers-reduced-motion: reduce) { .badge-card.fresh { animation: none; } }

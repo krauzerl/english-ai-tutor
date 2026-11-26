@@ -491,3 +491,11 @@ I18N.add([
   ["Najpierw zapisz kopię zapasową (JSON)", "Najpierw zapisz kopię zapasową (JSON)", "Save a backup first (JSON)"],
   ["Resetuj postępy", "Resetuj postępy", "Reset progress"], ["Usuń profil", "Usuń profil", "Delete profile"],
 ]);
+I18N.add([
+  ["Sekret", "Sekret", "Secret"], ["Sekrety", "Sekrety", "Secrets"],
+  ["Ukryte — odkryjesz je, działając", "Ukryte — odkryjesz je, działając", "Hidden — you will discover it by doing"],
+  ["Nic nie pasuje do filtrów.", "Nic nie pasuje do filtrów.", "Nothing matches the filters."],
+  ["Szukaj odznaki…", "Szukaj odznaki…", "Search badges…"], ["Kategoria", "Kategoria", "Category"],
+  ["Wszystkie kategorie", "Wszystkie kategorie", "All categories"],
+  ["standardowe {a}/{b} · sekrety {c}/{e}", "standardowe {a}/{b} · sekrety {c}/{e}", "standard {a}/{b} · secrets {c}/{e}"],
+]);

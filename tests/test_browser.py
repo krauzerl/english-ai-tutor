@@ -275,6 +275,13 @@ def test_weakspots_progress_achievements_settings(page):
     expect(page.locator(".badge-card")).to_have_count(earned)
     page.get_by_role("button", name="Do zdobycia").click()
     expect(page.locator(".badge-card.locked")).to_have_count(total - earned)
+    page.get_by_role("button", name="Sekrety").click()
+    expect(page.locator(".badge-card")).to_have_count(50)                           # 50 ukrytych
+    expect(page.locator(".badge-card.secret").first).to_contain_text("???")
+    page.get_by_role("button", name="Wszystkie").click()
+    page.get_by_label("Szukaj odznaki…").fill("Trzy dni")
+    expect(page.locator(".badge-card").first).to_contain_text("Trzy dni z rzędu")
+    assert total >= 150
     page.goto(page.site + "/#/settings")
     page.get_by_label("Tempo mowy").select_option("slow")
     page.get_by_role("button", name="Zapisz ustawienia").click()

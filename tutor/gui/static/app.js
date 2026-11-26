@@ -251,10 +251,10 @@ async function screenHome(main) {
       return h("li", {}, icon(AREA_ICON[c.area] || "lesson", 22), h("div", {}, h("div", { class: "t" }, skillName(c)), h("div", { class: "s" }, `${cur} · ${areaPl(c.area)}`)), chip(label, tone));
     })));
 
-  const unearned = ac.items.filter((i) => !i.earned).sort((a, b) => b.progress / b.target - a.progress / a.target).slice(0, 3);
+  const unearned = ac.items.filter((i) => !i.earned && !i.hidden).sort((a, b) => b.progress / b.target - a.progress / a.target).slice(0, 3);
   const challenges = cardT("flame", t("Wyzwania"), h("a", { class: "more", href: "#/achievements" }, t("Odznaki")),
-    unearned.length ? h("ul", { class: "mini-list" }, unearned.map((i) => h("li", { class: "challenge" }, badgeArt(i.category, tierOf(ac.items, i), false, 36),
-      h("div", {}, h("div", { class: "t" }, i.name), h("div", { class: "s" }, `${Math.min(i.progress, i.target)} / ${i.target} · ${i.description}`), bar(i.progress, i.target, i.name, "amber")), h("span"))))
+    unearned.length ? h("ul", { class: "mini-list" }, unearned.map((i) => h("li", { class: "challenge" }, badgeArt(i.category, tierOf(ac.items, i), false, 36, i.code),
+      h("div", {}, h("div", { class: "t" }, achName(i)), h("div", { class: "s" }, `${Math.min(i.progress, i.target)} / ${i.target} · ${achDesc(i)}`), bar(i.progress, i.target, achName(i), "amber")), h("span"))))
       : note(t("Wszystkie wyzwania zdobyte.")));
   const recent = cardT("progress", t("Ostatnio"), h("a", { class: "more", href: "#/progress" }, t("Historia")),
     hs.sessions.length ? h("ul", { class: "mini-list" }, hs.sessions.slice(0, 3).map((s) => h("li", {}, icon(KIND_ICON[s.kind] || "chat", 22),
@@ -585,52 +585,68 @@ async function screenProgress(main) {
 }
 
 // ---------- Osiągnięcia ----------
-const CAT = { regularity: t("Regularność"), talk_time: t("Czas rozmów"), lessons: t("Lekcje"), reviews: t("Powtórki"), improvement: t("Poprawa"), weakspots: t("Słabe strony"), challenges: t("Wyzwania"), milestones: t("Kamienie milowe"), exams: t("Egzaminy"), mastered: t("Opanowane umiejętności") };
-const TIER_PL = [t("Brąz"), t("Srebro"), t("Złoto")];
 // Próg w kategorii (rosnąco wg celu) wyznacza kolor ramki odznaki: brąz, srebro, złoto.
 function tierOf(items, item) {
-  const same = items.filter((i) => i.category === item.category).sort((a, b) => a.target - b.target);
+  if (item.hidden) return 2;
+  const same = items.filter((i) => i.category === item.category && !i.hidden && i.target).sort((a, b) => a.target - b.target);
   return same.length < 2 ? 2 : Math.min(2, Math.floor(same.indexOf(item) * 3 / same.length));
 }
+const TIER_PL = [t("Brąz"), t("Srebro"), t("Złoto")];
+const achName = (i) => (I18N.lang === "en" ? i.name_en : i.name);
+const achDesc = (i) => (I18N.lang === "en" ? i.description_en : i.description);
 
 async function screenAchievements(main) {
   const d = await q("/api/achievements");
-  if (d.new && d.new.length) toast(t("Nowe osiągnięcie: {x}", { x: d.new.map((n) => n.name).join(", ") }));
-  let filter = "all";
+  const cats = I18N.lang === "en" ? d.categories_en : d.categories;
+  if (d.new && d.new.length) toast(t("Nowe osiągnięcie: {x}", { x: d.new.map(achName).join(", ") }));
+  const fresh = new Set((d.new || []).map((n) => n.code));
+  let filter = "all", query = "", cat = "all";
   const by = {};
   d.items.forEach((i) => (by[i.category] = by[i.category] || []).push(i));
   const shelves = h("div", { class: "stack" });
-  const draw = () => {
-    shelves.replaceChildren(...Object.entries(by).map(([cat, items]) => {
-      const shown = items.filter((i) => filter === "all" || (filter === "earned" ? i.earned : !i.earned));
-      if (!shown.length) return null;
-      return h("section", { class: "shelf", "aria-labelledby": `cat-${cat}` },
-        h("div", { class: "shelf-head" }, badgeArt(cat, 2, items.some((i) => i.earned), 28), h("h2", { id: `cat-${cat}` }, CAT[cat] || cat),
-          h("span", { class: "count" }, `${items.filter((i) => i.earned).length}/${items.length}`)),
-        h("div", { class: "badges" }, shown.map((i) => {
-          const tier = tierOf(d.items, i);
-          return h("article", { class: i.earned ? "badge-card earned" : "badge-card locked", "aria-label": `${i.name}: ${i.earned ? t("zdobyte") : t("niezdobyte")}` },
-            chip(TIER_PL[tier], i.earned ? "amber" : ""),
-            i.earned ? null : h("span", { class: "lockmark", "aria-hidden": "true" }, icon("lock", 20)),
-            badgeArt(i.category, tier, i.earned, 80),
-            h("strong", {}, i.name), h("span", { class: "desc" }, i.description),
-            i.earned ? h("span", { class: "when" }, t("Zdobyte {d}", { d: fmtDay(i.earned_at) }))
-              : h("div", { class: "prog" }, bar(i.progress, i.target, `${i.name}: ${Math.min(i.progress, i.target)} z ${i.target}`, "amber"), `${Math.min(i.progress, i.target)} / ${i.target}`));
-        })));
-    }).filter(Boolean));
+  const card = (i) => {
+    const tier = tierOf(d.items, i);
+    const secret = i.hidden && !i.earned;
+    return h("article", { class: `badge-card${i.earned ? " earned" : " locked"}${secret ? " secret" : ""}${fresh.has(i.code) ? " fresh" : ""}`,
+      "aria-label": `${achName(i)}: ${i.earned ? t("zdobyte") : t("niezdobyte")}` },
+      chip(i.hidden ? t("Sekret") : TIER_PL[tier], i.earned ? "amber" : ""),
+      i.earned ? null : h("span", { class: "lockmark", "aria-hidden": "true" }, icon("lock", 20)),
+      badgeArt(secret ? "secrets" : i.category, tier, i.earned, 80, i.code),
+      h("strong", {}, achName(i)), h("span", { class: "desc" }, achDesc(i)),
+      i.earned ? h("span", { class: "when" }, t("Zdobyte {d}", { d: fmtDay(i.earned_at) }))
+        : secret ? h("span", { class: "when" }, t("Ukryte — odkryjesz je, działając"))
+          : h("div", { class: "prog" }, bar(i.progress, i.target, `${achName(i)}: ${i.progress} / ${i.target}`, "amber"), `${i.progress} / ${i.target}`));
   };
-  const near = d.items.filter((i) => !i.earned && i.progress > 0).sort((a, b) => b.progress / b.target - a.progress / a.target).slice(0, 3);
+  const draw = () => {
+    const ql = query.trim().toLowerCase();
+    shelves.replaceChildren(...Object.entries(by).filter(([c]) => cat === "all" || c === cat).map(([c, items]) => {
+      const shown = items.filter((i) => (filter === "all" || (filter === "earned" ? i.earned : filter === "secret" ? i.hidden : !i.earned))
+        && (!ql || `${achName(i)} ${achDesc(i)}`.toLowerCase().includes(ql)));
+      if (!shown.length) return null;
+      return h("section", { class: "shelf", "aria-labelledby": `cat-${c}` },
+        h("div", { class: "shelf-head" }, badgeArt(c, 2, items.some((i) => i.earned), 28, c), h("h2", { id: `cat-${c}` }, cats[c] || c),
+          h("span", { class: "count" }, `${items.filter((i) => i.earned).length}/${items.length}`)),
+        h("div", { class: "badges" }, shown.map(card)));
+    }).filter(Boolean));
+    if (!shelves.children.length) shelves.append(note(t("Nic nie pasuje do filtrów."), "muted"));
+  };
+  const near = d.items.filter((i) => !i.earned && !i.hidden && i.progress > 0).sort((a, b) => b.progress / b.target - a.progress / a.target).slice(0, 3);
+  const search = h("input", { type: "search", placeholder: t("Szukaj odznaki…"), "aria-label": t("Szukaj odznaki…"), oninput: (e) => { query = e.target.value; draw(); } });
+  const catSel = h("select", { "aria-label": t("Kategoria"), onchange: (e) => { cat = e.target.value; draw(); } },
+    h("option", { value: "all" }, t("Wszystkie kategorie")), Object.keys(by).map((c) => h("option", { value: c }, cats[c] || c)));
   main.append(
     h("section", { class: "trophy-hero" }, icon("trophy", 84),
       h("div", {}, h("span", { class: "eyebrow" }, t("Sala trofeów")),
         h("h1", {}, h("span", { class: "sr-only" }, t("Osiągnięcia")), pxText(t("Osiągnięcia"), 5)),
-        h("p", {}, d.note || t("Odznaki nagradzają regularną pracę. Nie oznaczają opanowania języka.")),
+        h("p", {}, t("Odznaki nagradzają regularną pracę. Nie oznaczają opanowania języka.")),
         bar(d.earned, d.total, t("Zdobyte {a} z {b}", { a: d.earned, b: d.total }), "amber")),
-      h("div", { class: "counter" }, h("strong", {}, `${d.earned}/${d.total}`), h("span", {}, "zdobytych odznak"))),
+      h("div", { class: "counter" }, h("strong", {}, `${d.earned}/${d.total}`),
+        h("span", {}, t("standardowe {a}/{b} · sekrety {c}/{e}", { a: d.standard.earned, b: d.standard.total, c: d.secret.earned, e: d.secret.total })))),
     near.length ? cardT("flame", t("Najbliżej zdobycia"), null,
-      h("div", { class: "near" }, near.map((i) => h("div", { class: "badge-row" }, badgeArt(i.category, tierOf(d.items, i), false, 48),
-        h("div", {}, h("strong", {}, i.name), h("div", { class: "muted" }, i.description), bar(i.progress, i.target, i.name, "amber")))))) : null,
-    h("div", { class: "row" }, seg(t("Filtr odznak"), [["all", t("Wszystkie")], ["earned", t("Zdobyte")], ["locked", t("Do zdobycia")]], filter, (v) => { filter = v; draw(); })),
+      h("div", { class: "near" }, near.map((i) => h("div", { class: "badge-row" }, badgeArt(i.category, tierOf(d.items, i), false, 48, i.code),
+        h("div", {}, h("strong", {}, achName(i)), h("div", { class: "muted" }, achDesc(i)), bar(i.progress, i.target, achName(i), "amber")))))) : null,
+    h("div", { class: "row filters" }, seg(t("Filtr odznak"), [["all", t("Wszystkie")], ["earned", t("Zdobyte")], ["locked", t("Do zdobycia")], ["secret", t("Sekrety")]], filter, (v) => { filter = v; draw(); }),
+      catSel, search),
     shelves);
   draw();
 }

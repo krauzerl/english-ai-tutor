@@ -156,7 +156,8 @@ def ladder_directive(repo, pack: Pack, pid: int, sid: int, goals: set[str], user
             return None
         nxt, _ = K.advance(c, res)
         lad.update(level=nxt.level, tries=nxt.tries, done=nxt.done, outcome=nxt.outcome)
-        repo.set_session_plan(pid, sid, {**plan, "ladder": lad})
+        hist = plan.get("ladder_history", []) + ([nxt.outcome] if nxt.done else [])   # F7: osiągnięcia „samopoprawa”
+        repo.set_session_plan(pid, sid, {**plan, "ladder": lad, "ladder_history": hist})
         if nxt.done and nxt.outcome == "correct":
             return ("Feedback note (never mention this note): the student just corrected themselves. Acknowledge it in "
                     "two or three words at most and continue the conversation. Do not explain.")
