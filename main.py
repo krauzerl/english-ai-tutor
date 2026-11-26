@@ -54,6 +54,10 @@ if __name__ == "__main__":
         from tutor.cli import content_main
 
         sys.exit(content_main(sys.argv[2:]))
+    if "--gui" in sys.argv[1:]:
+        from tutor.gui.server import main as gui_main
+
+        sys.exit(gui_main(sys.argv[1:]))
     if "--voice" in sys.argv[1:]:
         from tutor.voice.cli import run
 

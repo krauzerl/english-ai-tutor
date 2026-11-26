@@ -27,6 +27,7 @@ include = ["tutor*"]
 [tool.setuptools.package-data]
 "tutor.store" = ["migrations/*.sql"]
 "tutor.content" = ["**/*.yaml", "**/*.md", "**/*.csv"]
+"tutor.gui" = ["static/*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
