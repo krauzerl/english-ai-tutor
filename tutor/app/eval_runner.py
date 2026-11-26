@@ -19,7 +19,7 @@ class ModelUnavailable(Exception):
 
 def make_queue(repo, pack: Pack, provider, structured, *, profile_id: int, session_id: int,
                goals: dict[str, str], clock: Callable[[], datetime] = lambda: datetime.now(UTC),
-               model: str | None = None, prompt_version: str = "turn_eval.v5",
+               model: str | None = None, prompt_version: str = "turn_eval.v3",
                theta: dict[str, float] | None = None, batch: int = 5) -> EvalQueue:
     def evaluate(items: list[Pending]):
         res = turn_eval.evaluate_texts(pack, provider, structured, [p.text for p in items],

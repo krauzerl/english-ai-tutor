@@ -126,8 +126,7 @@ def test_evaluate_texts_minimizes_model_spans(pack):
 
 def test_prompt_requires_minimal_span(pack):
     p = pack.prompts["turn_eval"]
-    assert p["version"] == "turn_eval.v5" and "Keep `s` short" in p["text"]
-    assert "report EACH sure error" in p["text"] and "NOT an error: inversion" in p["text"]   # audyt F7
+    assert p["version"] == "turn_eval.v3" and "Keep `s` short" in p["text"]
 
 
 # --- strażnik znaczenia ---

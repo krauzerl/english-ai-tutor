@@ -43,7 +43,7 @@ def _trend(repo, pid: int, obs: list[dict], now: datetime) -> dict:
     return {**out, "direction": "poprawa" if a < b else "pogorszenie" if a > b else "bez zmian"}
 
 
-SOURCE_PL = {v: "ocena wypowiedzi (model)" for v in ("turn_eval.v3", "turn_eval.v5")}
+SOURCE_PL = {"turn_eval.v3": "ocena wypowiedzi (model)"}
 VERDICT_PL = {"disputed": "zakwestionowane przez Ciebie", "stt_error": "oznaczone jako błąd rozpoznania mowy",
               "accepted": "potwierdzone przez Ciebie", "restored": "przywrócone"}
 

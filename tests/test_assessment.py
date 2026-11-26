@@ -378,6 +378,8 @@ def test_real_article_errors_still_reported(pack):
 @pytest.mark.parametrize("span,fix,text", [
     ("medicines", "medicine", "Okay. Do you take any medicines?"),          # audyt F7: roleplay na żywo
     ("friends", "friend", "I met my friends yesterday."),
+    ("years", "year", "I have 30 years."),                                   # zła poprawka; błąd jest gdzie indziej
+    ("days", "day", "We stayed there for three days."),
 ])
 def test_plural_after_plural_determiner_is_correct(pack, span, fix, text):
     c = cls(pack, ob(span, fix, "agreement.number"), text)

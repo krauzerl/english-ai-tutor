@@ -307,6 +307,8 @@ def bare_plural_to_article(text: str, span: str, fix: str) -> bool:
 # jest niepoliczalny („some informations” → „information” to prawdziwy błąd).
 _PL_DET = {"any", "some", "the", "my", "your", "his", "her", "our", "their", "its", "no", "many", "more", "most",
            "these", "those", "all", "few", "several", "such", "other", "both", "lots", "plenty"}
+_NUM_PL = {"two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "twenty",
+           "thirty", "forty", "fifty", "hundred", "thousand", "million", "dozens", "hundreds", "thousands"}
 UNCOUNTABLE = {"information", "advice", "furniture", "homework", "luggage", "baggage", "equipment", "knowledge",
                "research", "evidence", "feedback", "traffic", "weather", "news", "software", "music", "money",
                "progress", "accommodation", "behaviour", "behavior", "scenery", "staff", "work", "bread", "rice"}
@@ -321,4 +323,5 @@ def plural_after_plural_determiner(text: str, span: str, fix: str) -> bool:
     if not _plural_of(y, x) or y in UNCOUNTABLE:
         return False
     before = [t[2].lower() for t in _toks(text) if t[1] <= es[0].a]
-    return bool(before) and before[-1] in _PL_DET
+    prev = before[-1] if before else ""
+    return prev in _PL_DET or prev in _NUM_PL or (prev.isdigit() and prev != "1")
