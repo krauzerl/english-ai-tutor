@@ -21,6 +21,33 @@ _HELP = re.compile(
 _UNKNOWN = re.compile(r"\b(i (do not|don'?t) know|no idea|i have no idea|i'?m not sure|not sure)\b", re.I)
 
 
+_REPEAT = re.compile(r"\b(repeat|say (that|it) again|once more|one more time|didn'?t (hear|catch))\b", re.I)
+_TOPIC = re.compile(      # prośba o konkretny temat: „let's talk about X”, „change the topic to X”, „switch to X”
+    r"(?:(?:let'?s|let us|can we|could we|shall we|i want to|i'?d like to|i would like to|we can)\s+"
+    r"(?:talk|chat|speak|switch|move on)\s+(?:about|to)|change the (?:topic|subject) to)\s+(?P<a>[^.?!,;]{2,60})", re.I)
+_MAYBE = re.compile(r"(?:^|[.?!,;]\s*)(?:maybe|how about|what about|perhaps)\s+(?P<a>[^.?!,;]{2,60})", re.I)
+_NOT_TOPIC = re.compile(r"^(something|anything|it|this|that|the topic|another topic|a different topic|other things?|"
+                        r"else|something else)\b", re.I)
+
+
+def wants_repeat(text: str) -> bool:
+    """Prośba o powtórzenie (wtedy powtórka zdania jest właściwa); „nie rozumiem” to prośba o inne słowa."""
+    return bool(_REPEAT.search(text.replace("’", "'")))
+
+
+def requested_topic(text: str) -> str | None:
+    """Temat wskazany w prośbie o zmianę („let's talk about my job”; „Maybe travel” tylko obok prośby o zmianę tematu)
+    albo None (wtedy temat losujemy). Zwykłe zdania o rozmowach („My dad talks about politics”) nie są prośbą."""
+    t0 = text.replace("’", "'")
+    pats = [_TOPIC] + ([_MAYBE] if detect(t0) == "skip" else [])
+    for m in (m for pat in pats for m in pat.finditer(t0)):
+        t = " ".join(m["a"].split()).strip(" '\"")
+        t = re.sub(r"\s+(please|instead|now|then)$", "", t, flags=re.I)
+        if t and not _NOT_TOPIC.match(t) and len(t.split()) <= 6:
+            return t
+    return None
+
+
 def detect(text: str) -> str | None:
     """skip | help | unknown (krótkie „nie wiem”: brak odpowiedzi, nie błąd językowy) | None."""
     t = text.replace("’", "'")

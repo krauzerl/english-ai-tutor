@@ -180,7 +180,7 @@ def test_recording_cancels_running_eval_and_nothing_runs_until_reply_done(env):
     assert window["gen"][-1] == (0, 1)                             # ani nowa ocena nie wystartowała przed końcem odpowiedzi
     assert env.applied() == 2 and len(env.repo.list_observations(env.pid)) == 2
     assert [u["input_mode"] for u in env.users()] == ["text", "voice"]
-    assert len(spy.calls) == 2                                     # odrzucona + jedna partia obu tur
+    assert len(spy.calls) == 3                                     # odrzucona + po jednej ocenie na turę (batch=1)
 
 
 def test_stt_error_releases_activity_and_eval_resumes(env):

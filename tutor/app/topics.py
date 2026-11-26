@@ -5,6 +5,7 @@ użyta, tym chętniej wraca; tematy z ostatnich `AVOID_LAST` użyć nie są prop
 from __future__ import annotations
 
 import random
+import re
 from functools import lru_cache
 from importlib import resources
 
@@ -64,5 +65,6 @@ def get(topic_id: str, lang: str = "en") -> dict | None:
 def custom(text: str) -> dict:
     """Temat wpisany przez ucznia (id=None ⇒ nie wchodzi do rotacji katalogu)."""
     t = " ".join(text.split())[:200]
-    q = t if t.endswith("?") else f"Let's talk about this: {t.rstrip('.!')}. What would you like to say about it?"
+    name = re.sub(r"\b(my|our)\b", "your", t.rstrip(".!"), flags=re.I)      # perspektywa nauczyciela
+    q = t if t.endswith("?") else f"Let's talk about {name}. What do you like or dislike about {name}?"
     return {"id": None, "category": "custom", "category_pl": "Własny", "pl": t, "q": q}

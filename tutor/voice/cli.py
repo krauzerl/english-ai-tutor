@@ -175,6 +175,9 @@ def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, l
         kind = "chat"
         if cur and cur["kind"] == "chat":
             chat_topic = repo.get_session_plan(p["id"], cur["id"]).get("topic")
+            if a.chat != "ask" and chat_topic and (T0 := _choose_topic(a, repo, p, q, out)) and \
+                    (T0.get("id"), T0["pl"]) != (chat_topic.get("id"), chat_topic["pl"]):
+                chat_topic, cur = T0, dict(cur) | {"kind": "chat-other"}   # inny temat: nowa rozmowa
         if chat_topic is None:
             chat_topic = _choose_topic(a, repo, p, q, out)
             if chat_topic is None:
@@ -273,9 +276,10 @@ def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, l
                 if not text:
                     continue
                 out(f"You: {text}")
-                if a.chat and INTENT.detect(text) == "skip":          # „zmień temat”: nowy temat z generatora
-                    nxt = T.suggest(repo, p["id"], 1, exclude={t["id"] for t in repo.get_session_plan(
-                        p["id"], sid).get("topics", []) if t.get("id")})[0]
+                req = INTENT.requested_topic(text) if a.chat else None
+                if a.chat and (req or INTENT.detect(text) == "skip"):  # „zmień temat”: wskazany albo z generatora
+                    used = {t["id"] for t in repo.get_session_plan(p["id"], sid).get("topics", []) if t.get("id")}
+                    nxt = T.custom(req) if req else T.suggest(repo, p["id"], 1, exclude=used)[0]
                     base = QC.switch(repo, p["id"], sid, nxt)
                     tutor.system = base + QC.switch_note(nxt)       # tylko na tę jedną odpowiedź
                     switched = base
@@ -309,7 +313,8 @@ def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, l
                     svc.tutor_done()     # każdy cykl (też przerwany: STT, TTS, Ctrl+C) zwalnia ocenianie
         if proceed and svc and conv_pack:
             if a.summary_wait and svc.pending:             # ograniczone czekanie na ocenę ostatnich wypowiedzi
-                svc.wait_idle(a.summary_wait)
+                out(f"[sprawdzam jeszcze {svc.pending} wypowiedzi przed podsumowaniem…]")
+                svc.wait_idle(min(60.0, max(a.summary_wait, 3.0 * svc.pending)))   # ~2 s na wypowiedź (Qwen3 8B)
             from tutor.app import feedback as FB
             notes = FB.summary_lines(repo, conv_pack, p["id"], sid)
             for ln in notes:
@@ -593,7 +598,9 @@ def _eval_service(repo, conn, p, sid, eval_llm, build_eval, out, goals=None, pac
     svc = SessionService(
         repo, lambda: Repo(open_db(path)),
         lambda wrepo: make_queue(wrepo, pack, eval_llm, structured, profile_id=p["id"], session_id=sid,
-                                goals=goals or {}),
+                                goals=goals or {}, batch=1),
+        # batch=1: Qwen3 8B ocenia 1 wypowiedź w ~2 s, partię 5 w ~30 s (pomiar F7); wypowiedź ucznia anuluje całą
+        # trwającą partię, więc przy partiach po 5 ocena w rozmowie prawie nigdy się nie kończyła.
         p["id"], sid)
     n = svc.start()
     if n:

@@ -199,7 +199,7 @@ def test_guard_suppresses_repeated_question_and_keeps_new_content():
 def test_guard_drops_stock_praise_when_recently_used_but_allows_first_time():
     assert Guard([])("You're doing great!") == "You're doing great!"
     g = Guard(["You're doing great! Is Beatrice your friend?"])
-    assert g("You're doing great!") is None and g("That sounds fun.") == "That sounds fun."
+    assert g("You're doing great!") is None and g("Where did you go?") == "Where did you go?"
     assert Guard(["Nice."])("Great job!") == "Great job!"
 
 

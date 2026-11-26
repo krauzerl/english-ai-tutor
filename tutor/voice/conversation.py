@@ -99,8 +99,8 @@ class VoiceTutor:
         t_end = self.clock() if t_end is None else t_end
         res = TurnResult(user_text)
         sig = INTENT.detect(user_text)                     # jasny sygnał ucznia → notatka na tę jedną odpowiedź
-        guard = Guard([t["text"] for t in self.repo.list_turns(self.pid, self.sid)
-                       if t["role"] == "assistant"][-3:], repeats=sig != "help")
+        guard = Guard([t["text"] for t in self.repo.list_turns(self.pid, self.sid)       # „nie rozumiem” ≠ „powtórz”
+                       if t["role"] == "assistant"][-8:], repeats=not INTENT.wants_repeat(user_text))
         system = self.system + self._note(user_text) + INTENT.NOTES.get(sig, "")
         ctx = build_context(self.repo, self.pid, self.sid, system, user_text,
                             context_window=self.window, reserve_out=self.max_tokens)
