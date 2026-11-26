@@ -55,6 +55,14 @@ class PiperTTS:
         return (np.concatenate(parts) if parts else np.zeros(0, np.int16)).astype(np.float32) / 32768.0
 
 
+class SilentTTS:
+    """Tryb tekstowy (`--no-audio`): bez modelu, bez PortAudio, bez pobierania czegokolwiek."""
+    name, voice, sample_rate = "none", "-", 24000
+
+    def synth(self, text: str) -> np.ndarray:
+        return np.zeros(0, np.float32)
+
+
 def build_tts(name: str, voice: str | None = None, speed: float = 1.0) -> TTS:
     voice = voice or DEFAULT_VOICE[name]
     if name == "kokoro":

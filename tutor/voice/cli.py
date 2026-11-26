@@ -135,8 +135,8 @@ def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, l
         from tutor.voice.stt import WhisperSTT
         stt = WhisperSTT(a.stt_model, a.language)
     if tts is None:
-        from tutor.voice.tts import build_tts
-        tts = build_tts(a.tts, a.tts_voice, a.speed)
+        from tutor.voice import tts as TT
+        tts = TT.SilentTTS() if a.no_audio else TT.build_tts(a.tts, a.tts_voice, a.speed)
 
     q = lines or _lines()
     lines = q
