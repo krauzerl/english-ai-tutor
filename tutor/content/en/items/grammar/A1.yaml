@@ -805,7 +805,7 @@
   pools:
   - diagnosis
   domain: general
-  prompt: ___ you swim?
+  prompt: ___ you swim? — Yes, I can.
   stimulus: null
   options:
   - Do

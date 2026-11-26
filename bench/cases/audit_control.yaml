@@ -1,0 +1,70 @@
+# Niezależny zestaw kontrolny audytu końcowego F7 (autor: Claude Opus, 2026-11-26; NIE zrecenzowany przez człowieka).
+# Napisany bez patrzenia na odpowiedzi modelu i bez kopiowania `teacher_f7.yaml`.
+# Kryteria (jawne, liczone kodem w `bench/audit_control.py`):
+#   clean / variant: każde zgłoszenie błędu (valid, kind=error, confidence=h) = FAŁSZYWA KOREKTA;
+#   stt (głos + niepewne słowo z Whispera): zgłoszenie błędu językowego = FAŁSZYWA KOREKTA (to błąd rozpoznania);
+#   errors: oczekiwany błąd wykryty, gdy zdanie po poprawce zawiera `fix_has`; kategoria z rodziny `cat`.
+eval:
+  # --- zdania poprawne (proste i podchwytliwe) ---
+  - {id: c01, kind: clean, text: "I've lived in Gdańsk since 2015."}
+  - {id: c02, kind: clean, text: "She doesn't eat meat, but she eats fish."}
+  - {id: c03, kind: clean, text: "We were going to call you, but the battery died."}
+  - {id: c04, kind: clean, text: "Neither of my parents speaks English."}
+  - {id: c05, kind: clean, text: "Had I known about the delay, I would have taken a taxi."}
+  - {id: c06, kind: clean, text: "There's a pharmacy round the corner."}
+  - {id: c07, kind: clean, text: "I'm not sure whether he's coming."}
+  - {id: c08, kind: clean, text: "The kids are playing football outside."}
+  - {id: c09, kind: clean, text: "Most of the information was useful."}
+  - {id: c10, kind: clean, text: "I usually get up at six on weekdays."}
+  - {id: c11, kind: clean, text: "We checked the patient's airway and started CPR."}
+  - {id: c12, kind: clean, text: "Our server went down twice last week."}
+  - {id: c13, kind: clean, text: "Yeah, it was okay, nothing special."}
+  - {id: c14, kind: clean, text: "Could you send me the invoice by Friday?"}
+  - {id: c15, kind: clean, text: "I haven't seen that film yet."}
+  - {id: c16, kind: clean, text: "My wife and I are planning a trip to Portugal."}
+  - {id: c17, kind: clean, text: "It depends on the weather."}
+  - {id: c18, kind: clean, text: "I'd rather stay at home tonight."}
+  # --- warianty poprawne (BrE/AmE, rejestr, akceptowalne alternatywy) ---
+  - {id: v01, kind: variant, text: "I'll see you at the weekend."}
+  - {id: v02, kind: variant, text: "I'll see you on the weekend."}
+  - {id: v03, kind: variant, text: "Have you got a pen?"}
+  - {id: v04, kind: variant, text: "Do you have a pen?"}
+  - {id: v05, kind: variant, text: "The team are working hard this month."}
+  - {id: v06, kind: variant, text: "I just finished my homework."}
+  - {id: v07, kind: variant, text: "This is different from what I expected."}
+  - {id: v08, kind: variant, text: "I clean my teeth after breakfast."}
+  # --- błędy STT (głos; Whisper oznaczył słowo jako niepewne) ---
+  - {id: s01, kind: stt, mode: voice, low: [for], text: "I bought for tickets for the concert."}
+  - {id: s02, kind: stt, mode: voice, low: [there], text: "They left there car at the station."}
+  - {id: s03, kind: stt, mode: voice, low: [walk], text: "I walk at the hospital as a nurse."}
+  - {id: s04, kind: stt, mode: voice, low: [right], text: "Can you right it down for me?"}
+  - {id: s05, kind: stt, mode: voice, low: [sea], text: "I can't sea the screen from here."}
+  # --- jeden błąd ---
+  - {id: e01, kind: error, text: "He don't know the answer.", errors: [{fix_has: "doesn't", cat: agreement}]}
+  - {id: e02, kind: error, text: "I am working here for two years.", errors: [{fix_has: "have been working|have worked|'ve been working|'ve worked", cat: tense}]}
+  - {id: e03, kind: error, text: "She is more taller than her brother.", errors: [{fix_has: "is taller", cat: "comparison|adjective|morphology|word"}]}
+  - {id: e04, kind: error, text: "I have seen him yesterday.", errors: [{fix_has: "saw", cat: tense}]}
+  - {id: e05, kind: error, text: "Where you live?", errors: [{fix_has: "where do you live", cat: "word_order|question|aux|tense"}]}
+  - {id: e06, kind: error, text: "I need an information about the train.", errors: [{fix_has: "need information|need some information|a piece of information", cat: "article|countable|noun"}]}
+  - {id: e07, kind: error, text: "We discussed about the problem.", errors: [{fix_has: "discussed the problem", cat: "preposition|word"}]}
+  - {id: e08, kind: error, text: "My father is doctor.", errors: [{fix_has: "a doctor", cat: article}]}
+  # --- kilka błędów naraz ---
+  - {id: m01, kind: multi, text: "Yesterday she go to shop and buyed two bread.", errors: [{fix_has: went, cat: tense}, {fix_has: bought, cat: "morphology|tense"}]}
+  - {id: m02, kind: multi, text: "He have three childrens and they goes to school.", errors: [{fix_has: has, cat: agreement}, {fix_has: "children", cat: "morphology|plural|noun|agreement"}, {fix_has: "they go", cat: agreement}]}
+  - {id: m03, kind: multi, text: "I didn't went there because I was very tired and I have no money.", errors: [{fix_has: "didn't go", cat: tense}, {fix_has: "had no money", cat: tense}]}
+  - {id: m04, kind: multi, text: "When I will finish work, I call you.", errors: [{fix_has: "when i finish", cat: tense}, {fix_has: "i'll call|i will call", cat: tense}]}
+  # --- held-out: dopisane PRZED pomiarem promptu v5, nieużywane do strojenia ---
+  - {id: h01, kind: clean, text: "Never have I seen such a beautiful sunset."}
+  - {id: h02, kind: clean, text: "Not bad, thanks. Busy week, though."}
+  - {id: h03, kind: clean, text: "Should you need any help, just call me."}
+  - {id: h04, kind: clean, text: "The more you practise, the easier it gets."}
+  - {id: h05, kind: clean, text: "I'm used to working at night."}
+  - {id: h06, kind: clean, text: "We've been waiting for over an hour."}
+  - {id: h07, kind: clean, text: "Whoever wrote this code knew what they were doing."}
+  - {id: h08, kind: clean, text: "Hardly anyone came to the meeting."}
+  - {id: h09, kind: clean, text: "It's high time we left."}
+  - {id: h10, kind: clean, text: "Me too. I love that place."}
+  - {id: h11, kind: error, text: "She can to swim very well.", errors: [{fix_has: "can swim", cat: "modal|word|infinitive|verb"}]}
+  - {id: h12, kind: error, text: "I am agree with you.", errors: [{fix_has: "I agree", cat: "word|verb|aux|tense"}]}
+  - {id: h13, kind: multi, text: "My friends was at home and nobody don't want to go out.", errors: [{fix_has: "friends were", cat: agreement}, {fix_has: "nobody wanted|nobody wants|nobody want|didn't want", cat: "negation|word|agreement|tense"}]}
+  - {id: h14, kind: error, text: "I have 30 years.", errors: [{fix_has: "I am 30|I'm 30", cat: "word|verb|l1"}]}

@@ -185,7 +185,9 @@ def classify(o: Obs, text: str, *, input_mode: str, low_prob_words: set[str], pr
         good = " ".join(r["good"] for r in pre.repairs)
         rep = bool(o.f) and norm_answer(o.f) in norm_answer(good) and o.k == "error"
         return Classified("disfluency", "valid", None, o.s, o.f, o.c, o.v, o.p, self_repair=rep, source=o.src)
-    if is_variant(o.s, o.f, variants, domain):                                       # 3
+    a, b = where[0]                       # F7 audyt: span po `minimize` („are”) gubi kontekst wariantu („the team are”)
+    if is_variant(o.s, o.f, variants, domain) or (
+            o.f is not None and is_variant(text, text[:a] + o.f + text[b:], variants, domain)):   # 3
         return Classified("variant", "valid", None, o.s, o.f, o.c, o.v, o.p, source=o.src)
     voice = input_mode == "voice"
     if voice and core_of(o.c) in cfg["voice_dropped_categories"]:                    # 4

@@ -346,3 +346,15 @@ def test_error_aggregation_counts_only_valid_confident_errors(pack):
 
 def test_wrong_article_with_variant_swap_is_error(pack):
     assert cls(pack, ob("an flat", "an apartment", "article"), "I rent an flat").kind == "error"
+
+
+@pytest.mark.parametrize("span,fix,text", [
+    ("are", "is", "The team are working hard this month."),           # audyt F7: span zminimalizowany do „are”
+    ("the", "", "She is in the hospital now."),
+])
+def test_minimized_span_still_matches_phrase_variant(pack, span, fix, text):
+    assert cls(pack, ob(span, fix, "agreement.subject_verb"), text).kind == "variant"
+
+
+def test_minimized_span_variant_check_keeps_real_errors(pack):
+    assert cls(pack, ob("are", "is", "agreement.subject_verb"), "The boy are working hard.").kind == "error"

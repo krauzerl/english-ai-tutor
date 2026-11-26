@@ -170,3 +170,13 @@ def test_brae_ame_and_stt_sets_not_counted(pack):
     prov = ScriptedProvider({t: [{"s": "have apple", "f": "have an apple", "k": "error", "c": "article.missing", "v": 2, "p": "h"}]})
     run = G.run_case("A", c, pack, provider=prov, structured=structured)
     assert run.reports == [] and G.score([run])["stt_clean"] == 1.0
+
+
+def test_audit_control_fix_must_appear_only_after_correction():
+    from types import SimpleNamespace as NS
+
+    from bench.audit_control import _fixed
+    o = NS(span="have", fix="has")
+    assert not _fixed("He have three childrens.", o, ["children"])        # „children” ⊂ „childrens” to nie poprawka
+    assert _fixed("He have three childrens.", NS(span="childrens", fix="children"), ["children"])
+    assert _fixed("We discussed about it.", NS(span="about", fix=""), ["discussed it"])   # spacje po usunięciu
