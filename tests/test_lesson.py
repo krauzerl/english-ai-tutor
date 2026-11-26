@@ -241,3 +241,21 @@ def test_allow_mastery_guard_is_opt_in_default_engine_unchanged(repo, pack):
                                   dedupe_key="x1", now=NOW, allow_mastery=False)
     assert r["to"] == "learning" and repo.get_skill_state(pid2, SKILL)["status"] == "learning"
     assert repo.get_skill_state(pid, SKILL)["status"] == "mastered"  # izolacja profili
+
+
+@pytest.mark.parametrize("heard", ["B", "b.", "option B", "Option B.", "B please.", "Number 2", "the second one.",
+                                   "It's B.", "2", "two", "Did."])
+def test_spoken_choice_forms_select_option(pack, heard):
+    """Audyt F7: Whisper zapisuje wybór jako „option B.”/„Number 2” — wcześniej 5/30 nagrań było przyjętych."""
+    it = pack.items["en.f7.gram.a2.01"]                       # Do / Did / Were / Have, poprawna: Did (B)
+    assert L.check(pack, it, heard)
+
+
+@pytest.mark.parametrize("heard", ["Bay", "A 2", "to", "C", "Number 3", "the first one"])
+def test_unclear_or_other_choice_is_not_accepted(pack, heard):
+    assert not L.check(pack, pack.items["en.f7.gram.a2.01"], heard)
+
+
+def test_literal_option_text_beats_letter_name(pack):
+    it = next(i for i in pack.items.values() if i.options and "be" in i.options and i.answers != ["be"])
+    assert not L.check(pack, it, "be")                       # opcja „be” to treść, nie litera B

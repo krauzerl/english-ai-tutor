@@ -104,13 +104,30 @@ def _gap_spans(item: C.Item) -> list[tuple[list[str], int, int]]:
     return out
 
 
+_LETTERS = {"a": 0, "ay": 0, "b": 1, "be": 1, "bee": 1, "c": 2, "see": 2, "sea": 2, "d": 3, "dee": 3}
+_ORDINAL = {"one": 1, "first": 1, "two": 2, "second": 2, "three": 3, "third": 3, "four": 4, "fourth": 4}
+_CHOICE_WRAP = re.compile(r"^(?:(?:it's|it is|the answer is|answer|option|letter|number|i think|i choose)\s+)*"
+                          r"(?:the\s+)?(.+?)(?:\s+one)?(?:\s+please)?$")
+
+
+def _choice(options: list[str], text: str) -> str:
+    """Wybór opcji mc z tego, co uczeń wpisał lub powiedział (Whisper: „option B.”, „Number 2”, „the second one”).
+    Dosłowna treść opcji wygrywa (opcja „be” ≠ litera B); niejasne słowo zostaje bez zmian (ocena: unclear/wrong)."""
+    raw = re.sub(r"[^\w' ]", " ", text.replace("’", "'").lower())
+    raw = " ".join(raw.split())
+    if raw in {C.norm_answer(o) for o in options}:
+        return text.strip()
+    core = _CHOICE_WRAP.match(raw).group(1) if raw else ""
+    n = int(core) if core.isdigit() else _ORDINAL.get(core)
+    if n is None and core in _LETTERS:
+        n = _LETTERS[core] + 1
+    return options[n - 1] if n and 1 <= n <= len(options) else text.strip()
+
+
 def check(pack: C.Pack, item: C.Item, text: str) -> bool:
     t = text.strip()
     if item.options:                       # mc: numer 1..n lub litera a..d wskazuje opcję
-        if t.isdigit():
-            t = item.options[int(t) - 1] if 1 <= int(t) <= len(item.options) else ""
-        elif len(t) == 1 and t.lower() in "abcdefgh"[:len(item.options)]:
-            t = item.options["abcdefgh".index(t.lower())]
+        t = _choice(item.options, t)
     if not t:
         return False
     p = _prep(t)
