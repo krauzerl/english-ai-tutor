@@ -114,15 +114,17 @@ def _retention(atts: list[dict], pack: C.Pack) -> dict:
     for a in atts:
         t = _dt(a["created_at"])
         prev = last.get(a["skill_id"])
-        if prev and (t - prev).days >= RETENTION_DAYS and a["hint_level"] == 0:
+        if prev and (t - prev).days >= RETENTION_DAYS and a["hint_level"] == 0 and not _fb(a).get("stt_uncertain"):
             delayed.append({"days": (t - prev).days, "correct": bool(a["correct"]),
                             "new_item": True})
         if _fb(a).get("review"):
             reviews.append(bool(a["correct"]))
         last[a["skill_id"]] = t
     week = [d for d in delayed if d["days"] >= 7]
+    two = [d for d in delayed if d["days"] >= 14]
     return {"after_3_days": {"correct": sum(d["correct"] for d in delayed), "n": len(delayed)},
             "after_7_days": {"correct": sum(d["correct"] for d in week), "n": len(week)},
+            "after_14_days": {"correct": sum(d["correct"] for d in two), "n": len(two)},
             "reviews": {"correct": sum(reviews), "n": len(reviews)},
             "enough": len(delayed) >= MIN_POINT}
 

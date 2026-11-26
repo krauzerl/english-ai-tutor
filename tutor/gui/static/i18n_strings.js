@@ -48,6 +48,7 @@ I18N.add([
   ["gr.retention", "Trwałość wiedzy", "Retention"],
   ["gr.ret_3", "Po ≥ 3 dniach przerwy: {c}/{n}", "After a break of ≥ 3 days: {c}/{n}"],
   ["gr.ret_7", "Po ≥ 7 dniach przerwy: {c}/{n}", "After a break of ≥ 7 days: {c}/{n}"],
+  ["gr.ret_14", "Po ≥ 14 dniach przerwy: {c}/{n}", "After a break of ≥ 14 days: {c}/{n}"],
   ["gr.ret_rev", "Powtórki FSRS: {c}/{n}", "FSRS reviews: {c}/{n}"],
   ["gr.errors", "Powracające błędy: {r} · rozwiązane: {s}", "Recurring errors: {r} · resolved: {s}"],
   ["gr.not_evidence", "Nie liczymy jako dowodu: czas w aplikacji, odznaki, swobodną rozmowę bez oceny, powtarzanie tego samego zadania.",

@@ -32,7 +32,7 @@ QUICK = ("grammar", "vocabulary")
 SOURCE = "assessment_provisional"
 SOURCES = ("placement_provisional", SOURCE, "diagnosis")
 MIN_ANSWERED = 3
-PRIOR_SD = 1.2                      # prior z innych obszarów: przesunięty środek, nadal szeroki
+PRIOR_SD = 2.0                      # audyt F7: 1.2 ciągnął obszar A1 o ~0,8 θ ku C1 innych obszarów
 NAMES_PL = {"grammar": "gramatyka", "vocabulary": "słownictwo", "reading": "czytanie", "listening": "słuchanie",
             "writing": "pisanie", "speaking": "mówienie"}
 NOT_READY_PL = ("Ocena produkcji (pisanie, mówienie) nie ma jeszcze zwalidowanej rubryki: pokazujemy dowody "

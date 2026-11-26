@@ -478,7 +478,7 @@ function growthSection(g) {
     h("div", { class: "grid-2" },
       card(t("gr.speech"), table(["", t("gr.compare", { d: g.windows.days }).split(" vs ")[0], t("gr.compare", { d: g.windows.days }).split(" vs ")[1] || "", ""], speech)),
       card(t("gr.retention"), h("ul", { class: "limits" }, h("li", {}, t("gr.ret_3", { c: rt.after_3_days.correct, n: rt.after_3_days.n })),
-        h("li", {}, t("gr.ret_7", { c: rt.after_7_days.correct, n: rt.after_7_days.n })), h("li", {}, t("gr.ret_rev", { c: rt.reviews.correct, n: rt.reviews.n })),
+        h("li", {}, t("gr.ret_7", { c: rt.after_7_days.correct, n: rt.after_7_days.n })), h("li", {}, t("gr.ret_14", { c: rt.after_14_days.correct, n: rt.after_14_days.n })), h("li", {}, t("gr.ret_rev", { c: rt.reviews.correct, n: rt.reviews.n })),
         h("li", {}, t("gr.errors", { r: g.errors.recurring, s: g.errors.resolved }))))),
     note(t("gr.not_evidence"), "muted"));
 }

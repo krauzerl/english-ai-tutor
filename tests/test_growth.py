@@ -105,6 +105,17 @@ def test_retention_after_days(env, pack):
     add(repo, pid, sid, its[1], True, NOW - timedelta(days=1), fb={"review": 1})
     r = GR.build(repo, pack, pid, NOW)["retention"]
     assert r["after_7_days"] == {"correct": 1, "n": 1} and r["reviews"] == {"correct": 1, "n": 1}
+    assert r["after_14_days"] == {"correct": 0, "n": 0}                       # 9 dni przerwy < 14
+
+
+def test_retention_14_days_and_stt_uncertain_excluded(env, pack):
+    repo, pid, sid = env
+    its = [i for i in pack.items.values() if i.answers and i.skill_ids[0] == items(pack, "grammar", ("A1",))[0].skill_ids[0]]
+    add(repo, pid, sid, its[0], True, NOW - timedelta(days=40))
+    add(repo, pid, sid, its[1], False, NOW - timedelta(days=20))              # 20 dni przerwy, błędnie
+    add(repo, pid, sid, its[2], True, NOW - timedelta(days=5), fb={"stt_uncertain": 1})   # niepewne STT: nie dowód
+    r = GR.build(repo, pack, pid, NOW)["retention"]
+    assert r["after_14_days"] == {"correct": 0, "n": 1} and r["after_3_days"] == {"correct": 0, "n": 1}
 
 
 def test_time_and_badges_are_not_evidence(env, pack):

@@ -172,3 +172,17 @@ def test_cli_assess_rejects_unknown_area(repo, conn):
     code = cli_run(["--voice", "--profile", "ann", "--no-audio", "--assess", "maths"], eval_llm=EvalProv(),
                    out=lambda s: None, err=errs.append, db=conn, lines=Gated({}))
     assert code == 1 and errs
+
+
+def test_uneven_profile_prior_does_not_drag_weak_area(repo, pack, monkeypatch):
+    """Audyt F7: prior z gramatyki/słownictwa C1 nie może podnieść czytania ucznia A1 (niezależność kompetencji)."""
+    lv = {"grammar": "C1", "vocabulary": "C1", "reading": "A1"}
+    areas = ("grammar", "vocabulary", "reading")
+    pid = repo.create_profile("uneven")
+    _, rep, _ = run(repo, pack, pid, oracle(pack, lv), areas=areas)
+    with_prior = next(o.result["theta"] for o in rep.outcomes if o.area == "reading")
+    monkeypatch.setattr(DG, "_prior", lambda st: None)
+    pid2 = repo.create_profile("uneven2")
+    _, rep2, _ = run(repo, pack, pid2, oracle(pack, lv), areas=areas)
+    no_prior = next(o.result["theta"] for o in rep2.outcomes if o.area == "reading")
+    assert abs(with_prior - no_prior) < 0.3, (with_prior, no_prior)
