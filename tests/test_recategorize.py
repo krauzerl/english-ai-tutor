@@ -42,3 +42,14 @@ def test_classify_stores_corrected_category():
                    variants=pack.variants, confusables=pack.confusables, taxonomy=ER.allowed_categories(pack.errors),
                    rubric=pack.rubric)
     assert (c.status, c.category) == ("valid", "agreement.subject_verb")
+
+
+@pytest.mark.parametrize("text,span,fix,want", [
+    ("She have a big house.", "have", "has", "agreement.subject_verb"),
+    ("We was very tired.", "was", "were", "agreement.subject_verb"),
+    ("My sister don't like it.", "don't", "doesn't", "agreement.subject_verb"),
+    ("Two days ago I meet my teacher.", "meet", "met", "tense.past_simple"),
+    ("Yesterday I goed home.", "goed", "went", "morphology.irregular_past"),
+])
+def test_f7_agreement_pairs_and_wrong_tense(text, span, fix, want):
+    assert E.recategorize(text, span, fix, "morphology.irregular_past") == want

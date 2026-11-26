@@ -246,13 +246,13 @@ def cand(sev=2, count=0, goal=False, cat="tense.past_simple", turn_id=1, obs_id=
     return K.Candidate(obs_id, turn_id, cat, "s", sev, count, goal, "I go", "I went")
 
 
-def test_decision2_default_style_is_summary_until_gate(pack):
+def test_default_style_is_balanced_and_worded_as_suggestion(pack):
     rb = pack.rubric
     d = K.effective_style(None, rb)
-    assert d["style"] == "summary" and not d["gate_passed"] and not d["suggestion_wording"]
+    assert d["style"] == "periodic" and not d["gate_passed"] and d["suggestion_wording"]   # F7: decyzja właściciela
     p = K.effective_style("periodic", rb)
     assert p["style"] == "periodic" and p["suggestion_wording"]           # gate niespełniona ⇒ „sugestia”
-    assert K.effective_style("nonsense", rb)["style"] == "summary"
+    assert K.effective_style("nonsense", rb)["style"] == "periodic"
 
 
 def test_t_corr_1_policies(pack):

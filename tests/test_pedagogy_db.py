@@ -51,8 +51,8 @@ def test_t_db_3_migration_003_from_v2_keeps_all_rows(v2db):
     after = {t: c.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0] for t in OLD}
     assert after == before
     rows = {r["name"]: r for r in c.execute("SELECT * FROM profile")}
-    # decyzja 2: brama jakości Bielika niespełniona → `summary` dla wszystkich (także dawnego `immediate`)
-    assert rows["imm"]["correction_style"] == "summary" and rows["sum"]["correction_style"] == "summary"
+    # 003: `summary` dla wszystkich; 008 (F7, decyzja właściciela): domyślnie `periodic` („zrównoważona”)
+    assert rows["imm"]["correction_style"] == "periodic" and rows["sum"]["correction_style"] == "periodic"
     assert rows["imm"]["correction_mode"] == "immediate" and rows["imm"]["allow_unreviewed_practice"] == 1
     assert c.execute("SELECT status, relapses FROM skill_state").fetchone()[:] == ("new", 0)
     assert c.execute("SELECT source, hint_level, dedupe_key FROM attempt").fetchone()[:] == ("practice", 0, None)
@@ -62,9 +62,9 @@ def test_t_db_3_migration_003_from_v2_keeps_all_rows(v2db):
     c.close()
 
 
-def test_t_db_3_fresh_db_default_style_summary(repo):
+def test_t_db_3_fresh_db_default_style_balanced(repo):
     pid = repo.create_profile("X")
-    assert repo.get_profile(pid)["correction_style"] == "summary"
+    assert repo.get_profile(pid)["correction_style"] == "periodic"
     with pytest.raises(sqlite3.IntegrityError):
         repo.conn.execute("UPDATE profile SET correction_style='bogus' WHERE id=?", (pid,))
 

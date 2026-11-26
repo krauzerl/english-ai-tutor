@@ -100,7 +100,7 @@ def test_summary_lists_up_to_limit_with_explanation_and_hedge(repo, pack):
     lines = FB.summary_lines(repo, pack, pid, sid)
     text = "\n".join(lines)
     assert "sugestie" in text and len([x for x in lines if x.startswith("•")]) == pack.rubric.correction["quiz_sentences_max"]
-    assert "Rzeczownik policzalny" in text                                   # wyjaśnienie kategorii z silnika
+    assert "potrzebny jest rodzajnik „a”" in text                         # F7: wyjaśnienie dopasowane do edycji
 
 
 # --- VoiceTutor ---
@@ -153,11 +153,11 @@ def test_cli_periodic_style_recasts_next_turn_once(env):
     assert [u["text"] for u in env.users()] == ["I goed home", "And then", "More"]     # rozmowa nie przerwana
 
 
-def test_cli_default_summary_style_gives_end_of_session_feedback_not_inline(env):
+def test_cli_free_style_gives_end_of_session_feedback_not_inline(env):
     conv = FakeProvider(chunks=["Nice. "])
     ev = EvalProv()
     code, out = env.go(Gated({1: lambda: env.applied() >= 1}, "I goed home", "And then"),
-                       ["--no-audio", "--summary-wait", "5"], llm=conv, ev=ev)
+                       ["--no-audio", "--summary-wait", "5", "--correction", "summary"], llm=conv, ev=ev)
     assert all("went" not in c[0].content for c in conv.calls)                         # nie w trakcie
     text = "\n".join(out)
     assert "Do poprawy" in text and "went" in text and "sugestie" in text            # na końcu, z zastrzeżeniem

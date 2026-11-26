@@ -30,7 +30,7 @@ from tutor.store.repo import Repo
 STATIC = Path(__file__).parent / "static"
 MAX_BODY = 64 * 1024
 MAX_TEXT = 500
-KINDS = ("chat", "lesson", "placement", "review", "drill", "exam")
+KINDS = ("chat", "lesson", "placement", "review", "drill", "exam", "evals")
 
 
 class BadRequest(Exception):
@@ -120,6 +120,8 @@ def session_argv(api: TutorAPI, pid: int, kind: str, args: dict) -> list[str]:
             argv.append("--lesson")
     elif kind == "placement":
         argv.append("--placement")
+    elif kind == "evals":                                   # dokończenie oczekujących ocen (ten sam silnik co CLI)
+        argv.append("--finish-evals")
     elif kind == "review":
         argv.append("--review")
     elif kind == "drill":
@@ -180,6 +182,8 @@ class App:
                                        category=category, level=level, mode=mode)
             if path == "/api/chat_options":
                 return api.chat_options(pid)
+            if path == "/api/session_feedback":
+                return api.session_feedback(pid, int(q.get("sid", 0)))
             if path == "/api/lessons":
                 return {"suggestion": api.lesson_suggestion(pid), "catalog": api.lesson_catalog(pid)}
             simple = {"/api/placement": api.placement_info, "/api/progress": api.progress,

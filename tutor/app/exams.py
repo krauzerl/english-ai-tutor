@@ -164,8 +164,8 @@ def run(repo, pack: C.Pack, pid: int, sid: int, path: dict, ask: Callable[[C.Ite
             say("Zadanie bez oceny (niepewne rozpoznanie albo pominięte).")
         st["results"].append(res)
         repo.set_session_plan(pid, sid, {**repo.get_session_plan(pid, sid), "exam": st})
-        if v == "skip":
-            return {"asked": len(st["results"]), "quit": False, "finished": False}
+        if v in ("skip", "finish"):
+            return {"asked": len(st["results"]), "quit": v == "finish", "finished": False}
     st["finished"] = True
     repo.set_session_plan(pid, sid, {**repo.get_session_plan(pid, sid), "exam": st})
     sc = [r for r in st["results"] if r["verdict"] in ("correct", "wrong", "unknown")]

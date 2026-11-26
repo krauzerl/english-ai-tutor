@@ -132,7 +132,7 @@ def test_chat_interrupt_resumes_same_session(env):
 def test_settings_defaults_update_and_validation(repo):
     pid = repo.create_profile("ann")
     e = ST.effective(repo, pid)
-    assert e["target_lang"] == "en" and e["correction"] == "summary" and e["mic_mode"] == "ptt"
+    assert e["target_lang"] == "en" and e["correction"] == "periodic" and e["mic_mode"] == "ptt"
     e = ST.update(repo, pid, {"speed": "1.2", "correction": "periodic", "session_minutes": "45", "tts_voice": "bf_emma",
                               "allow_unreviewed": "false", "conversation_mode": "quick_chat"})
     assert e["speed"] == 1.2 and e["correction"] == "periodic" and e["session_minutes"] == 45

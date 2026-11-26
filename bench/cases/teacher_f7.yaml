@@ -1,0 +1,62 @@
+# F7: zestaw nauczyciela. Oczekiwania ustalone ręcznie (autor: Claude, NIE zrecenzowane przez człowieka),
+# niezależnie od modelu. `errors`: każdy oczekiwany błąd ma słowo, które MUSI wystąpić w poprawce (`fix_has`)
+# i rodzinę kategorii (`cat`). `clean: true` = zdanie poprawne — każde zgłoszenie błędu to fałszywa korekta.
+# `explain_kw`: fragment wyjaśnienia dopasowanego do błędu (sprawdzane dla zgłoszeń zgodnych z oczekiwanym błędem).
+# Przypadki z testu właściciela: tc01, tc02, tc20.
+eval:
+  - {id: tc01, text: "We have ten paying customers.", clean: true}
+  - {id: tc02, text: "We use booking come to reserve our state for a week.", mode: voice, low: [come], clean_or_stt: true}
+  - {id: tc03, text: "I work as a paramedic in Warsaw.", clean: true}
+  - {id: tc04, text: "She has two kids and a dog.", clean: true}
+  - {id: tc05, text: "I'd like to visit Japan one day.", clean: true}
+  - {id: tc06, text: "My brother lives in London and works in a bank.", clean: true}
+  - {id: tc07, text: "We usually go to the mountains in winter.", clean: true}
+  - {id: tc08, text: "I've been learning English for three years.", clean: true}
+  - {id: tc09, text: "If it rains tomorrow, we'll stay at home.", clean: true}
+  - {id: tc10, text: "I didn't have time to cook yesterday.", clean: true}
+  - {id: tc11, text: "There are a lot of people in the city centre.", clean: true}
+  - {id: tc12, text: "Our team released a new version last month.", clean: true}
+  - {id: tc13, text: "I prefer tea to coffee.", clean: true}
+  - {id: tc14, text: "The patient was conscious and breathing normally.", clean: true}
+  - {id: tc15, text: "We have ten customers now and we need more.", clean: true}
+  - {id: tc16, text: "Yesterday I goed to the cinema with my friend.", errors: [{fix_has: went, cat: morphology, explain_kw: nieregularny}]}
+  - {id: tc17, text: "She have a big house near the sea.", errors: [{fix_has: has, cat: agreement, explain_kw: has}]}
+  - {id: tc18, text: "I'm paramedic and I work at night.", errors: [{fix_has: a paramedic, cat: article, explain_kw: rodzajnik}]}
+  - {id: tc19, text: "He work in a big company in Krakow.", errors: [{fix_has: works, cat: agreement, explain_kw: "-s"}]}
+  - {id: tc20, text: "Last year we use Booking to book our stay.", errors: [{fix_has: used, cat: tense}]}
+  - {id: tc21, text: "I am interesting in football and music.", errors: [{fix_has: interested, cat: word}]}
+  - {id: tc22, text: "We was very tired after the trip.", errors: [{fix_has: were, cat: agreement, explain_kw: were}]}
+  - {id: tc23, text: "I live here since five years.", errors: [{fix_has: "for", cat: tense}]}
+  - {id: tc24, text: "My sister don't like vegetables.", errors: [{fix_has: "doesn't", cat: agreement}]}
+  - {id: tc25, text: "I have two cat and one dog.", errors: [{fix_has: cats, cat: agreement}]}
+  - {id: tc26, text: "Two days ago I meet my old teacher.", errors: [{fix_has: met, cat: tense}]}
+  - {id: tc27, text: "I go to work in Monday.", errors: [{fix_has: "on", cat: preposition, explain_kw: przyimka}]}
+  - {id: tc28, text: "Can you explain me this word?", errors: [{fix_has: "explain this word to me", cat: word}]}
+  - {id: tc29, text: "I didn't went to school yesterday.", errors: [{fix_has: "didn't go", cat: tense}]}
+  - {id: tc30, text: "The life in big cities is very stressful.", errors: [{fix_has: "Life", cat: article, explain_kw: zbędny}]}
+commands:
+  - {text: "No, I want to finish our conversation for now.", want: finish}
+  - {text: "I want to finished conversation", want: finish}
+  - {text: "Lets stop here.", want: finish}
+  - {text: "That is all for today", want: finish}
+  - {text: "OK, goodbye", want: finish}
+  - {text: "I have to go now, sorry.", want: finish}
+  - {text: "Can we change the topic?", want: skip}
+  - {text: "Let's talk about something else.", want: skip}
+  - {text: "Could you repeat that, please?", want: help}
+  - {text: "What does booking mean?", want: help}
+  - {text: "I don't understand.", want: help}
+  - {text: "I want to finish my project this week.", want: null}
+  - {text: "When do you finish work?", want: null}
+  - {text: "I had to stop the car.", want: null}
+  - {text: "I have to go to work tomorrow.", want: null}
+  - {text: "I would like to stop smoking.", want: null}
+conversation:   # kolejne wypowiedzi ucznia w jednej rozmowie (temat: praca/podróże)
+  - "Hi! I work as a paramedic in a small town."
+  - "Yes, it is stressful but I like helping people."
+  - "Last week we had a car accident with three injured people."
+  - "Everybody survived, thanks to fast transport."
+  - "In my free time I like hiking in the mountains."
+  - "I went to the Tatra mountains in summer."
+  - "Do you like mountains?"
+  - "OK. What do you think about working at night?"

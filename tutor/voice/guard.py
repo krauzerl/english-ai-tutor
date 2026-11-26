@@ -2,6 +2,8 @@
 
 1. Uporczywe powtarzanie: zdanie identyczne (po normalizacji) z zdaniem z ostatnich odpowiedzi tutora jest pomijane.
 2. Mechaniczne pochwały („You're doing great!”): pomijane, gdy któraś z ostatnich odpowiedzi już taką miała.
+3. (F7) Krótki wykrzyknik na początku odpowiedzi („That sounds intense!”) jest pomijany, gdy poprzednia odpowiedź też
+   tak się zaczynała — Qwen3 8B ignorował tę instrukcję w prompcie (schemat „wykrzyknik → pytanie”).
 """
 from __future__ import annotations
 
@@ -15,6 +17,15 @@ _STOCK = re.compile(
     r"|a great point)"
     r"|that sounds (great|amazing|fantastic|wonderful|lovely|delicious|fun|interesting|nice|awesome|exciting))", re.I)
 _SPLIT = re.compile(r"(?<=[.!?])\s+")
+
+
+_EVAL = re.compile(r"^\W*(?:(?:that|this|it)(?:'s|’s| is| sounds| must| seems)|what an?\b|wow\b|oh\b|how\b)", re.I)
+_HEAD = re.compile(r"^[^—–.!?]{0,70}?(?:\s[—–-]\s|!\s+)")
+
+
+def _excl(s: str) -> bool:
+    s = s.strip()
+    return (s.endswith("!") and len(s.split()) <= 7) or bool(_EVAL.match(s))
 
 
 def _n(s: str) -> str:
@@ -31,9 +42,20 @@ class Guard:
         recent = [s for r in last for s in _SPLIT.split(r) if s.strip()]
         self.praised = any(_STOCK.match(s.strip()) for s in recent)
         self.dropped = 0
+        self.first = True
+        self.prev_excl = bool(previous_replies) and _excl(_SPLIT.split(previous_replies[-1].strip())[0])
         self.check_repeats = repeats      # False: uczeń prosi o powtórzenie/wyjaśnienie, więc powtórka jest właściwa
 
     def __call__(self, sentence: str) -> str | None:
+        first, self.first = self.first, False
+        if first and self.prev_excl and _excl(sentence):
+            m = _HEAD.match(sentence.strip())
+            rest = sentence.strip()[m.end():].strip() if m else ""
+            if rest and len(rest.split()) >= 3:      # „That's amazing — helping people…” → „Helping people…”
+                return rest[0].upper() + rest[1:]
+            self.dropped += 1
+            self.first = True                  # następne zdanie staje się początkiem odpowiedzi
+            return None
         if self.praised and _STOCK.match(sentence.strip()):
             self.dropped += 1
             return None

@@ -132,6 +132,9 @@ def run(repo, pack: C.Pack, pid: int, sid: int, ask: Callable[[C.Item, int], L.A
                     speak(V.reask(a.text))
                     continue
                 break
+            if v == "finish":                                  # koniec sesji: jak `q`, bez próby i bez przesunięcia
+                res.quit = True
+                return res
             if v in ("skip", "unclear"):             # „później” albo niepewne STT: bez próby, karta przesunięta o dzień
                 postpone(repo, pid, skill, now)
                 st["postponed"].append(skill)

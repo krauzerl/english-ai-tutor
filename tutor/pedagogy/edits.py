@@ -215,6 +215,9 @@ _SUBJ = {"i", "you", "we", "they", "he", "she", "it"}
 _ADV = {"usually", "always", "often", "sometimes", "never", "also", "just", "still", "even", "only", "ever", "rarely",
         "seldom", "already", "all", "both", "sure", "too"}
 _PASTISH = {"morphology", "morphology.irregular_past", "morphology.word_form", "tense.past_simple"}
+_AGREE = {frozenset(p) for p in (("have", "has"), ("do", "does"), ("don't", "doesn't"), ("is", "are"), ("was", "were"),
+                                 ("am", "is"), ("am", "are"), ("wasn't", "weren't"), ("isn't", "aren't"),
+                                 ("haven't", "hasn't"))}
 
 
 def _s_form(x: str, y: str) -> bool:
@@ -225,16 +228,60 @@ def _s_form(x: str, y: str) -> bool:
 
 def recategorize(text: str, span: str, fix: str, category: str) -> str:
     """`agreement.subject_verb` zamiast kategorii „przeszłej”, gdy jedyna zmiana to -s/-es/-ies czasownika tuż po
-    zaimku-podmiocie (pomijając przysłówki), np. „I usually drinks” → „drink”. W każdym innym przypadku bez zmian."""
+    zaimku-podmiocie (pomijając przysłówki), np. „I usually drinks” → „drink”, albo para zgodności (have/has,
+    was/were, don't/doesn't); `tense.past_simple`, gdy forma podstawowa zmienia się w przeszłą („meet” → „met”).
+    W każdym innym przypadku bez zmian."""
     if category not in _PASTISH:
         return category
     es = edits(text, locate(text, span), fix)
     if len(es) != 1 or len(es[0].old) != 1 or len(es[0].new) != 1:
         return category
     x, y = es[0].old[0].lower(), es[0].new[0].lower()
+    if frozenset((x, y)) in _AGREE:                     # have/has, was/were, don't/doesn't…: zgodność, nie przeszłość
+        return "agreement.subject_verb"
+    if _past_of(x) == y and x not in _PAST_FORMS:       # „meet” → „met”: zły czas, a nie zła forma nieregularna
+        return "tense.past_simple"
     if not _s_form(x, y):
         return category
     before = [t[2].lower() for t in _toks(text) if t[1] <= es[0].a]
     while before and (before[-1] in _ADV or before[-1].endswith("ly")):
         before.pop()
     return "agreement.subject_verb" if before and before[-1] in _SUBJ else category
+
+
+# --- F7: zmiana czasu bez podstaw w wypowiedzi ---
+# „We have ten paying customers.” → „had” to inny poprawny wariant, nie błąd: bez znacznika przeszłości w zdaniu
+# (yesterday, last week, ago, rok…) i bez innego czasownika w czasie przeszłym nie wiemy, że uczeń mówi o przeszłości.
+_PAST_IRR = {"have": "had", "has": "had", "is": "was", "am": "was", "are": "were", "do": "did", "does": "did",
+             "go": "went", "goes": "went", "get": "got", "gets": "got", "make": "made", "take": "took", "see": "saw",
+             "come": "came", "say": "said", "tell": "told", "find": "found", "give": "gave", "know": "knew",
+             "think": "thought", "buy": "bought", "pay": "paid", "eat": "ate", "drink": "drank", "can": "could",
+             "will": "would", "spend": "spent", "stay": "stayed", "book": "booked", "use": "used", "meet": "met",
+             "leave": "left", "feel": "felt", "keep": "kept", "begin": "began", "write": "wrote", "run": "ran"}
+_PAST_FORMS = set(_PAST_IRR.values()) | {"been", "gone", "done"}
+_PAST_MARK = re.compile(r"\b(yesterday|ago|last\s+(?:week|month|year|night|time|summer|winter|weekend|monday|tuesday|"
+                        r"wednesday|thursday|friday|saturday|sunday)|in\s+(?:19|20)\d\d|when\s+i\s+was|when\s+we\s+were|"
+                        r"previously|earlier\s+today|this\s+morning|back\s+then|at\s+that\s+time)\b", re.I)
+
+
+def _past_of(x: str) -> str:
+    x = x.lower()
+    if x in _PAST_IRR:
+        return _PAST_IRR[x]
+    base = x[:-1] if x.endswith("s") and not x.endswith("ss") else x
+    return base + ("d" if base.endswith("e") else "ed")
+
+
+def unsupported_tense(text: str, span: str, fix: str) -> bool:
+    """True, gdy jedyną zmianą jest teraźniejszy ↔ przeszły tego samego czasownika, a zdanie nie wskazuje czasu."""
+    rng = locate(text, span)
+    es = edits(text, rng, fix)
+    if len(es) != 1 or len(es[0].old) != 1 or len(es[0].new) != 1:
+        return False
+    x, y = es[0].old[0].lower(), es[0].new[0].lower()
+    if not (_past_of(x) == y or _past_of(y) == x):
+        return False
+    if _PAST_MARK.search(text):
+        return False
+    others = [t[2].lower() for t in _toks(text) if t[2].lower() != x]
+    return not any(w in _PAST_FORMS or (w.endswith("ed") and len(w) > 4) for w in others)

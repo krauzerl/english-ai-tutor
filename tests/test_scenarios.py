@@ -116,7 +116,7 @@ def test_placement_review_progress_make_no_llm_calls_and_are_fast(env, pack):
 def test_migrations_unchanged_and_no_external_calls_configured(pack):
     import pathlib
     names = sorted(p.name for p in pathlib.Path("tutor/store/migrations").glob("*.sql"))
-    assert len(names) == 7 and names[-1] == "007_achievements_settings.sql"   # tylko addytywne
+    assert len(names) == 8 and names[-1] == "008_f7_quality.sql"   # addytywne (+ zmiana domyślnej polityki korekt)
 
 
 def test_interrupted_lesson_restart_flows_into_remaining_tasks(env, pack):

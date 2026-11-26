@@ -170,5 +170,6 @@ def test_cli_custom_category_with_guided_mode(env):
 
 def test_roleplay_prompt_drops_always_ask_rule_and_forbids_role_takeover():
     p = QC.system_prompt(T.get("med.rp.chest_pain"), "B1", "roleplay")
-    assert QC._FOLLOW_UP not in p and "you're the professional" in p and "Never take over" in p
-    assert QC._FOLLOW_UP in QC.system_prompt(T.get("gen.trip"), "B1", "natural")
+    assert "ONE short follow-up" not in p and "you're the professional" in p and "Never take over" in p
+    # F7: także zwykła rozmowa nie wymaga pytania w każdej odpowiedzi (schemat pochwała → pytanie)
+    assert "ONE short follow-up" not in QC.system_prompt(T.get("gen.trip"), "B1", "natural")

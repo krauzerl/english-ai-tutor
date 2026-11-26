@@ -74,6 +74,7 @@ class TutorAPI:
                 "streak": AC.stats(self.repo, pid, self.now())["streak"],
                 "last_session": s[0] if s else None,
                 "placement_done": bool(self.repo.list_competence(pid)),
+                "pending_evals": sum(self.repo.pending_by_session(pid).values()),
                 "open_session": self.repo.find_open_session(pid)}
 
     # --- Quick Chat ---
@@ -106,7 +107,17 @@ class TutorAPI:
         return {"session_id": sid, "topic": topic, "opener": QC.opener(topic), "system_prompt": QC.system_prompt(topic)}
 
     def chat_history(self, pid: int) -> list[dict]:
-        return QC.history(self.repo, pid)
+        pend = self.repo.pending_by_session(pid)
+        return [{**c, "pending_evals": pend.get(c["session_id"], 0)} for c in QC.history(self.repo, pid)]
+
+    def session_feedback(self, pid: int, sid: int) -> dict:
+        """Podsumowanie korekt rozmowy do odczytu później; `complete` = wszystkie wypowiedzi ocenione."""
+        from tutor.app import feedback as FB
+        if self.repo.get_session(pid, sid) is None:
+            raise ServiceError("Brak sesji")
+        left = self.repo.pending_by_session(pid).get(sid, 0)
+        return {"session_id": sid, "pending": left, "complete": left == 0,
+                "lines": FB.summary_lines(self.repo, self.pack(pid), pid, sid, pending=left)}
 
     # --- lekcje ---
     def lesson_suggestion(self, pid: int) -> dict | None:

@@ -77,6 +77,9 @@ def test_t_iso_2_cascade_delete_all_tables(conn, repo, two):
         conn.execute("INSERT INTO next_plan(profile_id,plan_json) VALUES (?,?)", (pid, "{}"))
         conn.execute("INSERT INTO achievement(profile_id,code) VALUES (?,?)", (pid, "streak_3"))
         conn.execute("INSERT INTO profile_setting(profile_id,key,value_json) VALUES (?,?,?)", (pid, "speed", "1.0"))
+        conn.execute("INSERT INTO app_event(profile_id,kind) VALUES (?,?)", (pid, "opened"))
+        conn.execute("INSERT INTO observation_review(profile_id,observation_id,verdict) VALUES (?,?,?)",
+                     (pid, 1, "disputed"))
         conn.execute("INSERT INTO llm_usage(profile_id,provider,model,role) VALUES (?,?,?,?)",
                      (pid, "ollama", "m", "conversation"))
     tables = student_tables(conn)

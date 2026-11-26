@@ -7,7 +7,7 @@ from __future__ import annotations
 from datetime import datetime
 
 from tutor.app import topics as T
-from tutor.voice.conversation import SYSTEM_PROMPT
+from tutor.voice.conversation import NO_FAKE, SYSTEM_PROMPT
 
 MINUTES = (5, 10, 15, 20, 30)
 
@@ -27,15 +27,15 @@ LEVEL_NOTES = {
     "C1": "The student is advanced (CEFR C1): talk as you would to a fluent colleague, with precise vocabulary and "
           "nuance; you may use up to three sentences and challenge their reasoning politely.",
 }
-_FOLLOW_UP = "First react to what the student actually said, then ask ONE short follow-up question. "
 LONG_OK = " Never ask the student to keep answers short: longer answers are welcome at every level."
 MODE_NOTES = {
     "natural": " Mode: natural conversation. Follow the student's lead like a real conversation partner and sometimes "
-               "share a short opinion or experience of your own. Do not turn it into an interview and do not correct "
-               "small slips.",
+               "share a short opinion or an interesting fact (never a made-up personal experience). Do not turn it "
+               "into an interview and do not correct small slips.",
     "guided": " Mode: guided conversation. Lead the conversation step by step through the topic. When the student "
               "gives a very short answer or struggles, offer ONE useful phrase or sentence frame they could use "
-              "(for example: You could say: ...) and introduce relevant vocabulary naturally.",
+              "(for example: You could say: ...) and introduce relevant vocabulary naturally. When a useful "
+              "construction comes up, explain it in one short sentence and invite the student to use it.",
 }
 CATEGORY_NOTES = {
     "technical": " This is Technical English (IT): use correct technical terms. You practise how the student explains "
@@ -84,7 +84,8 @@ def system_prompt(topic: dict, level: str = "B1", mode: str = "natural") -> str:
     if mode == "roleplay":
         # W roli nie obowiązuje zasada „zawsze zadaj pytanie”: audyt F7 (Qwen3) pokazał, że pacjent zaczynał wtedy
         # przeprowadzać wywiad z ratownikiem i powtarzać jego kwestie.
-        core = SYSTEM_PROMPT.replace(_FOLLOW_UP, "React to what the student actually said. ")
+        core = SYSTEM_PROMPT.replace(NO_FAKE, "In the role-play you speak as the character; the character's "
+                                     "situation is part of the fiction. ")
         base = core + " " + LEVEL_NOTES[level] + LONG_OK + CATEGORY_NOTES.get(cat, "")
         role = topic.get("role") or "a person who naturally fits this situation (say who you are in your first reply)"
         learner = topic.get("learner") or "themselves"

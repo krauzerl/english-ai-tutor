@@ -157,9 +157,10 @@ diagnosis:
   provisional:
     label_pl: "wstępne dopasowanie trudności (materiał niezweryfikowany przez człowieka) – nie jest diagnozą CEFR"
 
-# Korekta (§3). Domyślnie `summary`, dopóki benchmark jakości oceny Bielika (F8) nie przejdzie.
+# Korekta (§3). F7: domyślnie `periodic` = „zrównoważona” (decyzja właściciela po teście; summary = „swobodna”,
+# intensive = „intensywna”). Korekty w trakcie są sugestiami (bramy jakości nadal zamknięte).
 correction:
-  default_style: summary
+  default_style: periodic
   quality_gate:
     bielik_benchmark_passed: false
     precision_min: 0.80

@@ -31,7 +31,7 @@ class Repo:
     # --- profile ---
     def create_profile(self, name: str, target_lang: str = "en", ui_lang: str = "pl",
                        daily_minutes: int = 30, correction_mode: str = "immediate",
-                       correction_style: str = "summary") -> int:
+                       correction_style: str = "periodic") -> int:
         # correction_mode jest przestarzałe (nieczytane); styl domyślnie `summary` do czasu bramy jakości (F8)
         cur = self.conn.execute(
             "INSERT INTO profile(name,target_lang,ui_lang,daily_minutes,correction_mode,correction_style)"
@@ -130,6 +130,13 @@ class Repo:
             out.append({"turn_id": r["id"], "text": r["text"], "input_mode": r["input_mode"],
                         "low_probs": json.loads(r["low_prob_json"]) if r["low_prob_json"] else []})
         return out
+
+    def pending_by_session(self, profile_id: int) -> dict[int, int]:
+        """{session_id: liczba tur czekających na ocenę} — te same kryteria co `list_pending_turns`."""
+        return {r[0]: r[1] for r in self.conn.execute(
+            "SELECT t.session_id, COUNT(*) FROM turn t WHERE t.profile_id=? AND t.role='user'"
+            " AND NOT (t.input_mode='voice' AND t.low_prob_json IS NULL)"
+            " AND NOT EXISTS (SELECT 1 FROM turn_meta m WHERE m.turn_id=t.id) GROUP BY t.session_id", (profile_id,))}
 
     def list_turns(self, profile_id: int, session_id: int) -> list[dict]:
         return _rows(self.conn.execute(

@@ -20,7 +20,7 @@ from tutor.pedagogy.content import (
     norm,
     norm_answer,
 )
-from tutor.pedagogy.edits import find_spans, meaning_change, recategorize
+from tutor.pedagogy.edits import edits, find_spans, locate, meaning_change, recategorize, unsupported_tense
 from tutor.pedagogy.errors import allowed_categories, core_of, counted_confidences, is_counted
 from tutor.pedagogy.fluency import delta_pct
 from tutor.pedagogy.schemas import Obs, TurnEval, Use
@@ -198,12 +198,15 @@ def classify(o: Obs, text: str, *, input_mode: str, low_prob_words: set[str], pr
             return Classified("stt_suspect", "valid", None, o.s, o.f, o.c, o.v, o.p, source=o.src)
     if o.c not in taxonomy:                                                          # 6
         return _drop(o, "category_not_in_taxonomy")
-    if norm(o.f) == norm(o.s):
-        return _drop(o, "fix_equals_span")
+    if norm(o.f) == norm(o.s) or (o.k == "error" and not any(
+            any(any(ch.isalnum() for ch in w) for w in (*e.old, *e.new)) for e in edits(text, locate(text, o.s), o.f))):
+        return _drop(o, "fix_equals_span")                                         # F7: także „korekta” bez zmiany
     if len(o.f) > cfg["fix_max_ratio"] * len(o.s) + cfg["fix_extra_chars"]:
         return _drop(o, "fix_too_long")
     if o.k == "error" and meaning_change(text, o.s, o.f, o.c):                      # F4.7: poprawka zmienia sens
         return _drop(o, "meaning_change")
+    if o.k == "error" and unsupported_tense(text, o.s, o.f):                        # F7: inny poprawny czas, nie błąd
+        return _drop(o, "unsupported_tense")
     cat = recategorize(text, o.s, o.f, o.c) if o.k == "error" else o.c             # F7: kategoria zgodna z edycją
     return Classified(o.k, "valid", None, o.s, o.f, cat, o.v, o.p, source=o.src)     # 7
 

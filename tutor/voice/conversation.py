@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import queue
+import re
 import threading
 import time
 from dataclasses import dataclass, field
@@ -12,11 +13,18 @@ from tutor.llm.context import build_context, make_checkpoint, needs_checkpoint
 from tutor.voice.guard import Guard
 from tutor.voice.text import SentenceSplitter, clean_for_speech
 
+NO_FAKE = ("You are an AI tutor: never invent personal experiences, memories, family, travels, likes or a body; you "
+           "may give a view phrased as an opinion (I think...) or share general knowledge. ")
 SYSTEM_PROMPT = (
     "You are a warm, patient English conversation partner talking with a Polish adult learner. "
-    "Your words are spoken aloud, so: reply in 1-2 short sentences (under 35 words), natural spoken English "
+    "Your words are spoken aloud, so: reply in 1-3 short sentences (under 40 words), natural spoken English "
     "with contractions, no lists, no markdown, no emoji, no stage directions. "
-    "First react to what the student actually said, then ask ONE short follow-up question. "
+    "First react to what the student actually said. "
+    "React to the content: build on their idea, add a related fact or a different angle, or offer one useful "
+    "word or phrase for what they were trying to say (with a short meaning). Ask a question only when it moves the "
+    "conversation forward; it is fine to end some replies with a comment instead of a question. Vary how your "
+    "replies start. Keep track of what the student told you earlier and refer back to it. "
+    + NO_FAKE +
     "If a mistake would confuse a listener, model the correct phrasing naturally in your reply; "
     "otherwise ignore small slips. You only get a text transcript, so never comment on pronunciation. "
     "Always answer in English; if the student is stuck and asks in Polish, help in very simple English. "
@@ -26,6 +34,20 @@ SYSTEM_PROMPT = (
     "to something new."
 )
 FALLBACK = "Okay. Tell me more about that."
+_OPEN_EXCL = re.compile(r"^\W*(?:that|it|this|what|how|wow|oh|sounds|so|really|nice|great)\b[^.?!]{0,45}!", re.I)
+
+
+def style_note(prev: list[str]) -> str:
+    """Deterministyczna notatka na jedną odpowiedź przeciw schematowi „wykrzyknik → pytanie” (audyt F7, Qwen3 8B
+    ignorował samą instrukcję w prompcie). `prev` = poprzednie odpowiedzi tutora (najstarsze pierwsze)."""
+    notes = []
+    if len(prev) >= 2 and all("?" in r for r in prev[-2:]):
+        notes.append("In this reply do NOT ask any question: respond with a comment, a related fact, or one useful "
+                     "phrase the student could use, and stop.")
+    if prev and _OPEN_EXCL.match(prev[-1]):
+        notes.append("Do not open with an exclamation such as “That sounds…!” or “That's…!”; start directly with "
+                     "something about the content.")
+    return (" Style note for this reply: " + " ".join(notes)) if notes else ""
 SPEAK_TAIL_S = 0.4  # ogon echa po mowie, zanim mikrofon znów słucha
 
 
@@ -98,10 +120,12 @@ class VoiceTutor:
         user_text = user_text.strip()
         t_end = self.clock() if t_end is None else t_end
         res = TurnResult(user_text)
-        sig = INTENT.detect(user_text)                     # jasny sygnał ucznia → notatka na tę jedną odpowiedź
+        sig = INTENT.classify(user_text)                   # jasny sygnał ucznia → notatka na tę jedną odpowiedź
         guard = Guard([t["text"] for t in self.repo.list_turns(self.pid, self.sid)       # „nie rozumiem” ≠ „powtórz”
                        if t["role"] == "assistant"][-8:], repeats=not INTENT.wants_repeat(user_text))
-        system = self.system + self._note(user_text) + INTENT.NOTES.get(sig, "")
+        prev = [t["text"] for t in self.repo.list_turns(self.pid, self.sid) if t["role"] == "assistant"][-3:]
+        system = self.system + self._note(user_text) + INTENT.NOTES.get(sig, "") + (
+            "" if sig else style_note(prev))
         ctx = build_context(self.repo, self.pid, self.sid, system, user_text,
                             context_window=self.window, reserve_out=self.max_tokens)
         if self.record_user_turn:

@@ -47,6 +47,8 @@ def parse(argv: list[str]) -> argparse.Namespace:
                     help="wstępne dopasowanie poziomu (gramatyka, słownictwo; głosem lub tekstem), potem koniec")
     ap.add_argument("--review", action="store_true", help="powtórki zaległych umiejętności (FSRS), potem koniec")
     ap.add_argument("--progress", action="store_true", help="pokaż postęp z zapisanych dowodów i zakończ")
+    ap.add_argument("--finish-evals", action="store_true",
+                    help="dokończ oceny wypowiedzi czekających po zakończonych rozmowach, pokaż podsumowania")
     ap.add_argument("--chat", nargs="?", const="ask", metavar="TEMAT",
                     help="Quick Chat: swobodna rozmowa bez celu lekcji (bez TEMAT: wybierzesz z propozycji)")
     ap.add_argument("--minutes", type=int, default=None, help="limit czasu Quick Chat w minutach")
@@ -113,6 +115,11 @@ def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, l
         if db is None:
             conn.close()
         return 0
+    if a.finish_evals:
+        code = _finish_evals(repo, p, out, eval_llm, err)
+        if db is None:
+            conn.close()
+        return code
     _apply_settings(a, argv, repo, p)
     if a.history or a.set:
         _history_settings(a, repo, p, out)
@@ -254,6 +261,8 @@ def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, l
         from tutor.app import feedback as FB
         from tutor.pedagogy.correction import effective_style
         style = a.correction or effective_style(p["correction_style"], conv_pack.rubric)["style"]
+        if a.chat and chat_mode == "roleplay":           # roleplay: nie przerywamy scenariusza (intensywna = recast)
+            style = {"intensive": "periodic"}.get(style, "summary")
         feedback = lambda text: FB.directive(repo, conv_pack, p["id"], sid, style, set(goals), text)  # noqa: E731
     tutor = VoiceTutor(repo, p["id"], sid, llm, tts, sink, system=system, context_window=cw,
                        echo=lambda s: out(f"Tutor: {s}"), record_user_turn=svc.user_turn if svc else None,
@@ -298,6 +307,11 @@ def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, l
                 if not text:
                     continue
                 out(f"You: {text}")
+                if INTENT.classify(text) == "finish":      # koniec sesji ma pierwszeństwo przed nowym tematem
+                    out("Tutor: Okay, let's stop here. Thanks for the chat!")
+                    if speak:
+                        speak("Okay, let's stop here. Thanks for the chat!")
+                    break
                 req = INTENT.requested_topic(text) if a.chat else None
                 if a.chat and (req or INTENT.detect(text) == "skip"):  # „zmień temat”: wskazany albo z generatora
                     cp = repo.get_session_plan(p["id"], sid)
@@ -341,11 +355,13 @@ def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, l
                 out(f"[sprawdzam jeszcze {svc.pending} wypowiedzi przed podsumowaniem…]")
                 svc.wait_idle(min(60.0, max(a.summary_wait, 3.0 * svc.pending)))   # ~2 s na wypowiedź (Qwen3 8B)
             from tutor.app import feedback as FB
-            notes = FB.summary_lines(repo, conv_pack, p["id"], sid)
+            notes = FB.summary_lines(repo, conv_pack, p["id"], sid, pending=svc.pending)
             for ln in notes:
                 out(ln)
             if a.chat and not notes:
                 out("Brak sugestii poprawek w ocenionych wypowiedziach.")
+            if svc.pending:
+                out(f"[{svc.pending} wypowiedzi oceni później: GUI (Historia) albo `--finish-evals`.]")
             if speak and a.lesson:
                 from tutor.app import lesson_voice as LV
                 speak(LV.farewell(bool(notes)))
@@ -358,8 +374,8 @@ def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, l
         if svc:
             svc.close()
             _report(svc, out)
-        if clean and not (svc and svc.pending):
-            repo.end_session(p["id"], sid)
+        if clean and (a.chat or not (svc and svc.pending)):
+            repo.end_session(p["id"], sid)             # rozmowa: oczekujące oceny dokończy `--finish-evals`/GUI
         else:
             repo.pause_session(p["id"], sid)           # Ctrl+C / wyjątek / nieocenione tury: sesję można wznowić
         if mic:
@@ -553,6 +569,32 @@ def _exam_phase(a, repo, p, llm, tts, sink, mic, stt, lines, out) -> None:
     else:
         repo.pause_session(p["id"], sid)
         out("Ćwiczenia przerwane — wznowisz je tym samym poleceniem.")
+
+
+def _finish_evals(repo, p, out, eval_llm, err) -> int:
+    """Dokańcza oceny oczekujących wypowiedzi (bez podwójnego liczenia) i pokazuje podsumowania tych rozmów."""
+    from tutor.app import eval_runner as ER
+    from tutor.app import feedback as FB
+    from tutor.llm.structured import structured
+    from tutor.pedagogy import content as C
+    pending = repo.pending_by_session(p["id"])
+    if not pending:
+        out("Wszystkie wypowiedzi są ocenione.")
+        return 0
+    prov = eval_llm or build_provider("evaluation")
+    if prov.external or not prov.health():
+        err("Model oceny niedostępny lokalnie — oceny zostają w kolejce.")
+        return 1
+    pack = C.load(p["target_lang"])
+    out(f"Oceniam {sum(pending.values())} wypowiedzi z {len(pending)} rozmów…")
+    r = ER.catch_up(repo, pack, prov, structured, p["id"], model=getattr(prov, "model", None))
+    for sid in r["sessions"]:
+        left = repo.pending_by_session(p["id"]).get(sid, 0)
+        out(f"\nRozmowa #{sid}:")
+        for ln in FB.summary_lines(repo, pack, p["id"], sid, pending=left) or ["Brak sugestii poprawek."]:
+            out(ln)
+    out(f"\nOcenione: {r['done']}, wciąż w kolejce: {r['left']}.")
+    return 0
 
 
 def _reports(a, repo, p, out) -> None:

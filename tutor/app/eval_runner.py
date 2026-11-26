@@ -49,3 +49,30 @@ def restore_pending(repo, queue: EvalQueue, profile_id: int, session_id: int) ->
     for t in repo.list_pending_turns(profile_id, session_id):
         queue.submit(Pending(t["turn_id"], t["text"], t["input_mode"], frozenset(t["low_probs"])))
     return len(queue) - n
+
+
+def catch_up(repo, pack: Pack, provider, structured, profile_id: int, *, skip_session: int | None = None,
+             cancel=None, model: str | None = None) -> dict:
+    """Dokańcza oceny tur czekających w sesjach profilu (np. rozmowa zakończona przed oceną ostatnich wypowiedzi).
+    Idempotentne: tura z wierszem `turn_meta` nie wraca, więc nic nie jest liczone drugi raz. Zwraca
+    {"done": n, "left": m, "sessions": [sid…]}. Model niedostępny ⇒ tury zostają oczekujące (po 3 błędach: dropped)."""
+    from tutor.llm.base import CancelToken
+    cancel = cancel or CancelToken()
+    done, touched = 0, []
+    for sid, _n in sorted(repo.pending_by_session(profile_id).items()):
+        if sid == skip_session or cancel.is_set():
+            continue
+        plan = repo.get_session_plan(profile_id, sid) or {}
+        goals = {}
+        if plan.get("lesson") and plan["lesson"] in pack.skills:
+            goals = {plan["lesson"]: pack.skills[plan["lesson"]].can_do_pl}
+        q = make_queue(repo, pack, provider, structured, profile_id=profile_id, session_id=sid, goals=goals,
+                       model=model, batch=1)
+        restore_pending(repo, q, profile_id, sid)
+        for _ in range(3):                  # 3 podejścia na sesję (EvalQueue porzuca turę po 3 błędach)
+            done += q.drain(cancel)
+            if not len(q) or cancel.is_set():
+                break
+        touched.append(sid)
+    left = sum(n for s, n in repo.pending_by_session(profile_id).items() if s != skip_session)
+    return {"done": done, "left": left, "sessions": touched}

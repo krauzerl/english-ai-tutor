@@ -101,7 +101,7 @@ def run(repo, pack: C.Pack, pid: int, sid: int, ask: Callable[[C.Item, int], L.A
                         speak(V.reask(a.text))
                         continue
                 break
-            if verdict == "skip":
+            if verdict in ("skip", "finish"):
                 say("Dobrze, kończymy dopasowanie. Wynik będzie wstępny albo niepełny.")
                 speak(V.stop_exercises())
                 st["areas"][area], st["counts"][area] = state, cnt

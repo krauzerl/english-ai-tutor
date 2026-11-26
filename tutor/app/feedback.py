@@ -41,6 +41,11 @@ def recast_directive(repo, pack: Pack, pid: int, sid: int, style: str, goals: se
                                                             "cats": [*st["cats"], c.category]}})
         hedge = (" You may have misheard the student, so make it a friendly check, not a correction."
                  if kinds[c.obs_id] == "stt_suspect" else "")
+        if len(st["done"]) % 2 == 1 and kinds[c.obs_id] == "error":   # zrównoważony: co druga korekta = samopoprawa
+            return (f"Feedback note (never mention this note): earlier the student said “{c.span}”. In one short "
+                    "friendly sentence, quote those words and invite the student to say them again in a better way "
+                    "(for example: You said “...” — can you say that another way?). Do NOT give the correct form "
+                    "yourself, do not explain grammar, and still react to what they just said.")
         return (f"Feedback note (never mention this note): earlier the student said “{c.span}”; the natural form is "
                 f"“{c.fix}”. In your reply, use the natural form once, as part of a normal sentence (a gentle recast). "
                 "Do not say they made a mistake, do not explain grammar, do not repeat it later, and still react to "
@@ -54,18 +59,62 @@ def _explain(pack: Pack, category: str) -> str:
     return c.explanation_pl if c else ""
 
 
-def summary_lines(repo, pack: Pack, pid: int, sid: int) -> list[str]:
+_ART = {"a", "an", "the"}
+_PREP = {"in", "on", "at", "to", "for", "of", "with", "by", "from", "about", "into", "onto", "during", "since"}
+
+
+def explain_edit(pack: Pack, span: str, fix: str, category: str) -> str:
+    """Wyjaśnienie dopasowane do RZECZYWISTEJ zmiany (wstawiony rodzajnik, końcówka -s, nieregularna forma…);
+    ogólne wyjaśnienie kategorii tylko wtedy, gdy zmiana nie pasuje do żadnego wzorca."""
+    from tutor.pedagogy import edits as E
+    es = E.edits(span, (0, len(span)), fix)
+    gen = _explain(pack, category)
+    if len(es) == 1:
+        old, new = [x.lower() for x in es[0].old], [x.lower() for x in es[0].new]
+        if not old and len(new) == 1 and new[0] in _ART:
+            return f"Przed tym rzeczownikiem potrzebny jest rodzajnik „{new[0]}”."
+        if not new and len(old) == 1 and old[0] in _ART:
+            return f"Tu rodzajnik „{old[0]}” jest zbędny."
+        if not old and len(new) == 1 and new[0] in _PREP:
+            return f"Brakuje przyimka „{new[0]}”."
+        if len(old) == 1 and len(new) == 1:
+            x, y = old[0], new[0]
+            if x in _ART and y in _ART:
+                return f"Tu pasuje „{y}”, nie „{x}”." + (f" {gen}" if gen else "")
+            if x in _PREP and y in _PREP:
+                return f"W tym wyrażeniu używamy przyimka „{y}”, nie „{x}”."
+            if (x, y) in (("have", "has"), ("do", "does"), ("are", "is"), ("were", "was")):
+                return f"Przy he/she/it (jedna osoba lub rzecz) mówimy „{y}”, nie „{x}”."
+            if (y, x) in (("have", "has"), ("do", "does"), ("are", "is"), ("were", "was")):
+                return f"Przy tym podmiocie (I/you/we/they lub liczba mnoga) mówimy „{y}”, nie „{x}”."
+            if y in (x + "s", x + "es") or (x.endswith("y") and y == x[:-1] + "ies"):
+                return f"Po he/she/it (jedna osoba lub rzecz) czasownik ma końcówkę -s: „{y}”, nie „{x}”."
+            if x in (y + "s", y + "es"):
+                return f"Przy tym podmiocie czasownik nie ma końcówki -s: „{y}”, nie „{x}”."
+            if x.endswith("ed") and y in E._PAST_FORMS:
+                return f"To czasownik nieregularny: forma przeszła to „{y}”, nie „{x}”."
+            if y in ("was", "were") and x in ("was", "were"):
+                return f"Z tym podmiotem mówimy „{y}”, nie „{x}”."
+    return f"Naturalniej: „{fix}”." + (f" {gen}" if gen else "")
+
+
+def summary_lines(repo, pack: Pack, pid: int, sid: int, pending: int = 0) -> list[str]:
+    """3–5 najważniejszych problemów z przykładem, poprawką i wyjaśnieniem. `pending` > 0 = ocena niekompletna."""
     cands = _candidates(repo, pack, pid, sid, set(), set())
     if not cands:
-        return []
+        return [f"[Ocena niekompletna: {pending} wypowiedzi czeka na sprawdzenie — wynik pojawi się w historii "
+                "rozmowy.]"] if pending else []
     kinds = {c.obs_id: k for c, k in cands}
     lines = ["Do poprawy w tej rozmowie (to sugestie modelu — mogę się mylić):"]
     for c in K.quiz([c for c, _ in cands], pack.rubric):
-        why = _explain(pack, c.category)
+        why = explain_edit(pack, c.span, c.fix, c.category)
         line = f"• „{c.span}” → „{c.fix}”" + (f" — {why}" if why else "")
         if kinds[c.obs_id] == "stt_suspect":
             line += " (możliwe, że źle usłyszałem — sprawdź, czy tak powiedziałeś/aś)"
         lines.append(line)
+    if pending:
+        lines.append(f"[Ocena niekompletna: {pending} wypowiedzi czeka na sprawdzenie — pełne podsumowanie pojawi się "
+                     "w historii rozmowy.]")
     return lines
 
 

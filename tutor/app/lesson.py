@@ -212,6 +212,9 @@ def run_exercises(repo, pack: C.Pack, profile_id: int, session_id: int, sk: C.Sk
                 _record(repo, pack, profile_id, session_id, sk, item, True, a, tries, now)
                 ok.append(item.id)
                 break
+            if verdict == "finish":                       # koniec sesji: jak `q` (postęp zapisany, lekcja wznawialna)
+                say("Dobrze, kończymy na dziś. Lekcję możesz wznowić później.")
+                return Result(len(ok), len(done), quit=True)
             if verdict == "skip":
                 say("Dobrze, kończymy ćwiczenia. To nie oznacza opanowania umiejętności — nic nie zapisano jako "
                     "zrobione. Do zadań wrócisz poleceniem `--lesson`.")
@@ -269,7 +272,7 @@ def _heard(a: Answer) -> str:
 
 
 def judge(pack: C.Pack, skill_id: str, item: C.Item, a: Answer) -> str:
-    """correct | skip | help | unknown | unclear | wrong. `unclear` = niska pewność STT albo niejasna wypowiedź
+    """correct | finish | skip | help | unknown | unclear | wrong. `unclear` = niska pewność STT albo niejasna wypowiedź
     (nie jest błędem językowym i nie jest dopasowywana do oczekiwanej odpowiedzi); `unknown` = „nie wiem”."""
     if check(pack, item, a.text):
         return "correct"
