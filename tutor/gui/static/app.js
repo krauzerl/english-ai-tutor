@@ -152,8 +152,8 @@ function setStatus() {
   const sys = [];
   if (st) {
     sys.push(h("div", { class: `sys ${st.ollama ? "ok" : "bad"}` }, st.ollama ? `Model: ${S.settings?.values?.chat_model || st.roles.conversation || "Ollama"}` : t("Ollama nie odpowiada")));
-    sys.push(h("div", { class: `sys ${st.kokoro ? "ok" : "bad"}` }, st.kokoro ? "Głos: gotowy" : t("Głos: brak plików Kokoro")));
-    sys.push(h("div", { class: `sys ${st.audio_error ? "bad" : "ok"}` }, st.audio_error ? "Mikrofon: niedostępny" : t("Mikrofon: dostępny")));
+    sys.push(h("div", { class: `sys ${st.kokoro ? "ok" : "bad"}` }, st.kokoro ? t("Głos: gotowy") : t("Głos: brak plików Kokoro")));
+    sys.push(h("div", { class: `sys ${st.audio_error ? "bad" : "ok"}` }, st.audio_error ? t("Mikrofon: niedostępny") : t("Mikrofon: dostępny")));
   }
   document.getElementById("status").replaceChildren(...[
     who ? h("div", { class: "profile-chip" }, h("div", { class: "avatar", "aria-hidden": "true" }, who.name.slice(0, 1).toUpperCase()),
@@ -193,7 +193,7 @@ async function screenProfiles(main) {
   main.append(pageHead(t("Kto się uczy?"), t("Profile"), t("Każdy profil ma osobną historię, postępy, osiągnięcia i ustawienia.")),
     S.profiles.length ? h("div", { class: "profiles" }, S.profiles.map((p) => h("button", { type: "button", class: "profile-card", "aria-current": p.id === S.pid ? "true" : null,
       onclick: () => { choosePid(p.id); go("#/home"); } }, h("div", { class: "avatar", "aria-hidden": "true" }, p.name.slice(0, 1).toUpperCase()),
-      h("div", {}, h("strong", {}, p.name), h("span", {}, p.id === S.pid ? "wybrany" : t("kliknij, aby wybrać")))))) : null,
+      h("div", {}, h("strong", {}, p.name), h("span", {}, p.id === S.pid ? t("wybrany") : t("kliknij, aby wybrać")))))) : null,
     card(t("Nowy profil"), createForm()));
 }
 
@@ -226,17 +226,17 @@ async function screenHome(main) {
       h("div", { class: "hero-copy" },
         h("span", { class: "eyebrow" }, d.streak > 1 ? t("Seria: {n} dni z rzędu", { n: d.streak }) : t("Twoja wyprawa po angielski")),
         h("h1", {}, h("span", { class: "sr-only" }, t("Cześć, {name}!", { name: d.profile.name })), pxText(t("Cześć, {name}!", { name: d.profile.name }), 5)),
-        h("p", {}, open ? "Masz przerwaną sesję — możesz wrócić dokładnie do tego miejsca." : t("Od czego zaczynamy?")))));
+        h("p", {}, open ? t("Masz przerwaną sesję — możesz wrócić dokładnie do tego miejsca.") : t("Od czego zaczynamy?")))));
 
   const action = (cls, ic, k, title, desc, cta, onclick) => h("button", { type: "button", class: `action ${cls}`, onclick },
     h("span", { class: "k" }, icon(ic, 18), k), h("strong", {}, title), h("span", { class: "d" }, desc), h("span", { class: "go" }, `${cta} →`));
   const actions = h("section", { class: "actions-4", "aria-label": t("Najważniejsze akcje") },
-    action("main", "chat", t("1 · Rozmowa"), "Porozmawiaj z nauczycielem", t("Swobodna rozmowa po angielsku na wybrany temat."), t("Wybierz temat"), () => go("#/chat")),
+    action("main", "chat", t("1 · Rozmowa"), t("Porozmawiaj z nauczycielem"), t("Swobodna rozmowa po angielsku na wybrany temat."), t("Wybierz temat"), () => go("#/chat")),
     open ? action("", "play", t("2 · Kontynuuj"), t("Wróć do {k}", { k: KIND_GEN[open.kind] || t("sesji") }), t("Postęp przerwanej sesji jest zapisany."), t("Wznów"), () => resume(open))
-      : action("", "lesson", t("2 · Nauka"), sugName || t("Lekcja"), d.suggested_lesson?.provisional ? "Propozycja startowa — możesz wybrać inną misję." : t("Kolejna misja dobrana do Twoich wyników."), t("Zacznij lekcję"),
+      : action("", "lesson", t("2 · Nauka"), sugName || t("Lekcja"), d.suggested_lesson?.provisional ? t("Propozycja startowa — możesz wybrać inną misję.") : t("Kolejna misja dobrana do Twoich wyników."), t("Zacznij lekcję"),
         () => startSession("lesson", { text_mode: defaultTextMode() })),
-    action("", "review", t("3 · Powtórka"), d.due_reviews ? t("{n} do powtórki", { n: d.due_reviews }) : t("Brak zaległych"), d.due_reviews ? "Sprawdź, czy pamiętasz — na nowych przykładach." : t("Wrócą, gdy nadejdzie ich termin."),
-      d.due_reviews ? "Powtórz teraz" : t("Zobacz"), () => (d.due_reviews ? startSession("review", { text_mode: defaultTextMode() }) : go("#/review"))),
+    action("", "review", t("3 · Powtórka"), d.due_reviews ? t("{n} do powtórki", { n: d.due_reviews }) : t("Brak zaległych"), d.due_reviews ? t("Sprawdź, czy pamiętasz — na nowych przykładach.") : t("Wrócą, gdy nadejdzie ich termin."),
+      d.due_reviews ? t("Powtórz teraz") : t("Zobacz"), () => (d.due_reviews ? startSession("review", { text_mode: defaultTextMode() }) : go("#/review"))),
     action("", "progress", t("4 · Postępy"), t("{n} lekcji · {t}", { n: tot.lessons_completed, t: fmtMin(tot.study_seconds) }), t("{e} z {n} odznak. Historia z zapisów na tym komputerze.", { e: ac.earned, n: ac.total }), t("Zobacz postępy"), () => go("#/progress")));
 
   // wyprawa: bieżący rozdział (pierwszy z nieopanowanymi misjami)
@@ -277,7 +277,7 @@ function resume(open) {
 
 function modeRow() {
   const cb = h("input", { type: "checkbox", id: "textmode", checked: defaultTextMode(), disabled: !voiceAvailable() });
-  return h("label", { class: "check" }, cb, voiceAvailable() ? "Tryb tekstowy (bez mikrofonu i głosu)" : t("Tryb tekstowy — głos niedostępny na tym komputerze"));
+  return h("label", { class: "check" }, cb, voiceAvailable() ? t("Tryb tekstowy (bez mikrofonu i głosu)") : t("Tryb tekstowy — głos niedostępny na tym komputerze"));
 }
 const textMode = () => { const cb = document.getElementById("textmode"); return cb ? cb.checked : defaultTextMode(); };
 
@@ -319,7 +319,7 @@ async function screenChat(main) {
       h("strong", {}, c.pl), h("span", {}, c.about_pl))));
   const mark = () => cats.querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.v === st.category)));
   mark();
-  const levels = seg(t("Poziom"), opt.levels.map((l) => [l, l === "auto" ? "Automatyczny" : l]), st.level, (v) => { st.level = v; draw(); });
+  const levels = seg(t("Poziom"), opt.levels.map((l) => [l, l === "auto" ? t("Automatyczny") : l]), st.level, (v) => { st.level = v; draw(); });
   const modes = seg(t("Tryb rozmowy"), opt.modes.map((m) => [m.id, m.pl]), st.mode, (v) => { st.mode = v; st.seed = null; draw(); });
   const go = () => (st.category === "custom" || !st.topics.length ? customGo() : start({ topic: st.topics[0].id }));
   await draw();
@@ -391,7 +391,7 @@ async function screenReview(main) {
   main.append(pageHead(t("Utrwalanie"), t("Powtórki"), t("Krótkie sprawdzenie na nowych przykładach. Termin każdej powtórki wyznacza harmonogram FSRS.")),
     h("section", { class: "quest" }, h("div", { class: "icon-box" }, icon("review", 36)),
       h("div", {}, h("h3", {}, home.due_reviews ? t("Do powtórki dziś: {n}", { n: home.due_reviews }) : t("Dziś nie ma zaległych powtórek")),
-        h("p", {}, home.due_reviews ? "Odpowiadaj tak samo jak w lekcji. Niepewnie rozpoznana mowa nie obniża wyniku." : t("Wrócą, gdy minie ich termin. Możesz w tym czasie zrobić lekcję.")), modeRow()),
+        h("p", {}, home.due_reviews ? t("Odpowiadaj tak samo jak w lekcji. Niepewnie rozpoznana mowa nie obniża wyniku.") : t("Wrócą, gdy minie ich termin. Możesz w tym czasie zrobić lekcję.")), modeRow()),
       home.due_reviews ? btn(t("Zacznij powtórki"), () => startSession("review", { text_mode: textMode() }), "primary lg", "play") : btn(t("Przejdź do lekcji"), () => go("#/lesson"), "lg")),
     p.due.length ? card(t("Na liście"), h("ul", { class: "mini-list" }, p.due.map((s) => h("li", {}, icon("review", 20), h("div", { class: "t" }, skillPl(s)), h("span"))))) : null,
     note(t("Powtórki nie nadają statusu opanowania. Limit: 20 dziennie."), "muted"));
@@ -559,7 +559,7 @@ async function screenProgress(main) {
   const [p, hs, ac] = await Promise.all([q("/api/progress"), q("/api/history"), q("/api/achievements")]);
   await catalog();
   const tot = hs.totals;
-  const small = (n) => (n < 5 ? " (mała próba)" : "");
+  const small = (n) => (n < 5 ? t(" (mała próba)") : "");
   const groups = [["mastered", t("Opanowane"), "amber"], ["working", t("W toku"), "green"], ["struggling", t("Wymagają pracy"), "terra"], ["too_few", t("Za mało prób"), "turq"]];
   const status = { ended: t("zakończona"), paused: t("przerwana"), active: t("trwa"), abandoned: t("porzucona") };
   main.append(
@@ -657,12 +657,12 @@ const SET_LABELS = {
   session_minutes: t("Dzienny czas nauki (min)"), io_mode: t("Tryb domyślny"), mic_mode: t("Mikrofon"),
   input_device: t("Mikrofon (urządzenie)"), output_device: t("Głośnik (urządzenie)"), stt_model: t("Rozpoznawanie mowy"),
   allow_unreviewed: t("Używaj materiałów niesprawdzonych przez człowieka"), conversation_mode: t("Domyślna aktywność"), target_lang: t("Język nauki"),
-  stt_confirm: t("Potwierdzanie rozpoznanej mowy"), ui_lang: t("Język interfejsu"),
+  stt_confirm: t("Potwierdzanie rozpoznanej mowy"), ui_lang: t("Język interfejsu"), mascot: t("Maskotka (propozycja)"),
 };
-const SET_GROUPS = [[t("Rozmowa i nauka"), ["ui_lang", "chat_model", "correction", "conversation_mode", "session_minutes", "allow_unreviewed", "target_lang"]],
+const SET_GROUPS = [[t("Rozmowa i nauka"), ["ui_lang", "mascot", "chat_model", "correction", "conversation_mode", "session_minutes", "allow_unreviewed", "target_lang"]],
   [t("Głos i dźwięk"), ["io_mode", "tts_voice", "speed", "stt_confirm", "mic_mode", "input_device", "output_device"]]];
 const SPEED_LABELS = { slow: t("wolno"), normal: t("normalnie"), fast: t("szybko") };
-const CHOICE_LABELS = { pl: t("polski"), summary: t("swobodna — uwagi głównie na końcu"), periodic: t("zrównoważona — krótkie korekty w trakcie"), intensive: t("intensywna — częste korekty i ćwiczenie"),
+const CHOICE_LABELS = { A: t("A — Obwód"), B: t("B — Słuchawki"), C: t("C — Bit"), classic: t("dotychczasowa żaba"), pl: t("polski"), summary: t("swobodna — uwagi głównie na końcu"), periodic: t("zrównoważona — krótkie korekty w trakcie"), intensive: t("intensywna — częste korekty i ćwiczenie"),
   uncertain: t("tylko gdy niepewne"), always: t("zawsze"), never: t("nigdy"), ptt: t("kliknij, aby mówić"), auto: t("automatyczny"), voice: t("głosowy"), text: t("tekstowy"), quick_chat: "Quick Chat", lesson: t("lekcja"), en: t("angielski") };
 // F7: reset postępów i usunięcie profilu — potwierdzenie nazwą profilu, domyślnie kopia zapasowa.
 function dangerZone() {
@@ -720,6 +720,8 @@ async function screenSettings(main) {
     try {
       S.settings.values = await api("/api/settings", { pid: S.pid, changes });
       if (setLang(S.settings.values.ui_lang)) return;          // inny język interfejsu: przeładowanie
+      window.MASCOT_KEY = S.settings.values.mascot;
+      document.getElementById("brand").replaceChildren(mascotHead(36), h("span", {}, pxText("AI Tutor", 3), h("small", {}, t("angielski · lokalnie"))));
       toast(t("Zapisano ustawienia.")); setStatus();
     }
     catch (e) { toast(e.message); }
@@ -730,7 +732,7 @@ async function screenSettings(main) {
     note(t("Model oceny zostaje bez zmian (Qwen3 8B): jego zmiana wymaga kontroli jakości. Model rozmowy musi być pobrany w Ollamie."), "muted"),
     dangerZone(),
     card(t("Ten komputer"), table([t("Element"), t("Stan")], st ? [
-      ["Ollama", st.ollama ? "działa" : t("nie odpowiada — uruchom `ollama serve`")], [t("Pobrane modele"), st.models.join(", ") || "—"],
+      ["Ollama", st.ollama ? t("działa") : t("nie odpowiada — uruchom `ollama serve`")], [t("Pobrane modele"), st.models.join(", ") || "—"],
       [t("Model oceny"), st.roles.evaluation || "—"], [t("Głos (Kokoro)"), st.kokoro ? t("gotowy, {n} głosów", { n: st.voices.length }) : t("brak plików modelu")],
       ["Audio", st.audio_error ? t("niedostępne: {e}", { e: st.audio_error }) : st.devices.join("; ")]] : [])));
 }
@@ -778,15 +780,15 @@ function nextText(s, state) {
   return {
     connecting: t("Uruchamiam nauczyciela…"),
     listening: t("Mów teraz. Kliknij Stop, gdy skończysz."),
-    thinking: task ? "Sprawdzam odpowiedź…" : t("Układam odpowiedź…"),
+    thinking: task ? t("Sprawdzam odpowiedź…") : t("Układam odpowiedź…"),
     speaking: t("Nauczyciel mówi. Kliknij mikrofon, aby przerwać i odpowiedzieć."),
     success: t("Dobrze! Za chwilę kolejny krok."),
     encouraging: t("Prawie. Spróbuj jeszcze raz — wskazówka poniżej."),
     explaining: t("Przeczytaj krótkie wyjaśnienie. Pierwsze zadanie zaraz się pojawi."),
     idle: t("Sesja zakończona. Wyniki są zapisane."),
     error: s.error || t("Coś poszło nie tak."),
-    turn: task ? (hasOpts ? "Wybierz odpowiedź albo powiedz ją." : (s.text ? "Napisz odpowiedź na zadanie." : t("Odpowiedz: kliknij mikrofon albo napisz.")))
-      : (s.text ? "Twoja kolej: napisz odpowiedź." : t("Twoja kolej: kliknij Mów i odpowiedz.")),
+    turn: task ? (hasOpts ? t("Wybierz odpowiedź albo powiedz ją.") : (s.text ? t("Napisz odpowiedź na zadanie.") : t("Odpowiedz: kliknij mikrofon albo napisz.")))
+      : (s.text ? t("Twoja kolej: napisz odpowiedź.") : t("Twoja kolej: kliknij Mów i odpowiedz.")),
   }[state];
 }
 
@@ -806,7 +808,7 @@ function screenSession(main) {
   const send = async (text) => {
     try { await api("/api/session/send", { text }); if (text) { s.waiting = true; s.hint = null; drawSide(); } } catch (e) { toast(e.message); }
   };
-  const input = h("input", { type: "text", id: "say", maxlength: 500, lang: "en", placeholder: s.text ? "Napisz po angielsku…" : t("Albo napisz po angielsku…"), "aria-label": t("Twoja odpowiedź") });
+  const input = h("input", { type: "text", id: "say", maxlength: 500, lang: "en", placeholder: s.text ? t("Napisz po angielsku…") : t("Albo napisz po angielsku…"), "aria-label": t("Twoja odpowiedź") });
   const submit = () => {
     const t = input.value.trim(); if (!t) return; input.value = "";
     if (s.layout === "task") { drawEvent({ kind: "you", text: t, seq: -1 }, true); s.answered = t; }   // silnik nie powtarza odpowiedzi
@@ -816,7 +818,7 @@ function screenSession(main) {
   input.addEventListener("keydown", (e) => { if (e.key === "Enter") submit(); });
   const composer = h("div", { class: "composer" }, input, btn(t("Wyślij"), submit, "primary"));
   const mic = () => (s.text ? null : h("button", { type: "button", class: "mic-big", id: "micbtn", "aria-label": t("Mów"), onclick: () => send("") }, icon("mic", 34), h("span", { class: "mic-label" }, t("Mów"))));
-  const stop = btn(s.kind === "chat" ? "Zakończ rozmowę" : t("Przerwij i zapisz"), () => api("/api/session/stop", {}).catch((e) => toast(e.message)), "danger block end");
+  const stop = btn(s.kind === "chat" ? t("Zakończ rozmowę") : t("Przerwij i zapisz"), () => api("/api/session/stop", {}).catch((e) => toast(e.message)), "danger block end");
   const log = S.logEl = h("div", { class: "log", id: "log", "aria-live": "polite", "aria-label": t("Przebieg rozmowy") });
 
   if (s.layout === "chat") {
@@ -830,7 +832,7 @@ function screenSession(main) {
         h("div", { class: "topic-now", id: "topicnow" }),
         h("div", { class: "tools" }, tools.map(([l, t, c]) => btn(l, () => send(t), `sm ${c || ""}`))), stop),
       h("section", { class: "convo", "aria-label": t("Rozmowa") },
-        h("div", { class: "convo-head" }, h("h1", {}, s.kind === "chat" ? "Quick Chat" : t("Rozmowa po lekcji")), h("span", { class: "muted" }, s.text ? "tryb tekstowy" : t("tryb głosowy"))),
+        h("div", { class: "convo-head" }, h("h1", {}, s.kind === "chat" ? "Quick Chat" : t("Rozmowa po lekcji")), h("span", { class: "muted" }, s.text ? t("tryb tekstowy") : t("tryb głosowy"))),
         log,
         s.text ? composer : h("details", { class: "write-toggle" }, h("summary", {}, t("Wolę napisać")), composer))));
   } else {
@@ -904,7 +906,7 @@ function drawEvent(ev, store = true) {
   else if (k === "heard") el = h("div", { class: "msg heard" }, `Rozpoznano: ${ev.text}`);
   else if (k === "stt_confirm") el = sttConfirm(ev);
   else if (k === "error") el = h("div", { class: "msg error", role: "alert" }, h("b", {}, t("Problem")), h("p", {}, ev.text));
-  else if (k === "end") el = h("div", { class: "msg sys" }, ev.code ? "Sesja zakończona z błędem." : t("Sesja zamknięta. Wyniki zapisano."));
+  else if (k === "end") el = h("div", { class: "msg sys" }, ev.code ? t("Sesja zakończona z błędem.") : t("Sesja zamknięta. Wyniki zapisano."));
   else el = h("div", { class: `msg ${k}` }, h("pre", {}, ev.text.trim()));
   el.dataset.seq = ev.seq;
   log.append(el);
@@ -941,13 +943,13 @@ function drawSide() {
   const st = document.getElementById("sstate");
   st.dataset.state = state; st.textContent = STATE_PL[state];
   const mic = document.getElementById("micbtn");
-  if (mic) { mic.classList.toggle("on", s.recording); mic.setAttribute("aria-label", s.recording ? "Stop — zakończ nagrywanie" : t("Mów")); mic.querySelector(".mic-label").textContent = s.recording ? "Stop" : t("Mów"); }
+  if (mic) { mic.classList.toggle("on", s.recording); mic.setAttribute("aria-label", s.recording ? t("Stop — zakończ nagrywanie") : t("Mów")); mic.querySelector(".mic-label").textContent = s.recording ? "Stop" : t("Mów"); }
   const end = document.querySelector(".end");
   if (end && end.tagName === "BUTTON" && !s.running) end.replaceWith(h("div", { class: "row end" }, btn(t("Zobacz postępy"), () => go("#/progress"), "primary"), btn(t("Na start"), () => go("#/home"))));
   if (s.layout === "chat") {
     document.getElementById("next").textContent = nextText(s, state);
     const min = Math.floor((Date.now() - s.started) / 60000);
-    document.getElementById("topicnow").replaceChildren(h("span", {}, s.kind === "chat" ? "Temat" : t("Rozmowa po lekcji")),
+    document.getElementById("topicnow").replaceChildren(h("span", {}, s.kind === "chat" ? t("Temat") : t("Rozmowa po lekcji")),
       h("strong", {}, s.kind === "chat" ? (s.topic || "…") : (s.goal || "…")),
       h("div", { class: "muted" }, [s.chatinfo, `${min} min`].filter(Boolean).join(" · ")));
     return;
@@ -958,7 +960,7 @@ function drawSide() {
   if (s.task) document.getElementById("steps").replaceChildren(h("div", { class: "steps", role: "progressbar", "aria-valuemin": 0, "aria-valuemax": s.task.total, "aria-valuenow": s.task.index - 1, "aria-label": t("Zadanie {a} z {b}", { a: s.task.index, b: s.task.total }) },
     Array.from({ length: s.task.total }, (_, i) => h("i", { class: i < s.task.index - 1 ? "done" : i === s.task.index - 1 ? "now" : "" }))));
   const said = document.getElementById("said");
-  if (s.said) { said.hidden = false; said.replaceChildren(h("b", {}, "Nauczyciel mówi"), h("span", { lang: "en" }, s.said)); }
+  if (s.said) { said.hidden = false; said.replaceChildren(h("b", {}, t("Nauczyciel mówi")), h("span", { lang: "en" }, s.said)); }
   const ex = document.getElementById("explainbox");
   const body = s.goalText ? s.goalText.split("\n").slice(1).join("\n").trim() : "";
   if (body && !ex.firstChild) ex.append(h("details", { class: "explain", open: true }, h("summary", {}, t("Wyjaśnienie")), rich(lessonText(body))));
@@ -1013,6 +1015,7 @@ async function route() {
   try {
     if (S.pid && !S.settings) S.settings = await q("/api/settings").catch(() => null);
     if (S.settings && setLang(S.settings.values.ui_lang)) return;   // profil z innym językiem interfejsu
+    if (S.settings) window.MASCOT_KEY = S.settings.values.mascot;
     await fn(frag);
   } catch (e) {
     frag.replaceChildren(h("div", { class: "empty" }, mascot("thinking", 72), h("div", {}, h("p", {}, e.message), btn(t("Spróbuj ponownie"), route, "primary"))));

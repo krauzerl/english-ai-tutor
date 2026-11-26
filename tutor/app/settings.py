@@ -9,6 +9,7 @@ CHAT_MODELS = ("qwen3:8b", "SpeakLeash/bielik-11b-v2.3-instruct:Q4_K_M")   # obs
 SCHEMA: dict[str, dict] = {
     "target_lang": {"type": "choice", "choices": LANGS, "column": "target_lang"},
     "ui_lang": {"type": "choice", "choices": ("pl", "en"), "column": "ui_lang"},     # F7: język interfejsu
+    "mascot": {"type": "choice", "choices": ("A", "B", "C", "classic")},   # F7: koncepcje do wyboru (niezatwierdzone)
     "tts_voice": {"type": "str"},
     "speed": {"type": "float", "min": 0.6, "max": 1.5},
     "correction": {"type": "choice", "choices": ("summary", "periodic", "intensive"), "column": "correction_style"},
@@ -34,7 +35,7 @@ SCHEMA: dict[str, dict] = {
 SPEED_PRESETS = {"slow": 0.8, "normal": 0.9, "fast": 1.05}
 DEFAULT_SPEED = SPEED_PRESETS["normal"]
 DEFAULTS = {"tts_voice": "bf_emma", "speed": DEFAULT_SPEED, "mic_mode": "ptt", "stt_model": "small.en",
-            "stt_confirm": "uncertain",
+            "stt_confirm": "uncertain", "mascot": "A",
             "conversation_mode": "lesson", "chat_model": CHAT_MODELS[0], "io_mode": "voice",
             "input_device": "default", "output_device": "default",
             "chat_level": "auto", "chat_category": "general", "chat_mode": "natural"}

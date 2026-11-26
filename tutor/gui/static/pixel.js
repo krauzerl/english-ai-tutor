@@ -377,7 +377,8 @@ function mascot(state = "idle", size = 120) {
   const box = document.createElement("div");
   box.className = "mascot";
   box.dataset.state = state;
-  for (const [name, rows] of Object.entries(FROG)) box.append(sprite(rows, FROG_PAL, size, `px mascot-frame f-${name}`));
+  const [frames, pal] = current();
+  for (const [name, rows] of Object.entries(frames)) box.append(sprite(rows, pal, size, `px mascot-frame f-${name}`));
   const fx = document.createElement("div");
   fx.className = "mascot-fx";
   fx.setAttribute("aria-hidden", "true");
@@ -496,7 +497,12 @@ function scene(width = 240, height = 64) {
   return svg;
 }
 
-function mascotHead(size = 32) { return sprite(FROG.idle.slice(0, 22), FROG_PAL, size); }
+// F7: koncepcja maskotki (A/B/C z mascots.js albo „classic” = dotychczasowa żaba) — wybór właściciela w Ustawieniach.
+function current() {
+  const m = window.MASCOTS && window.MASCOTS[window.MASCOT_KEY || "A"];
+  return m ? [m.frames, m.pal] : [FROG, FROG_PAL];
+}
+function mascotHead(size = 32) { const [f, pal] = current(); return sprite(f.idle.slice(0, f === FROG ? 22 : 24), pal, size); }
 
 window.PX = { sprite, icon, pxText, mascot, mascotHead, badgeArt, scene, ICONS };
 })();

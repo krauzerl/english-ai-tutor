@@ -499,3 +499,8 @@ I18N.add([
   ["Wszystkie kategorie", "Wszystkie kategorie", "All categories"],
   ["standardowe {a}/{b} · sekrety {c}/{e}", "standardowe {a}/{b} · sekrety {c}/{e}", "standard {a}/{b} · secrets {c}/{e}"],
 ]);
+I18N.add([
+  ["Maskotka (propozycja)", "Maskotka (propozycja)", "Mascot (proposal)"], ["A — Obwód", "A — Obwód", "A — Circuit"],
+  ["B — Słuchawki", "B — Słuchawki", "B — Headset"], ["C — Bit", "C — Bit", "C — Bit"],
+  ["dotychczasowa żaba", "dotychczasowa żaba", "previous frog"],
+]);
