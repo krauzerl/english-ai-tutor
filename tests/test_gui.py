@@ -269,7 +269,7 @@ def test_lesson_through_gui_records_attempts_and_resumes(srv, xdg):
 def test_profile_isolation_in_api(srv):
     a, b = make_profile(srv, "ann"), make_profile(srv, "bob")
     srv.post("/api/settings", {"pid": a, "changes": {"speed": 1.2}})
-    assert srv.get(f"/api/settings?pid={b}")[1]["values"]["speed"] == 1.0
+    assert srv.get(f"/api/settings?pid={b}")[1]["values"]["speed"] == 0.9
     assert srv.get(f"/api/settings?pid={a}")[1]["values"]["speed"] == 1.2
 
 
@@ -319,6 +319,8 @@ def test_push_to_talk_from_gui_with_simulated_mic(srv, xdg):
     srv.wait_for("recording")
     time.sleep(0.2)
     srv.post("/api/session/send", {"text": ""})          # Stop
+    srv.wait_for("stt_confirm")                           # F7: niepewne słowo „goed” → potwierdzenie przed oceną
+    srv.post("/api/session/send", {"text": ""})          # Wyślij bez zmian
     evs = srv.wait_for("you")
     assert next(e for e in evs if e["kind"] == "you")["text"] == "I goed home"
     srv.post("/api/session/stop", {})

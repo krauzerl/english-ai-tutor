@@ -134,7 +134,8 @@ def test_cli_passes_detailed_transcript_and_typed_stays_text(repo, conn):
     repo.create_profile("ann")
     mic = FakeMic(loop=blocks(tone(0.1))[0])
     s = DetailedSTT(Transcript("I goed home", ["goed"]))
-    code, _ = cli(repo, conn, Lines("", "", "q"), ["--mode", "ptt"], mic=mic, stt=s, sink=A.SimSink())
+    code, _ = cli(repo, conn, Lines("", "", "q"), ["--mode", "ptt", "--stt-confirm", "never"], mic=mic, stt=s,
+                  sink=A.SimSink())
     assert code == 0
     pid = repo.list_profiles()[0]["id"]
     sid = repo.list_sessions(pid)[0]["id"]
@@ -159,7 +160,8 @@ def test_cli_stt_error_does_not_crash_or_store_turn(repo, conn):
 def test_cli_legacy_stt_without_detailed_gives_unevaluable_voice_turn(repo, conn):
     repo.create_profile("ann")
     mic = FakeMic(loop=blocks(tone(0.1))[0])
-    code, _ = cli(repo, conn, Lines("", "", "q"), ["--mode", "ptt"], mic=mic, stt=FakeSTT("I goed home"),
+    code, _ = cli(repo, conn, Lines("", "", "q"), ["--mode", "ptt", "--stt-confirm", "never"], mic=mic,
+                  stt=FakeSTT("I goed home"),
                   sink=A.SimSink())
     pid = repo.list_profiles()[0]["id"]
     u = last_user(repo, pid, repo.list_sessions(pid)[0]["id"])
@@ -200,3 +202,44 @@ def test_text_session_unchanged(repo, pack):
     repo.add_turn(pid, sid, "user", "I goed home")
     n, kinds = evaluate_restored(repo, pack, pid, sid)
     assert n == 1 and kinds == ["error"]
+
+
+# --- F7: potwierdzenie niepewnej transkrypcji ---
+def _turns(repo):
+    pid = repo.list_profiles()[0]["id"]
+    return [t for s in repo.list_sessions(pid) for t in repo.list_turns(pid, s["id"])]
+
+
+def _confirm_run(repo, conn, *lines):
+    repo.create_profile("ann")
+    mic = FakeMic(loop=blocks(tone(0.1))[0])
+    s = DetailedSTT(Transcript("I goed home", ["goed"]))
+    return cli(repo, conn, Lines("", "", *lines, "q"), ["--mode", "ptt"], mic=mic, stt=s, sink=A.SimSink())
+
+
+def test_uncertain_transcript_can_be_accepted(repo, conn):
+    code, out = _confirm_run(repo, conn, "")
+    assert any("Sprawdź rozpoznanie" in x for x in out)
+    u = [t for t in _turns(repo) if t["role"] == "user"]
+    assert u[0]["input_mode"] == "voice" and u[0]["text"] == "I goed home"
+
+
+def test_corrected_transcript_is_typed_text_not_a_language_error(repo, conn):
+    code, out = _confirm_run(repo, conn, "I go home")
+    u = [t for t in _turns(repo) if t["role"] == "user"]
+    assert u[0]["text"] == "I go home" and u[0]["input_mode"] == "text"
+    assert any("nie jest błąd językowy" in x for x in out)
+    assert repo.list_errors(repo.list_profiles()[0]["id"]) == []
+
+
+def test_rerecord_discards_transcript(repo, conn):
+    code, out = _confirm_run(repo, conn, "r")
+    assert not [t for t in _turns(repo) if t["role"] == "user"] and any("nagraj jeszcze raz" in x for x in out)
+
+
+def test_confident_transcript_needs_no_confirmation(repo, conn):
+    repo.create_profile("ann")
+    mic = FakeMic(loop=blocks(tone(0.1))[0])
+    code, out = cli(repo, conn, Lines("", "", "q"), ["--mode", "ptt"], mic=mic,
+                    stt=DetailedSTT(Transcript("I went home", [])), sink=A.SimSink())
+    assert not any("Sprawdź rozpoznanie" in x for x in out)

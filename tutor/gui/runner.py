@@ -14,6 +14,7 @@ from collections.abc import Callable
 
 MAX_EVENTS = 3000
 _CORR = re.compile(r"^•\s*„(?P<span>.+?)”\s*→\s*„(?P<fix>.+?)”(?:\s*—\s*(?P<why>.*?))?(?:\s*\(możliwe.*\))?$")
+_STT_CONFIRM = re.compile(r"^\[Sprawdź rozpoznanie: „(?P<text>.*)”(?: \(niepewne: (?P<unsure>[^)]*)\))? — ")
 _SUMMARY = re.compile(r"Powtórki: \d+/\d+")
 _TASK = re.compile(r"^(?:\[(?P<tag>[^\]]+)\])?\s*Zadanie (?P<i>\d+)/(?P<n>\d+): (?P<text>.*)$", re.S)
 
@@ -66,6 +67,8 @@ def classify(line: str) -> dict:
                 "stt": "źle usłyszałem" in s}
     if s.endswith("Spróbuj jeszcze raz."):           # drabina pomocy w ćwiczeniach (L1–L3)
         return {"kind": "hint", "text": s}
+    if m := _STT_CONFIRM.match(s):                  # F7: potwierdzenie/poprawa niepewnej transkrypcji
+        return {"kind": "stt_confirm", "text": m["text"], "unsure": m["unsure"] or ""}
     if s.startswith("[") and s.endswith("]"):
         return {"kind": "notice", "text": s[1:-1]}
     return {"kind": "info", "text": t}

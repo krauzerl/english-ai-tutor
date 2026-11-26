@@ -276,11 +276,11 @@ def test_weakspots_progress_achievements_settings(page):
     page.get_by_role("button", name="Do zdobycia").click()
     expect(page.locator(".badge-card.locked")).to_have_count(total - earned)
     page.goto(page.site + "/#/settings")
-    page.get_by_label("Tempo mowy").fill("1.2")
+    page.get_by_label("Tempo mowy").select_option("slow")
     page.get_by_role("button", name="Zapisz ustawienia").click()
     expect(page.locator("#toast")).to_have_text("Zapisano ustawienia.")
     page.reload()
-    expect(page.get_by_label("Tempo mowy")).to_have_value("1.2")
+    expect(page.get_by_label("Tempo mowy")).to_have_value("slow")
     assert page.errors == []
 
 

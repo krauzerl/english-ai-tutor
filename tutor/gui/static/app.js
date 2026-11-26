@@ -541,10 +541,13 @@ const SET_LABELS = {
   session_minutes: "Dzienny czas nauki (min)", io_mode: "Tryb domyślny", mic_mode: "Mikrofon",
   input_device: "Mikrofon (urządzenie)", output_device: "Głośnik (urządzenie)", stt_model: "Rozpoznawanie mowy",
   allow_unreviewed: "Używaj materiałów niesprawdzonych przez człowieka", conversation_mode: "Domyślna aktywność", target_lang: "Język nauki",
+  stt_confirm: "Potwierdzanie rozpoznanej mowy",
 };
 const SET_GROUPS = [["Rozmowa i nauka", ["chat_model", "correction", "conversation_mode", "session_minutes", "allow_unreviewed", "target_lang"]],
-  ["Głos i dźwięk", ["io_mode", "tts_voice", "speed", "mic_mode", "input_device", "output_device"]]];
-const CHOICE_LABELS = { summary: "podsumowanie na końcu", periodic: "co jakiś czas", intensive: "na bieżąco", ptt: "kliknij, aby mówić", auto: "automatyczny", voice: "głosowy", text: "tekstowy", quick_chat: "Quick Chat", lesson: "lekcja", en: "angielski" };
+  ["Głos i dźwięk", ["io_mode", "tts_voice", "speed", "stt_confirm", "mic_mode", "input_device", "output_device"]]];
+const SPEED_LABELS = { slow: "wolno", normal: "normalnie", fast: "szybko" };
+const CHOICE_LABELS = { summary: "swobodna — uwagi głównie na końcu", periodic: "zrównoważona — krótkie korekty w trakcie", intensive: "intensywna — częste korekty i ćwiczenie",
+  uncertain: "tylko gdy niepewne", always: "zawsze", never: "nigdy", ptt: "kliknij, aby mówić", auto: "automatyczny", voice: "głosowy", text: "tekstowy", quick_chat: "Quick Chat", lesson: "lekcja", en: "angielski" };
 async function screenSettings(main) {
   const d = S.settings = await q("/api/settings");
   const st = S.system;
@@ -560,6 +563,12 @@ async function screenSettings(main) {
       input = h("select", {}, h("option", { value: "default", selected: val === "default" }, "systemowe"), st.devices.map((v) => h("option", { value: v, selected: v === val }, v)));
     } else if (spec.type === "choice") input = h("select", {}, spec.choices.map((c) => h("option", { value: c, selected: String(c) === String(val) },
       key === "chat_model" ? `${c}${st && st.models.includes(c) ? "" : " (nie pobrany)"}` : (CHOICE_LABELS[c] || c))));
+    else if (key === "speed" && spec.presets) {
+      const named = Object.entries(spec.presets);
+      const custom = !named.some(([, v]) => Number(v) === Number(val));
+      input = h("select", {}, named.map(([n, v]) => h("option", { value: n, selected: Number(v) === Number(val) }, `${SPEED_LABELS[n] || n} (${v})`)),
+        custom ? h("option", { value: val, selected: true }, `własne (${val})`) : null);
+    }
     else if (spec.type === "float") input = h("input", { type: "number", min: spec.min, max: spec.max, step: 0.05, value: val });
     else if (spec.type === "bool") input = h("input", { type: "checkbox", checked: !!val });
     else return null;
@@ -749,12 +758,33 @@ function drawEvent(ev, store = true) {
     ev.why ? h("div", { class: "why" }, ev.why) : null, ev.stt ? h("div", { class: "why" }, "Możliwe, że źle usłyszałem — sprawdź, czy tak powiedziałeś/aś.") : null);
   else if (k === "scenario") el = h("div", { class: "msg scenario" }, h("b", {}, "Scenariusz"), h("p", {}, ev.text));
   else if (k === "heard") el = h("div", { class: "msg heard" }, `Rozpoznano: ${ev.text}`);
+  else if (k === "stt_confirm") el = sttConfirm(ev);
   else if (k === "error") el = h("div", { class: "msg error", role: "alert" }, h("b", {}, "Problem"), h("p", {}, ev.text));
   else if (k === "end") el = h("div", { class: "msg sys" }, ev.code ? "Sesja zakończona z błędem." : "Sesja zamknięta. Wyniki zapisano.");
   else el = h("div", { class: `msg ${k}` }, h("pre", {}, ev.text.trim()));
   el.dataset.seq = ev.seq;
   log.append(el);
   log.scrollTop = log.scrollHeight;
+}
+
+// F7: niepewne rozpoznanie mowy wraca do ucznia przed oceną. Poprawka to korekta ROZPOZNANIA, nie błąd językowy.
+function sttConfirm(ev) {
+  const field = h("input", { type: "text", value: ev.text, maxlength: 500, lang: "en", "aria-label": "Rozpoznany tekst — możesz go poprawić" });
+  let done = false;
+  const box = h("div", { class: "msg stt-confirm", role: "group", "aria-label": "Sprawdź rozpoznanie" });
+  const reply = async (text) => {
+    if (done) return; done = true;
+    box.querySelectorAll("button, input").forEach((b) => { b.disabled = true; });
+    try { await api("/api/session/send", { text }); } catch (e) { toast(e.message); done = false; }
+  };
+  const sendIt = () => { const t = field.value.trim(); reply(t === ev.text ? "" : t); };
+  field.addEventListener("keydown", (e) => { if (e.key === "Enter") sendIt(); });
+  box.append(h("b", {}, "Czy dobrze usłyszałem?"),
+    ev.unsure ? h("p", { class: "muted" }, `Niepewne słowa: ${ev.unsure}`) : null, field,
+    h("p", { class: "muted" }, "Popraw tekst, jeśli rozpoznanie jest błędne — to nie jest liczone jako błąd językowy."),
+    h("div", { class: "row" }, btn("Wyślij", sendIt, "primary"), btn("Nagraj ponownie", () => reply("r"))));
+  setTimeout(() => field.focus(), 0);
+  return box;
 }
 
 function drawSide() {

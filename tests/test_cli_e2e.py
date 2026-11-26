@@ -92,7 +92,7 @@ def test_voice_conversation_with_stt_probs(env):
     mic = FakeMic(loop=blocks(tone(0.1))[0])
     stt = DetailedSTT(Transcript("I goed home", ["goed"]))
     ev = EvalProv()
-    code, _ = env.go(WaitLines(lambda: env.applied() >= 1, "", ""), ["--mode", "ptt"], mic=mic, stt=stt,
+    code, _ = env.go(WaitLines(lambda: env.applied() >= 1, "", ""), ["--mode", "ptt", "--stt-confirm", "never"], mic=mic, stt=stt,
                      sink=A.SimSink(), ev=ev)
     u = env.users()
     assert code == 0 and len(u) == 1 and (u[0]["input_mode"], u[0]["low_prob_json"]) == ("voice", '["goed"]')
@@ -102,7 +102,8 @@ def test_voice_conversation_with_stt_probs(env):
 def test_voice_without_stt_data_never_evaluated_as_text(env):
     mic = FakeMic(loop=blocks(tone(0.1))[0])
     ev = EvalProv()
-    env.go(Lines("", "", "q"), ["--mode", "ptt"], mic=mic, stt=FakeSTT("I goed home"), sink=A.SimSink(), ev=ev)
+    env.go(Lines("", "", "q"), ["--mode", "ptt", "--stt-confirm", "never"], mic=mic, stt=FakeSTT("I goed home"),
+           sink=A.SimSink(), ev=ev)
     time.sleep(0.3)
     u = env.users()
     assert len(u) == 1 and (u[0]["input_mode"], u[0]["low_prob_json"]) == ("voice", None)

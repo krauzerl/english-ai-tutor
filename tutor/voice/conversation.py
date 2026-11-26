@@ -7,6 +7,8 @@ import threading
 import time
 from dataclasses import dataclass, field
 
+import numpy as np
+
 from tutor.app import intent as INTENT
 from tutor.llm.base import CancelToken, LLMError
 from tutor.llm.context import build_context, make_checkpoint, needs_checkpoint
@@ -80,14 +82,24 @@ class VoiceTutor:
             n = None
         return f"\n\n{n}" if n else ""
 
-    def say(self, text: str) -> bool:
-        """Mówi gotowy tekst (bez LLM, bez zapisu tury). False = przerwano (cancel) lub błąd TTS (`self.last_error`)."""
+    def say(self, text: str | list[str], gap: float = 0.6) -> bool:
+        """Mówi gotowy tekst (bez LLM, bez zapisu tury). Lista = części z pauzą `gap` s między nimi (cisza, bez
+        zmiany tempa ani wysokości głosu). False = przerwano (cancel) lub błąd TTS (`self.last_error`)."""
         tok = self._tok = CancelToken()
         tok.on_cancel(self.sink.stop)
         self.last_error = None
-        sp, started = SentenceSplitter(), False
+        started = False
+        parts = [text] if isinstance(text, str) else [p for p in text if p.strip()]
+        sents: list[str | None] = []
+        for k, part in enumerate(parts):
+            sp = SentenceSplitter()
+            sents += [*sp.feed(part + " "), *sp.flush()] + ([None] if k < len(parts) - 1 else [])
         try:
-            for s in [*sp.feed(text + " "), *sp.flush()]:
+            for s in sents:
+                if s is None:                                  # pauza między częściami komunikatu
+                    if started and not tok.is_set():
+                        self.sink.write(np.zeros(int(self.tts.sample_rate * gap), np.float32))
+                    continue
                 if tok.is_set() or not (c := clean_for_speech(s)):
                     continue
                 try:

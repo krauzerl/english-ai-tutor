@@ -30,8 +30,10 @@ def parse(argv: list[str]) -> argparse.Namespace:
                     help="ptt = ręczne nagrywanie (Enter); auto = bez przycisku (eksperymentalny)")
     ap.add_argument("--tts", choices=["kokoro", "piper"], default=v.get("tts", "kokoro"))
     ap.add_argument("--tts-voice", default=v.get("tts_voice"), help="np. bf_emma (kokoro), en_GB-alba-medium (piper)")
-    ap.add_argument("--speed", type=float, default=v.get("speed", 1.0))
+    ap.add_argument("--speed", type=float, default=v.get("speed", 0.9))
     ap.add_argument("--stt-model", default=v.get("stt_model", "small.en"))
+    ap.add_argument("--stt-confirm", choices=["uncertain", "always", "never"], default=None,
+                    help="potwierdzanie rozpoznanej wypowiedzi przed oceną (domyślnie: tylko niepewne)")
     ap.add_argument("--language", default=v.get("language", "en"))
     ap.add_argument("--input-device", default=v.get("input_device"))
     ap.add_argument("--output-device", default=v.get("output_device"))
@@ -491,6 +493,8 @@ def _apply_settings(a, argv, repo, p) -> None:
         a.mode = eff["mic_mode"]
     if not given("--stt-model"):
         a.stt_model = eff["stt_model"]
+    if not given("--stt-confirm"):
+        a.stt_confirm = eff["stt_confirm"]
     if eff["io_mode"] == "text":
         a.no_audio = True
     for dev in ("input_device", "output_device"):
@@ -690,8 +694,8 @@ def _speaker(tutor, q, mic, svc, out):
     state = {"on": True}
 
     def speak(text: str) -> None:
-        text = clean_for_speech(text)
-        if not state["on"] or not text:
+        parts = [c for x in text.split("\n\n") if (c := clean_for_speech(x))]   # \n\n = pauza (lesson_voice.PAUSE)
+        if not state["on"] or not parts:
             return
         if svc:
             svc.begin_activity()
@@ -702,7 +706,7 @@ def _speaker(tutor, q, mic, svc, out):
         if mic:
             mic.mute(3600)
         try:
-            tutor.say(text)
+            tutor.say(parts)
             if tutor.last_error:
                 out(f"[błąd TTS: {tutor.last_error} — dalej bez głosu]")
                 state["on"] = False
@@ -835,4 +839,20 @@ def _listen(a, q, mic, stt, ep, out, begin=lambda: None,
     out(f"  (STT {time.monotonic() - t0:.2f} s, {len(audio) / A.MIC_SR:.1f} s nagrania)")
     if not text:
         out("(nic nie zrozumiałem — spróbuj jeszcze raz)")
+        return text, t_end, "voice", low
+    conf = getattr(a, "stt_confirm", "uncertain")
+    if conf == "always" or (conf == "uncertain" and (low is None or low)):
+        # F7: niepewna transkrypcja wraca do ucznia przed oceną. Poprawka tekstu to korekta ROZPOZNANIA (wypowiedź
+        # idzie jak wpisana), nigdy poprawka błędu językowego; nic nie trafia do dziennika błędów.
+        unsure = f" (niepewne: {', '.join(low)})" if low else ""
+        out(f"[Sprawdź rozpoznanie: „{text}”{unsure} — Enter = wyślij · r = nagraj ponownie · wpisz poprawny tekst]")
+        ln = q.get()
+        if ln in ("q", "quit"):
+            return None, 0.0, "text", None
+        if ln.strip().lower() in ("r", "again", "ponownie"):
+            out("(nagraj jeszcze raz)")
+            return "", t_end, "text", None
+        if ln.strip() and ln.strip() != text:
+            out("[poprawiona transkrypcja — to nie jest błąd językowy]")
+            return ln.strip(), t_end, "text", None
     return text, t_end, "voice", low

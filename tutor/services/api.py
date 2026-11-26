@@ -171,9 +171,10 @@ class TutorAPI:
 
     # --- ustawienia ---
     def settings(self, pid: int) -> dict:
-        return {"values": ST.effective(self.repo, pid),
-                "schema": {k: {kk: list(vv) if isinstance(vv, tuple) else vv for kk, vv in v.items() if kk != "column"}
-                           for k, v in ST.SCHEMA.items()}}
+        schema = {k: {kk: list(vv) if isinstance(vv, tuple) else vv for kk, vv in v.items() if kk != "column"}
+                  for k, v in ST.SCHEMA.items()}
+        schema["speed"]["presets"] = ST.SPEED_PRESETS
+        return {"values": ST.effective(self.repo, pid), "schema": schema}
 
     def update_settings(self, pid: int, changes: dict) -> dict:
         try:

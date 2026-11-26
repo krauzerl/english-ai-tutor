@@ -143,7 +143,7 @@ def test_cli_ptt_flow_empty_transcript_and_no_recordings(repo, conn, tmp_path, m
     monkeypatch.chdir(cwd)
     mic = FakeMic(loop=blocks(tone(0.1))[0])
     stt = FakeSTT("", "I went to London")  # pierwsza transkrypcja pusta (szum)
-    code, out, llm = cli(repo, conn, Lines("", "", "", "", "q"), ["--mode", "ptt"], mic=mic, stt=stt,
+    code, out, llm = cli(repo, conn, Lines("", "", "", "", "q"), ["--mode", "ptt", "--stt-confirm", "never"], mic=mic, stt=stt,
                          sink=A.SimSink())
     assert code == 0 and stt.audio_seen
     assert any("nic nie zrozumiałem" in o for o in out)

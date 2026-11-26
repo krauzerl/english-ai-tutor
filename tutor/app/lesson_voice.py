@@ -39,13 +39,20 @@ def _english(text: str) -> bool:
     return text.isascii() or not _PL.search(text)
 
 
+PAUSE = "\n\n"       # granica części komunikatu: TTS robi tu wyraźną pauzę (`VoiceTutor.say`)
+
+
 def task(item: C.Item, idx: int, n: int) -> str:
+    """Instrukcja, zadanie, każda opcja i polecenie osobno, z pauzami (test właściciela: całe ćwiczenie jednym
+    ciągiem było nieczytelne ze słuchu)."""
     head = f"Task {idx + 1} of {n}."
     if item.type in _SCREEN_ONLY or item.stimulus or not _english(item.prompt):
-        return f"{head} Look at the screen for this task, then say your answer as a whole sentence."
+        return PAUSE.join([head, "Look at the screen for this task.", "Then say your answer as a whole sentence."])
     prompt = item.prompt.replace("___", ", blank, ") if item.type == "gap" else item.prompt
-    opts = " ".join(f"{'ABCDEFGH'[k]}. {o}" for k, o in enumerate(item.options or []))
-    return f"{head} {prompt} {opts} Say the whole sentence.".replace("  ", " ").strip()
+    how = {"gap": "Fill in the blank.", "mc": "Choose the correct answer."}.get(item.type)
+    opts = [f"{'ABCDEFGH'[k]}. {o}." for k, o in enumerate(item.options or [])]
+    parts = [head, how, " ".join(prompt.split()), *opts, "Say the whole sentence."]
+    return PAUSE.join(p for p in parts if p)
 
 
 def correct(tries: int) -> str:

@@ -66,7 +66,8 @@ def test_unknown_profile_is_a_service_error(api):
 def test_settings_roundtrip_and_validation(api):
     pid = api.create_profile("ann")["id"]
     s = api.settings(pid)
-    assert s["values"]["speed"] == 1.0 and "choices" in s["schema"]["correction"]
+    assert s["values"]["speed"] == 0.9 and "choices" in s["schema"]["correction"]   # F7: komfortowe tempo
+    assert api.update_settings(pid, {"speed": "slow"})["speed"] == 0.8
     assert api.update_settings(pid, {"speed": 1.25})["speed"] == 1.25
     with pytest.raises(ServiceError):
         api.update_settings(pid, {"speed": 5})

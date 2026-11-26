@@ -167,7 +167,8 @@ def test_cli_stt_uncertain_word_is_not_reported_as_error(env):
     mic = FakeMic(loop=blocks(tone(0.1))[0])
     stt = DetailedSTT(Transcript("I goed home", ["goed"]))                            # niska pewność STT
     ev = EvalProv()
-    code, out = env.go(Gated({}, "", ""), ["--mode", "ptt", "--summary-wait", "5"], mic=mic, stt=stt, ev=ev,
+    code, out = env.go(Gated({}, "", ""), ["--mode", "ptt", "--summary-wait", "5", "--stt-confirm", "never"],
+                       mic=mic, stt=stt, ev=ev,
                        sink=A.SimSink())
     text = "\n".join(out)
     assert [o["kind"] for o in env.repo.list_observations(env.pid)] == ["stt_suspect"]    # podejrzenie STT, nie błąd

@@ -146,13 +146,13 @@ def test_invalid_settings_rejected_atomically(repo, bad):
     pid = repo.create_profile("ann")
     with pytest.raises(ST.SettingError):
         ST.update(repo, pid, {"speed": 1.1, **bad})
-    assert ST.effective(repo, pid)["speed"] == 1.0                      # nic nie zapisano
+    assert ST.effective(repo, pid)["speed"] == 0.9                      # nic nie zapisano
 
 
 def test_settings_isolated_per_profile(repo):
     a, b = repo.create_profile("a"), repo.create_profile("b")
     ST.update(repo, a, {"speed": 0.8})
-    assert ST.effective(repo, b)["speed"] == 1.0
+    assert ST.effective(repo, b)["speed"] == 0.9
 
 
 def test_change_topic_instruction_applies_to_one_reply_only(env):

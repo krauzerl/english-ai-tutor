@@ -240,3 +240,29 @@ def test_evaluation_waits_while_tutor_speaks_lesson_phrases(env, pack):
     finally:
         SS.SessionService.begin_activity, SS.SessionService.tutor_done = orig_b, orig_d
     assert seen.count("b") == seen.count("d") and seen.count("b") > 10
+
+
+# --- F7: tempo i pauzy ---
+def test_task_parts_are_spoken_separately_with_silence_between(repo, pack):
+    _, items = L.prepare(pack, SKILL)
+    mc = next(i for i in items if i.type == "mc")
+    parts = LV.task(mc, 0, 3).split(LV.PAUSE)
+    assert parts[0] == "Task 1 of 3." and "Choose the correct answer." in parts
+    assert any(p.startswith("A. ") for p in parts) and any(p.startswith("B. ") for p in parts)
+    assert parts[-1] == "Say the whole sentence."
+    pid = repo.create_profile("ann")
+    sid = repo.start_session(pid, "lesson")
+    sink = A.SimSink()
+    t = VoiceTutor(repo, pid, sid, FakeProvider(), FakeTTS(), sink)
+    assert t.say(["First part.", "Second part."], gap=0.5) is True
+    assert t.say(["First part.", "Second part."], gap=0.25) is True
+    w = sink.written[-3:]                                                         # część, pauza, część
+    assert len(w) == 3 and len(w[1]) == int(FakeTTS().sample_rate * 0.25) and not w[1].any()
+
+
+def test_speed_presets_and_comfortable_default():
+    from tutor.app import settings as ST
+    from tutor.voice import tts as TT
+    assert ST.SPEED_PRESETS == {"slow": 0.8, "normal": 0.9, "fast": 1.05} and ST.DEFAULTS["speed"] == 0.9
+    # tempo idzie do modelu Kokoro (`speed=`), częstotliwość próbkowania jest stała — wysokość głosu bez zmian
+    assert TT.KokoroTTS.sample_rate == 24000 and "speed=self.speed" in open(TT.__file__).read()

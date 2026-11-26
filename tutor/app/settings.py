@@ -14,6 +14,7 @@ SCHEMA: dict[str, dict] = {
     "session_minutes": {"type": "choice", "choices": (15, 30, 45, 60), "column": "daily_minutes"},
     "mic_mode": {"type": "choice", "choices": ("ptt", "auto")},
     "stt_model": {"type": "str"},
+    "stt_confirm": {"type": "choice", "choices": ("uncertain", "always", "never")},
     "allow_unreviewed": {"type": "bool", "column": "allow_unreviewed_practice"},
     "conversation_mode": {"type": "choice", "choices": ("quick_chat", "lesson")},
     # F7: model rozmowy (ocena zostaje przy domyślnym Qwen3 — zmiana oceny wymaga kontroli jakości).
@@ -27,7 +28,12 @@ SCHEMA: dict[str, dict] = {
                                                     "custom")},
     "chat_mode": {"type": "choice", "choices": ("natural", "guided", "roleplay")},
 }
-DEFAULTS = {"tts_voice": "bf_emma", "speed": 1.0, "mic_mode": "ptt", "stt_model": "small.en",
+# F7: tempo mowy. Kokoro zmienia tempo w modelu (długość fonemów), więc wysokość głosu się nie zmienia (bez
+# przepróbkowania). Domyślnie „normalnie” = 0,9 — test właściciela: 1,0 było za szybkie.
+SPEED_PRESETS = {"slow": 0.8, "normal": 0.9, "fast": 1.05}
+DEFAULT_SPEED = SPEED_PRESETS["normal"]
+DEFAULTS = {"tts_voice": "bf_emma", "speed": DEFAULT_SPEED, "mic_mode": "ptt", "stt_model": "small.en",
+            "stt_confirm": "uncertain",
             "conversation_mode": "lesson", "chat_model": CHAT_MODELS[0], "io_mode": "voice",
             "input_device": "default", "output_device": "default",
             "chat_level": "auto", "chat_category": "general", "chat_mode": "natural"}
@@ -42,6 +48,8 @@ def _coerce(key: str, value):
     if spec is None:
         raise SettingError(f"nieznane ustawienie: {key}")
     t = spec["type"]
+    if key == "speed" and str(value) in SPEED_PRESETS:      # „slow / normal / fast” z GUI
+        value = SPEED_PRESETS[str(value)]
     try:
         if t == "float":
             value = float(value)
@@ -71,7 +79,7 @@ def effective(repo, profile_id: int) -> dict:
     """Wartości obowiązujące: domyślne ← config.toml [voice] ← profil/kolumny ← `profile_setting`."""
     v = config.raw_config().get("voice", {})
     p = repo.get_profile(profile_id)
-    out = {**DEFAULTS, "tts_voice": v.get("tts_voice") or DEFAULTS["tts_voice"], "speed": v.get("speed", 1.0),
+    out = {**DEFAULTS, "tts_voice": v.get("tts_voice") or DEFAULTS["tts_voice"], "speed": v.get("speed", DEFAULT_SPEED),
            "mic_mode": v.get("mode", "ptt"), "stt_model": v.get("stt_model", "small.en"),
            "target_lang": p["target_lang"], "correction": p["correction_style"],
            "session_minutes": p["daily_minutes"], "allow_unreviewed": bool(p["allow_unreviewed_practice"])}
