@@ -64,5 +64,5 @@ def get(topic_id: str, lang: str = "en") -> dict | None:
 def custom(text: str) -> dict:
     """Temat wpisany przez ucznia (id=None ⇒ nie wchodzi do rotacji katalogu)."""
     t = " ".join(text.split())[:200]
-    return {"id": None, "category": "custom", "category_pl": "Własny", "pl": t, "q": f"Let's talk about this: {t}. "
-            "What would you like to say about it?"}
+    q = t if t.endswith("?") else f"Let's talk about this: {t.rstrip('.!')}. What would you like to say about it?"
+    return {"id": None, "category": "custom", "category_pl": "Własny", "pl": t, "q": q}

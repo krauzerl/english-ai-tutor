@@ -272,3 +272,51 @@ def test_session_error_reaches_gui(srv, monkeypatch):
     srv.post("/api/session/start", {"pid": pid, "kind": "chat", "args": {"topic": "fd.cooking", "text_mode": True}})
     evs = srv.wait_end()
     assert any(e["kind"] == "error" and "Ollama" in e["text"] for e in evs)
+
+
+@pytest.mark.parametrize("kind,args", [("placement", {}), ("review", {}), ("exam", {"path": "e8_english"}),
+                                       ("drill", {"target": "en.gram.articles_basic"})])
+def test_every_session_kind_starts_and_stops_cleanly(srv, xdg, kind, args):
+    pid = make_profile(srv)
+    code, r = srv.post("/api/session/start", {"pid": pid, "kind": kind, "args": {**args, "text_mode": True}})
+    assert code == 200, r
+    time.sleep(0.5)
+    srv.post("/api/session/stop", {})
+    evs = srv.wait_end()
+    assert evs[-1]["kind"] == "end"
+    assert not [e for e in evs if e["kind"] == "error"], evs
+    assert any(e["kind"] in ("task", "info") for e in evs)
+
+
+def test_cli_hints_are_translated_for_gui():
+    assert "przyciskiem „Określ poziom”" in R.classify("Dopasowanie przerwane — wznowisz je poleceniem `--placement`.")["text"]
+    assert R.classify("Powtórki: 2 umiejętności do utrwalenia.")["kind"] == "info"
+    assert R.classify("Powtórki: 1/2 poprawnie.")["kind"] == "feedback"
+
+
+def test_push_to_talk_from_gui_with_simulated_mic(srv, xdg):
+    """Przycisk „Mów” wysyła pustą linię: start/stop nagrywania w procesie Pythona. Mikrofon i STT są atrapami —
+    to NIE jest dowód działania fizycznego urządzenia."""
+    from tests.test_stt_detailed import DetailedSTT
+    from tests.voice_fakes import FakeMic, FakeTTS, blocks, tone
+    from tutor.voice import audio as A
+    from tutor.voice.stt import Transcript
+    pid = make_profile(srv)
+    srv.app.runner._run = lambda argv, **kw: cli.run(
+        argv + ["--mode=ptt"], llm=FakeProvider(chunks=["Nice."]), mic=FakeMic(loop=blocks(tone(0.1))[0]),
+        stt=DetailedSTT(Transcript("I goed home", ["goed"])), tts=FakeTTS(), sink=A.SimSink(), **kw)
+    srv.post("/api/session/start", {"pid": pid, "kind": "chat", "args": {"topic": "fd.cooking"}})
+    srv.wait_for("tutor")
+    srv.post("/api/session/send", {"text": ""})          # Mów
+    srv.wait_for("recording")
+    time.sleep(0.2)
+    srv.post("/api/session/send", {"text": ""})          # Stop
+    evs = srv.wait_for("you")
+    assert next(e for e in evs if e["kind"] == "you")["text"] == "I goed home"
+    srv.post("/api/session/stop", {})
+    srv.wait_end()
+    conn = open_db(xdg / "data" / "english-ai-tutor" / "tutor.db")
+    s = [x for x in Repo(conn).list_sessions(pid) if x["kind"] == "chat"][0]
+    u = [t for t in Repo(conn).list_turns(pid, s["id"]) if t["role"] == "user"]
+    conn.close()
+    assert u[0]["input_mode"] == "voice" and u[0]["low_prob_json"] == '["goed"]'

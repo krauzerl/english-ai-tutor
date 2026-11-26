@@ -161,3 +161,9 @@ def test_change_topic_instruction_applies_to_one_reply_only(env):
     plan = env.repo.get_session_plan(env.pid, env.repo.list_sessions(env.pid)[0]["id"])
     q = plan["topic"]["q"]
     assert q in conv.calls[1][0].content and q not in conv.calls[2][0].content and q not in conv.calls[0][0].content
+
+
+def test_custom_topic_question_is_used_as_opener():
+    from tutor.app import topics as T
+    assert T.custom("What subjects do you like?")["q"] == "What subjects do you like?"
+    assert T.custom("my first job.")["q"].startswith("Let's talk about this: my first job. What")
