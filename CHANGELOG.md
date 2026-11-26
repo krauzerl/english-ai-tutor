@@ -9,6 +9,9 @@ Notable changes. The project has no releases yet; versions below are development
   enough for text conversations and lessons. `numpy` moved to the core dependencies for this.
 
 ### Added
+- Local browser GUI (`python main.py --gui`, branch `feat/f7-gui`): Python standard-library HTTP server bound to
+  127.0.0.1 with Host, Origin and per-launch token checks. Sessions reuse the CLI engine, so grading, FSRS, mastery gates
+  and resume behave the same. Two retro visual variants for the owner to choose from.
 - Profile settings `chat_model` (Qwen3 8B or Bielik 11B, conversation only), `io_mode` (voice or text) and
   `input_device` / `output_device`.
 

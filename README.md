@@ -5,7 +5,8 @@
 Speak with a tutor on your own machine, get corrections after you finish talking, and let spaced repetition bring
 weak skills back. Models run through [Ollama](https://ollama.com), speech runs on-device, and no paid API is required.
 
-> **Status: early development (v0.1), command-line only.** The pieces below work and are covered by automated tests,
+> **Status: early development (v0.1).** A local browser interface (`python main.py --gui`) and the command line share one
+> engine. The pieces below work and are covered by automated tests,
 > but the voice features have not yet been accepted on a real microphone end to end. Read [Feature status](#feature-status)
 > before you rely on anything. The project has **no licence yet** (see [Licence](#licence)).
 
@@ -25,6 +26,7 @@ weak skills back. Models run through [Ollama](https://ollama.com), speech runs o
 
 | Status | Feature |
 |---|---|
+| **Experimental** | Browser interface (`--gui`): every mode below from one window, on `127.0.0.1` only. Two visual variants await the owner's choice |
 | **Available** | Quick Chat: topic generator (33 topics, 8 categories, rotation from your history, your own topic, "change the topic" mid-chat), time limit, correction intensity (`summary`, `periodic`, `intensive`) |
 | **Available** | Local learner profiles (create, list, select, export, delete) and per-profile settings |
 | **Available** | Progress, learning history and 25 achievements, all computed from recorded evidence; achievements are separate from skill mastery |
@@ -36,7 +38,7 @@ weak skills back. Models run through [Ollama](https://ollama.com), speech runs o
 | **Experimental** | Exam-path architecture with one demo path (Polish 8th-grade English exam): practice sections and a readiness summary of counts, no points and no official score. The official exam facts in the definition are marked "confirm in the CKE bulletin" |
 | **Experimental** | Optional LanguageTool grammar hints (localhost only, off by default) |
 | **Not enabled** | Automatic mastery from conversation. The code exists; the gate stays closed until benchmark and human review evidence exists |
-| **Planned** | Graphical interface, more exam paths, more learning languages, pronunciation feedback, human review of the exercise bank |
+| **Planned** | Final visual design of the GUI, more exam paths, more learning languages, pronunciation feedback, human review of the exercise bank |
 
 Current limits you should know about:
 
@@ -44,7 +46,7 @@ Current limits you should know about:
   so today this is a tool for Polish speakers learning English.
 - **Content is a pilot.** 115 skills (CEFR A1 to C1), 144 exercise items, 5 conversation scenarios and 2,809 NGSL words.
   **No item is human-reviewed** (104 are `ai_checked`, 40 are `draft`).
-- **No graphical interface.** Everything is a command-line tool. A service layer (`tutor/services/`) is prepared for a future GUI.
+- **Interface language is Polish.** The GUI runs in your browser but stays on this computer; the look is not final.
 - **Model limits.** Qwen3 8B follows tutoring instructions imperfectly (for example the escalating correction ladder), and its
   explanations of corrections can be wrong. Treat them as suggestions.
 
@@ -73,6 +75,8 @@ may change after review. Any role can be pointed at another Ollama model in `con
 
 ```mermaid
 flowchart LR
+    GUI[Browser GUI, 127.0.0.1] <--> SRV[Local HTTP server]
+    SRV <--> APP
     MIC[Microphone] --> STT[faster-whisper]
     STT --> APP[Session logic]
     APP <--> LLM[Qwen3 8B via Ollama]
@@ -178,6 +182,21 @@ Command-line flags override profile settings.
 
 ## Usage
 
+### Graphical interface
+
+```bash
+python main.py --gui              # opens http://127.0.0.1:8765/ in your browser
+python main.py --gui --port 8800 --no-browser
+```
+
+From the start screen: create or pick a profile, then Quick Chat, Lesson, Reviews, Placement, Weak spots, Exams,
+Progress, Achievements or Settings. In voice mode press **Mów** to start recording and **Stop** to finish; the microphone
+and speakers are used by the Python process, not by the browser. Tick **Tryb tekstowy** to type instead. Closing the
+terminal (`Ctrl+C`) stops the server; an unfinished lesson, review or placement resumes from the same button.
+
+### Command line
+
+
 All commands run from the repository root with the virtual environment active. Add `--no-audio` for text-only use.
 
 ```bash
@@ -221,7 +240,7 @@ headphones) for voice; tests and text mode need neither.
 - Models run locally: Ollama for the LLM, faster-whisper and Kokoro on your CPU.
 - Conversations, profiles and progress are stored in a local SQLite database under `~/.local/share/english-ai-tutor/`. Audio is not saved.
 - Profiles can be exported (JSON) and deleted completely with `python main.py profile export|delete`.
-- The runtime talks to your own Ollama server on `localhost`. Optional LanguageTool must also be on localhost; the adapter refuses other hosts.
+- The GUI server listens only on `127.0.0.1` and checks a per-launch token on every command. The runtime talks to your own Ollama server on `localhost`. Optional LanguageTool must also be on localhost; the adapter refuses other hosts.
 - Network access is needed once for setup: package install, Ollama model pull, Kokoro file download, and the Whisper download on first use.
 - Gemini is off by default, needs your own key and per-profile consent, and enforces local spending limits.
 - "Works with no network after setup" is the design, but it was **not** verified with the network disabled on every path, so this README does not claim "100% offline".
@@ -236,20 +255,21 @@ python main.py content validate en
 pytest -m live      # needs a running Ollama; Gemini live tests may cost money
 ```
 
-In a fresh clone with Python 3.13: `651 passed, 1 skipped, 15 deselected` (the 15 are the live tests), and `ruff` reports no issues.
+On this branch: `677 passed, 1 skipped, 15 deselected` (the 15 are the live tests), and `ruff` reports no issues. GUI tests drive the real HTTP
+server and session engine with fake models; screens were also exercised by hand in a browser against a local Qwen3 8B.
 Audio is exercised with simulated input and output only; real microphone and speaker behaviour is a manual acceptance step.
 Live tests call a real local model and can vary between runs. There is no CI service configured.
 
 ## Roadmap
 
 Done: Quick Chat, voice pipeline, lessons, optional placement, FSRS reviews, weak-spots journal, achievements, history,
-first exam path, service layer for a GUI.
+first exam path, service layer, local browser GUI (functional; visual style not final).
 
 Next, roughly in this order and without dates:
 
 1. Accept voice sessions on a real microphone and optimise latency.
 2. Human review of the exercise bank and of the benchmark gold standard; validate that the lessons actually teach.
-3. A local graphical interface in a 1990s educational-software style (a proposal exists, nothing is designed or built yet).
+3. Final 1990s educational-software look for the GUI, chosen from the two prototype variants.
 4. More exam paths, with data confirmed against official sources.
 5. More learning languages through additional `tutor/content/<lang>/` packs, and interface translations.
 

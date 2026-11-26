@@ -13,7 +13,9 @@ Include affected version or commit, reproduction steps and impact. Expect an ack
 
 ## Scope and design notes
 
-- The app is local-first. It listens on no network port.
+- The app is local-first. The command line listens on no network port. The optional GUI (`--gui`) listens only on
+  127.0.0.1, rejects foreign `Host` and `Origin` headers, and accepts commands only with a token generated at each launch.
+  Do not expose it to other machines (for example with a reverse proxy or port forwarding).
 - Secrets (for example `GEMINI_API_KEY`) belong in the environment or in `~/.config/english-ai-tutor/.env`, never in the repository.
 - The config directory is created with mode 0700 and `config.toml` with 0600.
 - The LanguageTool adapter accepts only `http(s)` URLs on localhost, without credentials, and does not follow redirects.
