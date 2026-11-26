@@ -26,7 +26,7 @@ weak skills back. Models run through [Ollama](https://ollama.com), speech runs o
 
 | Status | Feature |
 |---|---|
-| **Experimental** | Browser interface (`--gui`): every mode below from one window, on `127.0.0.1` only. Two visual variants await the owner's choice |
+| **Experimental** | Browser interface (`--gui`): every mode below from one window, on `127.0.0.1` only. Pixel-art "night academy" design proposal awaiting the owner's approval |
 | **Available** | Quick Chat: topic generator (33 topics, 8 categories, rotation from your history, your own topic, "change the topic" mid-chat), time limit, correction intensity (`summary`, `periodic`, `intensive`) |
 | **Available** | Local learner profiles (create, list, select, export, delete) and per-profile settings |
 | **Available** | Progress, learning history and 25 achievements, all computed from recorded evidence; achievements are separate from skill mastery |
@@ -255,8 +255,9 @@ python main.py content validate en
 pytest -m live      # needs a running Ollama; Gemini live tests may cost money
 ```
 
-On this branch: `677 passed, 1 skipped, 15 deselected` (the 15 are the live tests), and `ruff` reports no issues. GUI tests drive the real HTTP
-server and session engine with fake models; screens were also exercised by hand in a browser against a local Qwen3 8B.
+On this branch: `695 passed, 1 skipped, 15 deselected` (the 15 are the live tests), and `ruff` reports no issues. GUI tests drive the real HTTP
+server and session engine with fake models; `tests/test_browser.py` drives Chromium through Playwright
+(`pip install -e ".[browser-tests]"`, then `playwright install chromium`; the tests skip without it); screens were also exercised by hand in a browser against a local Qwen3 8B.
 Audio is exercised with simulated input and output only; real microphone and speaker behaviour is a manual acceptance step.
 Live tests call a real local model and can vary between runs. There is no CI service configured.
 
@@ -269,7 +270,7 @@ Next, roughly in this order and without dates:
 
 1. Accept voice sessions on a real microphone and optimise latency.
 2. Human review of the exercise bank and of the benchmark gold standard; validate that the lessons actually teach.
-3. Final 1990s educational-software look for the GUI, chosen from the two prototype variants.
+3. Finish the GUI design system on the remaining screens once the main direction is approved.
 4. More exam paths, with data confirmed against official sources.
 5. More learning languages through additional `tutor/content/<lang>/` packs, and interface translations.
 

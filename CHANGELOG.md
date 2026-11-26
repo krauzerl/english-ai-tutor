@@ -7,11 +7,18 @@ Notable changes. The project has no releases yet; versions below are development
 ### Fixed
 - Text mode (`--no-audio`) no longer loads Kokoro, PortAudio or any voice model. A core install (`pip install -e .`) is
   enough for text conversations and lessons. `numpy` moved to the core dependencies for this.
+- Error category from the model is checked against the edit itself: a lone third-person `-s` change right after a
+  subject pronoun ("I usually drinks" → "drink") is stored as `agreement.subject_verb`, not as an irregular past
+  form. Observations saved earlier keep their original category.
 
 ### Added
 - Local browser GUI (`python main.py --gui`, branch `feat/f7-gui`): Python standard-library HTTP server bound to
   127.0.0.1 with Host, Origin and per-launch token checks. Sessions reuse the CLI engine, so grading, FSRS, mastery gates
-  and resume behave the same. Two retro visual variants for the owner to choose from.
+  and resume behave the same.
+- GUI redesign proposal (branch `feat/f7-ui-redesign`): pixel-art educational RPG look drawn in the browser from
+  character arrays (title font, teacher mascot with listening/thinking/speaking states, badges, landscape), readable
+  sans-serif text, mission map for lessons, trophy room for achievements. Replaces the two retro variants.
+- Browser tests with Playwright (`tests/test_browser.py`, optional extra `browser-tests`).
 - Profile settings `chat_model` (Qwen3 8B or Bielik 11B, conversation only), `io_mode` (voice or text) and
   `input_device` / `output_device`.
 
