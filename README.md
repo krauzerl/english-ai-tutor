@@ -97,8 +97,8 @@ flowchart LR
 
 ### Quick Start
 
-Voice and text-only mode share one install path: even `--no-audio` builds the Kokoro voice, so the `voice` extra and the
-two Kokoro files are needed in both cases. Tested from a clean clone.
+Text mode needs only the core install and Ollama. Voice adds the `voice` extra and two Kokoro files.
+Both paths were tested from a clean clone.
 
 ```bash
 # 1. Code and virtual environment
@@ -106,21 +106,26 @@ git clone https://github.com/krauzerl/english-ai-tutor.git
 cd english-ai-tutor
 python3 -m venv .venv
 source .venv/bin/activate
-pip install -e ".[voice]"
+pip install -e .
 
 # 2. Language model (install Ollama first: https://ollama.com)
 ollama pull qwen3:8b
 
-# 3. Kokoro voice files (about 92 MB and 28 MB)
+# 3. Profile and first conversation (text mode, no microphone or voice files needed)
+python main.py profile create alice
+python main.py --voice --no-audio --chat
+```
+
+For voice, add:
+
+```bash
+pip install -e ".[voice]"
 mkdir -p ~/.local/share/english-ai-tutor/models/kokoro
 cd ~/.local/share/english-ai-tutor/models/kokoro
 curl -LO https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/kokoro-v1.0.int8.onnx
 curl -LO https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/voices-v1.0.bin
 cd -
-
-# 4. Profile and first conversation (text mode, no microphone needed)
-python main.py profile create alice
-python main.py --voice --no-audio --chat
+python main.py --voice --chat
 ```
 
 Whisper (`small.en`) is downloaded automatically by faster-whisper the first time speech recognition starts.
@@ -166,7 +171,9 @@ enabled = false
 url = "http://127.0.0.1:8081"   # localhost only; other hosts are rejected
 ```
 
-Profile-level preferences (speed, correction style, session length) are set with `--set KEY=VALUE` (`--set ?` lists them).
+Profile-level preferences are set with `--set KEY=VALUE` (`--set ?` lists them): speed, voice, correction style,
+session length, `io_mode=text` (always text mode), `input_device` / `output_device`, and `chat_model` (the conversation
+model: `qwen3:8b` or Bielik 11B). `chat_model` changes only the conversation; evaluation stays on Qwen3 8B.
 Command-line flags override profile settings.
 
 ## Usage
@@ -251,7 +258,7 @@ Next, roughly in this order and without dates:
 Small, focused pull requests are easiest to review. Setup, checks and content rules are in [CONTRIBUTING.md](CONTRIBUTING.md).
 Report bugs and ideas in [GitHub issues](https://github.com/krauzerl/english-ai-tutor/issues); report vulnerabilities
 privately as described in [SECURITY.md](SECURITY.md). No response times are promised. Common problems are in
-[docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md).
+[docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md); changes are listed in [CHANGELOG.md](CHANGELOG.md).
 
 ## Licence
 
