@@ -94,6 +94,21 @@ Use your normal profile; nothing is reset. Start with `python main.py --gui`.
    choose one concept and one of the names in `docs/ai-work/f7-quality/MASCOT_PROPOSAL.md` (local) or tell us.
 CLI equivalents: `--finish-evals`, `--assess [areas]`, `--stt-confirm`, `profile reset|delete NAME --yes`.
 
+## 3c. After the final audit (owner, about 30 minutes, on top of 3b)
+Details and measurements: `docs/ai-work/f7-audit/AUDIT_FINAL.md`. Before the first start, your database will be
+migrated v7 → v8 (a `.bak` copy is written to `~/.local/share/english-ai-tutor/backups/` first).
+1. **No correction of correct English:** in Quick Chat type “I watch matches on TV every weekend.”, “Do you take any
+   medicines?”, “The team are working hard.” — none may appear as an error in the summary or the journal.
+2. **Real errors:** “My brother don't like tomatoes.”, “Yesterday I cook pasta.” — both corrected, explanations fit
+   (verb ending / past simple). Dispute any wrong suggestion in Weak spots.
+3. **Voice choice in a lesson or assessment:** answer a multiple-choice task by saying “B”, “option B”, “number two”
+   or “the second one”. If the app is unsure it must ask again, never mark the answer wrong.
+4. **Custom topic:** type a full sentence as your own topic — the tutor should not paste it into “Let's talk about…”.
+5. **Assessment with an uneven profile:** run Assessment; if one area is much weaker, its range must not be pulled
+   up by the others.
+6. **English interface:** Exams screen — no Polish sentences left.
+7. **Microphone (still unverified):** sections 4a and 4 below.
+
 ## 4a. Ubuntu: microphone and speakers before the app (read-only checks)
 
 These commands only list devices or record and play a short test; they do not change any system setting.

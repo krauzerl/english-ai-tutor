@@ -4,6 +4,18 @@ Notable changes. The project has no releases yet; versions below are development
 
 ## Unreleased
 
+### F7 final audit fixes
+- **Assessment items:** six F7 items had a second correct option; distractors replaced.
+- **Corrections:** BrE/AmE phrase variants still recognised after span minimising ("the team are"); bare plurals,
+  plurals after a determiner or a numeral are not errors (uncountable nouns still are); noun number changes are not
+  explained as verb endings.
+- **Voice:** multiple-choice answers spoken as "option B", "number two", "the second one" are understood.
+- **Assessment / progress:** wider cross-area prior so a weak area is not pulled up by strong ones; retention after
+  14 days; achievement days follow the local clock.
+- **Chat / i18n:** a custom topic typed as a sentence gets a natural opener; Exams screen fully in English;
+  `main.py --help`.
+- **Bench:** `python -m bench.audit_control` — independent control set (clean, variants, STT, multi-error, held-out).
+
 ### F7 quality and product completion
 - **Teacher:** ending the session ("No, I want to finish our conversation for now") wins over a new topic; intents
   finish / change topic / skip / repeat / explain / help with counter-examples. Correction policies: relaxed, balanced
