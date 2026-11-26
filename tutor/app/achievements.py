@@ -402,7 +402,9 @@ assert len(STANDARD) == 100 and len(SECRETS) == 50 and len(BY_CODE) == 150, (len
 
 # --- fakty z zapisów ---
 def _dt(s: str) -> datetime:
-    return datetime.fromisoformat(s.replace("Z", "+00:00"))
+    """Czas lokalny ucznia: dni serii, „sesja nocna” i 1 stycznia liczą się wg zegara na tym komputerze, nie UTC."""
+    d = datetime.fromisoformat(s.replace("Z", "+00:00"))
+    return (d if d.tzinfo else d.replace(tzinfo=UTC)).astimezone()
 
 
 def _streak(days: list[date]) -> int:

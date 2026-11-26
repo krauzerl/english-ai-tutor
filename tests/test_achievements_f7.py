@@ -10,6 +10,17 @@ from tutor.pedagogy import content as C
 from tutor.store.db import open_db
 from tutor.store.repo import Repo
 
+
+@pytest.fixture(autouse=True)
+def _utc_clock(monkeypatch):
+    """Dane testowe opisują dni w UTC; `_dt` liczy dni wg zegara lokalnego (audyt F7), więc przypinamy TZ."""
+    import time
+    monkeypatch.setenv("TZ", "UTC")
+    time.tzset()
+    yield
+    monkeypatch.undo()
+    time.tzset()
+
 NOW = datetime(2026, 11, 26, 12, tzinfo=UTC)
 
 
@@ -317,3 +328,17 @@ def test_settings_events_recorded_only_on_real_change(repo, pack):
     api.update_settings(pid, {"ui_lang": "pl"})
     assert AC.facts(repo, pid, NOW, pack)["ui_langs"] == 2
     assert json.loads(repo.conn.execute("SELECT data_json FROM app_event").fetchone()[0])["value"] == "en"
+
+
+def test_days_follow_local_clock_not_utc(monkeypatch):
+    """Audyt F7: w Polsce sesja o 0:30 (23:30 UTC dnia poprzedniego) należy do dnia lokalnego."""
+    import time
+    monkeypatch.setenv("TZ", "Europe/Warsaw")
+    time.tzset()
+    try:
+        d = AC._dt("2026-11-25T23:30:00Z")
+        assert (d.day, d.hour) == (26, 0)
+        assert AC._dt("2026-11-25T12:00:00").hour == 13              # brak strefy w zapisie = UTC
+    finally:
+        monkeypatch.setenv("TZ", "UTC")
+        time.tzset()
