@@ -4,6 +4,8 @@
 const TOKEN = document.querySelector('meta[name="tutor-token"]').content;
 const S = { pid: null, profiles: [], system: null, settings: null, seq: 0, poll: null, session: null, catalog: null };
 const { icon, pxText, mascot, mascotHead, badgeArt, scene } = window.PX;
+// Imię maskotki NIE jest zatwierdzone (decyzja właściciela) — do tego czasu neutralnie „Nauczyciel”.
+const MASCOT_NAME = t("Nauczyciel");
 
 // ---------- narzędzia ----------
 function h(tag, attrs, ...kids) {
@@ -28,9 +30,9 @@ async function api(path, body) {
     body: JSON.stringify(body),
   };
   let r;
-  try { r = await fetch(path, opt); } catch (e) { throw new Error("Brak połączenia z aplikacją. Czy okno terminala z `python main.py --gui` nadal działa?"); }
+  try { r = await fetch(path, opt); } catch (e) { throw new Error(t("Brak połączenia z aplikacją. Czy okno terminala z `python main.py --gui` nadal działa?")); }
   const data = await r.json().catch(() => ({}));
-  if (!r.ok) throw new Error(data.error || `Błąd ${r.status}`);
+  if (!r.ok) throw new Error(data.error || t("Błąd {s}", { s: r.status }));
   return data;
 }
 const q = (path, extra = "") => api(`${path}?pid=${S.pid}${extra}`);
@@ -98,44 +100,48 @@ function stat(label, value) { return h("div", { class: "stat" }, h("span", {}, l
 function fixLine(span, fix) { return h("span", { class: "fix", lang: "en" }, h("s", {}, span), " → ", h("ins", {}, fix)); }
 
 // ---------- nazwy ----------
-const AREA_PL = { grammar: "gramatyka", vocabulary: "słownictwo", speaking: "mówienie", reading: "czytanie", listening: "słuchanie", writing: "pisanie" };
+const AREA_PL = { grammar: t("gramatyka"), vocabulary: t("słownictwo"), speaking: t("mówienie"), reading: t("czytanie"), listening: t("słuchanie"), writing: t("pisanie") };
 const areaPl = (a) => AREA_PL[a] || a;
 const CAT_PL = {
-  tense: "Czasy", "tense.present_simple": "Present simple", "tense.present_continuous": "Present continuous",
+  tense: t("Czasy"), "tense.present_simple": "Present simple", "tense.present_continuous": "Present continuous",
   "tense.past_simple": "Past simple", "tense.past_continuous": "Past continuous", "tense.present_perfect": "Present perfect",
-  "tense.past_perfect": "Past perfect", "tense.future": "Przyszłość", "tense.sequence": "Następstwo czasów", aspect: "Aspekt czasownika",
-  agreement: "Zgodność form", "agreement.subject_verb": "Zgodność podmiotu z orzeczeniem", "agreement.number": "Liczba pojedyncza/mnoga",
-  article: "Przedimki", "article.missing": "Brak przedimka", "article.wrong": "Zły przedimek", "article.extra": "Zbędny przedimek",
-  determiner: "Określniki", "determiner.quantifier": "Kwantyfikatory (much/many…)", "determiner.possessive": "Zaimki dzierżawcze",
-  preposition: "Przyimki", "preposition.time": "Przyimki czasu", "preposition.place": "Przyimki miejsca", "preposition.dependent": "Stałe przyimki",
-  word_order: "Szyk zdania", "word_order.question": "Szyk pytania", "word_order.adverb": "Miejsce przysłówka", "word_order.subordinate": "Pytania zależne",
-  word_choice: "Dobór słowa", "word_choice.false_friend": "Fałszywi przyjaciele", "word_choice.confusable": "Słowa mylone (make/do…)",
-  collocation: "Kolokacje", "collocation.verb_noun": "Czasownik + rzeczownik", "collocation.adj_noun": "Przymiotnik + rzeczownik",
-  morphology: "Forma słowa", "morphology.irregular_past": "Czasowniki nieregularne", "morphology.plural": "Liczba mnoga",
-  "morphology.comparative": "Stopniowanie", "morphology.word_form": "Część mowy", register: "Styl wypowiedzi", "register.formality": "Formalność",
-  spelling: "Pisownia", punctuation: "Interpunkcja", capitalization: "Wielkie litery", omission: "Brakujące słowo",
-  "omission.subject": "Brak podmiotu", "omission.auxiliary": "Brak operatora (do/does/did…)", "omission.copula": "Brak to be",
-  l1_calque: "Kalka z polskiego", "l1_calque.make_photo": "make a photo (kalka)", "l1_calque.have_years": "I have 25 years (kalka)",
-  "l1_calque.explain_me": "explain me (kalka)",
+  "tense.past_perfect": "Past perfect", "tense.future": t("Przyszłość"), "tense.sequence": t("Następstwo czasów"), aspect: t("Aspekt czasownika"),
+  agreement: t("Zgodność form"), "agreement.subject_verb": t("Zgodność podmiotu z orzeczeniem"), "agreement.number": t("Liczba pojedyncza/mnoga"),
+  article: t("Przedimki"), "article.missing": t("Brak przedimka"), "article.wrong": t("Zły przedimek"), "article.extra": t("Zbędny przedimek"),
+  determiner: t("Określniki"), "determiner.quantifier": t("Kwantyfikatory (much/many…)"), "determiner.possessive": t("Zaimki dzierżawcze"),
+  preposition: t("Przyimki"), "preposition.time": t("Przyimki czasu"), "preposition.place": t("Przyimki miejsca"), "preposition.dependent": t("Stałe przyimki"),
+  word_order: t("Szyk zdania"), "word_order.question": t("Szyk pytania"), "word_order.adverb": t("Miejsce przysłówka"), "word_order.subordinate": t("Pytania zależne"),
+  word_choice: t("Dobór słowa"), "word_choice.false_friend": t("Fałszywi przyjaciele"), "word_choice.confusable": t("Słowa mylone (make/do…)"),
+  collocation: t("Kolokacje"), "collocation.verb_noun": t("Czasownik + rzeczownik"), "collocation.adj_noun": t("Przymiotnik + rzeczownik"),
+  morphology: t("Forma słowa"), "morphology.irregular_past": t("Czasowniki nieregularne"), "morphology.plural": t("Liczba mnoga"),
+  "morphology.comparative": t("Stopniowanie"), "morphology.word_form": t("Część mowy"), register: t("Styl wypowiedzi"), "register.formality": t("Formalność"),
+  spelling: t("Pisownia"), punctuation: t("Interpunkcja"), capitalization: t("Wielkie litery"), omission: t("Brakujące słowo"),
+  "omission.subject": t("Brak podmiotu"), "omission.auxiliary": t("Brak operatora (do/does/did…)"), "omission.copula": t("Brak to be"),
+  l1_calque: t("Kalka z polskiego"), "l1_calque.make_photo": t("make a photo (kalka)"), "l1_calque.have_years": t("I have 25 years (kalka)"),
+  "l1_calque.explain_me": t("explain me (kalka)"),
 };
 const catPl = (c) => CAT_PL[c] || CAT_PL[(c || "").split(".")[0]] || c;
 async function catalog() {
   if (!S.catalog) S.catalog = (await q("/api/lessons")).catalog;
   return S.catalog;
 }
-const skillPl = (id) => (S.catalog || []).find((c) => c.skill_id === id)?.can_do_pl || id;
+// EN: paczka treści ma opisy celów tylko po polsku — pokazujemy nazwę umiejętności z jej identyfikatora.
+const skillEn = (id) => { const s = String(id).split(".").pop().replace(/_/g, " "); return s.charAt(0).toUpperCase() + s.slice(1); };
+const skillName = (c) => (I18N.lang === "en" ? skillEn(c.skill_id) : c.can_do_pl);
+const skillPl = (id) => (I18N.lang === "en" ? skillEn(id) : (S.catalog || []).find((c) => c.skill_id === id)?.can_do_pl || id);
+const rpContext = (tp) => (I18N.lang === "en" && tp.learner ? `You are ${tp.learner}. The tutor plays ${tp.role}.` : tp.context_pl);
 
 // ---------- nawigacja ----------
 const NAV = [
-  ["Nauka", [["home", "Start", "home"], ["chat", "Quick Chat", "chat"], ["lesson", "Lekcje", "lesson"], ["review", "Powtórki", "review"]]],
-  ["Rozwój", [["weak", "Słabe strony", "weak"], ["placement", "Diagnoza", "level"], ["exam", "Egzaminy", "exam"]]],
-  ["Ty", [["progress", "Postępy", "progress"], ["achievements", "Osiągnięcia", "trophy"], ["settings", "Ustawienia", "gear"]]],
+  [t("Nauka"), [["home", "Start", "home"], ["chat", "Quick Chat", "chat"], ["lesson", t("Lekcje"), "lesson"], ["review", t("Powtórki"), "review"]]],
+  [t("Rozwój"), [["weak", t("Słabe strony"), "weak"], ["placement", t("Diagnoza"), "level"], ["exam", t("Egzaminy"), "exam"]]],
+  [t("Ty"), [["progress", t("Postępy"), "progress"], ["achievements", t("Osiągnięcia"), "trophy"], ["settings", t("Ustawienia"), "gear"]]],
 ];
 
 function renderNav(active) {
   const nav = document.getElementById("nav");
   const live = S.session && S.session.running && active !== "session"
-    ? h("a", { class: "nav-live", href: "#/session" }, `Trwa: ${KIND_TITLE[S.session.kind] || "sesja"} — wróć`) : null;
+    ? h("a", { class: "nav-live", href: "#/session" }, t("Trwa: {k} — wróć", { k: KIND_TITLE[S.session.kind] || t("sesja") })) : null;
   nav.replaceChildren(...[live, ...NAV.flatMap(([group, items]) => [h("div", { class: "nav-group" }, group),
     ...items.map(([id, label, ic]) => h("a", { href: `#/${id}`, class: "nav-item", "aria-current": id === active ? "page" : null }, icon(ic, 20), label))])].filter(Boolean));
 }
@@ -145,13 +151,13 @@ function setStatus() {
   const who = S.profiles.find((p) => p.id === S.pid);
   const sys = [];
   if (st) {
-    sys.push(h("div", { class: `sys ${st.ollama ? "ok" : "bad"}` }, st.ollama ? `Model: ${S.settings?.values?.chat_model || st.roles.conversation || "Ollama"}` : "Ollama nie odpowiada"));
-    sys.push(h("div", { class: `sys ${st.kokoro ? "ok" : "bad"}` }, st.kokoro ? "Głos: gotowy" : "Głos: brak plików Kokoro"));
-    sys.push(h("div", { class: `sys ${st.audio_error ? "bad" : "ok"}` }, st.audio_error ? "Mikrofon: niedostępny" : "Mikrofon: dostępny"));
+    sys.push(h("div", { class: `sys ${st.ollama ? "ok" : "bad"}` }, st.ollama ? `Model: ${S.settings?.values?.chat_model || st.roles.conversation || "Ollama"}` : t("Ollama nie odpowiada")));
+    sys.push(h("div", { class: `sys ${st.kokoro ? "ok" : "bad"}` }, st.kokoro ? "Głos: gotowy" : t("Głos: brak plików Kokoro")));
+    sys.push(h("div", { class: `sys ${st.audio_error ? "bad" : "ok"}` }, st.audio_error ? "Mikrofon: niedostępny" : t("Mikrofon: dostępny")));
   }
   document.getElementById("status").replaceChildren(...[
     who ? h("div", { class: "profile-chip" }, h("div", { class: "avatar", "aria-hidden": "true" }, who.name.slice(0, 1).toUpperCase()),
-      h("div", {}, h("strong", {}, who.name), h("span", {}, "profil ucznia")), h("a", { href: "#/profiles" }, "Zmień")) : null,
+      h("div", {}, h("strong", {}, who.name), h("span", {}, t("profil ucznia"))), h("a", { href: "#/profiles" }, t("Zmień"))) : null,
     h("div", { class: "sys-list" }, sys)].filter(Boolean));
 }
 
@@ -173,7 +179,7 @@ function choosePid(id) {
   api("/api/profiles/select", { pid: id }).catch(() => {});
 }
 function createForm() {
-  const name = h("input", { type: "text", maxlength: 40, placeholder: "np. Ola", "aria-label": "Nazwa nowego profilu" });
+  const name = h("input", { type: "text", maxlength: 40, placeholder: t("np. Ola"), "aria-label": t("Nazwa nowego profilu") });
   const create = async () => {
     try {
       const p = await api("/api/profiles", { name: name.value }); await loadProfiles(); choosePid(p.id);
@@ -181,31 +187,32 @@ function createForm() {
     } catch (e) { toast(e.message); }
   };
   name.addEventListener("keydown", (e) => { if (e.key === "Enter") create(); });
-  return h("div", { class: "row" }, name, btn("Utwórz profil", create, "primary"));
+  return h("div", { class: "row" }, name, btn(t("Utwórz profil"), create, "primary"));
 }
 async function screenProfiles(main) {
-  main.append(pageHead("Kto się uczy?", "Profile", "Każdy profil ma osobną historię, postępy, osiągnięcia i ustawienia."),
+  main.append(pageHead(t("Kto się uczy?"), t("Profile"), t("Każdy profil ma osobną historię, postępy, osiągnięcia i ustawienia.")),
     S.profiles.length ? h("div", { class: "profiles" }, S.profiles.map((p) => h("button", { type: "button", class: "profile-card", "aria-current": p.id === S.pid ? "true" : null,
       onclick: () => { choosePid(p.id); go("#/home"); } }, h("div", { class: "avatar", "aria-hidden": "true" }, p.name.slice(0, 1).toUpperCase()),
-      h("div", {}, h("strong", {}, p.name), h("span", {}, p.id === S.pid ? "wybrany" : "kliknij, aby wybrać"))))) : null,
-    card("Nowy profil", createForm()));
+      h("div", {}, h("strong", {}, p.name), h("span", {}, p.id === S.pid ? "wybrany" : t("kliknij, aby wybrać")))))) : null,
+    card(t("Nowy profil"), createForm()));
 }
 
 // ---------- Start ----------
-const KIND_PL = { voice: "Rozmowa", chat: "Quick Chat", lesson: "Lekcja", review: "Powtórki", placement: "Poziom", exam: "Egzamin", drill: "Ćwiczenia", assessment: "Diagnoza", evals: "Ocena" };
-const KIND_GEN = { voice: "rozmowy", chat: "rozmowy", lesson: "lekcji", review: "powtórek", placement: "sprawdzania poziomu", exam: "egzaminu", drill: "ćwiczeń", assessment: "diagnozy" };
+const KIND_PL = { voice: t("Rozmowa"), chat: "Quick Chat", lesson: t("Lekcja"), review: t("Powtórki"), placement: t("Poziom"), exam: t("Egzamin"), drill: t("Ćwiczenia"), assessment: t("Diagnoza"), evals: t("Ocena") };
+const KIND_GEN = { voice: t("rozmowy"), chat: t("rozmowy"), lesson: t("lekcji"), review: t("powtórek"), placement: t("sprawdzania poziomu"), exam: t("egzaminu"), drill: t("ćwiczeń"), assessment: t("diagnozy") };
 // polska odmiana liczebnika: 1 wypowiedź, 2–4 wypowiedzi, 5+ wypowiedzi
-const plural = (n, one, few, many) => `${n} ${n === 1 ? one : [2, 3, 4].includes(n % 10) && ![12, 13, 14].includes(n % 100) ? few : many}`;
+const plural = (n, one, few, many) => (I18N.lang === "en" ? `${n} ${n === 1 ? one : many}`
+  : `${n} ${n === 1 ? one : [2, 3, 4].includes(n % 10) && ![12, 13, 14].includes(n % 100) ? few : many}`);
 const KIND_ICON = { voice: "chat", chat: "chat", lesson: "lesson", review: "review", placement: "level", exam: "exam", drill: "weak", assessment: "level", evals: "review" };
 
 async function screenHome(main) {
   if (!S.pid) {
     main.append(h("section", { class: "hero" }, scene(),
       h("div", { class: "hero-inner" }, mascot("idle", 150),
-        h("div", { class: "hero-copy" }, h("span", { class: "eyebrow" }, "Lokalny nauczyciel angielskiego"),
-          h("h1", {}, h("span", { class: "sr-only" }, "Witaj!"), pxText("Witaj!", 6)),
-          h("p", {}, "Rozmowy, lekcje i powtórki działają na tym komputerze. Zacznij od profilu ucznia.")))),
-    card("Nowy profil", createForm()));
+        h("div", { class: "hero-copy" }, h("span", { class: "eyebrow" }, t("Lokalny nauczyciel angielskiego")),
+          h("h1", {}, h("span", { class: "sr-only" }, t("Witaj!")), pxText(t("Witaj!"), 6)),
+          h("p", {}, t("Rozmowy, lekcje i powtórki działają na tym komputerze. Zacznij od profilu ucznia."))))),
+    card(t("Nowy profil"), createForm()));
     return;
   }
   const [d, ac, hs, ls, pr] = await Promise.all([q("/api/home"), q("/api/achievements"), q("/api/history"), q("/api/lessons"), q("/api/progress")]);
@@ -217,20 +224,20 @@ async function screenHome(main) {
   const hero = h("section", { class: "hero" }, scene(),
     h("div", { class: "hero-inner" }, mascot("idle", 132),
       h("div", { class: "hero-copy" },
-        h("span", { class: "eyebrow" }, d.streak > 1 ? `Seria: ${d.streak} dni z rzędu` : "Twoja wyprawa po angielski"),
-        h("h1", {}, h("span", { class: "sr-only" }, `Cześć, ${d.profile.name}!`), pxText(`Cześć, ${d.profile.name}!`, 5)),
-        h("p", {}, open ? "Masz przerwaną sesję — możesz wrócić dokładnie do tego miejsca." : "Od czego zaczynamy?"))));
+        h("span", { class: "eyebrow" }, d.streak > 1 ? t("Seria: {n} dni z rzędu", { n: d.streak }) : t("Twoja wyprawa po angielski")),
+        h("h1", {}, h("span", { class: "sr-only" }, t("Cześć, {name}!", { name: d.profile.name })), pxText(t("Cześć, {name}!", { name: d.profile.name }), 5)),
+        h("p", {}, open ? "Masz przerwaną sesję — możesz wrócić dokładnie do tego miejsca." : t("Od czego zaczynamy?")))));
 
   const action = (cls, ic, k, title, desc, cta, onclick) => h("button", { type: "button", class: `action ${cls}`, onclick },
     h("span", { class: "k" }, icon(ic, 18), k), h("strong", {}, title), h("span", { class: "d" }, desc), h("span", { class: "go" }, `${cta} →`));
-  const actions = h("section", { class: "actions-4", "aria-label": "Najważniejsze akcje" },
-    action("main", "chat", "1 · Rozmowa", "Porozmawiaj z Kumką", "Swobodna rozmowa po angielsku na wybrany temat.", "Wybierz temat", () => go("#/chat")),
-    open ? action("", "play", "2 · Kontynuuj", `Wróć do ${KIND_GEN[open.kind] || "sesji"}`, "Postęp przerwanej sesji jest zapisany.", "Wznów", () => resume(open))
-      : action("", "lesson", "2 · Nauka", sugName || "Lekcja", d.suggested_lesson?.provisional ? "Propozycja startowa — możesz wybrać inną misję." : "Kolejna misja dobrana do Twoich wyników.", "Zacznij lekcję",
+  const actions = h("section", { class: "actions-4", "aria-label": t("Najważniejsze akcje") },
+    action("main", "chat", t("1 · Rozmowa"), "Porozmawiaj z nauczycielem", t("Swobodna rozmowa po angielsku na wybrany temat."), t("Wybierz temat"), () => go("#/chat")),
+    open ? action("", "play", t("2 · Kontynuuj"), t("Wróć do {k}", { k: KIND_GEN[open.kind] || t("sesji") }), t("Postęp przerwanej sesji jest zapisany."), t("Wznów"), () => resume(open))
+      : action("", "lesson", t("2 · Nauka"), sugName || t("Lekcja"), d.suggested_lesson?.provisional ? "Propozycja startowa — możesz wybrać inną misję." : t("Kolejna misja dobrana do Twoich wyników."), t("Zacznij lekcję"),
         () => startSession("lesson", { text_mode: defaultTextMode() })),
-    action("", "review", "3 · Powtórka", d.due_reviews ? `${d.due_reviews} do powtórki` : "Brak zaległych", d.due_reviews ? "Sprawdź, czy pamiętasz — na nowych przykładach." : "Wrócą, gdy nadejdzie ich termin.",
-      d.due_reviews ? "Powtórz teraz" : "Zobacz", () => (d.due_reviews ? startSession("review", { text_mode: defaultTextMode() }) : go("#/review"))),
-    action("", "progress", "4 · Postępy", `${tot.lessons_completed} lekcji · ${fmtMin(tot.study_seconds)}`, `${ac.earned} z ${ac.total} odznak. Historia z zapisów na tym komputerze.`, "Zobacz postępy", () => go("#/progress")));
+    action("", "review", t("3 · Powtórka"), d.due_reviews ? t("{n} do powtórki", { n: d.due_reviews }) : t("Brak zaległych"), d.due_reviews ? "Sprawdź, czy pamiętasz — na nowych przykładach." : t("Wrócą, gdy nadejdzie ich termin."),
+      d.due_reviews ? "Powtórz teraz" : t("Zobacz"), () => (d.due_reviews ? startSession("review", { text_mode: defaultTextMode() }) : go("#/review"))),
+    action("", "progress", t("4 · Postępy"), t("{n} lekcji · {t}", { n: tot.lessons_completed, t: fmtMin(tot.study_seconds) }), t("{e} z {n} odznak. Historia z zapisów na tym komputerze.", { e: ac.earned, n: ac.total }), t("Zobacz postępy"), () => go("#/progress")));
 
   // wyprawa: bieżący rozdział (pierwszy z nieopanowanymi misjami)
   const status = {};
@@ -238,22 +245,22 @@ async function screenHome(main) {
   const levels = [...new Set(ls.catalog.map((c) => c.cefr))];
   const cur = levels.find((l) => ls.catalog.some((c) => c.cefr === l && status[c.skill_id] !== "mastered")) || levels[0];
   const inCh = ls.catalog.filter((c) => c.cefr === cur);
-  const journey = cardT("star", `Rozdział ${levels.indexOf(cur) + 1}: ${CHAPTER[cur] || cur}`, h("a", { class: "more", href: "#/lesson" }, "Mapa misji"),
+  const journey = cardT("star", t("Rozdział {n}: {name}", { n: levels.indexOf(cur) + 1, name: CHAPTER[cur] || cur }), h("a", { class: "more", href: "#/lesson" }, t("Mapa misji")),
     h("ul", { class: "mini-list" }, inCh.map((c) => {
       const [label, tone] = STATUS[status[c.skill_id] || "new"];
-      return h("li", {}, icon(AREA_ICON[c.area] || "lesson", 22), h("div", {}, h("div", { class: "t" }, c.can_do_pl), h("div", { class: "s" }, `${cur} · ${areaPl(c.area)}`)), chip(label, tone));
+      return h("li", {}, icon(AREA_ICON[c.area] || "lesson", 22), h("div", {}, h("div", { class: "t" }, skillName(c)), h("div", { class: "s" }, `${cur} · ${areaPl(c.area)}`)), chip(label, tone));
     })));
 
   const unearned = ac.items.filter((i) => !i.earned).sort((a, b) => b.progress / b.target - a.progress / a.target).slice(0, 3);
-  const challenges = cardT("flame", "Wyzwania", h("a", { class: "more", href: "#/achievements" }, "Odznaki"),
+  const challenges = cardT("flame", t("Wyzwania"), h("a", { class: "more", href: "#/achievements" }, t("Odznaki")),
     unearned.length ? h("ul", { class: "mini-list" }, unearned.map((i) => h("li", { class: "challenge" }, badgeArt(i.category, tierOf(ac.items, i), false, 36),
       h("div", {}, h("div", { class: "t" }, i.name), h("div", { class: "s" }, `${Math.min(i.progress, i.target)} / ${i.target} · ${i.description}`), bar(i.progress, i.target, i.name, "amber")), h("span"))))
-      : note("Wszystkie wyzwania zdobyte."));
-  const recent = cardT("progress", "Ostatnio", h("a", { class: "more", href: "#/progress" }, "Historia"),
+      : note(t("Wszystkie wyzwania zdobyte.")));
+  const recent = cardT("progress", t("Ostatnio"), h("a", { class: "more", href: "#/progress" }, t("Historia")),
     hs.sessions.length ? h("ul", { class: "mini-list" }, hs.sessions.slice(0, 3).map((s) => h("li", {}, icon(KIND_ICON[s.kind] || "chat", 22),
       h("div", {}, h("div", { class: "t" }, KIND_PL[s.kind] || s.title), h("div", { class: "s" }, `${fmtDate(s.started_at)} · ${fmtMin(s.seconds)}`)),
-      h("span", { class: "s" }, s.attempts ? `${s.attempts_correct}/${s.attempts} zad.` : plural(s.user_turns, "wypowiedź", "wypowiedzi", "wypowiedzi")))))
-      : note("Jeszcze nic — pierwsza rozmowa zajmie 5 minut.", "muted"));
+      h("span", { class: "s" }, s.attempts ? `${s.attempts_correct}/${s.attempts} zad.` : plural(s.user_turns, t("wypowiedź"), t("wypowiedzi"), t("wypowiedzi"))))))
+      : note(t("Jeszcze nic — pierwsza rozmowa zajmie 5 minut."), "muted"));
 
   const pending = d.pending_evals ? h("section", { class: "quest" }, h("div", { class: "icon-box" }, icon("review", 30)),
     h("div", {}, h("p", {}, t("ev.pending", { n: d.pending_evals }))), btn(t("ev.run"), () => startSession("evals", {}), "", "play")) : null;
@@ -270,7 +277,7 @@ function resume(open) {
 
 function modeRow() {
   const cb = h("input", { type: "checkbox", id: "textmode", checked: defaultTextMode(), disabled: !voiceAvailable() });
-  return h("label", { class: "check" }, cb, voiceAvailable() ? "Tryb tekstowy (bez mikrofonu i głosu)" : "Tryb tekstowy — głos niedostępny na tym komputerze");
+  return h("label", { class: "check" }, cb, voiceAvailable() ? "Tryb tekstowy (bez mikrofonu i głosu)" : t("Tryb tekstowy — głos niedostępny na tym komputerze"));
 }
 const textMode = () => { const cb = document.getElementById("textmode"); return cb ? cb.checked : defaultTextMode(); };
 
@@ -279,13 +286,13 @@ const TOPIC_TONE = { food: "amber", tech: "turq", work: "terra", hobbies: "green
 function topicCard(t, onclick) {
   const tag = t.kind === "roleplay" ? `Roleplay · ${(t.lv || []).join("–")}` : (t.lv ? (t.lv || []).join("–") : t.category_pl);
   return h("button", { class: "topic", type: "button", onclick }, chip(tag, t.kind === "roleplay" ? "terra" : TOPIC_TONE[t.category] || "turq"),
-    h("strong", {}, t.pl), t.kind === "roleplay" ? h("em", {}, t.context_pl) : h("em", { lang: "en" }, t.opener || t.q));
+    h("strong", {}, t.pl), t.kind === "roleplay" ? h("em", {}, rpContext(t)) : h("em", { lang: "en" }, t.opener || t.q));
 }
 
 const MODE_ABOUT = {
-  natural: "Swobodna rozmowa. Nauczyciel podąża za Tobą i nie poprawia drobiazgów.",
-  guided: "Nauczyciel prowadzi rozmowę, podsuwa zwroty i słownictwo, pomaga budować odpowiedzi.",
-  roleplay: "Nauczyciel gra rolę w konkretnej sytuacji (np. pacjent, rekruter, klient). Uwagi językowe na końcu.",
+  natural: t("Swobodna rozmowa. Nauczyciel podąża za Tobą i nie poprawia drobiazgów."),
+  guided: t("Nauczyciel prowadzi rozmowę, podsuwa zwroty i słownictwo, pomaga budować odpowiedzi."),
+  roleplay: t("Nauczyciel gra rolę w konkretnej sytuacji (np. pacjent, rekruter, klient). Uwagi językowe na końcu."),
 };
 async function screenChat(main) {
   const opt = await q("/api/chat_options");
@@ -293,58 +300,58 @@ async function screenChat(main) {
   const list = h("div", { class: "topic-grid", "aria-live": "polite" });
   const autoNote = h("p", { class: "note muted" });
   const modeNote = h("p", { class: "note muted" });
-  const custom = h("input", { type: "text", maxlength: 80, placeholder: "np. my first job, Linux servers, a difficult patient…", "aria-label": "Własny temat" });
-  const minutes = seg("Czas rozmowy", [["", "bez limitu"], ["5", "5"], ["10", "10"], ["15", "15"], ["20", "20"], ["30", "30"]], "");
-  const corr = seg("Intensywność poprawek", [["summary", "na końcu"], ["periodic", "czasem"], ["intensive", "na bieżąco"]], S.settings?.values?.correction || "summary");
+  const custom = h("input", { type: "text", maxlength: 80, placeholder: t("np. my first job, Linux servers, a difficult patient…"), "aria-label": t("Własny temat") });
+  const minutes = seg(t("Czas rozmowy"), [["", "bez limitu"], ["5", "5"], ["10", "10"], ["15", "15"], ["20", "20"], ["30", "30"]], "");
+  const corr = seg(t("Intensywność poprawek"), [["summary", t("na końcu")], ["periodic", "czasem"], ["intensive", t("na bieżąco")]], S.settings?.values?.correction || "summary");
   const start = (args) => startSession("chat", { ...args, level: st.level, category: st.category, mode: st.mode,
     minutes: minutes.value || null, correction: corr.value, text_mode: textMode() });
-  const customGo = () => (custom.value.trim() ? start({ custom: custom.value.trim() }) : toast("Wpisz temat."));
+  const customGo = () => (custom.value.trim() ? start({ custom: custom.value.trim() }) : toast(t("Wpisz temat.")));
   custom.addEventListener("keydown", (e) => { if (e.key === "Enter") customGo(); });
   const draw = async () => {
-    autoNote.textContent = st.level === "auto" ? opt.auto.notice : "Ręczny wybór poziomu nie zmienia wyniku diagnozy ani postępów.";
+    autoNote.textContent = st.level === "auto" ? opt.auto.notice : t("Ręczny wybór poziomu nie zmienia wyniku diagnozy ani postępów.");
     modeNote.textContent = MODE_ABOUT[st.mode];
-    if (st.category === "custom") { list.replaceChildren(note("Wpisz własny temat poniżej — rozmowa będzie w wybranym trybie i na wybranym poziomie.", "muted")); st.topics = []; return; }
+    if (st.category === "custom") { list.replaceChildren(note(t("Wpisz własny temat poniżej — rozmowa będzie w wybranym trybie i na wybranym poziomie."), "muted")); st.topics = []; return; }
     st.topics = await q("/api/topics", `&category=${st.category}&level=${st.level}&mode=${st.mode}${st.seed === null ? "" : `&seed=${st.seed}`}`);
     list.replaceChildren(...st.topics.map((t) => topicCard(t, () => start({ topic: t.id }))));
   };
-  const cats = h("div", { class: "choice-grid", role: "group", "aria-label": "Kategoria rozmowy" }, opt.categories.map((c) =>
+  const cats = h("div", { class: "choice-grid", role: "group", "aria-label": t("Kategoria rozmowy") }, opt.categories.map((c) =>
     h("button", { type: "button", class: "choice", "data-v": c.id, onclick: () => { st.category = c.id; st.seed = null; mark(); draw(); } },
       h("strong", {}, c.pl), h("span", {}, c.about_pl))));
   const mark = () => cats.querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.v === st.category)));
   mark();
-  const levels = seg("Poziom", opt.levels.map((l) => [l, l === "auto" ? "Automatyczny" : l]), st.level, (v) => { st.level = v; draw(); });
-  const modes = seg("Tryb rozmowy", opt.modes.map((m) => [m.id, m.pl]), st.mode, (v) => { st.mode = v; st.seed = null; draw(); });
+  const levels = seg(t("Poziom"), opt.levels.map((l) => [l, l === "auto" ? "Automatyczny" : l]), st.level, (v) => { st.level = v; draw(); });
+  const modes = seg(t("Tryb rozmowy"), opt.modes.map((m) => [m.id, m.pl]), st.mode, (v) => { st.mode = v; st.seed = null; draw(); });
   const go = () => (st.category === "custom" || !st.topics.length ? customGo() : start({ topic: st.topics[0].id }));
   await draw();
   const hist = await q("/api/chats").catch(() => []);
   main.append(
-    pageHead("Rozmowa z nauczycielem", "Quick Chat", "Wybierz poziom, kategorię i tryb. Temat jest opcjonalny — możesz od razu zacząć od propozycji."),
+    pageHead(t("Rozmowa z nauczycielem"), "Quick Chat", t("Wybierz poziom, kategorię i tryb. Temat jest opcjonalny — możesz od razu zacząć od propozycji.")),
     h("div", { class: "chat-setup" },
       h("div", { class: "stack" },
         card(null, h("div", { class: "opts" },
-          h("div", { class: "opt" }, h("span", {}, "1 · Poziom"), levels, autoNote),
-          h("div", { class: "opt" }, h("span", {}, "2 · Kategoria"), cats),
-          h("div", { class: "opt" }, h("span", {}, "3 · Tryb"), modes, modeNote)),
-          h("div", { class: "row start-row" }, btn("Rozpocznij rozmowę", go, "primary lg", "play"), h("span", { class: "muted" }, "z pierwszą propozycją poniżej albo z Twoim tematem"))),
-        cardT("chat", "4 · Temat (opcjonalnie)", h("span", { class: "more" }, btn("Wylosuj inne", () => { st.seed = Math.floor(Math.random() * 1e9); draw(); }, "sm quiet", "dice")),
-          list, h("div", { class: "custom-topic" }, custom, btn("Rozmawiaj o tym", customGo, "", "play")))),
+          h("div", { class: "opt" }, h("span", {}, t("1 · Poziom")), levels, autoNote),
+          h("div", { class: "opt" }, h("span", {}, t("2 · Kategoria")), cats),
+          h("div", { class: "opt" }, h("span", {}, t("3 · Tryb")), modes, modeNote)),
+          h("div", { class: "row start-row" }, btn(t("Rozpocznij rozmowę"), go, "primary lg", "play"), h("span", { class: "muted" }, t("z pierwszą propozycją poniżej albo z Twoim tematem")))),
+        cardT("chat", t("4 · Temat (opcjonalnie)"), h("span", { class: "more" }, btn(t("Wylosuj inne"), () => { st.seed = Math.floor(Math.random() * 1e9); draw(); }, "sm quiet", "dice")),
+          list, h("div", { class: "custom-topic" }, custom, btn(t("Rozmawiaj o tym"), customGo, "", "play")))),
       h("div", { class: "stack" },
         h("div", { class: "greet" }, mascot("idle", 72), h("p", { class: "speech", lang: "en" }, "Choose how we talk today. You can change the topic at any time.")),
-        card("Ustawienia rozmowy", h("div", { class: "opts" },
-          h("div", { class: "opt" }, h("span", {}, "Czas (minuty)"), minutes),
-          h("div", { class: "opt" }, h("span", {}, "Poprawki"), corr),
-          h("div", { class: "opt" }, h("span", {}, "Tryb"), modeRow()),
-          note("Quick Chat nie nadaje statusu opanowania. Poprawki to sugestie modelu i mogą być błędne.", "muted"))),
-        hist.length ? card("Ostatnie rozmowy", h("ul", { class: "mini-list" }, hist.slice(0, 5).map((c) => h("li", {}, icon("chat", 20),
+        card(t("Ustawienia rozmowy"), h("div", { class: "opts" },
+          h("div", { class: "opt" }, h("span", {}, t("Czas (minuty)")), minutes),
+          h("div", { class: "opt" }, h("span", {}, t("Poprawki")), corr),
+          h("div", { class: "opt" }, h("span", {}, t("Tryb")), modeRow()),
+          note(t("Quick Chat nie nadaje statusu opanowania. Poprawki to sugestie modelu i mogą być błędne."), "muted"))),
+        hist.length ? card(t("Ostatnie rozmowy"), h("ul", { class: "mini-list" }, hist.slice(0, 5).map((c) => h("li", {}, icon("chat", 20),
           h("div", {}, h("div", { class: "t" }, (c.topics || []).join(" → ") || "—"), h("div", { class: "s" }, `${fmtDate(c.started_at)} · ${fmtMin(c.seconds_active)}${c.level ? " · " + c.level : ""}`)),
-          h("span", { class: "s" }, `${c.user_turns ?? 0} wyp.`))))) : null)));
+          h("span", { class: "s" }, t("{n} wyp.", { n: c.user_turns ?? 0 })))))) : null)));
 }
 
 // ---------- Lekcje: mapa misji ----------
-const CHAPTER = { A1: "Pierwsze kroki", A2: "Codzienne sprawy", B1: "Samodzielność", B2: "Swoboda", C1: "Biegłość", C2: "Mistrzostwo" };
+const CHAPTER = { A1: t("Pierwsze kroki"), A2: t("Codzienne sprawy"), B1: t("Samodzielność"), B2: t("Swoboda"), C1: t("Biegłość"), C2: t("Mistrzostwo") };
 const AREA_ICON = { grammar: "lesson", vocabulary: "star", speaking: "mic", writing: "exam", reading: "lesson", listening: "chat" };
 const STATUS = {
-  mastered: ["Opanowana", "amber"], working: ["W toku", "green"], struggling: ["Do poprawy", "terra"], too_few: ["Rozpoczęta", "turq"], new: ["Nowa", ""],
+  mastered: [t("Opanowana"), "amber"], working: [t("W toku"), "green"], struggling: [t("Do poprawy"), "terra"], too_few: [t("Rozpoczęta"), "turq"], new: [t("Nowa"), ""],
 };
 
 async function screenLesson(main) {
@@ -356,38 +363,38 @@ async function screenLesson(main) {
   const by = {};
   d.catalog.forEach((c) => (by[c.cefr] = by[c.cefr] || []).push(c));
   main.append(
-    pageHead("Mapa misji", "Lekcje", `${d.catalog.length} misji z kompletem materiałów. Każda to krótkie wyjaśnienie, ćwiczenia i rozmowa.`, modeRow()),
+    pageHead(t("Mapa misji"), t("Lekcje"), t("{n} misji z kompletem materiałów. Każda to krótkie wyjaśnienie, ćwiczenia i rozmowa.", { n: d.catalog.length }), modeRow()),
     sug ? h("section", { class: "quest" }, h("div", { class: "icon-box" }, icon("star", 36)),
-      h("div", {}, chip("Polecana misja", "amber"), h("h3", {}, skillPl(sug.skill_id)), h("p", {}, sug.reason)),
-      btn("Zacznij misję", () => startSession("lesson", { text_mode: textMode() }), "primary lg", "play")) : note("Brak lekcji z gotowymi materiałami."),
-    h("div", { class: "legend", "aria-label": "Legenda statusów" }, Object.values(STATUS).map(([l, c]) => chip(l, c))),
+      h("div", {}, chip(t("Polecana misja"), "amber"), h("h3", {}, skillPl(sug.skill_id)), h("p", {}, sug.reason)),
+      btn(t("Zacznij misję"), () => startSession("lesson", { text_mode: textMode() }), "primary lg", "play")) : note(t("Brak lekcji z gotowymi materiałami.")),
+    h("div", { class: "legend", "aria-label": t("Legenda statusów") }, Object.values(STATUS).map(([l, c]) => chip(l, c))),
     h("div", { class: "chapters" }, Object.entries(by).map(([cefr, items], i) => h("section", { class: "chapter", "aria-labelledby": `ch-${cefr}` },
       h("div", { class: "chapter-head" }, h("div", { class: "lvl" }, cefr),
-        h("div", {}, h("h2", { id: `ch-${cefr}` }, `Rozdział ${i + 1}: ${CHAPTER[cefr] || cefr}`),
-          h("p", {}, `${items.filter((c) => status[c.skill_id]).length} z ${items.length} misji rozpoczętych`))),
+        h("div", {}, h("h2", { id: `ch-${cefr}` }, t("Rozdział {n}: {name}", { n: i + 1, name: CHAPTER[cefr] || cefr })),
+          h("p", {}, t("{a} z {b} misji rozpoczętych", { a: items.filter((c) => status[c.skill_id]).length, b: items.length })))),
       h("div", { class: "missions" }, items.map((c) => {
         const st = status[c.skill_id];
         const [label, tone] = STATUS[st ? st.k : "new"];
         return h("button", { type: "button", class: `mission${sug && sug.skill_id === c.skill_id ? " suggested" : ""}`, "data-status": st ? st.k : "new",
           onclick: () => startSession("lesson", { skill: c.skill_id, text_mode: textMode() }) },
           h("div", { class: "icon-box" }, icon(st && st.k === "mastered" ? "trophy" : AREA_ICON[c.area] || "lesson", 28)),
-          h("strong", {}, c.can_do_pl),
+          h("strong", {}, skillName(c)),
           h("span", { class: "meta" }, chip(label, tone), h("span", { class: "muted" }, areaPl(c.area))),
-          st ? bar(st.r.correct, st.r.attempts, `Poprawnie ${st.r.correct} z ${st.r.attempts}`) : null);
+          st ? bar(st.r.correct, st.r.attempts, t("Poprawnie {a} z {b}", { a: st.r.correct, b: st.r.attempts })) : null);
       }))))),
-    note("Materiały nie są jeszcze sprawdzone przez człowieka. Status „Opanowana” nadaje wyłącznie silnik oceny.", "muted"));
+    note(t("Materiały nie są jeszcze sprawdzone przez człowieka. Status „Opanowana” nadaje wyłącznie silnik oceny."), "muted"));
 }
 
 async function screenReview(main) {
   const [home, p] = await Promise.all([q("/api/home"), q("/api/progress")]);
   await catalog();
-  main.append(pageHead("Utrwalanie", "Powtórki", "Krótkie sprawdzenie na nowych przykładach. Termin każdej powtórki wyznacza harmonogram FSRS."),
+  main.append(pageHead(t("Utrwalanie"), t("Powtórki"), t("Krótkie sprawdzenie na nowych przykładach. Termin każdej powtórki wyznacza harmonogram FSRS.")),
     h("section", { class: "quest" }, h("div", { class: "icon-box" }, icon("review", 36)),
-      h("div", {}, h("h3", {}, home.due_reviews ? `Do powtórki dziś: ${home.due_reviews}` : "Dziś nie ma zaległych powtórek"),
-        h("p", {}, home.due_reviews ? "Odpowiadaj tak samo jak w lekcji. Niepewnie rozpoznana mowa nie obniża wyniku." : "Wrócą, gdy minie ich termin. Możesz w tym czasie zrobić lekcję."), modeRow()),
-      home.due_reviews ? btn("Zacznij powtórki", () => startSession("review", { text_mode: textMode() }), "primary lg", "play") : btn("Przejdź do lekcji", () => go("#/lesson"), "lg")),
-    p.due.length ? card("Na liście", h("ul", { class: "mini-list" }, p.due.map((s) => h("li", {}, icon("review", 20), h("div", { class: "t" }, skillPl(s)), h("span"))))) : null,
-    note("Powtórki nie nadają statusu opanowania. Limit: 20 dziennie.", "muted"));
+      h("div", {}, h("h3", {}, home.due_reviews ? t("Do powtórki dziś: {n}", { n: home.due_reviews }) : t("Dziś nie ma zaległych powtórek")),
+        h("p", {}, home.due_reviews ? "Odpowiadaj tak samo jak w lekcji. Niepewnie rozpoznana mowa nie obniża wyniku." : t("Wrócą, gdy minie ich termin. Możesz w tym czasie zrobić lekcję.")), modeRow()),
+      home.due_reviews ? btn(t("Zacznij powtórki"), () => startSession("review", { text_mode: textMode() }), "primary lg", "play") : btn(t("Przejdź do lekcji"), () => go("#/lesson"), "lg")),
+    p.due.length ? card(t("Na liście"), h("ul", { class: "mini-list" }, p.due.map((s) => h("li", {}, icon("review", 20), h("div", { class: "t" }, skillPl(s)), h("span"))))) : null,
+    note(t("Powtórki nie nadają statusu opanowania. Limit: 20 dziennie."), "muted"));
 }
 
 async function screenPlacement(main) {
@@ -477,17 +484,17 @@ function growthSection(g) {
 }
 
 const REL = {
-  "potwierdzony ćwiczeniami": ["ok", "Potwierdzony ćwiczeniami"],
-  "sugestia modelu": ["warn", "Sugestia modelu"],
-  "niepewna transkrypcja STT": ["stt", "Możliwy błąd rozpoznawania mowy"],
-  "za mało danych": ["none", "Za mało danych"],
+  "potwierdzony ćwiczeniami": ["ok", t("Potwierdzony ćwiczeniami")],
+  "sugestia modelu": ["warn", t("Sugestia modelu")],
+  "niepewna transkrypcja STT": ["stt", t("Możliwy błąd rozpoznawania mowy")],
+  "za mało danych": ["none", t("Za mało danych")],
 };
 async function screenWeak(main) {
   const d = await q("/api/weakspots");
   await catalog();
-  const head = pageHead("Dziennik błędów", "Słabe strony", "Każdy wpis ma etykietę wiarygodności. „Sugestia modelu” nie jest potwierdzonym błędem.");
+  const head = pageHead(t("Dziennik błędów"), t("Słabe strony"), t("Każdy wpis ma etykietę wiarygodności. „Sugestia modelu” nie jest potwierdzonym błędem."));
   if (!d.has_data) {
-    main.append(head, h("div", { class: "empty" }, mascot("idle", 72), h("div", {}, h("p", {}, "Jeszcze nic tu nie ma. Wpisy pojawią się po rozmowach, lekcjach i powtórkach."), note(d.stt_uncertain.note, "muted"))));
+    main.append(head, h("div", { class: "empty" }, mascot("idle", 72), h("div", {}, h("p", {}, t("Jeszcze nic tu nie ma. Wpisy pojawią się po rozmowach, lekcjach i powtórkach.")), note(d.stt_uncertain.note, "muted"))));
     return;
   }
   main.append(head,
@@ -495,22 +502,22 @@ async function screenWeak(main) {
       h("div", { class: "stack" },
         d.errors.length ? h("div", { class: "weak-list" }, d.errors.map((e, i) => {
           const [cls, label] = REL[e.reliability] || ["none", e.reliability];
-          const t = e.trend || {};
+          const tr = e.trend || {};
           return h("article", { class: "weak" },
             h("header", {}, h("strong", {}, `${i + 1}. ${catPl(e.category)}`), h("span", { class: `badge ${cls}` }, label)),
             e.example && cls !== "stt" ? h("p", { class: "example" }, e.correction ? fixLine(e.example, e.correction) : h("span", { lang: "en" }, e.example)) : null,
-            h("p", { class: "muted" }, `${e.count}× · ostatnio ${fmtDate(e.last_seen)} · trend: ${t.direction || "za mało danych"}`),
-            e.skills.length ? h("div", {}, btn("Ćwicz to", () => startSession("drill", { target: String(i + 1), text_mode: defaultTextMode() }), "primary", "play")) : note("Brak materiałów do ćwiczeń dla tej kategorii.", "muted"));
+            h("p", { class: "muted" }, t("{n}× · ostatnio {d} · trend: {t}", { n: e.count, d: fmtDate(e.last_seen), t: tr.direction ? t(tr.direction) : t("za mało danych") })),
+            e.skills.length ? h("div", {}, btn(t("Ćwicz to"), () => startSession("drill", { target: String(i + 1), text_mode: defaultTextMode() }), "primary", "play")) : note(t("Brak materiałów do ćwiczeń dla tej kategorii."), "muted"));
         })) : null,
-        note("Trend pokazujemy dopiero przy co najmniej 5 wypowiedziach w obu okresach (14 dni).", "muted"),
+        note(t("Trend pokazujemy dopiero przy co najmniej 5 wypowiedziach w obu okresach (14 dni)."), "muted"),
         d.entries.length ? card(t("ws.entries"), h("div", { class: "weak-list" }, d.entries.map((e) => journalEntry(e)))) : null),
       h("div", { class: "stack" },
-        d.weak_skills.length ? card("Umiejętności poniżej połowy", h("ul", { class: "mini-list" }, d.weak_skills.map((w) => h("li", {}, icon("weak", 20),
+        d.weak_skills.length ? card(t("Umiejętności poniżej połowy"), h("ul", { class: "mini-list" }, d.weak_skills.map((w) => h("li", {}, icon("weak", 20),
           h("div", {}, h("div", { class: "t" }, skillPl(w.skill)), h("div", { class: "s" }, `${w.correct}/${w.attempts} poprawnie`)),
-          btn("Ćwicz", () => startSession("drill", { target: w.skill, text_mode: defaultTextMode() }), "sm"))))) : null,
-        d.vocabulary.length ? card("Słowa do utrwalenia", table(["Słowo", "Pomyłki"], d.vocabulary.map((w) => [w.term, w.misses]))) : null,
-        card("Niepewne rozpoznanie mowy", h("p", {}, `${d.stt_uncertain.count} — ${d.stt_uncertain.note}`)),
-        d.due_reviews.length ? card("Do powtórki", h("p", {}, d.due_reviews.map(skillPl).join(", ")), btn("Zacznij powtórki", () => go("#/review"))) : null)));
+          btn(t("Ćwicz"), () => startSession("drill", { target: w.skill, text_mode: defaultTextMode() }), "sm"))))) : null,
+        d.vocabulary.length ? card(t("Słowa do utrwalenia"), table([t("Słowo"), t("Pomyłki")], d.vocabulary.map((w) => [w.term, w.misses]))) : null,
+        card(t("Niepewne rozpoznanie mowy"), h("p", {}, `${d.stt_uncertain.count} — ${d.stt_uncertain.note}`)),
+        d.due_reviews.length ? card(t("Do powtórki"), h("p", {}, d.due_reviews.map(skillPl).join(", ")), btn(t("Zacznij powtórki"), () => go("#/review"))) : null)));
 }
 
 function journalEntry(e) {
@@ -531,21 +538,21 @@ function journalEntry(e) {
 
 async function screenExam(main) {
   const paths = await q("/api/exams");
-  main.append(pageHead("Ścieżki egzaminacyjne", "Egzaminy", "Ćwiczenia w formacie egzaminu. Wynik ćwiczeń nie jest prognozą wyniku egzaminu."));
+  main.append(pageHead(t("Ścieżki egzaminacyjne"), t("Egzaminy"), t("Ćwiczenia w formacie egzaminu. Wynik ćwiczeń nie jest prognozą wyniku egzaminu.")));
   for (const p of paths) {
     const r = p.readiness;
     main.append(cardT("exam", p.name, null,
       note(p.disclaimer, "muted"),
-      table(["Część", "Materiały", "Wynik ćwiczeń", "Stan"], r.sections.map((s) => {
+      table([t("Część"), t("Materiały"), t("Wynik ćwiczeń"), t("Stan")], r.sections.map((s) => {
         const cov = p.coverage.find((c) => c.section === s.section) || {};
-        return [s.name, cov.status === "ok" ? `${cov.items} zadań` : (cov.note || "brak"), s.scored ? `${s.correct}/${s.scored}` : "—", s.label];
+        return [s.name, cov.status === "ok" ? t("{n} zadań", { n: cov.items }) : (cov.note || "brak"), s.scored ? `${s.correct}/${s.scored}` : "—", s.label];
       })),
       h("ul", { class: "limits" }, [...new Set(r.limits || [])].filter((l) => l !== p.disclaimer).map((l) => h("li", {}, l))),
-      p.speaking_topics.length ? h("div", {}, h("h3", { class: "card-title" }, "Mówienie (w Quick Chat)"), h("div", { class: "row" },
+      p.speaking_topics.length ? h("div", {}, h("h3", { class: "card-title" }, t("Mówienie (w Quick Chat)")), h("div", { class: "row" },
         p.speaking_topics.map((t) => btn(t.pl, () => startSession("chat", { custom: t.q.slice(0, 80), text_mode: defaultTextMode() }), "sm quiet", "chat")))) : null,
-      h("div", { class: "row" }, modeRow(), btn("Ćwicz tę ścieżkę", () => startSession("exam", { path: p.id, text_mode: textMode() }), "primary", "play"))));
+      h("div", { class: "row" }, modeRow(), btn(t("Ćwicz tę ścieżkę"), () => startSession("exam", { path: p.id, text_mode: textMode() }), "primary", "play"))));
   }
-  main.append(note("Matura i Cambridge: przygotowane w architekturze, bez materiałów — nie są jeszcze dostępne.", "muted"));
+  main.append(note(t("Matura i Cambridge: przygotowane w architekturze, bez materiałów — nie są jeszcze dostępne."), "muted"));
 }
 
 async function screenProgress(main) {
@@ -553,33 +560,33 @@ async function screenProgress(main) {
   await catalog();
   const tot = hs.totals;
   const small = (n) => (n < 5 ? " (mała próba)" : "");
-  const groups = [["mastered", "Opanowane", "amber"], ["working", "W toku", "green"], ["struggling", "Wymagają pracy", "terra"], ["too_few", "Za mało prób", "turq"]];
-  const status = { ended: "zakończona", paused: "przerwana", active: "trwa", abandoned: "porzucona" };
+  const groups = [["mastered", t("Opanowane"), "amber"], ["working", t("W toku"), "green"], ["struggling", t("Wymagają pracy"), "terra"], ["too_few", t("Za mało prób"), "turq"]];
+  const status = { ended: t("zakończona"), paused: t("przerwana"), active: t("trwa"), abandoned: t("porzucona") };
   main.append(
-    pageHead("Dziennik nauki", "Postępy", "Wszystko pochodzi z bazy na tym komputerze. Czas nauki to przybliżenie z odstępów między zapisami."),
+    pageHead(t("Dziennik nauki"), t("Postępy"), t("Wszystko pochodzi z bazy na tym komputerze. Czas nauki to przybliżenie z odstępów między zapisami.")),
     growthSection(p.growth),
     h("div", { class: "stats" },
-      stat("Czas nauki", fmtMin(tot.study_seconds)), stat("Sesje", tot.sessions), stat("Ukończone lekcje", tot.lessons_completed),
-      stat("Powtórki", tot.reviews_done), stat("Twoje wypowiedzi", tot.user_turns), stat("Odznaki", `${ac.earned}/${ac.total}`)),
+      stat(t("Czas nauki"), fmtMin(tot.study_seconds)), stat(t("Sesje"), tot.sessions), stat(t("Ukończone lekcje"), tot.lessons_completed),
+      stat(t("Powtórki"), tot.reviews_done), stat(t("Twoje wypowiedzi"), tot.user_turns), stat(t("Odznaki"), `${ac.earned}/${ac.total}`)),
     h("div", { class: "grid-2" },
-      card("Umiejętności", ...groups.map(([k, label, tone]) => p.skills[k].length ? h("div", { class: "stack" },
+      card(t("Umiejętności"), ...groups.map(([k, label, tone]) => p.skills[k].length ? h("div", { class: "stack" },
         h("h3", { class: "card-title" }, chip(label, tone), h("span", { class: "muted" }, String(p.skills[k].length))),
         h("ul", { class: "mini-list" }, p.skills[k].map((r) => h("li", {}, icon("lesson", 20),
           h("div", {}, h("div", { class: "t" }, skillPl(r.skill)), bar(r.correct, r.attempts, `${r.correct} z ${r.attempts}`)),
           h("span", { class: "s" }, `${r.correct}/${r.attempts}${small(r.attempts)}`))))) : null),
-        Object.values(p.skills).every((x) => !x.length) ? note("Jeszcze nie ma ocenionych zadań.", "muted") : null),
+        Object.values(p.skills).every((x) => !x.length) ? note(t("Jeszcze nie ma ocenionych zadań."), "muted") : null),
       h("div", { class: "stack" },
-        card("Poziom (dobrowolne sprawdzenie)", h("ul", { class: "mini-list" }, p.competence.map((c) => h("li", {}, icon("level", 20),
+        card(t("Poziom (dobrowolne sprawdzenie)"), h("ul", { class: "mini-list" }, p.competence.map((c) => h("li", {}, icon("level", 20),
           h("div", {}, h("div", { class: "t" }, areaPl(c.area)), h("div", { class: "s" }, c.measured_at ? fmtDate(c.measured_at) : "")), h("span", { class: "s" }, c.label || c.state))))),
-        p.changes.length ? card("Zmiany między sesjami", h("ul", { class: "mini-list" }, p.changes.map((c) => h("li", {}, icon("progress", 20),
+        p.changes.length ? card(t("Zmiany między sesjami"), h("ul", { class: "mini-list" }, p.changes.map((c) => h("li", {}, icon("progress", 20),
           h("div", { class: "t" }, skillPl(c.skill)), h("span", { class: "s" }, `${c.previous[0]}/${c.previous[1]} → ${c.latest[0]}/${c.latest[1]}${small(c.latest[1])}`))))) : null)),
-    card("Historia sesji", hs.sessions.length ? table(["Data", "Rodzaj", "Status", "Czas", "Wypowiedzi", "Zadania"],
-      hs.sessions.map((s) => [fmtDate(s.started_at), KIND_PL[s.kind] || s.kind, status[s.status] || s.status, fmtMin(s.seconds), s.user_turns, s.attempts ? `${s.attempts_correct}/${s.attempts}` : "—"])) : note("Brak sesji.")));
+    card(t("Historia sesji"), hs.sessions.length ? table([t("Data"), t("Rodzaj"), t("Status"), t("Czas"), t("Wypowiedzi"), t("Zadania")],
+      hs.sessions.map((s) => [fmtDate(s.started_at), KIND_PL[s.kind] || s.kind, status[s.status] || s.status, fmtMin(s.seconds), s.user_turns, s.attempts ? `${s.attempts_correct}/${s.attempts}` : "—"])) : note(t("Brak sesji."))));
 }
 
 // ---------- Osiągnięcia ----------
-const CAT = { regularity: "Regularność", talk_time: "Czas rozmów", lessons: "Lekcje", reviews: "Powtórki", improvement: "Poprawa", weakspots: "Słabe strony", challenges: "Wyzwania", milestones: "Kamienie milowe", exams: "Egzaminy", mastered: "Opanowane umiejętności" };
-const TIER_PL = ["Brąz", "Srebro", "Złoto"];
+const CAT = { regularity: t("Regularność"), talk_time: t("Czas rozmów"), lessons: t("Lekcje"), reviews: t("Powtórki"), improvement: t("Poprawa"), weakspots: t("Słabe strony"), challenges: t("Wyzwania"), milestones: t("Kamienie milowe"), exams: t("Egzaminy"), mastered: t("Opanowane umiejętności") };
+const TIER_PL = [t("Brąz"), t("Srebro"), t("Złoto")];
 // Próg w kategorii (rosnąco wg celu) wyznacza kolor ramki odznaki: brąz, srebro, złoto.
 function tierOf(items, item) {
   const same = items.filter((i) => i.category === item.category).sort((a, b) => a.target - b.target);
@@ -588,7 +595,7 @@ function tierOf(items, item) {
 
 async function screenAchievements(main) {
   const d = await q("/api/achievements");
-  if (d.new && d.new.length) toast(`Nowe osiągnięcie: ${d.new.map((n) => n.name).join(", ")}`);
+  if (d.new && d.new.length) toast(t("Nowe osiągnięcie: {x}", { x: d.new.map((n) => n.name).join(", ") }));
   let filter = "all";
   const by = {};
   d.items.forEach((i) => (by[i.category] = by[i.category] || []).push(i));
@@ -602,12 +609,12 @@ async function screenAchievements(main) {
           h("span", { class: "count" }, `${items.filter((i) => i.earned).length}/${items.length}`)),
         h("div", { class: "badges" }, shown.map((i) => {
           const tier = tierOf(d.items, i);
-          return h("article", { class: i.earned ? "badge-card earned" : "badge-card locked", "aria-label": `${i.name}: ${i.earned ? "zdobyte" : "niezdobyte"}` },
+          return h("article", { class: i.earned ? "badge-card earned" : "badge-card locked", "aria-label": `${i.name}: ${i.earned ? t("zdobyte") : t("niezdobyte")}` },
             chip(TIER_PL[tier], i.earned ? "amber" : ""),
             i.earned ? null : h("span", { class: "lockmark", "aria-hidden": "true" }, icon("lock", 20)),
             badgeArt(i.category, tier, i.earned, 80),
             h("strong", {}, i.name), h("span", { class: "desc" }, i.description),
-            i.earned ? h("span", { class: "when" }, `Zdobyte ${fmtDay(i.earned_at)}`)
+            i.earned ? h("span", { class: "when" }, t("Zdobyte {d}", { d: fmtDay(i.earned_at) }))
               : h("div", { class: "prog" }, bar(i.progress, i.target, `${i.name}: ${Math.min(i.progress, i.target)} z ${i.target}`, "amber"), `${Math.min(i.progress, i.target)} / ${i.target}`));
         })));
     }).filter(Boolean));
@@ -615,32 +622,55 @@ async function screenAchievements(main) {
   const near = d.items.filter((i) => !i.earned && i.progress > 0).sort((a, b) => b.progress / b.target - a.progress / a.target).slice(0, 3);
   main.append(
     h("section", { class: "trophy-hero" }, icon("trophy", 84),
-      h("div", {}, h("span", { class: "eyebrow" }, "Sala trofeów"),
-        h("h1", {}, h("span", { class: "sr-only" }, "Osiągnięcia"), pxText("Osiągnięcia", 5)),
-        h("p", {}, d.note || "Odznaki nagradzają regularną pracę. Nie oznaczają opanowania języka."),
-        bar(d.earned, d.total, `Zdobyte ${d.earned} z ${d.total}`, "amber")),
+      h("div", {}, h("span", { class: "eyebrow" }, t("Sala trofeów")),
+        h("h1", {}, h("span", { class: "sr-only" }, t("Osiągnięcia")), pxText(t("Osiągnięcia"), 5)),
+        h("p", {}, d.note || t("Odznaki nagradzają regularną pracę. Nie oznaczają opanowania języka.")),
+        bar(d.earned, d.total, t("Zdobyte {a} z {b}", { a: d.earned, b: d.total }), "amber")),
       h("div", { class: "counter" }, h("strong", {}, `${d.earned}/${d.total}`), h("span", {}, "zdobytych odznak"))),
-    near.length ? cardT("flame", "Najbliżej zdobycia", null,
+    near.length ? cardT("flame", t("Najbliżej zdobycia"), null,
       h("div", { class: "near" }, near.map((i) => h("div", { class: "badge-row" }, badgeArt(i.category, tierOf(d.items, i), false, 48),
         h("div", {}, h("strong", {}, i.name), h("div", { class: "muted" }, i.description), bar(i.progress, i.target, i.name, "amber")))))) : null,
-    h("div", { class: "row" }, seg("Filtr odznak", [["all", "Wszystkie"], ["earned", "Zdobyte"], ["locked", "Do zdobycia"]], filter, (v) => { filter = v; draw(); })),
+    h("div", { class: "row" }, seg(t("Filtr odznak"), [["all", t("Wszystkie")], ["earned", t("Zdobyte")], ["locked", t("Do zdobycia")]], filter, (v) => { filter = v; draw(); })),
     shelves);
   draw();
 }
 
 // ---------- Ustawienia ----------
 const SET_LABELS = {
-  chat_model: "Model rozmowy", tts_voice: "Głos nauczyciela", speed: "Tempo mowy", correction: "Poprawki w rozmowie",
-  session_minutes: "Dzienny czas nauki (min)", io_mode: "Tryb domyślny", mic_mode: "Mikrofon",
-  input_device: "Mikrofon (urządzenie)", output_device: "Głośnik (urządzenie)", stt_model: "Rozpoznawanie mowy",
-  allow_unreviewed: "Używaj materiałów niesprawdzonych przez człowieka", conversation_mode: "Domyślna aktywność", target_lang: "Język nauki",
-  stt_confirm: "Potwierdzanie rozpoznanej mowy",
+  chat_model: t("Model rozmowy"), tts_voice: t("Głos nauczyciela"), speed: t("Tempo mowy"), correction: t("Poprawki w rozmowie"),
+  session_minutes: t("Dzienny czas nauki (min)"), io_mode: t("Tryb domyślny"), mic_mode: t("Mikrofon"),
+  input_device: t("Mikrofon (urządzenie)"), output_device: t("Głośnik (urządzenie)"), stt_model: t("Rozpoznawanie mowy"),
+  allow_unreviewed: t("Używaj materiałów niesprawdzonych przez człowieka"), conversation_mode: t("Domyślna aktywność"), target_lang: t("Język nauki"),
+  stt_confirm: t("Potwierdzanie rozpoznanej mowy"), ui_lang: t("Język interfejsu"),
 };
-const SET_GROUPS = [["Rozmowa i nauka", ["chat_model", "correction", "conversation_mode", "session_minutes", "allow_unreviewed", "target_lang"]],
-  ["Głos i dźwięk", ["io_mode", "tts_voice", "speed", "stt_confirm", "mic_mode", "input_device", "output_device"]]];
-const SPEED_LABELS = { slow: "wolno", normal: "normalnie", fast: "szybko" };
-const CHOICE_LABELS = { summary: "swobodna — uwagi głównie na końcu", periodic: "zrównoważona — krótkie korekty w trakcie", intensive: "intensywna — częste korekty i ćwiczenie",
-  uncertain: "tylko gdy niepewne", always: "zawsze", never: "nigdy", ptt: "kliknij, aby mówić", auto: "automatyczny", voice: "głosowy", text: "tekstowy", quick_chat: "Quick Chat", lesson: "lekcja", en: "angielski" };
+const SET_GROUPS = [[t("Rozmowa i nauka"), ["ui_lang", "chat_model", "correction", "conversation_mode", "session_minutes", "allow_unreviewed", "target_lang"]],
+  [t("Głos i dźwięk"), ["io_mode", "tts_voice", "speed", "stt_confirm", "mic_mode", "input_device", "output_device"]]];
+const SPEED_LABELS = { slow: t("wolno"), normal: t("normalnie"), fast: t("szybko") };
+const CHOICE_LABELS = { pl: t("polski"), summary: t("swobodna — uwagi głównie na końcu"), periodic: t("zrównoważona — krótkie korekty w trakcie"), intensive: t("intensywna — częste korekty i ćwiczenie"),
+  uncertain: t("tylko gdy niepewne"), always: t("zawsze"), never: t("nigdy"), ptt: t("kliknij, aby mówić"), auto: t("automatyczny"), voice: t("głosowy"), text: t("tekstowy"), quick_chat: "Quick Chat", lesson: t("lekcja"), en: t("angielski") };
+// F7: reset postępów i usunięcie profilu — potwierdzenie nazwą profilu, domyślnie kopia zapasowa.
+function dangerZone() {
+  const who = S.profiles.find((p) => p.id === S.pid);
+  if (!who) return null;
+  const confirm = h("input", { type: "text", maxlength: 40, "aria-label": t("Wpisz nazwę profilu, aby potwierdzić"), placeholder: who.name });
+  const bk = h("input", { type: "checkbox", checked: true });
+  const run = async (op) => {
+    const msg = op === "delete" ? t("Usunąć profil {name} i wszystkie jego dane?", { name: who.name })
+      : t("Usunąć całą historię nauki profilu {name}? Ustawienia zostaną.", { name: who.name });
+    if (!window.confirm(msg)) return;
+    try {
+      const r = await api(`/api/profiles/${op}`, { pid: S.pid, confirm: confirm.value, backup: bk.checked });
+      toast((op === "delete" ? t("Profil usunięty.") : t("Postępy zresetowane.")) + (r.backup ? " " + t("Kopia: {p}", { p: r.backup }) : ""));
+      if (op === "delete") { await loadProfiles(); S.settings = null; go("#/profiles"); route(); } else { S.settings = null; go("#/home"); }
+    } catch (e) { toast(e.message); }
+  };
+  return h("section", { class: "card danger" }, h("h2", { class: "card-title" }, t("Profil — operacje nieodwracalne")),
+    h("p", {}, t("Reset postępów usuwa historię nauki, wyniki, dziennik i osiągnięcia, ale zostawia profil i ustawienia. Usunięcie profilu usuwa wszystko. Inne profile nie są zmieniane.")),
+    h("label", { class: "field" }, h("span", {}, t("Wpisz nazwę profilu, aby potwierdzić")), confirm),
+    h("label", { class: "check" }, bk, t("Najpierw zapisz kopię zapasową (JSON)")),
+    h("div", { class: "row" }, btn(t("Resetuj postępy"), () => run("reset"), "danger"), btn(t("Usuń profil"), () => run("delete"), "danger")));
+}
+
 async function screenSettings(main) {
   const d = S.settings = await q("/api/settings");
   const st = S.system;
@@ -653,14 +683,14 @@ async function screenSettings(main) {
     if (key === "tts_voice" && st && st.voices.length) input = h("select", {}, st.voices.map((v) => h("option", { value: v, selected: v === val }, v)));
     else if (key === "input_device" || key === "output_device") {
       if (!st || st.audio_error) return null;
-      input = h("select", {}, h("option", { value: "default", selected: val === "default" }, "systemowe"), st.devices.map((v) => h("option", { value: v, selected: v === val }, v)));
+      input = h("select", {}, h("option", { value: "default", selected: val === "default" }, t("systemowe")), st.devices.map((v) => h("option", { value: v, selected: v === val }, v)));
     } else if (spec.type === "choice") input = h("select", {}, spec.choices.map((c) => h("option", { value: c, selected: String(c) === String(val) },
-      key === "chat_model" ? `${c}${st && st.models.includes(c) ? "" : " (nie pobrany)"}` : (CHOICE_LABELS[c] || c))));
+      key === "chat_model" ? `${c}${st && st.models.includes(c) ? "" : t(" (nie pobrany)")}` : (CHOICE_LABELS[c] || c))));
     else if (key === "speed" && spec.presets) {
       const named = Object.entries(spec.presets);
       const custom = !named.some(([, v]) => Number(v) === Number(val));
       input = h("select", {}, named.map(([n, v]) => h("option", { value: n, selected: Number(v) === Number(val) }, `${SPEED_LABELS[n] || n} (${v})`)),
-        custom ? h("option", { value: val, selected: true }, `własne (${val})`) : null);
+        custom ? h("option", { value: val, selected: true }, t("własne ({v})", { v: val })) : null);
     }
     else if (spec.type === "float") input = h("input", { type: "number", min: spec.min, max: spec.max, step: 0.05, value: val });
     else if (spec.type === "bool") input = h("input", { type: "checkbox", checked: !!val });
@@ -671,23 +701,28 @@ async function screenSettings(main) {
   const save = async () => {
     const changes = {};
     for (const [k, el] of Object.entries(fields)) changes[k] = el.type === "checkbox" ? el.checked : el.value;
-    try { S.settings.values = await api("/api/settings", { pid: S.pid, changes }); toast("Zapisano ustawienia."); setStatus(); }
+    try {
+      S.settings.values = await api("/api/settings", { pid: S.pid, changes });
+      if (setLang(S.settings.values.ui_lang)) return;          // inny język interfejsu: przeładowanie
+      toast(t("Zapisano ustawienia.")); setStatus();
+    }
     catch (e) { toast(e.message); }
   };
-  main.append(pageHead("Profil ucznia", "Ustawienia", "Zmiany dotyczą tylko wybranego profilu."),
+  main.append(pageHead(t("Profil ucznia"), t("Ustawienia"), t("Zmiany dotyczą tylko wybranego profilu.")),
     ...SET_GROUPS.map(([title, keys]) => card(title, h("form", { class: "settings", onsubmit: (e) => e.preventDefault() }, keys.map(field)))),
-    h("div", { class: "row" }, btn("Zapisz ustawienia", save, "primary lg", "check")),
-    note("Model oceny zostaje bez zmian (Qwen3 8B): jego zmiana wymaga kontroli jakości. Model rozmowy musi być pobrany w Ollamie.", "muted"),
-    card("Ten komputer", table(["Element", "Stan"], st ? [
-      ["Ollama", st.ollama ? "działa" : "nie odpowiada — uruchom `ollama serve`"], ["Pobrane modele", st.models.join(", ") || "—"],
-      ["Model oceny", st.roles.evaluation || "—"], ["Głos (Kokoro)", st.kokoro ? `gotowy, ${st.voices.length} głosów` : "brak plików modelu"],
-      ["Audio", st.audio_error ? `niedostępne: ${st.audio_error}` : st.devices.join("; ")]] : [])));
+    h("div", { class: "row" }, btn(t("Zapisz ustawienia"), save, "primary lg", "check")),
+    note(t("Model oceny zostaje bez zmian (Qwen3 8B): jego zmiana wymaga kontroli jakości. Model rozmowy musi być pobrany w Ollamie."), "muted"),
+    dangerZone(),
+    card(t("Ten komputer"), table([t("Element"), t("Stan")], st ? [
+      ["Ollama", st.ollama ? "działa" : t("nie odpowiada — uruchom `ollama serve`")], [t("Pobrane modele"), st.models.join(", ") || "—"],
+      [t("Model oceny"), st.roles.evaluation || "—"], [t("Głos (Kokoro)"), st.kokoro ? t("gotowy, {n} głosów", { n: st.voices.length }) : t("brak plików modelu")],
+      ["Audio", st.audio_error ? t("niedostępne: {e}", { e: st.audio_error }) : st.devices.join("; ")]] : [])));
 }
 
 // ---------- sesja ----------
-const KIND_TITLE = { chat: "Quick Chat", lesson: "Lekcja", placement: "Szybkie dopasowanie", review: "Powtórki", drill: "Ćwiczenia słabej strony", exam: "Ćwiczenia egzaminacyjne", assessment: "Diagnoza", evals: "Dokończenie oceny" };
-const STATE_PL = { listening: "Słucham…", thinking: "Myślę…", speaking: "Mówię…", turn: "Twoja kolej", idle: "Sesja zakończona", connecting: "Łączę…",
-  encouraging: "Spróbuj jeszcze raz", success: "Dobrze!", explaining: "Wyjaśniam", error: "Problem" };
+const KIND_TITLE = { chat: "Quick Chat", lesson: t("Lekcja"), placement: t("Szybkie dopasowanie"), review: t("Powtórki"), drill: t("Ćwiczenia słabej strony"), exam: t("Ćwiczenia egzaminacyjne"), assessment: t("Diagnoza"), evals: t("Dokończenie oceny") };
+const STATE_PL = { listening: t("Słucham…"), thinking: t("Myślę…"), speaking: t("Mówię…"), turn: t("Twoja kolej"), idle: t("Sesja zakończona"), connecting: t("Łączę…"),
+  encouraging: t("Spróbuj jeszcze raz"), success: t("Dobrze!"), explaining: t("Wyjaśniam"), error: t("Problem") };
 
 function newSession(kind, text) {
   return { kind, phase: null, running: true, text, log: [], task: null, heard: null, feedback: null, hint: null, goal: null, goalText: null,
@@ -725,17 +760,17 @@ function nextText(s, state) {
   const task = s.kind !== "chat" && s.phase !== "chat";
   const hasOpts = task && s.task && /^\s+\d+\.\s+/m.test(s.task.text);
   return {
-    connecting: "Uruchamiam nauczyciela…",
-    listening: "Mów teraz. Kliknij Stop, gdy skończysz.",
-    thinking: task ? "Sprawdzam odpowiedź…" : "Układam odpowiedź…",
-    speaking: "Nauczyciel mówi. Kliknij mikrofon, aby przerwać i odpowiedzieć.",
-    success: "Dobrze! Za chwilę kolejny krok.",
-    encouraging: "Prawie. Spróbuj jeszcze raz — wskazówka poniżej.",
-    explaining: "Przeczytaj krótkie wyjaśnienie. Pierwsze zadanie zaraz się pojawi.",
-    idle: "Sesja zakończona. Wyniki są zapisane.",
-    error: s.error || "Coś poszło nie tak.",
-    turn: task ? (hasOpts ? "Wybierz odpowiedź albo powiedz ją." : (s.text ? "Napisz odpowiedź na zadanie." : "Odpowiedz: kliknij mikrofon albo napisz."))
-      : (s.text ? "Twoja kolej: napisz odpowiedź." : "Twoja kolej: kliknij Mów i odpowiedz."),
+    connecting: t("Uruchamiam nauczyciela…"),
+    listening: t("Mów teraz. Kliknij Stop, gdy skończysz."),
+    thinking: task ? "Sprawdzam odpowiedź…" : t("Układam odpowiedź…"),
+    speaking: t("Nauczyciel mówi. Kliknij mikrofon, aby przerwać i odpowiedzieć."),
+    success: t("Dobrze! Za chwilę kolejny krok."),
+    encouraging: t("Prawie. Spróbuj jeszcze raz — wskazówka poniżej."),
+    explaining: t("Przeczytaj krótkie wyjaśnienie. Pierwsze zadanie zaraz się pojawi."),
+    idle: t("Sesja zakończona. Wyniki są zapisane."),
+    error: s.error || t("Coś poszło nie tak."),
+    turn: task ? (hasOpts ? "Wybierz odpowiedź albo powiedz ją." : (s.text ? "Napisz odpowiedź na zadanie." : t("Odpowiedz: kliknij mikrofon albo napisz.")))
+      : (s.text ? "Twoja kolej: napisz odpowiedź." : t("Twoja kolej: kliknij Mów i odpowiedz.")),
   }[state];
 }
 
@@ -750,12 +785,12 @@ function chatLayout(s) { return s.kind === "chat" || s.phase === "chat"; }
 
 function screenSession(main) {
   const s = S.session;
-  if (!s) { main.append(h("div", { class: "empty" }, mascot("idle", 72), h("div", {}, h("p", {}, "Brak aktywnej sesji."), btn("Na start", () => go("#/home"), "primary")))); return; }
+  if (!s) { main.append(h("div", { class: "empty" }, mascot("idle", 72), h("div", {}, h("p", {}, t("Brak aktywnej sesji.")), btn(t("Na start"), () => go("#/home"), "primary")))); return; }
   s.layout = chatLayout(s) ? "chat" : "task";
   const send = async (text) => {
     try { await api("/api/session/send", { text }); if (text) { s.waiting = true; s.hint = null; drawSide(); } } catch (e) { toast(e.message); }
   };
-  const input = h("input", { type: "text", id: "say", maxlength: 500, lang: "en", placeholder: s.text ? "Napisz po angielsku…" : "Albo napisz po angielsku…", "aria-label": "Twoja odpowiedź" });
+  const input = h("input", { type: "text", id: "say", maxlength: 500, lang: "en", placeholder: s.text ? "Napisz po angielsku…" : t("Albo napisz po angielsku…"), "aria-label": t("Twoja odpowiedź") });
   const submit = () => {
     const t = input.value.trim(); if (!t) return; input.value = "";
     if (s.layout === "task") { drawEvent({ kind: "you", text: t, seq: -1 }, true); s.answered = t; }   // silnik nie powtarza odpowiedzi
@@ -763,38 +798,38 @@ function screenSession(main) {
   };
   S.answer = (t) => { input.value = t; submit(); };
   input.addEventListener("keydown", (e) => { if (e.key === "Enter") submit(); });
-  const composer = h("div", { class: "composer" }, input, btn("Wyślij", submit, "primary"));
-  const mic = () => (s.text ? null : h("button", { type: "button", class: "mic-big", id: "micbtn", "aria-label": "Mów", onclick: () => send("") }, icon("mic", 34), h("span", { class: "mic-label" }, "Mów")));
-  const stop = btn(s.kind === "chat" ? "Zakończ rozmowę" : "Przerwij i zapisz", () => api("/api/session/stop", {}).catch((e) => toast(e.message)), "danger block end");
-  const log = S.logEl = h("div", { class: "log", id: "log", "aria-live": "polite", "aria-label": "Przebieg rozmowy" });
+  const composer = h("div", { class: "composer" }, input, btn(t("Wyślij"), submit, "primary"));
+  const mic = () => (s.text ? null : h("button", { type: "button", class: "mic-big", id: "micbtn", "aria-label": t("Mów"), onclick: () => send("") }, icon("mic", 34), h("span", { class: "mic-label" }, t("Mów"))));
+  const stop = btn(s.kind === "chat" ? "Zakończ rozmowę" : t("Przerwij i zapisz"), () => api("/api/session/stop", {}).catch((e) => toast(e.message)), "danger block end");
+  const log = S.logEl = h("div", { class: "log", id: "log", "aria-live": "polite", "aria-label": t("Przebieg rozmowy") });
 
   if (s.layout === "chat") {
     const tools = s.kind === "chat"
-      ? [["Powtórz", "Could you repeat that, please?"], ["Wyjaśnij prościej", "Could you explain that in simpler words?"], ["Zmień temat", "Can we change the topic?", "wide"]]
-      : [["Powtórz", "Could you repeat that, please?"], ["Wyjaśnij prościej", "Could you explain that in simpler words?"]];
+      ? [[t("Powtórz"), "Could you repeat that, please?"], [t("Wyjaśnij prościej"), "Could you explain that in simpler words?"], [t("Zmień temat"), "Can we change the topic?", "wide"]]
+      : [[t("Powtórz"), "Could you repeat that, please?"], [t("Wyjaśnij prościej"), "Could you explain that in simpler words?"]];
     main.append(h("div", { class: "session chat" },
-      h("aside", { class: "stage", id: "stage", "aria-label": "Nauczyciel" },
+      h("aside", { class: "stage", id: "stage", "aria-label": t("Nauczyciel") },
         mascot("idle", 150), h("span", { class: "state-label", id: "sstate", "data-state": "connecting", role: "status" }, STATE_PL.connecting),
         h("p", { class: "next", id: "next" }), mic(),
         h("div", { class: "topic-now", id: "topicnow" }),
         h("div", { class: "tools" }, tools.map(([l, t, c]) => btn(l, () => send(t), `sm ${c || ""}`))), stop),
-      h("section", { class: "convo", "aria-label": "Rozmowa" },
-        h("div", { class: "convo-head" }, h("h1", {}, s.kind === "chat" ? "Quick Chat" : "Rozmowa po lekcji"), h("span", { class: "muted" }, s.text ? "tryb tekstowy" : "tryb głosowy")),
+      h("section", { class: "convo", "aria-label": t("Rozmowa") },
+        h("div", { class: "convo-head" }, h("h1", {}, s.kind === "chat" ? "Quick Chat" : t("Rozmowa po lekcji")), h("span", { class: "muted" }, s.text ? "tryb tekstowy" : t("tryb głosowy"))),
         log,
-        s.text ? composer : h("details", { class: "write-toggle" }, h("summary", {}, "Wolę napisać"), composer))));
+        s.text ? composer : h("details", { class: "write-toggle" }, h("summary", {}, t("Wolę napisać")), composer))));
   } else {
-    const tools = ["exam", "placement"].includes(s.kind) ? [["Nie wiem", "I don't know"], ["Pomiń", "Can we skip this?"]]
-      : [["Podpowiedź", "Could you explain, please?"], ["Nie wiem", "I don't know"], ["Pomiń", "Can we skip this?", "wide"]];
+    const tools = ["exam", "placement"].includes(s.kind) ? [[t("Nie wiem"), "I don't know"], [t("Pomiń"), "Can we skip this?"]]
+      : [[t("Podpowiedź"), "Could you explain, please?"], [t("Nie wiem"), "I don't know"], [t("Pomiń"), "Can we skip this?", "wide"]];
     main.append(h("div", { class: "session task" },
       h("div", { class: "task-main" },
         h("header", { class: "mission-bar" }, icon(KIND_ICON[s.kind] || "lesson", 36),
           h("div", {}, h("h1", {}, KIND_TITLE[s.kind] || s.kind), h("div", { class: "goal-line", id: "goalline" }), h("div", { id: "steps" }))),
         h("div", { class: "now", id: "now", role: "status" }),
         h("section", { class: "task-card", id: "taskcard", "aria-live": "polite" }),
-        h("div", { class: "answer", id: "answer" }, mic(), h("div", { class: "composer paper" }, input, btn("Wyślij", submit, "primary"))),
+        h("div", { class: "answer", id: "answer" }, mic(), h("div", { class: "composer paper" }, input, btn(t("Wyślij"), submit, "primary"))),
         h("div", { id: "verdict", "aria-live": "polite" }),
-        h("details", { class: "transcript" }, h("summary", {}, "Przebieg sesji"), log)),
-      h("aside", { class: "coach", id: "stage", "aria-label": "Nauczyciel" },
+        h("details", { class: "transcript" }, h("summary", {}, t("Przebieg sesji")), log)),
+      h("aside", { class: "coach", id: "stage", "aria-label": t("Nauczyciel") },
         h("div", { class: "stage" }, mascot("idle", 130), h("span", { class: "state-label", id: "sstate", "data-state": "connecting" }, STATE_PL.connecting),
           h("div", { class: "said", id: "said", hidden: true })),
         h("div", { class: "tools" }, tools.map(([l, t, c]) => btn(l, () => send(t), `sm ${c || ""}`))),
@@ -817,7 +852,7 @@ function drawEvent(ev, store = true) {
     if (k === "hint") s.hint = ev.text;
     if (k === "goal") { s.goalText = ev.text; s.goal = ev.text.split("\n")[0].replace(/^Cel lekcji:\s*\S+\s*\((\w+)\)\s*—\s*/, "$1 · "); }
     if (k === "recording") { s.recording = true; s.speaking = false; }
-    if (k === "info" && ev.text.trim().startsWith("Teraz krótka rozmowa")) s.phase = "chat";
+    if (k === "info" && ev.text.trim().startsWith(t("Teraz krótka rozmowa"))) s.phase = "chat";
     if (["you", "tutor", "prompt", "end", "heard"].includes(k)) s.recording = false;
     if (["you", "heard"].includes(k)) s.waiting = true;
     if (["tutor", "task", "feedback", "hint", "prompt", "error", "end", "goal", "correction_head"].includes(k)) s.waiting = false;
@@ -840,20 +875,20 @@ function drawEvent(ev, store = true) {
     last.querySelector(".bubble").textContent += " " + ev.text; last.dataset.seq = ev.seq; log.scrollTop = log.scrollHeight; return;
   }
   let el;
-  if (k === "tutor") el = h("div", { class: "msg tutor" }, h("div", { class: "avatar-s", "aria-hidden": "true" }, mascotHead(30)), h("div", {}, h("b", {}, "Kumka"), h("p", { class: "bubble", lang: "en" }, ev.text)));
-  else if (k === "you") el = h("div", { class: "msg you" }, h("b", {}, "Ty"), h("p", { lang: "en" }, ev.text));
-  else if (k === "task") el = h("div", { class: "msg task" }, h("b", {}, `Zadanie ${ev.index}/${ev.total}`), h("pre", { lang: "en" }, ev.text));
-  else if (k === "goal") el = h("div", { class: "msg goal" }, h("b", {}, "Cel"), rich(ev.text));
+  if (k === "tutor") el = h("div", { class: "msg tutor" }, h("div", { class: "avatar-s", "aria-hidden": "true" }, mascotHead(30)), h("div", {}, h("b", {}, MASCOT_NAME), h("p", { class: "bubble", lang: "en" }, ev.text)));
+  else if (k === "you") el = h("div", { class: "msg you" }, h("b", {}, t("Ty")), h("p", { lang: "en" }, ev.text));
+  else if (k === "task") el = h("div", { class: "msg task" }, h("b", {}, t("Zadanie {a}/{b}", { a: ev.index, b: ev.total })), h("pre", { lang: "en" }, ev.text));
+  else if (k === "goal") el = h("div", { class: "msg goal" }, h("b", {}, t("Cel")), rich(ev.text));
   else if (k === "feedback") el = h("div", { class: `msg feedback${ev.text.startsWith("✓") ? " ok" : /^(✗|Poprawna)/.test(ev.text) ? " no" : ""}` }, h("pre", {}, ev.text.trim()));
-  else if (k === "hint") el = h("div", { class: "msg hint" }, h("b", {}, "Wskazówka"), h("p", {}, ev.text));
-  else if (k === "correction_head") el = h("div", { class: "msg correction-head" }, "Do poprawy w tej rozmowie (sugestie modelu)");
+  else if (k === "hint") el = h("div", { class: "msg hint" }, h("b", {}, t("Wskazówka")), h("p", {}, ev.text));
+  else if (k === "correction_head") el = h("div", { class: "msg correction-head" }, t("Do poprawy w tej rozmowie (sugestie modelu)"));
   else if (k === "correction") el = h("div", { class: "msg correction" }, h("div", { class: "fix" }, fixLine(ev.span, ev.fix)),
-    ev.why ? h("div", { class: "why" }, ev.why) : null, ev.stt ? h("div", { class: "why" }, "Możliwe, że źle usłyszałem — sprawdź, czy tak powiedziałeś/aś.") : null);
-  else if (k === "scenario") el = h("div", { class: "msg scenario" }, h("b", {}, "Scenariusz"), h("p", {}, ev.text));
+    ev.why ? h("div", { class: "why" }, ev.why) : null, ev.stt ? h("div", { class: "why" }, t("Możliwe, że źle usłyszałem — sprawdź, czy tak powiedziałeś/aś.")) : null);
+  else if (k === "scenario") el = h("div", { class: "msg scenario" }, h("b", {}, t("Scenariusz")), h("p", {}, ev.text));
   else if (k === "heard") el = h("div", { class: "msg heard" }, `Rozpoznano: ${ev.text}`);
   else if (k === "stt_confirm") el = sttConfirm(ev);
-  else if (k === "error") el = h("div", { class: "msg error", role: "alert" }, h("b", {}, "Problem"), h("p", {}, ev.text));
-  else if (k === "end") el = h("div", { class: "msg sys" }, ev.code ? "Sesja zakończona z błędem." : "Sesja zamknięta. Wyniki zapisano.");
+  else if (k === "error") el = h("div", { class: "msg error", role: "alert" }, h("b", {}, t("Problem")), h("p", {}, ev.text));
+  else if (k === "end") el = h("div", { class: "msg sys" }, ev.code ? "Sesja zakończona z błędem." : t("Sesja zamknięta. Wyniki zapisano."));
   else el = h("div", { class: `msg ${k}` }, h("pre", {}, ev.text.trim()));
   el.dataset.seq = ev.seq;
   log.append(el);
@@ -862,9 +897,9 @@ function drawEvent(ev, store = true) {
 
 // F7: niepewne rozpoznanie mowy wraca do ucznia przed oceną. Poprawka to korekta ROZPOZNANIA, nie błąd językowy.
 function sttConfirm(ev) {
-  const field = h("input", { type: "text", value: ev.text, maxlength: 500, lang: "en", "aria-label": "Rozpoznany tekst — możesz go poprawić" });
+  const field = h("input", { type: "text", value: ev.text, maxlength: 500, lang: "en", "aria-label": t("Rozpoznany tekst — możesz go poprawić") });
   let done = false;
-  const box = h("div", { class: "msg stt-confirm", role: "group", "aria-label": "Sprawdź rozpoznanie" });
+  const box = h("div", { class: "msg stt-confirm", role: "group", "aria-label": t("Sprawdź rozpoznanie") });
   const reply = async (text) => {
     if (done) return; done = true;
     box.querySelectorAll("button, input").forEach((b) => { b.disabled = true; });
@@ -872,10 +907,10 @@ function sttConfirm(ev) {
   };
   const sendIt = () => { const t = field.value.trim(); reply(t === ev.text ? "" : t); };
   field.addEventListener("keydown", (e) => { if (e.key === "Enter") sendIt(); });
-  box.append(h("b", {}, "Czy dobrze usłyszałem?"),
-    ev.unsure ? h("p", { class: "muted" }, `Niepewne słowa: ${ev.unsure}`) : null, field,
-    h("p", { class: "muted" }, "Popraw tekst, jeśli rozpoznanie jest błędne — to nie jest liczone jako błąd językowy."),
-    h("div", { class: "row" }, btn("Wyślij", sendIt, "primary"), btn("Nagraj ponownie", () => reply("r"))));
+  box.append(h("b", {}, t("Czy dobrze usłyszałem?")),
+    ev.unsure ? h("p", { class: "muted" }, t("Niepewne słowa: {w}", { w: ev.unsure })) : null, field,
+    h("p", { class: "muted" }, t("Popraw tekst, jeśli rozpoznanie jest błędne — to nie jest liczone jako błąd językowy.")),
+    h("div", { class: "row" }, btn(t("Wyślij"), sendIt, "primary"), btn(t("Nagraj ponownie"), () => reply("r"))));
   setTimeout(() => field.focus(), 0);
   return box;
 }
@@ -890,13 +925,13 @@ function drawSide() {
   const st = document.getElementById("sstate");
   st.dataset.state = state; st.textContent = STATE_PL[state];
   const mic = document.getElementById("micbtn");
-  if (mic) { mic.classList.toggle("on", s.recording); mic.setAttribute("aria-label", s.recording ? "Stop — zakończ nagrywanie" : "Mów"); mic.querySelector(".mic-label").textContent = s.recording ? "Stop" : "Mów"; }
+  if (mic) { mic.classList.toggle("on", s.recording); mic.setAttribute("aria-label", s.recording ? "Stop — zakończ nagrywanie" : t("Mów")); mic.querySelector(".mic-label").textContent = s.recording ? "Stop" : t("Mów"); }
   const end = document.querySelector(".end");
-  if (end && end.tagName === "BUTTON" && !s.running) end.replaceWith(h("div", { class: "row end" }, btn("Zobacz postępy", () => go("#/progress"), "primary"), btn("Na start", () => go("#/home"))));
+  if (end && end.tagName === "BUTTON" && !s.running) end.replaceWith(h("div", { class: "row end" }, btn(t("Zobacz postępy"), () => go("#/progress"), "primary"), btn(t("Na start"), () => go("#/home"))));
   if (s.layout === "chat") {
     document.getElementById("next").textContent = nextText(s, state);
     const min = Math.floor((Date.now() - s.started) / 60000);
-    document.getElementById("topicnow").replaceChildren(h("span", {}, s.kind === "chat" ? "Temat" : "Rozmowa po lekcji"),
+    document.getElementById("topicnow").replaceChildren(h("span", {}, s.kind === "chat" ? "Temat" : t("Rozmowa po lekcji")),
       h("strong", {}, s.kind === "chat" ? (s.topic || "…") : (s.goal || "…")),
       h("div", { class: "muted" }, [s.chatinfo, `${min} min`].filter(Boolean).join(" · ")));
     return;
@@ -904,13 +939,13 @@ function drawSide() {
   const now = document.getElementById("now");
   now.dataset.state = state; now.textContent = nextText(s, state);
   document.getElementById("goalline").textContent = s.goal || "";
-  if (s.task) document.getElementById("steps").replaceChildren(h("div", { class: "steps", role: "progressbar", "aria-valuemin": 0, "aria-valuemax": s.task.total, "aria-valuenow": s.task.index - 1, "aria-label": `Zadanie ${s.task.index} z ${s.task.total}` },
+  if (s.task) document.getElementById("steps").replaceChildren(h("div", { class: "steps", role: "progressbar", "aria-valuemin": 0, "aria-valuemax": s.task.total, "aria-valuenow": s.task.index - 1, "aria-label": t("Zadanie {a} z {b}", { a: s.task.index, b: s.task.total }) },
     Array.from({ length: s.task.total }, (_, i) => h("i", { class: i < s.task.index - 1 ? "done" : i === s.task.index - 1 ? "now" : "" }))));
   const said = document.getElementById("said");
-  if (s.said) { said.hidden = false; said.replaceChildren(h("b", {}, "Kumka mówi"), h("span", { lang: "en" }, s.said)); }
+  if (s.said) { said.hidden = false; said.replaceChildren(h("b", {}, "Nauczyciel mówi"), h("span", { lang: "en" }, s.said)); }
   const ex = document.getElementById("explainbox");
   const body = s.goalText ? s.goalText.split("\n").slice(1).join("\n").trim() : "";
-  if (body && !ex.firstChild) ex.append(h("details", { class: "explain", open: true }, h("summary", {}, "Wyjaśnienie"), rich(lessonText(body))));
+  if (body && !ex.firstChild) ex.append(h("details", { class: "explain", open: true }, h("summary", {}, t("Wyjaśnienie")), rich(lessonText(body))));
   const card = document.getElementById("taskcard");
   const key = s.task ? String(s.task.seq) : "none";
   if (card.dataset.key !== key) {
@@ -918,18 +953,18 @@ function drawSide() {
     if (s.task) {
       const opts = [...s.task.text.matchAll(/^\s+\d+\.\s+(.+)$/gm)].map((m) => m[1].trim());
       const stem = s.task.text.replace(/\n\s+\d+\.\s+.+/g, "");
-      card.replaceChildren(...[h("span", { class: "k" }, `Zadanie ${s.task.index} z ${s.task.total}`), h("pre", { class: "stem", lang: "en" }, stem),
+      card.replaceChildren(...[h("span", { class: "k" }, t("Zadanie {a} z {b}", { a: s.task.index, b: s.task.total })), h("pre", { class: "stem", lang: "en" }, stem),
         opts.length ? h("div", { class: "options" }, opts.map((o, i) => h("button", { type: "button", class: "btn", onclick: () => S.answer(o) }, h("span", { class: "n" }, String(i + 1)), o))) : null].filter(Boolean));
-    } else card.replaceChildren(h("span", { class: "k" }, "Za chwilę"), h("p", { class: "stem" }, "Pierwsze zadanie pojawi się za moment."));
+    } else card.replaceChildren(h("span", { class: "k" }, t("Za chwilę")), h("p", { class: "stem" }, t("Pierwsze zadanie pojawi się za moment.")));
   }
   card.querySelectorAll(".options button").forEach((b) => { b.disabled = !s.running; });
   const v = verdictOf(s);
   document.getElementById("verdict").replaceChildren(...[
-    s.heard ? h("div", { class: "verdict" }, h("b", {}, "Rozpoznano"), h("span", { lang: "en" }, s.heard))
-      : s.answered && (s.feedback || s.hint) ? h("div", { class: "verdict" }, h("b", {}, "Twoja odpowiedź"), h("span", { lang: "en" }, s.answered)) : null,
-    v === "ok" ? h("div", { class: "verdict ok" }, h("b", {}, "Dobrze"), s.feedback) : null,
-    v === "no" ? h("div", { class: "verdict no" }, h("b", {}, "Jeszcze nie"), s.feedback) : null,
-    v === "hint" ? h("div", { class: "verdict hint" }, h("b", {}, "Wskazówka"), s.hint) : null,
+    s.heard ? h("div", { class: "verdict" }, h("b", {}, t("Rozpoznano")), h("span", { lang: "en" }, s.heard))
+      : s.answered && (s.feedback || s.hint) ? h("div", { class: "verdict" }, h("b", {}, t("Twoja odpowiedź")), h("span", { lang: "en" }, s.answered)) : null,
+    v === "ok" ? h("div", { class: "verdict ok" }, h("b", {}, t("Dobrze")), s.feedback) : null,
+    v === "no" ? h("div", { class: "verdict no" }, h("b", {}, t("Jeszcze nie")), s.feedback) : null,
+    v === "hint" ? h("div", { class: "verdict hint" }, h("b", {}, t("Wskazówka")), s.hint) : null,
     v === null && s.feedback ? h("div", { class: "verdict" }, s.feedback) : null,
   ].filter(Boolean));
 }
@@ -954,23 +989,26 @@ async function route() {
   const fn = ROUTES[id] || screenHome;
   const main = document.getElementById("main");
   renderNav(id);
-  main.replaceChildren(h("p", { class: "loading" }, "Wczytuję…"));
+  main.replaceChildren(h("p", { class: "loading" }, t("Wczytuję…")));
   if (!S.pid && !["home", "profiles"].includes(id)) { go("#/home"); return; }
   const frag = h("div", { class: "screen" });
   const append = frag.append.bind(frag);
   frag.append = (...kids) => append(...kids.flat().filter((k) => k !== null && k !== undefined && k !== false));
   try {
     if (S.pid && !S.settings) S.settings = await q("/api/settings").catch(() => null);
+    if (S.settings && setLang(S.settings.values.ui_lang)) return;   // profil z innym językiem interfejsu
     await fn(frag);
   } catch (e) {
-    frag.replaceChildren(h("div", { class: "empty" }, mascot("thinking", 72), h("div", {}, h("p", {}, e.message), btn("Spróbuj ponownie", route, "primary"))));
+    frag.replaceChildren(h("div", { class: "empty" }, mascot("thinking", 72), h("div", {}, h("p", {}, e.message), btn(t("Spróbuj ponownie"), route, "primary"))));
   }
   main.replaceChildren(frag);
   setStatus();
 }
 
 async function boot() {
-  document.getElementById("brand").append(mascotHead(36), h("span", {}, pxText("AI Tutor", 3), h("small", {}, "angielski · lokalnie")));
+  document.querySelector(".skip").textContent = t("Przejdź do treści");
+  document.getElementById("nav").setAttribute("aria-label", t("Menu główne"));
+  document.getElementById("brand").append(mascotHead(36), h("span", {}, pxText("AI Tutor", 3), h("small", {}, t("angielski · lokalnie"))));
   try { await loadProfiles(); } catch (e) { toast(e.message); }
   try { S.system = await api("/api/system"); } catch (e) { /* bez statusu: tryb tekstowy domyślnie */ }
   try {

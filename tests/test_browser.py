@@ -388,3 +388,22 @@ def test_full_assessment_screen_and_start(page):
     expect(page.locator(".mission-bar h1")).to_have_text("Diagnoza")
     end_session(page)
     assert page.errors == []
+
+
+def test_interface_language_switch_to_english(page):
+    start_profile(page)
+    page.goto(page.site + "/#/settings")
+    page.get_by_label("Język interfejsu").select_option("en")
+    page.get_by_role("button", name="Zapisz ustawienia").click()
+    expect(page.get_by_role("link", name="Progress")).to_be_visible()          # przeładowanie w EN
+    for route, heading in (("home", "Hi, Ola!"), ("placement", "Assessment"), ("progress", "Progress"),
+                           ("weak", "Weak spots"), ("settings", "Settings")):
+        page.goto(page.site + "/#/" + route)
+        expect(page.locator("main h1").first).to_contain_text(heading)
+    page.goto(page.site + "/#/progress")
+    expect(page.get_by_text("Am I really improving?")).to_be_visible()
+    assert page.evaluate("[...I18N.missing]") == [] and page.errors == []
+    page.get_by_role("link", name="Settings").click()
+    page.get_by_label("Interface language").select_option("pl")
+    page.get_by_role("button", name="Save settings").click()
+    expect(page.get_by_role("link", name="Postępy")).to_be_visible()

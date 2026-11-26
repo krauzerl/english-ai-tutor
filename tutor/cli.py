@@ -22,6 +22,11 @@ def main(argv: list[str]) -> int:
     de = sub.add_parser("delete")
     de.add_argument("profile")
     de.add_argument("--yes", action="store_true", help="potwierdź nieodwracalne usunięcie")
+    de.add_argument("--no-backup", action="store_true", help="bez kopii zapasowej (domyślnie kopia JSON)")
+    rs = sub.add_parser("reset", help="reset postępów: zostaje profil i ustawienia")
+    rs.add_argument("profile")
+    rs.add_argument("--yes", action="store_true", help="potwierdź reset postępów")
+    rs.add_argument("--no-backup", action="store_true", help="bez kopii zapasowej (domyślnie kopia JSON)")
     args = ap.parse_args(argv)
 
     conn = open_db(config.db_path())
@@ -57,15 +62,23 @@ def main(argv: list[str]) -> int:
                     f.write(text)
             else:
                 print(text)
-        elif args.cmd == "delete":
+        elif args.cmd in ("delete", "reset"):
+            from tutor.app import profiles as PR
             if not args.yes:
-                print("Usunięcie jest nieodwracalne. Dodaj --yes, aby potwierdzić.",
+                what = "Usunięcie profilu" if args.cmd == "delete" else "Reset postępów"
+                print(f"{what} jest nieodwracalne (poza kopią zapasową). Dodaj --yes, aby potwierdzić.",
                       file=sys.stderr)
                 return 1
-            repo.delete_profile(p["id"])
-            if config.get_last_profile() == p["id"]:
-                config.set_last_profile(None)
-            print(f"Usunięto profil {p['name']} wraz z danymi.")
+            fn = PR.delete if args.cmd == "delete" else PR.reset_progress
+            try:
+                r = fn(repo, p["id"], p["name"], make_backup=not args.no_backup)
+            except PR.ProfileOpError as e:
+                print(str(e), file=sys.stderr)
+                return 1
+            if r["backup"]:
+                print(f"Kopia zapasowa: {r['backup']}")
+            print(f"Usunięto profil {p['name']} wraz z danymi." if args.cmd == "delete"
+                  else f"Zresetowano postępy profilu {p['name']} (ustawienia zostały).")
         return 0
     finally:
         conn.close()

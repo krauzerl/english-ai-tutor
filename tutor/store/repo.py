@@ -503,7 +503,7 @@ class Repo:
                           (profile_id, key, json.dumps(value)))
 
     def update_profile_columns(self, profile_id: int, **cols) -> None:
-        allowed = {"correction_style", "daily_minutes", "allow_unreviewed_practice", "target_lang"}
+        allowed = {"correction_style", "daily_minutes", "allow_unreviewed_practice", "target_lang", "ui_lang"}
         bad = set(cols) - allowed
         if bad:
             raise ValueError(f"niedozwolone kolumny: {bad}")

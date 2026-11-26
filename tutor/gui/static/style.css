@@ -502,3 +502,4 @@ form.settings { display: grid; grid-template-columns: repeat(auto-fill, minmax(2
 .chart .dot { fill: var(--turq-ink); }
 .weak.struck { opacity: .6; }
 .weak.struck .example { text-decoration: line-through; }
+.card.danger { border-color: var(--terra-dark); }

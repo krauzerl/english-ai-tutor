@@ -8,6 +8,7 @@ LANGS = ("en",)                     # języki z paczką treści
 CHAT_MODELS = ("qwen3:8b", "SpeakLeash/bielik-11b-v2.3-instruct:Q4_K_M")   # obsługiwane i zmierzone (F4.7)
 SCHEMA: dict[str, dict] = {
     "target_lang": {"type": "choice", "choices": LANGS, "column": "target_lang"},
+    "ui_lang": {"type": "choice", "choices": ("pl", "en"), "column": "ui_lang"},     # F7: język interfejsu
     "tts_voice": {"type": "str"},
     "speed": {"type": "float", "min": 0.6, "max": 1.5},
     "correction": {"type": "choice", "choices": ("summary", "periodic", "intensive"), "column": "correction_style"},
@@ -81,7 +82,7 @@ def effective(repo, profile_id: int) -> dict:
     p = repo.get_profile(profile_id)
     out = {**DEFAULTS, "tts_voice": v.get("tts_voice") or DEFAULTS["tts_voice"], "speed": v.get("speed", DEFAULT_SPEED),
            "mic_mode": v.get("mode", "ptt"), "stt_model": v.get("stt_model", "small.en"),
-           "target_lang": p["target_lang"], "correction": p["correction_style"],
+           "target_lang": p["target_lang"], "ui_lang": p["ui_lang"], "correction": p["correction_style"],
            "session_minutes": p["daily_minutes"], "allow_unreviewed": bool(p["allow_unreviewed_practice"])}
     out.update({k: x for k, x in repo.get_settings(profile_id).items() if k in SCHEMA})
     return out

@@ -48,6 +48,15 @@ class TutorAPI:
     def _all_profiles(self):
         return [dict(r) for r in self.repo.conn.execute("SELECT * FROM profile ORDER BY id")]
 
+    def reset_or_delete(self, pid: int, op: str, confirm: str, make_backup: bool = True) -> dict:
+        from tutor.app import profiles as PR
+        self._profile(pid)
+        try:
+            fn = PR.delete if op == "delete" else PR.reset_progress
+            return fn(self.repo, pid, confirm, make_backup=make_backup)
+        except PR.ProfileOpError as e:
+            raise ServiceError(str(e)) from e
+
     def create_profile(self, name: str) -> dict:
         try:
             pid = self.repo.create_profile(name)

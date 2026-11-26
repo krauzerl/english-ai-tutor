@@ -23,6 +23,7 @@ from urllib.parse import parse_qs, urlparse
 
 from tutor import config
 from tutor.gui.runner import Busy, Runner
+from tutor.i18n import localize
 from tutor.services.api import ServiceError, TutorAPI
 from tutor.store.db import open_db
 from tutor.store.repo import Repo
@@ -179,30 +180,33 @@ class App:
             if path == "/api/profiles":
                 return {"profiles": api.profiles(), "last": config.get_last_profile()}
             pid = int(q.get("pid", 0))
-            api._profile(pid)
-            if path == "/api/home":
-                return api.home(pid)
-            if path == "/api/topics":
-                seed = q.get("seed")
-                level, category, mode = chat_choice(q)
-                return api.chat_topics(pid, 4, seed=int(seed) if seed not in (None, "") else None,
-                                       category=category, level=level, mode=mode)
-            if path == "/api/chat_options":
-                return api.chat_options(pid)
-            if path == "/api/session_feedback":
-                return api.session_feedback(pid, int(q.get("sid", 0)))
-            if path == "/api/lessons":
-                return {"suggestion": api.lesson_suggestion(pid), "catalog": api.lesson_catalog(pid)}
-            simple = {"/api/placement": api.placement_info, "/api/progress": api.progress,
-                      "/api/assessment": api.assessment,
-                      "/api/weakspots": api.weakspots, "/api/achievements": api.achievements,
-                      "/api/history": api.history, "/api/exams": api.exam_paths, "/api/settings": api.settings,
-                      "/api/chats": api.chat_history}
-            if path in simple:
-                return simple[path](pid)
-            raise LookupError(path)
+            lang = api._profile(pid)["ui_lang"]
+            return localize(self._get(api, path, q, pid), lang)
         finally:
             conn.close()
+
+    def _get(self, api: TutorAPI, path: str, q: dict, pid: int) -> object:
+        if path == "/api/home":
+            return api.home(pid)
+        if path == "/api/topics":
+            seed = q.get("seed")
+            level, category, mode = chat_choice(q)
+            return api.chat_topics(pid, 4, seed=int(seed) if seed not in (None, "") else None,
+                                   category=category, level=level, mode=mode)
+        if path == "/api/chat_options":
+            return api.chat_options(pid)
+        if path == "/api/session_feedback":
+            return api.session_feedback(pid, int(q.get("sid", 0)))
+        if path == "/api/lessons":
+            return {"suggestion": api.lesson_suggestion(pid), "catalog": api.lesson_catalog(pid)}
+        simple = {"/api/placement": api.placement_info, "/api/progress": api.progress,
+                  "/api/assessment": api.assessment,
+                  "/api/weakspots": api.weakspots, "/api/achievements": api.achievements,
+                  "/api/history": api.history, "/api/exams": api.exam_paths, "/api/settings": api.settings,
+                  "/api/chats": api.chat_history}
+        if path in simple:
+            return simple[path](pid)
+        raise LookupError(path)
 
     def post(self, path: str, body: dict) -> object:
         if path == "/api/session/send":
@@ -225,6 +229,11 @@ class App:
                 return p
             pid = int(body.get("pid", 0))
             api._profile(pid)
+            if path in ("/api/profiles/reset", "/api/profiles/delete"):
+                if self.runner.running:                    # nie ruszamy danych w trakcie żadnej sesji
+                    raise BadRequest("Trwa sesja — zakończ ją przed resetem lub usunięciem profilu.")
+                op = path.rsplit("/", 1)[-1]
+                return api.reset_or_delete(pid, op, str(body.get("confirm", "")), bool(body.get("backup", True)))
             if path == "/api/profiles/select":
                 config.set_last_profile(pid)
                 return {"ok": True}
@@ -242,7 +251,7 @@ class App:
                 kind = str(body.get("kind", ""))
                 args = body.get("args") or {}
                 argv = session_argv(api, pid, kind, args)
-                self.runner.start(argv, kind)
+                self.runner.start(argv, kind, lang=api._profile(pid)["ui_lang"])
                 if kind == "chat":                       # ostatnie ustawienia rozmowy zapamiętane w profilu
                     level, category, mode = chat_choice(args)
                     api.update_settings(pid, {"chat_level": level, "chat_category": category, "chat_mode": mode})

@@ -12,6 +12,8 @@ import threading
 import time
 from collections.abc import Callable
 
+from tutor.i18n import tr_event
+
 MAX_EVENTS = 3000
 _CORR = re.compile(r"^•\s*„(?P<span>.+?)”\s*→\s*„(?P<fix>.+?)”(?:\s*—\s*(?P<why>.*?))?(?:\s*\(możliwe.*\))?$")
 _STT_CONFIRM = re.compile(r"^\[Sprawdź rozpoznanie: „(?P<text>.*)”(?: \(niepewne: (?P<unsure>[^)]*)\))? — ")
@@ -102,7 +104,7 @@ class Runner:
     def running(self) -> bool:
         return bool(self.thread and self.thread.is_alive())
 
-    def start(self, argv: list[str], kind: str) -> None:
+    def start(self, argv: list[str], kind: str, lang: str = "pl") -> None:
         with self._lock:
             if self.thread and self.thread.is_alive():
                 raise Busy("Trwa inna sesja — zakończ ją najpierw.")
@@ -115,8 +117,8 @@ class Runner:
             self._emit({"kind": "start", "text": kind})
             code = 1
             try:
-                code = run(argv, lines=self.lines, out=lambda s: self._emit(classify(str(s))),
-                           err=lambda s: self._emit({"kind": "error", "text": str(s)}))
+                code = run(argv, lines=self.lines, out=lambda s: self._emit(tr_event(classify(str(s)), lang)),
+                           err=lambda s: self._emit(tr_event({"kind": "error", "text": str(s)}, lang)))
             except Exception as e:  # noqa: BLE001 - awaria silnika = komunikat w oknie, serwer działa dalej
                 self._emit({"kind": "error", "text": f"{type(e).__name__}: {e}"})
             finally:
