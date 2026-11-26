@@ -134,10 +134,13 @@ class App:
         self.status = status
         conn = open_db(self.db_path)          # migracje raz, przy starcie
         conn.close()
+        self._packs: dict = {}                # pakiety treści (tylko do odczytu) wspólne dla żądań: ~0,7 s każdy
 
     def api(self) -> tuple[TutorAPI, sqlite3.Connection]:
         conn = open_db(self.db_path)
-        return TutorAPI(Repo(conn)), conn
+        api = TutorAPI(Repo(conn))
+        api._packs = self._packs              # shortcut: zmiana plików treści wymaga restartu GUI
+        return api, conn
 
     # --- trasy ---
     def get(self, path: str, q: dict) -> object:

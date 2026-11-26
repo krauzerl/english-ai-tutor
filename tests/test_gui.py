@@ -326,3 +326,11 @@ def test_push_to_talk_from_gui_with_simulated_mic(srv, xdg):
     u = [t for t in Repo(conn).list_turns(pid, s["id"]) if t["role"] == "user"]
     conn.close()
     assert u[0]["input_mode"] == "voice" and u[0]["low_prob_json"] == '["goed"]'
+
+
+def test_content_pack_is_loaded_once_per_server(srv):
+    a, c1 = srv.app.api()
+    b, c2 = srv.app.api()
+    c1.close()
+    c2.close()
+    assert a._packs is b._packs is srv.app._packs          # ~0,7 s na wczytanie: nie przy każdym żądaniu

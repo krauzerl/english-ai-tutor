@@ -159,6 +159,16 @@ def test_quick_chat_turns_named_topic_change_and_finish(page):
     assert page.errors == []
 
 
+def test_layout_rebuild_keeps_transcript(page):
+    start_profile(page)
+    chat_with_custom(page)
+    say(page, "I like football.", 2)
+    page.evaluate("() => route()")                       # ten sam mechanizm co przejście lekcji w rozmowę
+    expect(page.locator(".msg.tutor")).to_have_count(2)
+    expect(page.locator(".msg.you")).to_have_count(1)
+    end_session(page)
+
+
 def test_reload_reattaches_to_running_session(page):
     start_profile(page)
     page.goto(page.site + "/#/chat")

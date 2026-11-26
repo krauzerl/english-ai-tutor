@@ -638,7 +638,7 @@ function screenSession(main) {
   const composer = h("div", { class: "composer" }, input, btn("Wyślij", submit, "primary"));
   const mic = () => (s.text ? null : h("button", { type: "button", class: "mic-big", id: "micbtn", "aria-label": "Mów", onclick: () => send("") }, icon("mic", 34), h("span", { class: "mic-label" }, "Mów")));
   const stop = btn(s.kind === "chat" ? "Zakończ rozmowę" : "Przerwij i zapisz", () => api("/api/session/stop", {}).catch((e) => toast(e.message)), "danger block end");
-  const log = h("div", { class: "log", id: "log", "aria-live": "polite", "aria-label": "Przebieg rozmowy" });
+  const log = S.logEl = h("div", { class: "log", id: "log", "aria-live": "polite", "aria-label": "Przebieg rozmowy" });
 
   if (s.layout === "chat") {
     const tools = s.kind === "chat"
@@ -700,7 +700,7 @@ function drawEvent(ev, store = true) {
     if (k === "notice" && ev.text.startsWith("nowy temat:")) s.topic = ev.text.replace("nowy temat:", "").trim();
     if (!["prompt", "metric", "listening"].includes(k)) s.lastKind = k;
   }
-  const log = document.getElementById("log");
+  const log = S.logEl;            // także przed wstawieniem widoku do strony (odtwarzanie historii po zmianie układu)
   if (!log) return;
   if (["prompt", "start", "metric", "listening", "recording"].includes(k)) return;
   if (k === "info" && /^(\[Enter\]|Profil:|Quick Chat — temat:)/.test(ev.text)) return;        // diagnostyka i instrukcje CLI
