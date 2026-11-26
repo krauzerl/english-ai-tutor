@@ -11,6 +11,17 @@ Notable changes. The project has no releases yet; versions below are development
   subject pronoun ("I usually drinks" → "drink") is stored as `agreement.subject_verb`, not as an irregular past
   form. Observations saved earlier keep their original category.
 
+### Fixed (teacher audit with Qwen3 8B)
+- Conversation evaluation runs one utterance at a time (a batch of five took ~30 s and was cancelled by any learner
+  activity, so most turns were still unevaluated when the chat ended). The summary waits up to 3 s per pending
+  utterance (max 60 s) and says so.
+- A topic named in a change request ("Maybe travel") is used instead of a random topic.
+- "I don't understand" gets a rephrasing; only an explicit "repeat" allows the same sentence again. The repeat guard
+  looks at the last 8 replies.
+- Formulaic reactions ("That sounds amazing!") are limited like stock praise.
+- Choosing a different topic starts a new chat instead of resuming an older open one.
+- GUI screens no longer reload the content pack on every request (~0.7 s each).
+
 ### Added
 - Local browser GUI (`python main.py --gui`, branch `feat/f7-gui`): Python standard-library HTTP server bound to
   127.0.0.1 with Host, Origin and per-launch token checks. Sessions reuse the CLI engine, so grading, FSRS, mastery gates
@@ -18,7 +29,11 @@ Notable changes. The project has no releases yet; versions below are development
 - GUI redesign proposal (branch `feat/f7-ui-redesign`): pixel-art educational RPG look drawn in the browser from
   character arrays (title font, teacher mascot with listening/thinking/speaking states, badges, landscape), readable
   sans-serif text, mission map for lessons, trophy room for achievements. Replaces the two retro variants.
-- Browser tests with Playwright (`tests/test_browser.py`, optional extra `browser-tests`).
+- GUI polish (branch `feat/f7-ui-redesign`): original pixel-art frog mascot (working name Kumka) with seven
+  states, plum/ivory palette, voice-first Quick Chat, task-first lessons, start screen ordered by priority, profile
+  screen, Polish names for error categories and skills.
+- Browser tests with Playwright (`tests/test_browser.py`, 17 flows, optional extra `browser-tests`);
+  [docs/TESTING.md](docs/TESTING.md) with a real-microphone acceptance scenario.
 - Profile settings `chat_model` (Qwen3 8B or Bielik 11B, conversation only), `io_mode` (voice or text) and
   `input_device` / `output_device`.
 
