@@ -5,6 +5,7 @@ from __future__ import annotations
 from tutor import config
 
 LANGS = ("en",)                     # języki z paczką treści
+CHAT_MODELS = ("qwen3:8b", "SpeakLeash/bielik-11b-v2.3-instruct:Q4_K_M")   # obsługiwane i zmierzone (F4.7)
 SCHEMA: dict[str, dict] = {
     "target_lang": {"type": "choice", "choices": LANGS, "column": "target_lang"},
     "tts_voice": {"type": "str"},
@@ -15,9 +16,15 @@ SCHEMA: dict[str, dict] = {
     "stt_model": {"type": "str"},
     "allow_unreviewed": {"type": "bool", "column": "allow_unreviewed_practice"},
     "conversation_mode": {"type": "choice", "choices": ("quick_chat", "lesson")},
+    # F7: model rozmowy (ocena zostaje przy domyślnym Qwen3 — zmiana oceny wymaga kontroli jakości).
+    "chat_model": {"type": "choice", "choices": CHAT_MODELS},
+    "io_mode": {"type": "choice", "choices": ("voice", "text")},
+    "input_device": {"type": "str"},          # "default" = urządzenie systemowe
+    "output_device": {"type": "str"},
 }
 DEFAULTS = {"tts_voice": "bf_emma", "speed": 1.0, "mic_mode": "ptt", "stt_model": "small.en",
-            "conversation_mode": "lesson"}
+            "conversation_mode": "lesson", "chat_model": CHAT_MODELS[0], "io_mode": "voice",
+            "input_device": "default", "output_device": "default"}
 
 
 class SettingError(ValueError):

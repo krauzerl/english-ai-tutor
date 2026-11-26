@@ -64,6 +64,17 @@ def parse(argv: list[str]) -> argparse.Namespace:
     return ap.parse_args(argv)
 
 
+def _chat_provider(a):
+    """Model rozmowy: jawny wybór w profilu (ustawienia GUI/`--set chat_model=`) ma pierwszeństwo przed config.toml.
+    Model oceny zostaje bez zmian."""
+    from tutor.llm import QWEN3_8B, llm_settings
+    s = llm_settings()
+    m = getattr(a, "chat_model", None)
+    if m and s["roles"]["conversation"]["provider"] == "ollama":
+        s["roles"]["conversation"] = {"provider": "ollama", "model": m, **({"think": False} if m == QWEN3_8B else {})}
+    return build_provider("conversation", s)
+
+
 def _lines() -> queue.Queue:
     q: queue.Queue = queue.Queue()
     threading.Thread(target=lambda: [q.put(ln.strip()) for ln in sys.stdin] and q.put(None), daemon=True).start()
@@ -71,20 +82,22 @@ def _lines() -> queue.Queue:
 
 
 def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, lines=None,
-        out=print, db=None, eval_llm=None) -> int:
+        out=print, db=None, eval_llm=None, err=None) -> int:
+    """`err`: komunikaty błędów (domyślnie stderr; GUI przekazuje je do okna sesji)."""
+    err = err or (lambda m: print(m, file=sys.stderr))
     a = parse(argv)
     if a.list_devices:
         try:
             print("\n".join(A.device_names()))
         except A.AudioUnavailable as e:
-            print(e, file=sys.stderr)
+            err(e)
             return 1
         return 0
     conn = db or open_db(config.db_path())
     repo = Repo(conn)
     p = repo.find_profile(a.profile) if a.profile else (repo.get_profile(config.get_last_profile() or -1))
     if p is None:
-        print("Brak profilu. Utwórz: python main.py profile create NAZWA", file=sys.stderr)
+        err("Brak profilu. Utwórz: python main.py profile create NAZWA")
         return 1
     if a.progress:
         from tutor.app import progress as PG
@@ -112,12 +125,12 @@ def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, l
         return 0
     build_eval = llm is None and eval_llm is None     # produkcja: modele z config.toml; wstrzyknięte `llm` = bez oceny
     if llm is None:
-        llm = build_provider("conversation")
+        llm = _chat_provider(a)
     if llm.external:
-        print("Rozmowa głosowa używa tylko modeli lokalnych (Gemini odroczony).", file=sys.stderr)
+        err("Rozmowa głosowa używa tylko modeli lokalnych (Gemini odroczony).")
         return 1
     if not llm.health():
-        print("Ollama nie odpowiada: uruchom `ollama serve`.", file=sys.stderr)
+        err("Ollama nie odpowiada: uruchom `ollama serve`.")
         return 1
     cw = context_window(llm.model)
 
@@ -181,13 +194,13 @@ def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, l
         else:                                          # automatyczny wybór z danych ucznia
             ch = G.choose(repo, lesson_pack, p["id"], datetime.now(UTC))
             if ch is None:
-                print("Brak celu lekcji z dostępnymi materiałami (wyjaśnienie i zadania).", file=sys.stderr)
+                err("Brak celu lekcji z dostępnymi materiałami (wyjaśnienie i zadania).")
                 return 1
             goal, choice = ch.skill_id, {"source": ch.source, "reason": ch.reason, "provisional": ch.provisional}
         try:
             L.prepare(lesson_pack, goal, allow_unreviewed=allow)
         except L.LessonError as e:
-            print(e, file=sys.stderr)
+            err(e)
             return 1
         kind = "lesson"
     if a.chat and not (cur and cur["kind"] == "chat"):
@@ -427,6 +440,12 @@ def _apply_settings(a, argv, repo, p) -> None:
         a.mode = eff["mic_mode"]
     if not given("--stt-model"):
         a.stt_model = eff["stt_model"]
+    if eff["io_mode"] == "text":
+        a.no_audio = True
+    for dev in ("input_device", "output_device"):
+        if not given("--" + dev.replace("_", "-")) and eff[dev] != "default":
+            setattr(a, dev, eff[dev])
+    a.chat_model = repo.get_settings(p["id"]).get("chat_model")    # tylko jawny wybór w profilu nadpisuje config
 
 
 def _history_settings(a, repo, p, out) -> None:
