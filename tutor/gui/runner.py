@@ -13,6 +13,7 @@ import time
 from collections.abc import Callable
 
 MAX_EVENTS = 3000
+_CORR = re.compile(r"^•\s*„(?P<span>.+?)”\s*→\s*„(?P<fix>.+?)”(?:\s*—\s*(?P<why>.*?))?(?:\s*\(możliwe.*\))?$")
 _SUMMARY = re.compile(r"Powtórki: \d+/\d+")
 _TASK = re.compile(r"^(?:\[(?P<tag>[^\]]+)\])?\s*Zadanie (?P<i>\d+)/(?P<n>\d+): (?P<text>.*)$", re.S)
 
@@ -54,6 +55,11 @@ def classify(line: str) -> dict:
         return {"kind": "prompt", "text": ""}
     if s.startswith(("✓", "✗", "Poprawna odpowiedź", "Wynik ćwiczeń", "Koniec ćwiczeń")) or _SUMMARY.match(s):
         return {"kind": "feedback", "text": s}
+    if s.startswith("Do poprawy w tej rozmowie"):
+        return {"kind": "correction_head", "text": s}
+    if m := _CORR.match(s):                           # „• „span” → „fix” — wyjaśnienie” z podsumowania korekt
+        return {"kind": "correction", "text": s, "span": m["span"], "fix": m["fix"], "why": m["why"] or "",
+                "stt": "źle usłyszałem" in s}
     if s.endswith("Spróbuj jeszcze raz."):           # drabina pomocy w ćwiczeniach (L1–L3)
         return {"kind": "hint", "text": s}
     if s.startswith("[") and s.endswith("]"):

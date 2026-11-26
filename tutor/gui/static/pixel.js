@@ -81,8 +81,8 @@ function pxText(text, size = 4, cls = "pxtext") {
 
 // ---------- ikony 12×12 ----------
 const PAL = {
-  k: "var(--px-ink)", w: "#f4f1e8", r: "#ff6b6b", b: "#5b8cff", g: "#3ddc97", G: "#1f9e68", y: "#ffcf4a", o: "#f08a3c",
-  s: "#8b97b8", p: "#a98bff", c: "#5cc8ff", d: "#2b3557",
+  k: "var(--px-ink)", w: "#f3ead7", r: "#e98265", b: "#79c9bf", g: "#a6d676", G: "#6e9e48", y: "#f2be63", o: "#d98a4e",
+  s: "#aa9f8d", p: "#c9a2d8", c: "#79c9bf", d: "#40375a",
 };
 const ICONS = {
   home: ["............", ".....kk.....", "....kyyk....", "...kyyyyk...", "..kyyyyyyk..", ".kkkkkkkkkk.", "..kwwwwwwk..", "..kwkkwwwk..", "..kwkkwddk..", "..kwkkwddk..", "..kkkkkkkk..", "............"],
@@ -106,55 +106,278 @@ const ICONS = {
 };
 function icon(name, size = 24) { return sprite(ICONS[name] || ICONS.lesson, PAL, size); }
 
-// ---------- nauczycielka-papuga „Emma” w birecie ----------
-const MASCOT_PAL = {
-  k: "#0e1426", C: "#4b57a3", c: "#2c3570", t: "#ffcf4a", g: "#3ddc97", G: "#1f9e68", l: "#b9f6d8",
-  y: "#ffcf4a", o: "#f08a3c", w: "#ffffff", e: "#0e1426", r: "#ff8a9a", m: "#7a2236",
+// ---------- maskotka: żaba-wędrowniczka (nazwa robocza „Kumka”) ----------
+// Klatki wygenerowane z kształtów (kapelusz podróżnika, chusta, poziome źrenice); jedna sylwetka, osiem klatek.
+const FROG_PAL = {
+  k: "#191624", g: "#A6D676", G: "#6E9E48", l: "#E4F1B9", w: "#F7F0DF", e: "#191624", h: "#D9A35F", H: "#A8743A",
+  b: "#E98265", s: "#79C9BF", S: "#4E9C93", m: "#5B2B3A", c: "#F0A08A",
 };
-const MASCOT_BASE = [
-  "....kkkkkkkkkkkk....",
-  "..kkCCCCCCCCCCCCkk..",
-  "kkCCCCCCCCCCCCCCCCkk",
-  "..kkkcccccccckkk.t..",
-  "....kcccccccck...t..",
-  "...kkggggggggkk..t..",
-  "..kggggggggggggk.tt.",
-  "..kgEEEggggEEEgk....",
-  "..kgEEEggggEEEgk....",
-  "..kgEEEggggEEEgk....",
-  "..kgrrgyyyygrrgk....",
-  "..kggggBBBBggggk....",
-  "..kggggBBBBggggk....",
-  "..kggggBBBBggggk....",
-  "..kGgllllllllgGk....",
-  ".kGGgllllllllgGGk...",
-  ".kGGgllllllllgGGk...",
-  "..kGgllllllllgGk....",
-  "...kkggggggggkk.....",
-  "....kyyk..kyyk......",
-  "...kyyyk..kyyyk.....",
-];
-const EYES = {
-  open: ["www", "wee", "www"], up: ["wee", "www", "www"], closed: ["ggg", "kkk", "ggg"], side: ["www", "eew", "www"],
+const FROG = {
+  idle: [
+    "...........kkkkkkkkkk...........",
+    "..........khHHHHHHHHhk..........",
+    "..........khhhhhhhhhhk..........",
+    "..........khhhhhhhhhhk..........",
+    "..........kbbbbbbbbbbk..........",
+    ".......kkkkhhhhhhhhhhkkkk.......",
+    "......kHhhhhhhhhhhhhhhhhHk......",
+    "......kHHHHHHHHHHHHHHHHHHk......",
+    ".....kggwwwggggggggggwwwggk.....",
+    ".....kgwwwwwggggggggwwwwwgk.....",
+    ".....kwwwwwwwggggggwwwwwwwk.....",
+    ".....kwweeewwggggggwweeewwk.....",
+    ".....kwweeewwggggggwweeewwk.....",
+    ".....kgwwwwwggggggggwwwwwgk.....",
+    ".....kggwwwggggggggggwwwggk.....",
+    "....kggggggmggggggggmggggggk....",
+    "....kgggggggmmmmmmmmgggggggk....",
+    "....kggggccggggggggggccggggk....",
+    "...kggggggggggggggggggggggggk...",
+    "....kggggggggllllllggggggggk....",
+    "....kgggssssssssssssssssgggk....",
+    "....kgggSSSSSSSSSSSSSSSSgggk....",
+    ".....kgggsssllllllllllggggk.....",
+    "......kggssslllllllllllggk......",
+    ".......kgsssllllllllllggk.......",
+    "......kkkslSllllllllllgkkk......",
+    ".....kggggggllllllllggggggk.....",
+    ".....kggggggkllllllkggggggk.....",
+    ".....kgkgkgk.kkkkkk.kgkgkgk.....",
+    "......k.k.k..........k.k.k......",
+  ],
+  blink: [
+    "...........kkkkkkkkkk...........",
+    "..........khHHHHHHHHhk..........",
+    "..........khhhhhhhhhhk..........",
+    "..........khhhhhhhhhhk..........",
+    "..........kbbbbbbbbbbk..........",
+    ".......kkkkhhhhhhhhhhkkkk.......",
+    "......kHhhhhhhhhhhhhhhhhHk......",
+    "......kHHHHHHHHHHHHHHHHHHk......",
+    ".....kggggggggggggggggggggk.....",
+    ".....kggggggggggggggggggggk.....",
+    ".....kggggggggggggggggggggk.....",
+    ".....kggggggggggggggggggggk.....",
+    ".....kgeeeeeggggggggeeeeegk.....",
+    ".....kggggggggggggggggggggk.....",
+    ".....kggggggggggggggggggggk.....",
+    "....kggggggmggggggggmggggggk....",
+    "....kgggggggmmmmmmmmgggggggk....",
+    "....kggggccggggggggggccggggk....",
+    "...kggggggggggggggggggggggggk...",
+    "....kggggggggllllllggggggggk....",
+    "....kgggssssssssssssssssgggk....",
+    "....kgggSSSSSSSSSSSSSSSSgggk....",
+    ".....kgggsssllllllllllggggk.....",
+    "......kggssslllllllllllggk......",
+    ".......kgsssllllllllllggk.......",
+    "......kkkslSllllllllllgkkk......",
+    ".....kggggggllllllllggggggk.....",
+    ".....kggggggkllllllkggggggk.....",
+    ".....kgkgkgk.kkkkkk.kgkgkgk.....",
+    "......k.k.k..........k.k.k......",
+  ],
+  listening: [
+    "...........kkkkkkkkkk...........",
+    "..........khHHHHHHHHhk..........",
+    "..........khhhhhhhhhhk..........",
+    "..........khhhhhhhhhhk..........",
+    "..........kbbbbbbbbbbk..........",
+    ".......kkkkhhhhhhhhhhkkkk.......",
+    "......kHhhhhhhhhhhhhhhhhHk......",
+    "......kHHHHHHHHHHHHHHHHHHk......",
+    ".....kggwwwggggggggggwwwggk.....",
+    ".....kgwwwwwggggggggwwwwwgk.....",
+    ".....kwwwwwwwggggggwwwwwwwk.....",
+    ".....kweeewwwggggggweeewwwk.....",
+    "kkk..kweeewwwggggggweeewwwk.....",
+    "gggk.kgwwwwwggggggggwwwwwgk.....",
+    "gggk.kggwwwggggggggggwwwggk.....",
+    "kggkkggggggggggmmggggggggggk....",
+    "kggkkggggggggggmmggggggggggk....",
+    "kggkkggggccggggggggggccggggk....",
+    "kggkggggggggggggggggggggggggk...",
+    "kggkkggggggggllllllggggggggk....",
+    "kgggkgggssssssssssssssssgggk....",
+    "kgggkgggSSSSSSSSSSSSSSSSgggk....",
+    ".kkk.kgggsssllllllllllggggk.....",
+    "......kggssslllllllllllggk......",
+    ".......kgsssllllllllllggk.......",
+    "......kkkslSllllllllllgkkk......",
+    ".....kggggggllllllllggggggk.....",
+    ".....kggggggkllllllkggggggk.....",
+    ".....kgkgkgk.kkkkkk.kgkgkgk.....",
+    "......k.k.k..........k.k.k......",
+  ],
+  thinking: [
+    "...........kkkkkkkkkk...........",
+    "..........khHHHHHHHHhk..........",
+    "..........khhhhhhhhhhk..........",
+    "..........khhhhhhhhhhk..........",
+    "..........kbbbbbbbbbbk..........",
+    ".......kkkkhhhhhhhhhhkkkk.......",
+    "......kHhhhhhhhhhhhhhhhhHk......",
+    "......kHHHHHHHHHHHHHHHHHHk......",
+    ".....kggwwwggggggggggwwwggk.....",
+    ".....kgwweeeggggggggwweeegk.....",
+    ".....kwwweeewggggggwwweeewk.....",
+    ".....kwwwwwwwggggggwwwwwwwk.....",
+    ".....kwwwwwwwggggggwwwwwwwk.....",
+    ".....kgwwwwwggggggggwwwwwgk.....",
+    ".....kggwwwggggggggggwwwggk.....",
+    "....kggggggggggggggggggggggk....",
+    "....kggggggggmmmmmmggggggggk....",
+    "....kggggccggggggggggccggggk....",
+    "...kggggggggggggggggggggggggk...",
+    "....kggggggggllllllggggggggk....",
+    "....kgggssssssssssssssssgggk....",
+    "....kgggSSSSSSSSSSSSSSSSgggk....",
+    ".....kgggsssllllllllllggggk.....",
+    "......kggssslllllllllllggk......",
+    ".......kgsssllllllllllggk.......",
+    "......kkkslSllllllllllgkkk......",
+    ".....kggggggllllllllggggggk.....",
+    ".....kggggggkllllllkggggggk.....",
+    ".....kgkgkgk.kkkkkk.kgkgkgk.....",
+    "......k.k.k..........k.k.k......",
+  ],
+  speaking: [
+    "...........kkkkkkkkkk...........",
+    "..........khHHHHHHHHhk..........",
+    "..........khhhhhhhhhhk..........",
+    "..........khhhhhhhhhhk..........",
+    "..........kbbbbbbbbbbk..........",
+    ".......kkkkhhhhhhhhhhkkkk.......",
+    "......kHhhhhhhhhhhhhhhhhHk......",
+    "......kHHHHHHHHHHHHHHHHHHk......",
+    ".....kggwwwggggggggggwwwggk.....",
+    ".....kgwwwwwggggggggwwwwwgk.....",
+    ".....kwwwwwwwggggggwwwwwwwk.....",
+    ".....kwweeewwggggggwweeewwk.....",
+    ".....kwweeewwggggggwweeewwk.....",
+    ".....kgwwwwwggggggggwwwwwgk.....",
+    ".....kggwwwggggggggggwwwggk.....",
+    "....kggggggggmmmmmmggggggggk....",
+    "....kggggggggmmmmmmggggggggk....",
+    "....kggggccggmmbbmmggccggggk....",
+    "...kggggggggggggggggggggggggk...",
+    "....kggggggggllllllggggggggk....",
+    "....kgggssssssssssssssssgggk....",
+    "....kgggSSSSSSSSSSSSSSSSgggk....",
+    ".....kgggsssllllllllllggggk.....",
+    "......kggssslllllllllllggk......",
+    ".......kgsssllllllllllggk.......",
+    "......kkkslSllllllllllgkkk......",
+    ".....kggggggllllllllggggggk.....",
+    ".....kggggggkllllllkggggggk.....",
+    ".....kgkgkgk.kkkkkk.kgkgkgk.....",
+    "......k.k.k..........k.k.k......",
+  ],
+  encouraging: [
+    "...........kkkkkkkkkk...........",
+    "..........khHHHHHHHHhk..........",
+    "..........khhhhhhhhhhk..........",
+    "..........khhhhhhhhhhk..........",
+    "..........kbbbbbbbbbbk..........",
+    ".......kkkkhhhhhhhhhhkkkk.......",
+    "......kHhhhhhhhhhhhhhhhhHk......",
+    "......kHHHHHHHHHHHHHHHHHHk......",
+    ".....kggggggggggggggggggggk.....",
+    ".....kggggggggggggggggggggk.....",
+    ".....kggggggggggggggggggggk.....",
+    ".....kwweeewwggggggwweeewwk.....",
+    ".....kwweeewwggggggwweeewwk.....",
+    ".....kgwwwwwggggggggwwwwwgk.....",
+    ".....kggwwwggggggggggwwwggk.....",
+    "....kggggggmggggggggmggggggkkkk.",
+    "....kgggggggmmmmmmmmgggggggkgggk",
+    "....kggggccggggggggggccggggkgggk",
+    "...kggggggggggggggggggggggggkggk",
+    "....kggggggggllllllggggggggkkggk",
+    "....kgggssssssssssssssssgggkkggk",
+    "....kgggSSSSSSSSSSSSSSSSgggggggk",
+    ".....kgggsssllllllllllggggkgggk.",
+    "......kggssslllllllllllggk.kkk..",
+    ".......kgsssllllllllllggk.......",
+    "......kkkslSllllllllllgkkk......",
+    ".....kggggggllllllllggggggk.....",
+    ".....kggggggkllllllkggggggk.....",
+    ".....kgkgkgk.kkkkkk.kgkgkgk.....",
+    "......k.k.k..........k.k.k......",
+  ],
+  success: [
+    "...........kkkkkkkkkk...........",
+    "..........khHHHHHHHHhk..........",
+    "..........khhhhhhhhhhk..........",
+    "..........khhhhhhhhhhk..........",
+    "..........kbbbbbbbbbbk..........",
+    ".......kkkkhhhhhhhhhhkkkk.......",
+    "......kHhhhhhhhhhhhhhhhhHk......",
+    "......kHHHHHHHHHHHHHHHHHHk......",
+    ".....kggggggggggggggggggggk.....",
+    ".....kggggggggggggggggggggk.....",
+    "kkk..kgggeggggggggggggegggk.kkk.",
+    "gggk.kggegeggggggggggegeggkkgggk",
+    "gggk.kgegggeggggggggegggegkkgggk",
+    "kggk.kggggggggggggggggggggk.kggk",
+    "kggk.kggggggggggggggggggggk.kggk",
+    "kggkkggggggmmmmmmmmmmggggggkkggk",
+    "kggkkgggggggmmmmmmmmgggggggkkggk",
+    "kggkkggggccgmmbbbbmmgccggggkkggk",
+    "kggkggggggggggggggggggggggggkggk",
+    "kggkkggggggggllllllggggggggkkggk",
+    "kgggkgggssssssssssssssssgggggggk",
+    "kgggkgggSSSSSSSSSSSSSSSSggggggk.",
+    ".kkk.kgggsssllllllllllggggkkkk..",
+    "......kggssslllllllllllggk......",
+    ".......kgsssllllllllllggk.......",
+    "......kkkslSllllllllllgkkk......",
+    ".....kggggggllllllllggggggk.....",
+    ".....kggggggkllllllkggggggk.....",
+    ".....kgkgkgk.kkkkkk.kgkgkgk.....",
+    "......k.k.k..........k.k.k......",
+  ],
+  explaining: [
+    "...........kkkkkkkkkk...........",
+    "..........khHHHHHHHHhk..........",
+    "..........khhhhhhhhhhk..........",
+    "..........khhhhhhhhhhk..........",
+    "..........kbbbbbbbbbbk..........",
+    ".......kkkkhhhhhhhhhhkkkk.......",
+    "......kHhhhhhhhhhhhhhhhhHk......",
+    "......kHHHHHHHHHHHHHHHHHHk......",
+    ".....kggwwwggggggggggwwwggk.....",
+    ".....kgwwwwwggggggggwwwwwgk.....",
+    ".....kwwwwwwwggggggwwwwwwwkkkk..",
+    ".....kwweeewwggggggwweeewwkgggk.",
+    ".....kwweeewwggggggwweeewwkgggk.",
+    ".....kgwwwwwggggggggwwwwwgkkggk.",
+    ".....kggwwwggggggggggwwwggkkggk.",
+    "....kggggggggmmmmmmggggggggkggk.",
+    "....kggggggggmmmmmmggggggggkggk.",
+    "....kggggccggmmbbmmggccggggkggk.",
+    "...kggggggggggggggggggggggggggk.",
+    "....kggggggggllllllggggggggkggk.",
+    "....kgggssssssssssssssssgggkggk.",
+    "....kgggSSSSSSSSSSSSSSSSggggggk.",
+    ".....kgggsssllllllllllggggkggk..",
+    "......kggssslllllllllllggk.kk...",
+    ".......kgsssllllllllllggk.......",
+    "......kkkslSllllllllllgkkk......",
+    ".....kggggggllllllllggggggk.....",
+    ".....kggggggkllllllkggggggk.....",
+    ".....kgkgkgk.kkkkkk.kgkgkgk.....",
+    "......k.k.k..........k.k.k......",
+  ],
 };
-const BEAK = { closed: ["oyyo", "goog", "gggg"], open: ["oyyo", "mmmm", "gyyg"] };
 
-function mascotRows(eyes, beak) {
-  return MASCOT_BASE.map((row, y) => {
-    let r = row;
-    if (y >= 7 && y <= 9) { const e = EYES[eyes][y - 7]; r = r.slice(0, 4) + e + r.slice(7, 11) + e + r.slice(14); }
-    if (y >= 11 && y <= 13) { const b = BEAK[beak][y - 11]; r = r.slice(0, 7) + b + r.slice(11); }
-    return r;
-  });
-}
-
-// Stany: idle | listening | thinking | speaking | turn (Twoja kolej). Animacja tylko w CSS (prefers-reduced-motion ją wyłącza).
+// Stany: idle | listening | thinking | speaking | encouraging | success | explaining (+ turn = idle).
+// Animacje tylko w CSS; prefers-reduced-motion je wyłącza, a stan nadal widać po klatce i podpisie.
 function mascot(state = "idle", size = 120) {
   const box = document.createElement("div");
   box.className = "mascot";
   box.dataset.state = state;
-  const frames = [["open", "closed", "f-base"], ["closed", "closed", "f-blink"], ["open", "open", "f-talk"], ["up", "closed", "f-think"], ["side", "closed", "f-listen"]];
-  for (const [e, b, cls] of frames) box.append(sprite(mascotRows(e, b), MASCOT_PAL, size, `px mascot-frame ${cls}`));
+  for (const [name, rows] of Object.entries(FROG)) box.append(sprite(rows, FROG_PAL, size, `px mascot-frame f-${name}`));
   const fx = document.createElement("div");
   fx.className = "mascot-fx";
   fx.setAttribute("aria-hidden", "true");
@@ -198,11 +421,11 @@ const EMBLEM = {
   mastered: ["..........", "w...ww...w", "ww..ww..ww", "www.ww.www", "wwwwwwwwww", "wwwwwwwwww", "wdwwddwwdw", "wwwwwwwwww", "..........", ".........."],
 };
 const CAT_COLOR = {
-  regularity: ["#ff7b54", "#b8452a"], talk_time: ["#5cc8ff", "#2b78a8"], lessons: ["#3ddc97", "#1f8a5e"],
-  reviews: ["#ffcf4a", "#b58a1c"], improvement: ["#a98bff", "#6a4fc2"], exams: ["#ff8ad1", "#b04c8c"],
-  challenges: ["#ff6b6b", "#a83232"], milestones: ["#7fe3ff", "#3a8fb0"], mastered: ["#ffd76a", "#b58a1c"],
+  regularity: ["#e98265", "#9c4a33"], talk_time: ["#79c9bf", "#3c7f77"], lessons: ["#a6d676", "#5d8a3a"],
+  reviews: ["#f2be63", "#9c7424"], improvement: ["#c9a2d8", "#7d5a8c"], exams: ["#e7a0b4", "#93506a"],
+  challenges: ["#d9715a", "#8a3a2a"], milestones: ["#8fb8d8", "#4a6f8c"], mastered: ["#f2be63", "#9c7424"],
 };
-const TIER = ["#d9915a", "#d5deef", "#ffd76a"];   // brąz, srebro, złoto — kolejność progu w kategorii
+const TIER = ["#c98a55", "#d9d3c4", "#f2be63"];   // brąz, srebro, złoto — kolejność progu w kategorii
 
 function badgeArt(category, tier, earned, size = 64) {
   const [main, dark] = CAT_COLOR[category] || ["#8b97b8", "#4b5675"];
@@ -214,7 +437,7 @@ function badgeArt(category, tier, earned, size = 64) {
   });
   const pal = earned
     ? { k: "#0e1426", F: TIER[Math.min(tier, 2)], I: main, w: "#ffffff", d: dark }
-    : { k: "#273050", F: "#3a4466", I: "#283253", w: "#4f5b82", d: "#323c5e" };
+    : { k: "#211c2e", F: "#40375a", I: "#342d47", w: "#5d5277", d: "#40375a" };
   return sprite(rows, pal, size, `px badge-art${earned ? " earned" : ""}`);
 }
 
@@ -235,16 +458,16 @@ function scene(width = 240, height = 64) {
       for (let y = Math.max(0, height - hgt); y < height; y++) rows[y][x] = y === height - hgt && top ? top : ch;
     }
   };
-  hill(30, 7, 0.031, 0.083, "h", null);
+  hill(24, 5, 0.031, 0.083, "h", null);
   // wieża akademii na dalekim wzgórzu
-  const tx = Math.floor(width * 0.74), tb = height - 33;
+  const tx = Math.floor(width * 0.74), tb = height - 26;
   for (let y = tb - 14; y <= tb + 2; y++) for (let x = tx - 3; x <= tx + 3; x++) rows[y][x] = "T";
   for (let x = tx - 4; x <= tx + 4; x += 2) rows[tb - 15][x] = "T";
   for (let y = tb - 22; y < tb - 15; y++) for (let x = tx - 3 + Math.floor((tb - 15 - y) / 2); x <= tx + 3 - Math.floor((tb - 15 - y) / 2); x++) rows[y][x] = "R";
   rows[tb - 10][tx] = "W"; rows[tb - 10][tx + 1] = "W"; rows[tb - 5][tx - 1] = "W";
   rows[tb - 24][tx] = "F"; rows[tb - 23][tx] = "F"; rows[tb - 24][tx + 1] = "F";
-  hill(19, 5, 0.047, 0.11, "j", "J");
-  hill(9, 3, 0.07, 0.15, "g", "G");
+  hill(15, 4, 0.047, 0.11, "j", "J");
+  hill(8, 2, 0.07, 0.15, "g", "G");
   // ścieżka i drzewka
   for (let y = height - 9; y < height; y++) { const cx = Math.floor(width * 0.55 + (height - y) * 1.6); for (let x = cx - 2 - Math.floor((y - height + 9) / 2); x <= cx + 2 + Math.floor((y - height + 9) / 2); x++) if (rows[y][x]) rows[y][x] = "P"; }
   for (const t of [0.08, 0.14, 0.43, 0.68, 0.74, 0.93]) {
@@ -252,17 +475,17 @@ function scene(width = 240, height = 64) {
     for (let y = 0; y < 9; y++) for (let x = -Math.floor(y / 2); x <= Math.floor(y / 2); x++) if (rows[base - 9 + y]) rows[base - 9 + y][x0 + x] = y % 3 === 0 ? "D" : "E";
     rows[base][x0] = "B"; rows[base + 1] && (rows[base + 1][x0] = "B");
   }
-  const pal = {
-    a: "#0f1631", b: "#141e40", c: "#1b2a52", s: "#8fa3d9", S: "#ffffff", M: "#f2e6b8", N: "#fff7d6",
-    h: "#1d3157", T: "#2a3a66", R: "#3d4f8a", W: "#ffcf4a", F: "#ff7b54", j: "#1a4a4a", J: "#22605a",
-    g: "#1d6b4a", G: "#2c8a5c", P: "#c9a46a", D: "#2f9a64", E: "#1f7a4e", B: "#5a3b2a",
+  const pal = {   // zmierzch: śliwka → bakłażan → ciepły pas nad horyzontem
+    a: "#1f1a2c", b: "#292338", c: "#4a3550", s: "#cbbfae", S: "#f3ead7", M: "#f2be63", N: "#f8dca0",
+    h: "#3d4f63", T: "#4a3f5e", R: "#e98265", W: "#f2be63", F: "#79c9bf", j: "#3f8a80", J: "#79c9bf",
+    g: "#6e9e48", G: "#a6d676", P: "#e0c08a", D: "#8cc063", E: "#4f7a36", B: "#6b4a3a",
   };
   const svg = svgEl("svg", { viewBox: `0 0 ${width} ${height}`, class: "scene", "aria-hidden": "true", preserveAspectRatio: "xMidYMax slice", "shape-rendering": "crispEdges" });
   svg.append(...pixelPaths(rows.map((r) => r.join("")), pal));
   return svg;
 }
 
-function mascotHead(size = 32) { return sprite(mascotRows("open", "closed").slice(0, 14), MASCOT_PAL, size); }
+function mascotHead(size = 32) { return sprite(FROG.idle.slice(0, 22), FROG_PAL, size); }
 
 window.PX = { sprite, icon, pxText, mascot, mascotHead, badgeArt, scene, ICONS };
 })();

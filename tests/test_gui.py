@@ -108,6 +108,11 @@ def test_classify_engine_lines():
     assert R.classify("> ")["kind"] == "prompt"
     assert R.classify("coś innego")["kind"] == "info"
     assert R.classify("Almost! Check the past form. Spróbuj jeszcze raz.")["kind"] == "hint"
+    c = R.classify("• „I usually drinks” → „I usually drink” — Końcówka -s tylko przy he/she/it.")
+    assert (c["kind"], c["span"], c["fix"], c["why"]) == ("correction", "I usually drinks", "I usually drink",
+                                                         "Końcówka -s tylko przy he/she/it.")
+    assert R.classify("• „ship” → „sheep” (możliwe, że źle usłyszałem — sprawdź)")["stt"] is True
+    assert R.classify("Do poprawy w tej rozmowie (to sugestie modelu — mogę się mylić):")["kind"] == "correction_head"
 
 
 def test_runner_one_session_at_a_time_and_errors_are_events():
