@@ -20,7 +20,7 @@ from tutor.pedagogy.content import (
     norm,
     norm_answer,
 )
-from tutor.pedagogy.edits import find_spans, meaning_change
+from tutor.pedagogy.edits import find_spans, meaning_change, recategorize
 from tutor.pedagogy.errors import allowed_categories, core_of, counted_confidences, is_counted
 from tutor.pedagogy.fluency import delta_pct
 from tutor.pedagogy.schemas import Obs, TurnEval, Use
@@ -204,7 +204,8 @@ def classify(o: Obs, text: str, *, input_mode: str, low_prob_words: set[str], pr
         return _drop(o, "fix_too_long")
     if o.k == "error" and meaning_change(text, o.s, o.f, o.c):                      # F4.7: poprawka zmienia sens
         return _drop(o, "meaning_change")
-    return Classified(o.k, "valid", None, o.s, o.f, o.c, o.v, o.p, source=o.src)     # 7
+    cat = recategorize(text, o.s, o.f, o.c) if o.k == "error" else o.c             # F7: kategoria zgodna z edycją
+    return Classified(o.k, "valid", None, o.s, o.f, cat, o.v, o.p, source=o.src)     # 7
 
 
 # --- dowody pozytywne i komunikatywność ---

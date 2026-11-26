@@ -208,3 +208,33 @@ def meaning_change(text: str, span: str, fix: str, category: str) -> str | None:
         if (max(len(before), len(after)) - same) / len(before) > 0.5:
             return "rewrite"
     return None
+
+
+# --- korekta kategorii (F7): kategoria od modelu bywa sprzeczna z samą edycją ---
+_SUBJ = {"i", "you", "we", "they", "he", "she", "it"}
+_ADV = {"usually", "always", "often", "sometimes", "never", "also", "just", "still", "even", "only", "ever", "rarely",
+        "seldom", "already", "all", "both", "sure", "too"}
+_PASTISH = {"morphology", "morphology.irregular_past", "morphology.word_form", "tense.past_simple"}
+
+
+def _s_form(x: str, y: str) -> bool:
+    """x i y różnią się tylko końcówką 3. osoby: -s, -es albo -y → -ies."""
+    a, b = sorted((x, y), key=len)
+    return b in (a + "s", a + "es") or (a.endswith("y") and b == a[:-1] + "ies")
+
+
+def recategorize(text: str, span: str, fix: str, category: str) -> str:
+    """`agreement.subject_verb` zamiast kategorii „przeszłej”, gdy jedyna zmiana to -s/-es/-ies czasownika tuż po
+    zaimku-podmiocie (pomijając przysłówki), np. „I usually drinks” → „drink”. W każdym innym przypadku bez zmian."""
+    if category not in _PASTISH:
+        return category
+    es = edits(text, locate(text, span), fix)
+    if len(es) != 1 or len(es[0].old) != 1 or len(es[0].new) != 1:
+        return category
+    x, y = es[0].old[0].lower(), es[0].new[0].lower()
+    if not _s_form(x, y):
+        return category
+    before = [t[2].lower() for t in _toks(text) if t[1] <= es[0].a]
+    while before and (before[-1] in _ADV or before[-1].endswith("ly")):
+        before.pop()
+    return "agreement.subject_verb" if before and before[-1] in _SUBJ else category
