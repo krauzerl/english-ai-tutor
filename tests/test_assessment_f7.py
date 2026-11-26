@@ -99,3 +99,11 @@ def test_balanced_default_recasts_in_conversation(env):
     env.go(Gated({1: lambda: env.applied() >= 1}, "I goed home yesterday", "And then", "q"),
            ["--no-audio", "--summary-wait", "5"], llm=conv, ev=EvalProv())
     assert any("went" in c[0].content for c in conv.calls[1:])
+
+
+def test_noun_number_change_is_not_explained_as_verb_ending():
+    """Audyt F7: „medicines” → „medicine” dostało wyjaśnienie o końcówce czasownika."""
+    t = FB.explain_edit(PACK, "medicines", "medicine", "agreement.number")
+    assert "czasownik" not in t and "pojedyncza" in t
+    assert "mnoga" in FB.explain_edit(PACK, "two cat", "two cats", "agreement.number")
+    assert "końcówkę -s" in FB.explain_edit(PACK, "He work", "He works", "agreement.subject_verb")

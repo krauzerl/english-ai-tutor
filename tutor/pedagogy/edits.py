@@ -285,3 +285,40 @@ def unsupported_tense(text: str, span: str, fix: str) -> bool:
         return False
     others = [t[2].lower() for t in _toks(text) if t[2].lower() != x]
     return not any(w in _PAST_FORMS or (w.endswith("ed") and len(w) > 4) for w in others)
+
+
+# --- audyt F7: liczba mnoga bez przedimka jest poprawna ---
+# „I watch matches on TV” → „a match” (Qwen3 na żywo): rzeczownik w liczbie mnogiej bez określnika jest gramatyczny,
+# więc zamiana na „a/an/the + liczba pojedyncza” zmienia sens, a nie poprawia błąd.
+def _plural_of(sg: str, pl: str) -> bool:
+    return pl in (sg + "s", sg + "es") or (sg.endswith("y") and pl == sg[:-1] + "ies")
+
+
+def bare_plural_to_article(text: str, span: str, fix: str) -> bool:
+    es = edits(text, locate(text, span), fix)
+    if len(es) != 1:
+        return False
+    old, new = [w.lower() for w in es[0].old], [w.lower() for w in es[0].new]
+    return (len(old) == 1 and len(new) == 2 and new[0] in ("a", "an", "the") and _plural_of(new[1], old[0])
+            and old[0] not in ("news", "is", "was", "has", "does", "this", "us"))
+
+
+# Liczba mnoga po określniku, który ją dopuszcza („any medicines”, „my friends”), jest poprawna — chyba że rzeczownik
+# jest niepoliczalny („some informations” → „information” to prawdziwy błąd).
+_PL_DET = {"any", "some", "the", "my", "your", "his", "her", "our", "their", "its", "no", "many", "more", "most",
+           "these", "those", "all", "few", "several", "such", "other", "both", "lots", "plenty"}
+UNCOUNTABLE = {"information", "advice", "furniture", "homework", "luggage", "baggage", "equipment", "knowledge",
+               "research", "evidence", "feedback", "traffic", "weather", "news", "software", "music", "money",
+               "progress", "accommodation", "behaviour", "behavior", "scenery", "staff", "work", "bread", "rice"}
+
+
+def plural_after_plural_determiner(text: str, span: str, fix: str) -> bool:
+    rng = locate(text, span)
+    es = edits(text, rng, fix)
+    if len(es) != 1 or len(es[0].old) != 1 or len(es[0].new) != 1:
+        return False
+    x, y = es[0].old[0].lower(), es[0].new[0].lower()
+    if not _plural_of(y, x) or y in UNCOUNTABLE:
+        return False
+    before = [t[2].lower() for t in _toks(text) if t[1] <= es[0].a]
+    return bool(before) and before[-1] in _PL_DET

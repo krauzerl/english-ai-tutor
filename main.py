@@ -46,6 +46,10 @@ def chat():
 
 
 if __name__ == "__main__":
+    if sys.argv[1:2] in (["-h"], ["--help"]):
+        print("Użycie: python main.py --gui | --voice [opcje; --voice --help] | profile ... | content ...\n"
+              "Bez opcji: stary czat tekstowy (Bielik).")
+        sys.exit(0)
     if sys.argv[1:2] == ["profile"]:
         from tutor.cli import main as profile_main
 

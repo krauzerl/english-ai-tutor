@@ -68,3 +68,6 @@ eval:
   - {id: h12, kind: error, text: "I am agree with you.", errors: [{fix_has: "I agree", cat: "word|verb|aux|tense"}]}
   - {id: h13, kind: multi, text: "My friends was at home and nobody don't want to go out.", errors: [{fix_has: "friends were", cat: agreement}, {fix_has: "nobody wanted|nobody wants|nobody want|didn't want", cat: "negation|word|agreement|tense"}]}
   - {id: h14, kind: error, text: "I have 30 years.", errors: [{fix_has: "I am 30|I'm 30", cat: "word|verb|l1"}]}
+  # --- regresja z rozmów na żywo (audyt F7; NIE held-out — naprawione walidatorem) ---
+  - {id: l01, kind: clean, text: "I watch matches on TV every weekend."}
+  - {id: l02, kind: clean, text: "Okay. Do you take any medicines?"}

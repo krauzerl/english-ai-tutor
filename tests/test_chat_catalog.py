@@ -173,3 +173,12 @@ def test_roleplay_prompt_drops_always_ask_rule_and_forbids_role_takeover():
     assert "ONE short follow-up" not in p and "you're the professional" in p and "Never take over" in p
     # F7: także zwykła rozmowa nie wymaga pytania w każdej odpowiedzi (schemat pochwała → pytanie)
     assert "ONE short follow-up" not in QC.system_prompt(T.get("gen.trip"), "B1", "natural")
+
+
+def test_custom_topic_opener_does_not_paste_a_sentence_into_template():
+    """Audyt F7 (Qwen3 na żywo): „Let's talk about I like cooking. What do you like or dislike about I like…”."""
+    assert T.custom("my job")["q"] == "Let's talk about your job. What do you like or dislike about it?"
+    for s in ("I like cooking.", "I'd say remote work has been a mixed blessing for our team."):
+        q = T.custom(s)["q"]
+        assert "Let's talk about" not in q and s in q
+    assert T.custom("What is your favourite film?")["q"] == "What is your favourite film?"

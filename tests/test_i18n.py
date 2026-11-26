@@ -69,3 +69,16 @@ def test_ui_lang_setting_is_per_profile(repo):
     ST.update(repo, a, {"ui_lang": "en"})
     assert ST.effective(repo, a)["ui_lang"] == "en" and ST.effective(repo, b)["ui_lang"] == "pl"
     assert ST.effective(repo, a)["target_lang"] == "en"                       # język nauki niezależny
+
+
+def test_exam_texts_translated_including_yaml_newline_and_joined_labels():
+    """Audyt F7: ekran Egzaminy w EN pokazywał polskie zastrzeżenie (klucz z \\n), uwagi sekcji i tematy."""
+    from tutor.app import exams as EX
+    from tutor.i18n import tr
+    p = EX.load_all()["e8_english"]
+    texts = [p["disclaimer_pl"], p["official"]["note_pl"], p["speaking_extra"]["note_pl"],
+             *(t["pl"] for t in p["speaking_extra"]["topics"]),
+             *(f"{s['name_pl']}: {s['note_pl']}" for s in p["sections"] if s.get("note_pl"))]
+    for t in texts:
+        assert tr(t, "en") != t, t
+    assert tr("Słuchanie: coś nowego", "en") == "Słuchanie: coś nowego"     # tylko gdy obie części są znane

@@ -358,3 +358,32 @@ def test_minimized_span_still_matches_phrase_variant(pack, span, fix, text):
 
 def test_minimized_span_variant_check_keeps_real_errors(pack):
     assert cls(pack, ob("are", "is", "agreement.subject_verb"), "The boy are working hard.").kind == "error"
+
+
+@pytest.mark.parametrize("span,fix,text", [
+    ("matches", "a match", "I watch matches on TV every weekend."),       # audyt F7: Qwen3 na żywo
+    ("watch matches", "watch a match", "I watch matches on TV every weekend."),
+    ("stories", "the story", "I love stories about the sea."),
+])
+def test_bare_plural_is_not_an_article_error(pack, span, fix, text):
+    c = cls(pack, ob(span, fix, "article"), text)
+    assert (c.status, c.drop_reason) == ("dropped", "bare_plural")
+
+
+def test_real_article_errors_still_reported(pack):
+    assert cls(pack, ob("doctor", "a doctor", "article"), "My father is doctor.").kind == "error"
+    assert cls(pack, ob("cat", "cats", "agreement.number"), "I have two cat.").kind == "error"
+
+
+@pytest.mark.parametrize("span,fix,text", [
+    ("medicines", "medicine", "Okay. Do you take any medicines?"),          # audyt F7: roleplay na żywo
+    ("friends", "friend", "I met my friends yesterday."),
+])
+def test_plural_after_plural_determiner_is_correct(pack, span, fix, text):
+    c = cls(pack, ob(span, fix, "agreement.number"), text)
+    assert (c.status, c.drop_reason) == ("dropped", "plural_ok")
+
+
+def test_uncountable_plural_is_still_an_error(pack):
+    assert cls(pack, ob("informations", "information", "agreement.number"),
+               "I need some informations about it.").kind == "error"

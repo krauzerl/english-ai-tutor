@@ -88,9 +88,14 @@ def explain_edit(pack: Pack, span: str, fix: str, category: str) -> str:
                 return f"Przy he/she/it (jedna osoba lub rzecz) mówimy „{y}”, nie „{x}”."
             if (y, x) in (("have", "has"), ("do", "does"), ("are", "is"), ("were", "was")):
                 return f"Przy tym podmiocie (I/you/we/they lub liczba mnoga) mówimy „{y}”, nie „{x}”."
-            if y in (x + "s", x + "es") or (x.endswith("y") and y == x[:-1] + "ies"):
+            plural = y in (x + "s", x + "es") or (x.endswith("y") and y == x[:-1] + "ies")
+            singular = x in (y + "s", y + "es") or (y.endswith("y") and x == y[:-1] + "ies")
+            if (plural or singular) and not category.startswith("agreement.subject_verb"):   # audyt F7: rzeczownik
+                return (f"Tu pasuje liczba {'mnoga' if plural else 'pojedyncza'} rzeczownika: „{y}”, nie „{x}”."
+                        if "number" in category or "plural" in category else gen)
+            if plural:
                 return f"Po he/she/it (jedna osoba lub rzecz) czasownik ma końcówkę -s: „{y}”, nie „{x}”."
-            if x in (y + "s", y + "es"):
+            if singular:
                 return f"Przy tym podmiocie czasownik nie ma końcówki -s: „{y}”, nie „{x}”."
             if x.endswith("ed") and y in E._PAST_FORMS:
                 return f"To czasownik nieregularny: forma przeszła to „{y}”, nie „{x}”."

@@ -20,7 +20,16 @@ from tutor.pedagogy.content import (
     norm,
     norm_answer,
 )
-from tutor.pedagogy.edits import edits, find_spans, locate, meaning_change, recategorize, unsupported_tense
+from tutor.pedagogy.edits import (
+    bare_plural_to_article,
+    edits,
+    find_spans,
+    locate,
+    meaning_change,
+    plural_after_plural_determiner,
+    recategorize,
+    unsupported_tense,
+)
 from tutor.pedagogy.errors import allowed_categories, core_of, counted_confidences, is_counted
 from tutor.pedagogy.fluency import delta_pct
 from tutor.pedagogy.schemas import Obs, TurnEval, Use
@@ -209,6 +218,10 @@ def classify(o: Obs, text: str, *, input_mode: str, low_prob_words: set[str], pr
         return _drop(o, "meaning_change")
     if o.k == "error" and unsupported_tense(text, o.s, o.f):                        # F7: inny poprawny czas, nie błąd
         return _drop(o, "unsupported_tense")
+    if o.k == "error" and bare_plural_to_article(text, o.s, o.f):                   # audyt F7: „matches” → „a match”
+        return _drop(o, "bare_plural")
+    if o.k == "error" and plural_after_plural_determiner(text, o.s, o.f):          # audyt F7: „any medicines”
+        return _drop(o, "plural_ok")
     cat = recategorize(text, o.s, o.f, o.c) if o.k == "error" else o.c             # F7: kategoria zgodna z edycją
     return Classified(o.k, "valid", None, o.s, o.f, cat, o.v, o.p, source=o.src)     # 7
 

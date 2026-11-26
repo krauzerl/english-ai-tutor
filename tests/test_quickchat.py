@@ -167,4 +167,4 @@ def test_change_topic_instruction_applies_to_one_reply_only(env):
 def test_custom_topic_question_is_used_as_opener():
     from tutor.app import topics as T
     assert T.custom("What subjects do you like?")["q"] == "What subjects do you like?"
-    assert T.custom("my first job.")["q"] == "Let's talk about your first job. What do you like or dislike about your first job?"
+    assert T.custom("my first job.")["q"] == "Let's talk about your first job. What do you like or dislike about it?"

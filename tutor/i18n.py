@@ -158,6 +158,9 @@ def tr(text: str, lang: str = "pl") -> str:
     lead = text[:len(text) - len(text.lstrip("\n"))]
     if body in EXACT:
         return lead + EXACT[body]
+    head, sep, tail = body.partition(": ")              # „Nazwa sekcji: uwaga” sklejone w backendzie
+    if sep and head in EXACT and (t := tr(tail, lang)) != tail:
+        return lead + EXACT[head] + sep + t
     if body.startswith("[") and body.endswith("]"):
         return lead + "[" + tr(body[1:-1], lang) + "]"
     for pat, rep in _PATTERNS:
@@ -257,8 +260,14 @@ EXACT.update({
         "marked as a speech recognition error",
     "przywrócone": "restored", "poprawa": "improving", "pogorszenie": "getting worse", "bez zmian": "no change",
     "szacunek wstępny": "preliminary estimate",
+    "Szkoła i nauka": "School and learning", "Czas wolny": "Free time", "Wakacje": "Holidays",
+    "Znajomi i rodzina": "Friends and family",
+    "Podział punktów i dokładny opis zadań należy potwierdzić w Informatorze CKE; aplikacja ich nie odtwarza.":
+        "Confirm the points and exact task types in the official CKE guide; the app does not reproduce them.",
+    "Egzamin nie ma części ustnej; mówienie ćwiczymy dodatkowo w Quick Chat na tematach egzaminacyjnych.":
+        "The exam has no speaking part; practise speaking in Quick Chat on exam topics.",
 })
 EXACT["To ćwiczenia przygotowawcze na materiałach aplikacji. Wynik nie jest oficjalnym wynikiem egzaminu ani jego "
-      "prognozą punktową; ocena gotowości pokazuje tylko, co i jak pewnie sprawdzono.\n"] = (
+      "prognozą punktową; ocena gotowości pokazuje tylko, co i jak pewnie sprawdzono."] = (   # `tr` zdejmuje \n z YAML
     "This is preparation practice on the app's materials. The result is not an official exam result or a points "
     "prediction; readiness only shows what was checked and how reliably.")

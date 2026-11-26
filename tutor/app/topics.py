@@ -97,9 +97,17 @@ def get(topic_id: str, lang: str = "en") -> dict | None:
     return chat_catalog(lang)["items"].get(topic_id) or catalog(lang).get(topic_id)
 
 
+_SUBJECT_START = {"i", "i'm", "i've", "i'd", "we", "we're", "it's", "there", "you", "they", "he", "she"}
+
+
 def custom(text: str) -> dict:
     """Temat wpisany przez ucznia (id=None ⇒ nie wchodzi do rotacji katalogu)."""
     t = " ".join(text.split())[:200]
     name = re.sub(r"\b(my|our)\b", "your", t.rstrip(".!"), flags=re.I)      # perspektywa nauczyciela
-    q = t if t.endswith("?") else f"Let's talk about {name}. What do you like or dislike about {name}?"
+    if t.endswith("?"):
+        q = t
+    elif len(t.split()) <= 4 and (t.split() or [""])[0].lower() not in _SUBJECT_START:   # fraza: „my job”
+        q = f"Let's talk about {name}. What do you like or dislike about it?"
+    else:                                                    # zdanie ucznia: nie wklejamy go w szablon
+        q = f"You said: “{t}” Tell me more about that."
     return {"id": None, "kind": "topic", "category": "custom", "category_pl": "Własny temat", "pl": t, "q": q}
