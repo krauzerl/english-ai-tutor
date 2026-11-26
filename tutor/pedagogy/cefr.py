@@ -29,4 +29,4 @@ def interval_text(mean: float, lo: float, hi: float, *, ceiling: bool = False, f
     if floor:
         return f"{bottom} lub niżej"
     m, a, b = (label_of(x, top_index) for x in (mean, lo, hi))
-    return m if a == b else f"{m}, prawdopodobnie {a}–{b}"
+    return m if a == b else f"przedział {a}–{b} (środek: {m})"     # B-lite: przedział ważniejszy niż etykieta

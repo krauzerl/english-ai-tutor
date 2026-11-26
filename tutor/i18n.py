@@ -136,7 +136,8 @@ _P = [
 _PATTERNS = [(re.compile(p), r) for p, r in _P]
 _AREAS = {"gramatyka": "grammar", "słownictwo": "vocabulary", "czytanie": "reading", "słuchanie": "listening",
           "mówienie": "speaking", "pisanie": "writing"}
-_LEVEL_WORDS = [("prawdopodobnie", "probably"), ("lub wyżej", "or higher"), ("lub niżej", "or lower"),
+_LEVEL_WORDS = [("prawdopodobnie", "probably"), ("przedział", "range"), ("środek", "centre"),
+                ("lub wyżej", "or higher"), ("lub niżej", "or lower"),
                 ("poniżej", "below"), ("powyżej", "above"), ("około", "about")]
 
 

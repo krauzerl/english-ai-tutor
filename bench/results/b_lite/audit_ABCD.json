@@ -1,0 +1,4540 @@
+{
+ "model": "qwen3:8b",
+ "set": "audit",
+ "split": "all",
+ "lt": true,
+ "runs": [
+  {
+   "variant": "A",
+   "repeat": 0,
+   "eval_p50": 0.76,
+   "eval_p95": 1.93,
+   "levels": {
+    "recast": {
+     "level": "recast",
+     "cases": 59,
+     "unrated": 0,
+     "tp": 13,
+     "fp": 3,
+     "precision": 0.812,
+     "precision_ci": [
+      0.57,
+      0.934
+     ],
+     "recall": 0.591,
+     "recall_ci": [
+      0.387,
+      0.767
+     ],
+     "recall_by": {
+      "single": "7/11",
+      "multi": "6/11",
+      "ctx": "0/0"
+     },
+     "f05": 0.756,
+     "fcr": "1/43",
+     "fcr_rate": 0.023,
+     "fcr_ci": [
+      0.004,
+      0.121
+     ],
+     "critical": 0,
+     "rows": [
+      {
+       "id": "c01",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c02",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c03",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c04",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c05",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c06",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c07",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c08",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c09",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c10",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c11",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c12",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c13",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c14",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c15",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c16",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c17",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c18",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "v01",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "v02",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "v03",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "v04",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "v05",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "v06",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "v07",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "v08",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "s01",
+       "kind": "stt",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "s02",
+       "kind": "stt",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "s03",
+       "kind": "stt",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "s04",
+       "kind": "stt",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "s05",
+       "kind": "stt",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "e01",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "don't",
+         "doesn't",
+         "agreement.subject_verb",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "e02",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "working",
+         "worked",
+         "tense.past_simple",
+         "h",
+         null
+        ]
+       ],
+       "unexpected": [
+        [
+         "working",
+         "worked"
+        ]
+       ],
+       "missed": [
+        "have been working|have worked|'ve been working|'ve worked"
+       ]
+      },
+      {
+       "id": "e03",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "more",
+         "",
+         "morphology.irregular_past",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "e04",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "have",
+         "had",
+         "tense.past_perfect",
+         "h",
+         null
+        ]
+       ],
+       "unexpected": [
+        [
+         "have",
+         "had"
+        ]
+       ],
+       "missed": [
+        "saw"
+       ]
+      },
+      {
+       "id": "e05",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [],
+       "missed": [
+        "where do you live"
+       ]
+      },
+      {
+       "id": "e06",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "an",
+         "some",
+         "article.missing",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "e07",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "about",
+         "",
+         "preposition",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "e08",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "doctor",
+         "a doctor",
+         "article.missing",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "m01",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "go",
+         "went",
+         "tense.past_simple",
+         "h",
+         null
+        ]
+       ],
+       "missed": [
+        "bought"
+       ]
+      },
+      {
+       "id": "m02",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "have",
+         "has",
+         "tense.present_simple",
+         "h",
+         null
+        ],
+        [
+         "goes",
+         "go",
+         "tense.present_simple",
+         "h",
+         null
+        ]
+       ],
+       "missed": [
+        "children"
+       ]
+      },
+      {
+       "id": "m03",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "went",
+         "go",
+         "morphology.irregular_past",
+         "h",
+         null
+        ]
+       ],
+       "missed": [
+        "had no money"
+       ]
+      },
+      {
+       "id": "m04",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "call",
+         "will call",
+         "tense.future",
+         "h",
+         null
+        ]
+       ],
+       "missed": [
+        "when i finish"
+       ]
+      },
+      {
+       "id": "h01",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": [
+        [
+         "seen",
+         "ever seen",
+         "omission.auxiliary",
+         "h",
+         null
+        ]
+       ],
+       "false": [
+        [
+         "seen",
+         "ever seen"
+        ]
+       ]
+      },
+      {
+       "id": "h02",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "h03",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "h04",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "h05",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "h06",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "h07",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "h08",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "h09",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "h10",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "h11",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "to",
+         "",
+         "morphology.word_form",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "h12",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "am",
+         "",
+         "agreement.subject_verb",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "h13",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "was",
+         "were",
+         "agreement.subject_verb",
+         "h",
+         null
+        ]
+       ],
+       "missed": [
+        "nobody wanted|nobody wants|nobody want|didn't want"
+       ]
+      },
+      {
+       "id": "h14",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [],
+       "missed": [
+        "I am 30|I'm 30"
+       ]
+      },
+      {
+       "id": "l01",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "l02",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      }
+     ]
+    },
+    "log": {
+     "level": "log",
+     "cases": 59,
+     "unrated": 0,
+     "tp": 13,
+     "fp": 3,
+     "precision": 0.812,
+     "precision_ci": [
+      0.57,
+      0.934
+     ],
+     "recall": 0.591,
+     "recall_ci": [
+      0.387,
+      0.767
+     ],
+     "recall_by": {
+      "single": "7/11",
+      "multi": "6/11",
+      "ctx": "0/0"
+     },
+     "f05": 0.756,
+     "fcr": "1/43",
+     "fcr_rate": 0.023,
+     "fcr_ci": [
+      0.004,
+      0.121
+     ],
+     "critical": 0,
+     "rows": [
+      {
+       "id": "c01",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c02",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c03",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c04",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c05",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c06",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c07",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c08",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c09",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c10",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c11",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c12",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c13",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c14",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c15",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c16",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c17",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c18",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "v01",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "v02",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "v03",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "v04",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "v05",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "v06",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "v07",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "v08",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "s01",
+       "kind": "stt",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "s02",
+       "kind": "stt",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "s03",
+       "kind": "stt",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "s04",
+       "kind": "stt",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "s05",
+       "kind": "stt",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "e01",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "don't",
+         "doesn't",
+         "agreement.subject_verb",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "e02",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "working",
+         "worked",
+         "tense.past_simple",
+         "h",
+         null
+        ]
+       ],
+       "unexpected": [
+        [
+         "working",
+         "worked"
+        ]
+       ],
+       "missed": [
+        "have been working|have worked|'ve been working|'ve worked"
+       ]
+      },
+      {
+       "id": "e03",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "more",
+         "",
+         "morphology.irregular_past",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "e04",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "have",
+         "had",
+         "tense.past_perfect",
+         "h",
+         null
+        ]
+       ],
+       "unexpected": [
+        [
+         "have",
+         "had"
+        ]
+       ],
+       "missed": [
+        "saw"
+       ]
+      },
+      {
+       "id": "e05",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [],
+       "missed": [
+        "where do you live"
+       ]
+      },
+      {
+       "id": "e06",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "an",
+         "some",
+         "article.missing",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "e07",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "about",
+         "",
+         "preposition",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "e08",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "doctor",
+         "a doctor",
+         "article.missing",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "m01",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "go",
+         "went",
+         "tense.past_simple",
+         "h",
+         null
+        ]
+       ],
+       "missed": [
+        "bought"
+       ]
+      },
+      {
+       "id": "m02",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "have",
+         "has",
+         "tense.present_simple",
+         "h",
+         null
+        ],
+        [
+         "goes",
+         "go",
+         "tense.present_simple",
+         "h",
+         null
+        ]
+       ],
+       "missed": [
+        "children"
+       ]
+      },
+      {
+       "id": "m03",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "went",
+         "go",
+         "morphology.irregular_past",
+         "h",
+         null
+        ]
+       ],
+       "missed": [
+        "had no money"
+       ]
+      },
+      {
+       "id": "m04",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "call",
+         "will call",
+         "tense.future",
+         "h",
+         null
+        ]
+       ],
+       "missed": [
+        "when i finish"
+       ]
+      },
+      {
+       "id": "h01",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": [
+        [
+         "seen",
+         "ever seen",
+         "omission.auxiliary",
+         "h",
+         null
+        ]
+       ],
+       "false": [
+        [
+         "seen",
+         "ever seen"
+        ]
+       ]
+      },
+      {
+       "id": "h02",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "h03",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "h04",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "h05",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "h06",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "h07",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "h08",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "h09",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "h10",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "h11",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "to",
+         "",
+         "morphology.word_form",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "h12",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "am",
+         "",
+         "agreement.subject_verb",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "h13",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "was",
+         "were",
+         "agreement.subject_verb",
+         "h",
+         null
+        ]
+       ],
+       "missed": [
+        "nobody wanted|nobody wants|nobody want|didn't want"
+       ]
+      },
+      {
+       "id": "h14",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [],
+       "missed": [
+        "I am 30|I'm 30"
+       ]
+      },
+      {
+       "id": "l01",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "l02",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      }
+     ]
+    }
+   }
+  },
+  {
+   "variant": "B",
+   "repeat": 0,
+   "eval_p50": 0.77,
+   "eval_p95": 1.93,
+   "levels": {
+    "recast": {
+     "level": "recast",
+     "cases": 59,
+     "unrated": 0,
+     "tp": 13,
+     "fp": 3,
+     "precision": 0.812,
+     "precision_ci": [
+      0.57,
+      0.934
+     ],
+     "recall": 0.591,
+     "recall_ci": [
+      0.387,
+      0.767
+     ],
+     "recall_by": {
+      "single": "7/11",
+      "multi": "6/11",
+      "ctx": "0/0"
+     },
+     "f05": 0.756,
+     "fcr": "1/43",
+     "fcr_rate": 0.023,
+     "fcr_ci": [
+      0.004,
+      0.121
+     ],
+     "critical": 0,
+     "rows": [
+      {
+       "id": "c01",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c02",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c03",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c04",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c05",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c06",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c07",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c08",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c09",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c10",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c11",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c12",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c13",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c14",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c15",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c16",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c17",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c18",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "v01",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "v02",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "v03",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "v04",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "v05",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "v06",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "v07",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "v08",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "s01",
+       "kind": "stt",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "s02",
+       "kind": "stt",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "s03",
+       "kind": "stt",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "s04",
+       "kind": "stt",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "s05",
+       "kind": "stt",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "e01",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "don't",
+         "doesn't",
+         "agreement.subject_verb",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "e02",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "working",
+         "worked",
+         "tense.past_simple",
+         "h",
+         null
+        ]
+       ],
+       "unexpected": [
+        [
+         "working",
+         "worked"
+        ]
+       ],
+       "missed": [
+        "have been working|have worked|'ve been working|'ve worked"
+       ]
+      },
+      {
+       "id": "e03",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "more",
+         "",
+         "morphology.irregular_past",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "e04",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "have",
+         "had",
+         "tense.past_perfect",
+         "h",
+         null
+        ]
+       ],
+       "unexpected": [
+        [
+         "have",
+         "had"
+        ]
+       ],
+       "missed": [
+        "saw"
+       ]
+      },
+      {
+       "id": "e05",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [],
+       "missed": [
+        "where do you live"
+       ]
+      },
+      {
+       "id": "e06",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "an",
+         "some",
+         "article.missing",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "e07",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "about",
+         "",
+         "preposition",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "e08",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "doctor",
+         "a doctor",
+         "article.missing",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "m01",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "go",
+         "went",
+         "tense.past_simple",
+         "h",
+         null
+        ]
+       ],
+       "missed": [
+        "bought"
+       ]
+      },
+      {
+       "id": "m02",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "have",
+         "has",
+         "tense.present_simple",
+         "h",
+         null
+        ],
+        [
+         "goes",
+         "go",
+         "tense.present_simple",
+         "h",
+         null
+        ]
+       ],
+       "missed": [
+        "children"
+       ]
+      },
+      {
+       "id": "m03",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "went",
+         "go",
+         "morphology.irregular_past",
+         "h",
+         null
+        ]
+       ],
+       "missed": [
+        "had no money"
+       ]
+      },
+      {
+       "id": "m04",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "call",
+         "will call",
+         "tense.future",
+         "h",
+         null
+        ]
+       ],
+       "missed": [
+        "when i finish"
+       ]
+      },
+      {
+       "id": "h01",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": [
+        [
+         "seen",
+         "ever seen",
+         "omission.auxiliary",
+         "h",
+         null
+        ]
+       ],
+       "false": [
+        [
+         "seen",
+         "ever seen"
+        ]
+       ]
+      },
+      {
+       "id": "h02",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "h03",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "h04",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "h05",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "h06",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "h07",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "h08",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "h09",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "h10",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "h11",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "to",
+         "",
+         "morphology.word_form",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "h12",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "am",
+         "",
+         "agreement.subject_verb",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "h13",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "was",
+         "were",
+         "agreement.subject_verb",
+         "h",
+         null
+        ]
+       ],
+       "missed": [
+        "nobody wanted|nobody wants|nobody want|didn't want"
+       ]
+      },
+      {
+       "id": "h14",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [],
+       "missed": [
+        "I am 30|I'm 30"
+       ]
+      },
+      {
+       "id": "l01",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "l02",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      }
+     ]
+    },
+    "log": {
+     "level": "log",
+     "cases": 59,
+     "unrated": 0,
+     "tp": 13,
+     "fp": 3,
+     "precision": 0.812,
+     "precision_ci": [
+      0.57,
+      0.934
+     ],
+     "recall": 0.591,
+     "recall_ci": [
+      0.387,
+      0.767
+     ],
+     "recall_by": {
+      "single": "7/11",
+      "multi": "6/11",
+      "ctx": "0/0"
+     },
+     "f05": 0.756,
+     "fcr": "1/43",
+     "fcr_rate": 0.023,
+     "fcr_ci": [
+      0.004,
+      0.121
+     ],
+     "critical": 0,
+     "rows": [
+      {
+       "id": "c01",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c02",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c03",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c04",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c05",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c06",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c07",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c08",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c09",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c10",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c11",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c12",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c13",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c14",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c15",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c16",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c17",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c18",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "v01",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "v02",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "v03",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "v04",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "v05",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "v06",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "v07",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "v08",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "s01",
+       "kind": "stt",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "s02",
+       "kind": "stt",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "s03",
+       "kind": "stt",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "s04",
+       "kind": "stt",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "s05",
+       "kind": "stt",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "e01",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "don't",
+         "doesn't",
+         "agreement.subject_verb",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "e02",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "working",
+         "worked",
+         "tense.past_simple",
+         "h",
+         null
+        ]
+       ],
+       "unexpected": [
+        [
+         "working",
+         "worked"
+        ]
+       ],
+       "missed": [
+        "have been working|have worked|'ve been working|'ve worked"
+       ]
+      },
+      {
+       "id": "e03",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "more",
+         "",
+         "morphology.irregular_past",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "e04",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "have",
+         "had",
+         "tense.past_perfect",
+         "h",
+         null
+        ]
+       ],
+       "unexpected": [
+        [
+         "have",
+         "had"
+        ]
+       ],
+       "missed": [
+        "saw"
+       ]
+      },
+      {
+       "id": "e05",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [],
+       "missed": [
+        "where do you live"
+       ]
+      },
+      {
+       "id": "e06",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "an",
+         "some",
+         "article.missing",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "e07",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "about",
+         "",
+         "preposition",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "e08",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "doctor",
+         "a doctor",
+         "article.missing",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "m01",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "go",
+         "went",
+         "tense.past_simple",
+         "h",
+         null
+        ]
+       ],
+       "missed": [
+        "bought"
+       ]
+      },
+      {
+       "id": "m02",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "have",
+         "has",
+         "tense.present_simple",
+         "h",
+         null
+        ],
+        [
+         "goes",
+         "go",
+         "tense.present_simple",
+         "h",
+         null
+        ]
+       ],
+       "missed": [
+        "children"
+       ]
+      },
+      {
+       "id": "m03",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "went",
+         "go",
+         "morphology.irregular_past",
+         "h",
+         null
+        ]
+       ],
+       "missed": [
+        "had no money"
+       ]
+      },
+      {
+       "id": "m04",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "call",
+         "will call",
+         "tense.future",
+         "h",
+         null
+        ]
+       ],
+       "missed": [
+        "when i finish"
+       ]
+      },
+      {
+       "id": "h01",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": [
+        [
+         "seen",
+         "ever seen",
+         "omission.auxiliary",
+         "h",
+         null
+        ]
+       ],
+       "false": [
+        [
+         "seen",
+         "ever seen"
+        ]
+       ]
+      },
+      {
+       "id": "h02",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "h03",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "h04",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "h05",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "h06",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "h07",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "h08",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "h09",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "h10",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "h11",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "to",
+         "",
+         "morphology.word_form",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "h12",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "am",
+         "",
+         "agreement.subject_verb",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "h13",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "was",
+         "were",
+         "agreement.subject_verb",
+         "h",
+         null
+        ]
+       ],
+       "missed": [
+        "nobody wanted|nobody wants|nobody want|didn't want"
+       ]
+      },
+      {
+       "id": "h14",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [],
+       "missed": [
+        "I am 30|I'm 30"
+       ]
+      },
+      {
+       "id": "l01",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "l02",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      }
+     ]
+    }
+   }
+  },
+  {
+   "variant": "C",
+   "repeat": 0,
+   "eval_p50": 0.8,
+   "eval_p95": 1.96,
+   "levels": {
+    "recast": {
+     "level": "recast",
+     "cases": 59,
+     "unrated": 0,
+     "tp": 12,
+     "fp": 3,
+     "precision": 0.8,
+     "precision_ci": [
+      0.548,
+      0.93
+     ],
+     "recall": 0.545,
+     "recall_ci": [
+      0.347,
+      0.731
+     ],
+     "recall_by": {
+      "single": "7/11",
+      "multi": "5/11",
+      "ctx": "0/0"
+     },
+     "f05": 0.732,
+     "fcr": "1/43",
+     "fcr_rate": 0.023,
+     "fcr_ci": [
+      0.004,
+      0.121
+     ],
+     "critical": 0,
+     "rows": [
+      {
+       "id": "c01",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c02",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c03",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c04",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c05",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c06",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c07",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c08",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c09",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c10",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c11",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c12",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c13",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c14",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c15",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c16",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c17",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c18",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "v01",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "v02",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "v03",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "v04",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "v05",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "v06",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "v07",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "v08",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "s01",
+       "kind": "stt",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "s02",
+       "kind": "stt",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "s03",
+       "kind": "stt",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "s04",
+       "kind": "stt",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "s05",
+       "kind": "stt",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "e01",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "don't",
+         "doesn't",
+         "agreement.subject_verb",
+         "h",
+         "bielik+lt-fix"
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "e02",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "working",
+         "worked",
+         "tense.past_simple",
+         "h",
+         null
+        ]
+       ],
+       "unexpected": [
+        [
+         "working",
+         "worked"
+        ]
+       ],
+       "missed": [
+        "have been working|have worked|'ve been working|'ve worked"
+       ]
+      },
+      {
+       "id": "e03",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "more",
+         "",
+         "morphology.irregular_past",
+         "h",
+         "bielik+lt"
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "e04",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "have",
+         "had",
+         "tense.past_perfect",
+         "h",
+         null
+        ]
+       ],
+       "unexpected": [
+        [
+         "have",
+         "had"
+        ]
+       ],
+       "missed": [
+        "saw"
+       ]
+      },
+      {
+       "id": "e05",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [],
+       "missed": [
+        "where do you live"
+       ]
+      },
+      {
+       "id": "e06",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "an",
+         "some",
+         "article.missing",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "e07",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "about",
+         "",
+         "preposition",
+         "h",
+         "bielik+lt"
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "e08",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "doctor",
+         "a doctor",
+         "article.missing",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "m01",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [],
+       "missed": [
+        "went",
+        "bought"
+       ]
+      },
+      {
+       "id": "m02",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "have",
+         "has",
+         "tense.present_simple",
+         "h",
+         "bielik+lt-fix"
+        ],
+        [
+         "goes",
+         "go",
+         "tense.present_simple",
+         "h",
+         "bielik+lt-fix"
+        ]
+       ],
+       "missed": [
+        "children"
+       ]
+      },
+      {
+       "id": "m03",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "went",
+         "go",
+         "morphology.irregular_past",
+         "h",
+         "bielik+lt-fix"
+        ]
+       ],
+       "missed": [
+        "had no money"
+       ]
+      },
+      {
+       "id": "m04",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "call",
+         "will call",
+         "tense.future",
+         "h",
+         null
+        ]
+       ],
+       "missed": [
+        "when i finish"
+       ]
+      },
+      {
+       "id": "h01",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": [
+        [
+         "seen",
+         "ever seen",
+         "omission.auxiliary",
+         "h",
+         null
+        ]
+       ],
+       "false": [
+        [
+         "seen",
+         "ever seen"
+        ]
+       ]
+      },
+      {
+       "id": "h02",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "h03",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "h04",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "h05",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "h06",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "h07",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "h08",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "h09",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "h10",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "h11",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "to",
+         "",
+         "morphology.word_form",
+         "h",
+         "bielik+lt-fix"
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "h12",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "am",
+         "",
+         "agreement.subject_verb",
+         "h",
+         "bielik+lt-fix"
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "h13",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "was",
+         "were",
+         "agreement.subject_verb",
+         "h",
+         "bielik+lt"
+        ]
+       ],
+       "missed": [
+        "nobody wanted|nobody wants|nobody want|didn't want"
+       ]
+      },
+      {
+       "id": "h14",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [],
+       "missed": [
+        "I am 30|I'm 30"
+       ]
+      },
+      {
+       "id": "l01",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "l02",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      }
+     ]
+    },
+    "log": {
+     "level": "log",
+     "cases": 59,
+     "unrated": 0,
+     "tp": 13,
+     "fp": 3,
+     "precision": 0.812,
+     "precision_ci": [
+      0.57,
+      0.934
+     ],
+     "recall": 0.591,
+     "recall_ci": [
+      0.387,
+      0.767
+     ],
+     "recall_by": {
+      "single": "7/11",
+      "multi": "6/11",
+      "ctx": "0/0"
+     },
+     "f05": 0.756,
+     "fcr": "1/43",
+     "fcr_rate": 0.023,
+     "fcr_ci": [
+      0.004,
+      0.121
+     ],
+     "critical": 0,
+     "rows": [
+      {
+       "id": "c01",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c02",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c03",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c04",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c05",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c06",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c07",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c08",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c09",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c10",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c11",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c12",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c13",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c14",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c15",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c16",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c17",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c18",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "v01",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "v02",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "v03",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "v04",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "v05",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "v06",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "v07",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "v08",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "s01",
+       "kind": "stt",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "s02",
+       "kind": "stt",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "s03",
+       "kind": "stt",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "s04",
+       "kind": "stt",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "s05",
+       "kind": "stt",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "e01",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "don't",
+         "doesn't",
+         "agreement.subject_verb",
+         "h",
+         "bielik+lt-fix"
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "e02",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "working",
+         "worked",
+         "tense.past_simple",
+         "h",
+         null
+        ]
+       ],
+       "unexpected": [
+        [
+         "working",
+         "worked"
+        ]
+       ],
+       "missed": [
+        "have been working|have worked|'ve been working|'ve worked"
+       ]
+      },
+      {
+       "id": "e03",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "more",
+         "",
+         "morphology.irregular_past",
+         "h",
+         "bielik+lt"
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "e04",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "have",
+         "had",
+         "tense.past_perfect",
+         "h",
+         null
+        ]
+       ],
+       "unexpected": [
+        [
+         "have",
+         "had"
+        ]
+       ],
+       "missed": [
+        "saw"
+       ]
+      },
+      {
+       "id": "e05",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [],
+       "missed": [
+        "where do you live"
+       ]
+      },
+      {
+       "id": "e06",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "an",
+         "some",
+         "article.missing",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "e07",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "about",
+         "",
+         "preposition",
+         "h",
+         "bielik+lt"
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "e08",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "doctor",
+         "a doctor",
+         "article.missing",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "m01",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "go",
+         "went",
+         "tense.past_simple",
+         "m",
+         "bielik|lt-conflict"
+        ]
+       ],
+       "missed": [
+        "bought"
+       ]
+      },
+      {
+       "id": "m02",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "have",
+         "has",
+         "tense.present_simple",
+         "h",
+         "bielik+lt-fix"
+        ],
+        [
+         "goes",
+         "go",
+         "tense.present_simple",
+         "h",
+         "bielik+lt-fix"
+        ]
+       ],
+       "missed": [
+        "children"
+       ]
+      },
+      {
+       "id": "m03",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "went",
+         "go",
+         "morphology.irregular_past",
+         "h",
+         "bielik+lt-fix"
+        ]
+       ],
+       "missed": [
+        "had no money"
+       ]
+      },
+      {
+       "id": "m04",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "call",
+         "will call",
+         "tense.future",
+         "h",
+         null
+        ]
+       ],
+       "missed": [
+        "when i finish"
+       ]
+      },
+      {
+       "id": "h01",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": [
+        [
+         "seen",
+         "ever seen",
+         "omission.auxiliary",
+         "h",
+         null
+        ]
+       ],
+       "false": [
+        [
+         "seen",
+         "ever seen"
+        ]
+       ]
+      },
+      {
+       "id": "h02",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "h03",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "h04",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "h05",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "h06",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "h07",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "h08",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "h09",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "h10",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "h11",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "to",
+         "",
+         "morphology.word_form",
+         "h",
+         "bielik+lt-fix"
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "h12",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "am",
+         "",
+         "agreement.subject_verb",
+         "h",
+         "bielik+lt-fix"
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "h13",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "was",
+         "were",
+         "agreement.subject_verb",
+         "h",
+         "bielik+lt"
+        ]
+       ],
+       "missed": [
+        "nobody wanted|nobody wants|nobody want|didn't want"
+       ]
+      },
+      {
+       "id": "h14",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [],
+       "missed": [
+        "I am 30|I'm 30"
+       ]
+      },
+      {
+       "id": "l01",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "l02",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      }
+     ]
+    }
+   }
+  },
+  {
+   "variant": "D",
+   "repeat": 0,
+   "eval_p50": 0.8,
+   "eval_p95": 2.68,
+   "levels": {
+    "recast": {
+     "level": "recast",
+     "cases": 59,
+     "unrated": 0,
+     "tp": 11,
+     "fp": 3,
+     "precision": 0.786,
+     "precision_ci": [
+      0.524,
+      0.924
+     ],
+     "recall": 0.5,
+     "recall_ci": [
+      0.307,
+      0.693
+     ],
+     "recall_by": {
+      "single": "7/11",
+      "multi": "4/11",
+      "ctx": "0/0"
+     },
+     "f05": 0.705,
+     "fcr": "1/43",
+     "fcr_rate": 0.023,
+     "fcr_ci": [
+      0.004,
+      0.121
+     ],
+     "critical": 0,
+     "rows": [
+      {
+       "id": "c01",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c02",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c03",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c04",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c05",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c06",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c07",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c08",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c09",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c10",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c11",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c12",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c13",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c14",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c15",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c16",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c17",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c18",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "v01",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "v02",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "v03",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "v04",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "v05",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "v06",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "v07",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "v08",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "s01",
+       "kind": "stt",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "s02",
+       "kind": "stt",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "s03",
+       "kind": "stt",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "s04",
+       "kind": "stt",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "s05",
+       "kind": "stt",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "e01",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "don't",
+         "doesn't",
+         "agreement.subject_verb",
+         "h",
+         "bielik+lt-fix"
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "e02",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "working",
+         "worked",
+         "tense.past_simple",
+         "h",
+         null
+        ]
+       ],
+       "unexpected": [
+        [
+         "working",
+         "worked"
+        ]
+       ],
+       "missed": [
+        "have been working|have worked|'ve been working|'ve worked"
+       ]
+      },
+      {
+       "id": "e03",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "more",
+         "",
+         "morphology.irregular_past",
+         "h",
+         "bielik+lt"
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "e04",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "have",
+         "had",
+         "tense.past_perfect",
+         "h",
+         null
+        ]
+       ],
+       "unexpected": [
+        [
+         "have",
+         "had"
+        ]
+       ],
+       "missed": [
+        "saw"
+       ]
+      },
+      {
+       "id": "e05",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [],
+       "missed": [
+        "where do you live"
+       ]
+      },
+      {
+       "id": "e06",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "an",
+         "some",
+         "article.missing",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "e07",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "about",
+         "",
+         "preposition",
+         "h",
+         "bielik+lt"
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "e08",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "doctor",
+         "a doctor",
+         "article.missing",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "m01",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [],
+       "missed": [
+        "went",
+        "bought"
+       ]
+      },
+      {
+       "id": "m02",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "have",
+         "has",
+         "agreement.subject_verb",
+         "h",
+         "bielik+lt-fix"
+        ]
+       ],
+       "missed": [
+        "children",
+        "they go"
+       ]
+      },
+      {
+       "id": "m03",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "went",
+         "go",
+         "morphology.irregular_past",
+         "h",
+         "bielik+lt-fix"
+        ]
+       ],
+       "missed": [
+        "had no money"
+       ]
+      },
+      {
+       "id": "m04",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "call",
+         "will call",
+         "tense.future",
+         "h",
+         null
+        ]
+       ],
+       "missed": [
+        "when i finish"
+       ]
+      },
+      {
+       "id": "h01",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": [
+        [
+         "seen",
+         "ever seen",
+         "omission.auxiliary",
+         "h",
+         null
+        ]
+       ],
+       "false": [
+        [
+         "seen",
+         "ever seen"
+        ]
+       ]
+      },
+      {
+       "id": "h02",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "h03",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "h04",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "h05",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "h06",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "h07",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "h08",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "h09",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "h10",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "h11",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "to",
+         "",
+         "morphology.word_form",
+         "h",
+         "bielik+lt-fix"
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "h12",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "am",
+         "",
+         "morphology.irregular_past",
+         "h",
+         "bielik+lt"
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "h13",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "was",
+         "were",
+         "agreement.subject_verb",
+         "h",
+         "bielik+lt"
+        ]
+       ],
+       "missed": [
+        "nobody wanted|nobody wants|nobody want|didn't want"
+       ]
+      },
+      {
+       "id": "h14",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [],
+       "missed": [
+        "I am 30|I'm 30"
+       ]
+      },
+      {
+       "id": "l01",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "l02",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      }
+     ]
+    },
+    "log": {
+     "level": "log",
+     "cases": 59,
+     "unrated": 0,
+     "tp": 13,
+     "fp": 3,
+     "precision": 0.812,
+     "precision_ci": [
+      0.57,
+      0.934
+     ],
+     "recall": 0.591,
+     "recall_ci": [
+      0.387,
+      0.767
+     ],
+     "recall_by": {
+      "single": "7/11",
+      "multi": "6/11",
+      "ctx": "0/0"
+     },
+     "f05": 0.756,
+     "fcr": "1/43",
+     "fcr_rate": 0.023,
+     "fcr_ci": [
+      0.004,
+      0.121
+     ],
+     "critical": 0,
+     "rows": [
+      {
+       "id": "c01",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c02",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c03",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c04",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c05",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c06",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c07",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c08",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c09",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c10",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c11",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c12",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c13",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c14",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c15",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c16",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c17",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "c18",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "v01",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "v02",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "v03",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "v04",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "v05",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "v06",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "v07",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "v08",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "s01",
+       "kind": "stt",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "s02",
+       "kind": "stt",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "s03",
+       "kind": "stt",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "s04",
+       "kind": "stt",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "s05",
+       "kind": "stt",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "e01",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "don't",
+         "doesn't",
+         "agreement.subject_verb",
+         "h",
+         "bielik+lt-fix"
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "e02",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "working",
+         "worked",
+         "tense.past_simple",
+         "h",
+         null
+        ]
+       ],
+       "unexpected": [
+        [
+         "working",
+         "worked"
+        ]
+       ],
+       "missed": [
+        "have been working|have worked|'ve been working|'ve worked"
+       ]
+      },
+      {
+       "id": "e03",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "more",
+         "",
+         "morphology.irregular_past",
+         "h",
+         "bielik+lt"
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "e04",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "have",
+         "had",
+         "tense.past_perfect",
+         "h",
+         null
+        ]
+       ],
+       "unexpected": [
+        [
+         "have",
+         "had"
+        ]
+       ],
+       "missed": [
+        "saw"
+       ]
+      },
+      {
+       "id": "e05",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [],
+       "missed": [
+        "where do you live"
+       ]
+      },
+      {
+       "id": "e06",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "an",
+         "some",
+         "article.missing",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "e07",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "about",
+         "",
+         "preposition",
+         "h",
+         "bielik+lt"
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "e08",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "doctor",
+         "a doctor",
+         "article.missing",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "m01",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "go",
+         "went",
+         "tense.past_simple",
+         "m",
+         "bielik|lt-conflict"
+        ]
+       ],
+       "missed": [
+        "bought"
+       ]
+      },
+      {
+       "id": "m02",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "have",
+         "has",
+         "agreement.subject_verb",
+         "h",
+         "bielik+lt-fix"
+        ],
+        [
+         "goes",
+         "go",
+         "agreement.subject_verb",
+         "m",
+         "languagetool-6.6"
+        ]
+       ],
+       "missed": [
+        "children"
+       ]
+      },
+      {
+       "id": "m03",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "went",
+         "go",
+         "morphology.irregular_past",
+         "h",
+         "bielik+lt-fix"
+        ]
+       ],
+       "missed": [
+        "had no money"
+       ]
+      },
+      {
+       "id": "m04",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "call",
+         "will call",
+         "tense.future",
+         "h",
+         null
+        ]
+       ],
+       "missed": [
+        "when i finish"
+       ]
+      },
+      {
+       "id": "h01",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": [
+        [
+         "seen",
+         "ever seen",
+         "omission.auxiliary",
+         "h",
+         null
+        ]
+       ],
+       "false": [
+        [
+         "seen",
+         "ever seen"
+        ]
+       ]
+      },
+      {
+       "id": "h02",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "h03",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "h04",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "h05",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "h06",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "h07",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "h08",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "h09",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "h10",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "h11",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "to",
+         "",
+         "morphology.word_form",
+         "h",
+         "bielik+lt-fix"
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "h12",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "am",
+         "",
+         "morphology.irregular_past",
+         "h",
+         "bielik+lt"
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "h13",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "was",
+         "were",
+         "agreement.subject_verb",
+         "h",
+         "bielik+lt"
+        ]
+       ],
+       "missed": [
+        "nobody wanted|nobody wants|nobody want|didn't want"
+       ]
+      },
+      {
+       "id": "h14",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [],
+       "missed": [
+        "I am 30|I'm 30"
+       ]
+      },
+      {
+       "id": "l01",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "l02",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      }
+     ]
+    }
+   }
+  }
+ ]
+}

@@ -79,7 +79,7 @@ def test_insertion_edit():
 def test_merge_broad_bielik_and_minimal_lt_agree():  # problem F4.6: R1 nie zachodziło
     t = "She have a dog."
     out, alts = M.merge([B("She have a dog.", "She has a dog.")], [L("have", "has")], t)
-    assert len(out) == 1 and out[0].p == "h" and out[0].src == "bielik+lt" and alts == []
+    assert len(out) == 1 and out[0].p == "m" and out[0].src == "bielik+lt" and alts == []    # B-lite F1: bez +1
 
 
 def test_merge_conflict_downgrades_and_logs():

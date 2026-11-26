@@ -1,5 +1,12 @@
 """Konwersja dopasowań LanguageTool → kandydaci obserwacji i scalenie z oceną modelu (07 §4.4–§4.5).
 
+Polityka fuzji B-lite (jawna, strojona tylko na split=dev; wyniki: bench/results/b_lite/):
+  F1 ta sama edycja model+LT ⇒ obserwacja modelu bez podniesienia pewności (`src` bielik+lt);
+  F2 sprzeczne edycje ⇒ pewność modelu −1 (`bielik|lt-conflict` = podejrzenie);
+  F3 tylko LT ⇒ podejrzenie (`l`); reguła z `lt_trusted_rules` i `trust: h` ⇒ `m` (dziennik błędów, bez recastu);
+  F4 głos ⇒ tylko reguły `voice: true`; pisownia nigdy w głosie; nazwy własne (wielka litera w zdaniu) pomijane;
+  F5 LT niedostępny ⇒ sam model (bez zmian zachowania).
+
 Czyste funkcje (T-ARCH-1, bez I/O). LanguageTool NIE jest źródłem prawdy: kandydaci przechodzą przez te same
 walidatory deterministyczne (`classify`), a reguły R1–R7 ograniczają jego wpływ. Brak dopasowań LT nie jest
 dowodem poprawności. Zaufanie `trust` z `lt_map` jest hipotezą: efektywne `m` tylko dla reguł z `lt_trusted_rules`
@@ -17,7 +24,6 @@ from tutor.pedagogy.schemas import Obs, TurnEval, Utt
 from tutor.pedagogy.vocab import bre_ame_pair
 
 IGNORED_ISSUES = {"style", "locale-violation", "whitespace", "typographical"}
-_UP = {"l": "m", "m": "h", "h": "h"}
 _DOWN = {"h": "m", "m": "l", "l": "l"}
 
 
@@ -44,7 +50,13 @@ def to_obs(matches: list[LTMatch], text: str, lt_map: LtMap, *, input_mode: str,
             continue
         a = E.utf16_index(text, m.offset)                  # LT (Java) liczy jednostki UTF-16
         b = E.utf16_index(text, m.offset + m.length)
+        spelling = info.category.split(".")[0] == "spelling"
+        if spelling and a > 0 and text[a:a + 1].isupper() and text[:a].rstrip()[-1:] not in (".", "!", "?", ""):
+            stats["proper_name"] += 1                  # F-B-lite: wielka litera w środku zdania = nazwa własna
+            continue
         fix = m.replacements[0] if m.replacements else ""
+        if spelling:            # „childrens”: pierwsza propozycja LT to „children's” — wybierz znaną formę
+            fix = next((r for r in m.replacements if norm_answer(r) in known_forms), fix)
         a2, b2 = E.word_bounds(text, a, b)                  # fragment słowa („do” w „don't”) ⇒ pełny token
         span, fix = text[a2:b2], (text[a2:a] + fix + text[b:b2]) if fix else ""
         if not span.strip() or not fix:
@@ -85,7 +97,8 @@ def merge(bielik: list[Obs], lt: list[Obs], text: str, ok_spans: list[str] = ())
             if b.k in ("variant", "natural"):          # R6: wygrywa klasyfikacja (wariant/naturalne)
                 alts.append(lo)
             elif rel == "same" and core_of(b.c) == core_of(lo.c):                       # R1
-                out[hit] = b.model_copy(update={"p": _UP[b.p], "src": "bielik+lt"})       # out[i] ↔ bielik[i]
+                # B-lite F1: zgodność dwóch narzędzi NIE podnosi pewności (mogą mylić się tak samo); tylko źródło
+                out[hit] = b.model_copy(update={"src": "bielik+lt"})                    # out[i] ↔ bielik[i]
             elif rel == "same":                        # ta sama poprawka, inna kategoria: bez podniesienia pewności
                 out[hit] = b.model_copy(update={"src": "bielik+lt-fix"})
                 alts.append(lo)

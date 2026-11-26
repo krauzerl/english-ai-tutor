@@ -208,3 +208,40 @@ def test_pattern_confirmed_use_feeds_p_but_never_mastery_status(repo, pack):
     assert [a["correct"] for a in atts] == [True, True]
     assert all(json.loads(a["feedback_json"])["no_mastery"] for a in atts)
     assert repo.get_skill_state(pid, goal)["status"] not in ("mastered", "verified")
+
+
+# --- LanguageTool: polityka fuzji i awaria ---
+def test_lt_disabled_by_default_and_failure_falls_back_to_model(repo, pack):
+    from tutor.app import eval_runner as ER
+    from tutor.app import languagetool as LT
+    assert ER.lt_candidates(pack, LT.settings({})) is None                     # domyślnie wyłączony
+    cfg = LT.settings({"languagetool": {"enabled": True, "url": "http://127.0.0.1:9", "timeout": 0.2}})
+    check = ER.lt_candidates(pack, cfg)
+    assert check("He go home.", "text") is None                                 # serwer nie działa ⇒ None
+    pid = repo.create_profile("lt")
+    sid = repo.start_session(pid, "chat")
+    tid = repo.add_turn(pid, sid, "user", "I goed home")
+    prov = Prov()
+    q = make_queue(repo, pack, prov, structured, profile_id=pid, session_id=sid, goals={}, lt=check)
+    q.submit(Pending(tid, "I goed home", "text"))
+    assert q.drain(CancelToken()) == 1 and len(repo.list_observations(pid)) == 1   # ocena samym modelem
+
+
+def test_lt_policy_agreement_does_not_raise_and_names_skipped(pack):
+    from tutor.app.languagetool import LTMatch
+    from tutor.pedagogy import lt_merge as M
+    text = "Dr Nowak have two childrens."
+    ms = [LTMatch(3, 5, "", ("Novak",), "MORFOLOGIK_RULE_EN_US", "misspelling", "TYPOS"),
+          LTMatch(18, 9, "", ("children's", "children"), "MORFOLOGIK_RULE_EN_US", "misspelling", "TYPOS"),
+          LTMatch(9, 4, "", ("has",), "HE_VERB_AGR", "grammar", "GRAMMAR")]
+    forms = {"children", "has"}
+    obs, st = M.to_obs(ms, text, pack.lt_map, input_mode="text", known_forms=forms, trusted_rules=set(),
+                       version="6.6")
+    assert st["proper_name"] == 1 and [o.f for o in obs] == ["children", "has"]      # nazwisko nie jest literówką
+    assert {o.p for o in obs} == {"l"}                         # produkcja: brak zaufanych reguł ⇒ podejrzenia
+    trusted, _ = M.to_obs(ms, text, pack.lt_map, input_mode="text", known_forms=forms,
+                          trusted_rules={"HE_VERB_AGR"}, version="6.6")
+    assert [o.p for o in trusted if o.f == "has"] == ["m"]
+    model = Obs(s="have", f="has", k="error", c="agreement.subject_verb", v=2, p="m")
+    out, _ = M.merge([model], [o for o in trusted if o.f == "has"], text)
+    assert out[0].p == "m" and out[0].src == "bielik+lt"      # zgodność nie podnosi pewności

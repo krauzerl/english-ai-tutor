@@ -114,7 +114,8 @@ def _lt_obs(c: dict, pack, lt_cfg: dict, forms: set[str]):
     ms = LT.check(c["text"], lt_cfg, disabled_categories=pack.lt_map.ignore_categories)
     if ms is None:
         return None
-    trusted = set((pack.rubric.correction or {}).get("quality_gate", {}).get("lt_trusted_rules", []))
+    # eksperyment: kandydaci `trust: h` z lt_map (wybrani na dev); produkcja używa rubric `lt_trusted_rules` (pusta)
+    trusted = {k for k, r in pack.lt_map.rules.items() if r.trust == "h"}
     obs, _ = lt_merge.to_obs(ms, c["text"], pack.lt_map, input_mode=c.get("mode", "text"), known_forms=forms,
                              trusted_rules=trusted, version=pack.lt_map.lt_version_tested)
     return obs
@@ -166,6 +167,26 @@ def _pct(xs: list[float], q: float) -> float:
     return round(xs[min(len(xs) - 1, int(q * len(xs)))], 2)
 
 
+def conversation_latency(rounds: int = 2) -> dict:
+    """TTFT i czas pierwszego zdania rozmowy (rola `conversation`, prompt produkcyjny) + zasoby: RSS LanguageTool,
+    VRAM. Ocena biegnie w kolejce PO odpowiedzi tutora, więc LT nie leży na ścieżce TTFT — mierzymy, czy w ogóle
+    przeszkadza (CPU/RAM) gdy działa w tle."""
+    from bench.grammar import _pids, rss_mib, vram_mib
+    from bench.models import CONV, stream_stats
+    from tutor.llm import build_provider
+    from tutor.llm.base import Message
+    from tutor.voice.conversation import SYSTEM_PROMPT
+    p = build_provider("conversation")
+    msgs = [[Message("system", SYSTEM_PROMPT), Message("user", u)] for _ in range(rounds) for u in CONV]
+    rows = [stream_stats(p, m) for m in msgs]
+    lt = _pids("org.languagetool.server.HTTPServer")
+    t, f = sorted(r["ttft_s"] for r in rows), sorted(r["first_sentence_s"] or r["wall_s"] for r in rows)
+    return {"model": p.model, "n": len(rows), "ttft_p50": round(_pct(t, 0.5), 2), "ttft_p95": round(_pct(t, 0.95), 2),
+            "first_sentence_p50": round(_pct(f, 0.5), 2), "first_sentence_p95": round(_pct(f, 0.95), 2),
+            "lt_running": bool(lt), "lt_rss_mib": max((rss_mib(x) or 0 for x in lt), default=None),
+            "vram_mib": vram_mib()}
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--variant", default="A")
@@ -174,7 +195,14 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--repeat", type=int, default=1)
     ap.add_argument("--lt-url", default=None, help="lokalny serwer LanguageTool (C/D); brak = C/D jak B")
     ap.add_argument("--out")
+    ap.add_argument("--conv", action="store_true", help="tylko czas odpowiedzi rozmowy i zasoby")
     a = ap.parse_args(argv)
+    if a.conv:
+        r = conversation_latency()
+        print(json.dumps(r, ensure_ascii=False))
+        if a.out:
+            Path(a.out).write_text(json.dumps(r, indent=1))
+        return 0
     from tutor.llm import build_provider
     from tutor.llm.structured import structured
     from tutor.pedagogy import content as C

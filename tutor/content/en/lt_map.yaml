@@ -3,13 +3,26 @@
 # Identyfikatory reguł EN_A_VS_AN, HE_VERB_AGR, I_AM_VB, MORFOLOGIK_RULE_EN_US potwierdzone na LT 6.6; NON3PRS_VERB i DT_DT jeszcze nie.
 lt_map_version: lt_map.v1
 lt_version_tested: "6.6"   # zweryfikowane na żywym serwerze (F4.6/C4): parametry, pola odpowiedzi, id reguł poniżej
+# B-lite (2026-11-26): `trust: h` = KANDYDAT do listy zaufanych reguł, wybrany WYŁĄCZNIE na split=dev zbioru
+# `bench/cases/control_b_lite.yaml` i na `audit_control.yaml` (reguły z trafieniem i 0 fałszywych alarmów).
+# Efektywnie zaufane są tylko reguły z rubric.yaml `lt_trusted_rules` (lista pusta = produkcja bez zmian).
 rules:
   EN_A_VS_AN:     {category: article.wrong, trust: h, voice: false}
-  HE_VERB_AGR:    {category: agreement.subject_verb, trust: m, voice: true}
-  NON3PRS_VERB:   {category: agreement.subject_verb, trust: m, voice: true}
+  HE_VERB_AGR:    {category: agreement.subject_verb, trust: h, voice: true}
+  NON3PRS_VERB:   {category: agreement.subject_verb, trust: h, voice: true}
   DT_DT:          {category: determiner, trust: m, voice: false}
-  I_AM_VB:        {category: morphology.word_form, trust: m, voice: true}
-  MORFOLOGIK_RULE_EN_US: {category: spelling, trust: m, voice: false}   # pisownia; BrE/AmE filtrowane w lt_merge
+  I_AM_VB:        {category: morphology.word_form, trust: h, voice: true}
+  AUXILIARY_DO_WITH_INCORRECT_VERB_FORM: {category: tense.past_simple, trust: h, voice: true}
+  PERFECT_TENSE_SINCE: {category: tense.present_perfect, trust: h, voice: true}
+  SINCE_FOR:      {category: preposition.time, trust: h, voice: true}
+  BE_INTEREST_IN: {category: morphology.word_form, trust: h, voice: true}
+  MARRY_WITH:     {category: preposition.dependent, trust: h, voice: true}
+  MENTION_ABOUT:  {category: preposition.dependent, trust: h, voice: true}
+  CD_NN:          {category: morphology.plural, trust: h, voice: true}
+  MOST_COMPARATIVE: {category: morphology.comparative, trust: h, voice: true}
+  TO_AFTER_MODAL_VERBS: {category: omission.auxiliary, trust: h, voice: true}
+  AGREEMENT_SENT_START: {category: agreement.subject_verb, trust: h, voice: true}
+  MORFOLOGIK_RULE_EN_US: {category: spelling, trust: m, voice: false}   # pisownia; BrE/AmE i nazwy własne filtrowane
 categories:
   GRAMMAR:        {category: null, trust: l}
   TYPOS:          {category: spelling, trust: m, voice: false}

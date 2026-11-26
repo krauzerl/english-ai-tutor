@@ -20,14 +20,18 @@ class ModelUnavailable(Exception):
 def make_queue(repo, pack: Pack, provider, structured, *, profile_id: int, session_id: int,
                goals: dict[str, str], clock: Callable[[], datetime] = lambda: datetime.now(UTC),
                model: str | None = None, prompt_version: str = "turn_eval.v3",
-               theta: dict[str, float] | None = None, batch: int = 1, context: bool = False) -> EvalQueue:
+               theta: dict[str, float] | None = None, batch: int = 1, context: bool = False,
+               lt: Callable[[str, str], list | None] | None = None) -> EvalQueue:
     """`context`: model oceny dostaje poprzednią wypowiedź tutora (tylko przy partii 1 — kontekst jest wspólny dla
-    całego wywołania). Domyślnie wyłączone do czasu wyniku eksperymentu B (bench/b_lite.py)."""
+    całego wywołania). Domyślnie wyłączone do czasu wyniku eksperymentu B (bench/b_lite.py).
+    `lt(text, input_mode)`: kandydaci LanguageTool (`lt_candidates`); None = LT niedostępny ⇒ sam model (F5)."""
     def evaluate(items: list[Pending]):
         prev = tutor_prev(repo, profile_id, session_id, items[0].turn_id) if context and len(items) == 1 else ""
+        cands = [(lt(p.text, p.input_mode) or []) for p in items] if lt else None
         res = turn_eval.evaluate_texts(pack, provider, structured, [p.text for p in items],
                                        input_modes=[p.input_mode for p in items],
-                                       low_probs=[set(p.low_probs) for p in items], goals=goals, tutor_prev=prev)
+                                       low_probs=[set(p.low_probs) for p in items], goals=goals, tutor_prev=prev,
+                                       lt=cands if cands and any(cands) else None)
         if all(r.eval_status != "evaluated" for r in res):
             raise ModelUnavailable
         return res
@@ -44,6 +48,36 @@ def make_queue(repo, pack: Pack, provider, structured, *, profile_id: int, sessi
         repo.mark_dropped(profile_id, session_id, p.turn_id, p.input_mode, clock().isoformat())
 
     return EvalQueue(evaluate, apply, batch=batch, on_drop=on_drop)
+
+
+def lt_candidates(pack: Pack, cfg: dict) -> Callable[[str, str], list | None] | None:
+    """Kandydaci LanguageTool dla oceny (eksperymentalne, `[languagetool] enabled=false` domyślnie). Zaufane tylko
+    reguły z rubric `lt_trusted_rules` (pusta lista ⇒ każdy kandydat LT to podejrzenie, nie obserwacja)."""
+    if not cfg.get("enabled"):
+        return None
+    from tutor.app import languagetool as LT
+    from tutor.pedagogy import content as C
+    from tutor.pedagogy import lt_merge
+    forms = {f.lower() for e in C.load_vocab(pack.root.parent, pack.lang).values() for f in e.forms}
+    trusted = set(ingest.quality_gate(pack).get("lt_trusted_rules", []))
+
+    def check(text: str, mode: str) -> list | None:
+        ms = LT.check(text, cfg, disabled_categories=pack.lt_map.ignore_categories)
+        if ms is None:
+            return None
+        return lt_merge.to_obs(ms, text, pack.lt_map, input_mode=mode, known_forms=forms, trusted_rules=trusted,
+                               version=pack.lt_map.lt_version_tested or "?")[0]
+    return check
+
+
+def lt_from_config(pack: Pack) -> Callable[[str, str], list | None] | None:
+    """Jak `lt_candidates` z ustawień `[languagetool]`; zła konfiguracja nie blokuje rozmowy (ocena bez LT)."""
+    from tutor.app import languagetool as LT
+    try:
+        return lt_candidates(pack, LT.settings())
+    except LT.LTConfigError as e:
+        LT.log.warning("LanguageTool wyłączony: %s", e)
+        return None
 
 
 def eval_context() -> bool:

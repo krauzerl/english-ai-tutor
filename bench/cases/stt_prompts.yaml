@@ -1,0 +1,45 @@
+# Benchmark STT na PRAWDZIWYM głosie ucznia (polski akcent). Autor listy: Claude Opus 5.5, 2026-11-26 (niezwalidowana).
+# Nagrania NIE trafiają do repozytorium: zapisują się w ~/.local/share/english-ai-tutor/stt_bench/<sesja>/ (poza Git).
+# Czytaj zdanie DOKŁADNIE tak, jak jest napisane — także z błędem. Celem jest zmierzenie, czy STT zachowuje to,
+# co uczeń naprawdę powiedział (błąd ucznia musi przetrwać transkrypcję; poprawna końcówka -s/-ed nie może zniknąć).
+#
+# kind: err   — zdanie z błędem; `keep` = forma błędna, która MUSI zostać w transkrypcji
+#       ok    — zdanie poprawne; `keep` = końcówki/słowa łatwe do zgubienia (-s, -ed, przedimki), które MUSZĄ zostać
+#       short — krótka odpowiedź na zadanie zamknięte; `options` = opcje zadania, `answer` = poprawna interpretacja
+#       num   — liczby i jednostki;  name — nazwy własne (PL/EN);  `a|b` = dopuszczalne zapisy
+prompts:
+  - {id: e01, kind: err, text: "He go to work every day.", keep: ["go"]}
+  - {id: e02, kind: err, text: "Yesterday I buyed a new phone.", keep: ["buyed"]}
+  - {id: e03, kind: err, text: "She don't like coffee.", keep: ["don't"]}
+  - {id: e04, kind: err, text: "I have two childrens.", keep: ["childrens"]}
+  - {id: e05, kind: err, text: "We discussed about the plan.", keep: ["about"]}
+  - {id: e06, kind: err, text: "I am agree with you.", keep: ["am agree"]}
+  - {id: e07, kind: err, text: "There is many people here.", keep: ["is many"]}
+  - {id: e08, kind: err, text: "I live here since five years.", keep: ["live", "since"]}
+  - {id: e09, kind: err, text: "He can speaks English.", keep: ["speaks"]}
+  - {id: e10, kind: err, text: "I didn't went to school.", keep: ["went"]}
+  - {id: e11, kind: err, text: "My brother have a car.", keep: ["have"]}
+  - {id: e12, kind: err, text: "I go to cinema yesterday.", keep: ["go to cinema"]}
+  - {id: o01, kind: ok, text: "She works in a hospital.", keep: ["works", "a hospital"]}
+  - {id: o02, kind: ok, text: "We discussed the budget yesterday.", keep: ["discussed"]}
+  - {id: o03, kind: ok, text: "He asked me about the results.", keep: ["asked", "the results"]}
+  - {id: o04, kind: ok, text: "They watched a film last night.", keep: ["watched", "a film"]}
+  - {id: o05, kind: ok, text: "My parents live in a small town.", keep: ["parents", "a small town"]}
+  - {id: o06, kind: ok, text: "I've finished the report.", keep: ["I've", "finished"]}
+  - {id: o07, kind: ok, text: "The kids played outside all day.", keep: ["kids", "played"]}
+  - {id: o08, kind: ok, text: "It depends on the weather.", keep: ["depends"]}
+  - {id: s01, kind: short, text: "B", options: ["am", "is", "are"], answer: "is"}
+  - {id: s02, kind: short, text: "The second one", options: ["go", "goes", "going"], answer: "goes"}
+  - {id: s03, kind: short, text: "goes", options: ["go", "goes", "going"], answer: "goes"}
+  - {id: s04, kind: short, text: "Option C", options: ["was", "were", "be"], answer: "be"}
+  - {id: s05, kind: short, text: "were", options: ["was", "were", "be"], answer: "were"}
+  - {id: s06, kind: short, text: "Number one", options: ["a", "an", "the"], answer: "a"}
+  - {id: s07, kind: short, text: "an", options: ["a", "an", "the"], answer: "an"}
+  - {id: s08, kind: short, text: "the", options: ["a", "an", "the"], answer: "the"}
+  - {id: n01, kind: num, text: "The meeting is at half past three.", keep: ["half past three|3:30|three thirty"]}
+  - {id: n02, kind: num, text: "Give him five milligrams of morphine.", keep: ["five|5", "milligrams|mg"]}
+  - {id: n03, kind: num, text: "Blood pressure is one hundred and twenty over eighty.", keep: ["eighty|80"]}
+  - {id: n04, kind: num, text: "I was born in nineteen ninety two.", keep: ["ninety two|1992|ninety-two"]}
+  - {id: m01, kind: name, text: "I live in Bielsko-Biała.", keep: ["Bielsko"]}
+  - {id: m02, kind: name, text: "My colleague Bartek works in Kraków.", keep: ["Bartek"]}
+  - {id: m03, kind: name, text: "We use Kubernetes and Postgres.", keep: ["Kubernetes"]}

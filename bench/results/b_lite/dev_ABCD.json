@@ -1,0 +1,7040 @@
+{
+ "model": "qwen3:8b",
+ "set": "b_lite",
+ "split": "dev",
+ "lt": true,
+ "runs": [
+  {
+   "variant": "A",
+   "repeat": 0,
+   "eval_p50": 1.62,
+   "eval_p95": 2.06,
+   "levels": {
+    "recast": {
+     "level": "recast",
+     "cases": 40,
+     "unrated": 0,
+     "tp": 11,
+     "fp": 3,
+     "precision": 0.786,
+     "precision_ci": [
+      0.524,
+      0.924
+     ],
+     "recall": 0.48,
+     "recall_ci": [
+      0.3,
+      0.665
+     ],
+     "recall_by": {
+      "single": "7/10",
+      "multi": "5/12",
+      "ctx": "0/3"
+     },
+     "f05": 0.697,
+     "fcr": "1/23",
+     "fcr_rate": 0.043,
+     "fcr_ci": [
+      0.008,
+      0.21
+     ],
+     "critical": 0,
+     "rows": [
+      {
+       "id": "d_c01",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c02",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c03",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c04",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c05",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c06",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c07",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c08",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_v01",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_v02",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_v03",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_v04",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_k01",
+       "kind": "critical",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_k02",
+       "kind": "critical",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_k03",
+       "kind": "critical",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_x01",
+       "kind": "ctx_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_x02",
+       "kind": "ctx_clean",
+       "status": "evaluated",
+       "reported": [
+        [
+         "go",
+         "goes",
+         "agreement.subject_verb",
+         "h",
+         null
+        ]
+       ],
+       "false": [
+        [
+         "go",
+         "goes"
+        ]
+       ]
+      },
+      {
+       "id": "d_x03",
+       "kind": "ctx_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_x04",
+       "kind": "ctx_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_o01",
+       "kind": "voice_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_o02",
+       "kind": "voice_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_s01",
+       "kind": "stt",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_s02",
+       "kind": "stt",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_e01",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "don't",
+         "doesn't",
+         "agreement.subject_verb",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e02",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "am",
+         "",
+         "agreement.subject_verb",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e03",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "buyed",
+         "bought",
+         "morphology.irregular_past",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e04",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "with",
+         "to",
+         "preposition",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e05",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [],
+       "missed": [
+        "children"
+       ]
+      },
+      {
+       "id": "d_e06",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "about",
+         "",
+         "preposition",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e07",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "live",
+         "have lived",
+         "tense.present_perfect",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e08",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "me",
+         "to me",
+         "preposition.dependent",
+         "h",
+         null
+        ]
+       ],
+       "unexpected": [
+        [
+         "me",
+         "to me"
+        ]
+       ],
+       "missed": [
+        "explain this rule to me|explain this rule"
+       ]
+      },
+      {
+       "id": "d_e09",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "many",
+         "a lot of",
+         "collocation.verb_noun",
+         "h",
+         null
+        ]
+       ],
+       "unexpected": [
+        [
+         "many",
+         "a lot of"
+        ]
+       ],
+       "missed": [
+        "There are"
+       ]
+      },
+      {
+       "id": "d_e10",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "interesting",
+         "interested",
+         "word_choice",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_m01",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "go",
+         "went",
+         "tense.past_simple",
+         "h",
+         null
+        ]
+       ],
+       "missed": [
+        "bought",
+        "the shop|a shop|shopping|to the store",
+        "buy milk|bought milk|some milk"
+       ]
+      },
+      {
+       "id": "d_m02",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "have",
+         "has",
+         "agreement.subject_verb",
+         "h",
+         null
+        ]
+       ],
+       "missed": [
+        "three cats",
+        "two dogs"
+       ]
+      },
+      {
+       "id": "d_m03",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "work in bank since five years",
+         "works in a bank since five years",
+         "agreement.subject_verb",
+         "h",
+         null
+        ]
+       ],
+       "missed": [
+        "for five years"
+       ]
+      },
+      {
+       "id": "d_m04",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "don't",
+         "doesn't",
+         "agreement.subject_verb",
+         "h",
+         null
+        ]
+       ],
+       "missed": [
+        "for 3 days"
+       ]
+      },
+      {
+       "id": "d_y01",
+       "kind": "ctx_error",
+       "status": "evaluated",
+       "reported": [],
+       "missed": [
+        "watched"
+       ]
+      },
+      {
+       "id": "d_y02",
+       "kind": "ctx_error",
+       "status": "evaluated",
+       "reported": [],
+       "missed": [
+        "usually have"
+       ]
+      },
+      {
+       "id": "d_y03",
+       "kind": "ctx_error",
+       "status": "evaluated",
+       "reported": [],
+       "missed": [
+        "was born"
+       ]
+      }
+     ]
+    },
+    "log": {
+     "level": "log",
+     "cases": 40,
+     "unrated": 0,
+     "tp": 11,
+     "fp": 3,
+     "precision": 0.786,
+     "precision_ci": [
+      0.524,
+      0.924
+     ],
+     "recall": 0.48,
+     "recall_ci": [
+      0.3,
+      0.665
+     ],
+     "recall_by": {
+      "single": "7/10",
+      "multi": "5/12",
+      "ctx": "0/3"
+     },
+     "f05": 0.697,
+     "fcr": "1/23",
+     "fcr_rate": 0.043,
+     "fcr_ci": [
+      0.008,
+      0.21
+     ],
+     "critical": 0,
+     "rows": [
+      {
+       "id": "d_c01",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c02",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c03",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c04",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c05",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c06",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c07",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c08",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_v01",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_v02",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_v03",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_v04",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_k01",
+       "kind": "critical",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_k02",
+       "kind": "critical",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_k03",
+       "kind": "critical",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_x01",
+       "kind": "ctx_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_x02",
+       "kind": "ctx_clean",
+       "status": "evaluated",
+       "reported": [
+        [
+         "go",
+         "goes",
+         "agreement.subject_verb",
+         "h",
+         null
+        ]
+       ],
+       "false": [
+        [
+         "go",
+         "goes"
+        ]
+       ]
+      },
+      {
+       "id": "d_x03",
+       "kind": "ctx_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_x04",
+       "kind": "ctx_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_o01",
+       "kind": "voice_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_o02",
+       "kind": "voice_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_s01",
+       "kind": "stt",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_s02",
+       "kind": "stt",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_e01",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "don't",
+         "doesn't",
+         "agreement.subject_verb",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e02",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "am",
+         "",
+         "agreement.subject_verb",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e03",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "buyed",
+         "bought",
+         "morphology.irregular_past",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e04",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "with",
+         "to",
+         "preposition",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e05",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [],
+       "missed": [
+        "children"
+       ]
+      },
+      {
+       "id": "d_e06",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "about",
+         "",
+         "preposition",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e07",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "live",
+         "have lived",
+         "tense.present_perfect",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e08",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "me",
+         "to me",
+         "preposition.dependent",
+         "h",
+         null
+        ]
+       ],
+       "unexpected": [
+        [
+         "me",
+         "to me"
+        ]
+       ],
+       "missed": [
+        "explain this rule to me|explain this rule"
+       ]
+      },
+      {
+       "id": "d_e09",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "many",
+         "a lot of",
+         "collocation.verb_noun",
+         "h",
+         null
+        ]
+       ],
+       "unexpected": [
+        [
+         "many",
+         "a lot of"
+        ]
+       ],
+       "missed": [
+        "There are"
+       ]
+      },
+      {
+       "id": "d_e10",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "interesting",
+         "interested",
+         "word_choice",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_m01",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "go",
+         "went",
+         "tense.past_simple",
+         "h",
+         null
+        ]
+       ],
+       "missed": [
+        "bought",
+        "the shop|a shop|shopping|to the store",
+        "buy milk|bought milk|some milk"
+       ]
+      },
+      {
+       "id": "d_m02",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "have",
+         "has",
+         "agreement.subject_verb",
+         "h",
+         null
+        ]
+       ],
+       "missed": [
+        "three cats",
+        "two dogs"
+       ]
+      },
+      {
+       "id": "d_m03",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "work in bank since five years",
+         "works in a bank since five years",
+         "agreement.subject_verb",
+         "h",
+         null
+        ]
+       ],
+       "missed": [
+        "for five years"
+       ]
+      },
+      {
+       "id": "d_m04",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "don't",
+         "doesn't",
+         "agreement.subject_verb",
+         "h",
+         null
+        ]
+       ],
+       "missed": [
+        "for 3 days"
+       ]
+      },
+      {
+       "id": "d_y01",
+       "kind": "ctx_error",
+       "status": "evaluated",
+       "reported": [],
+       "missed": [
+        "watched"
+       ]
+      },
+      {
+       "id": "d_y02",
+       "kind": "ctx_error",
+       "status": "evaluated",
+       "reported": [],
+       "missed": [
+        "usually have"
+       ]
+      },
+      {
+       "id": "d_y03",
+       "kind": "ctx_error",
+       "status": "evaluated",
+       "reported": [],
+       "missed": [
+        "was born"
+       ]
+      }
+     ]
+    }
+   }
+  },
+  {
+   "variant": "A",
+   "repeat": 1,
+   "eval_p50": 1.63,
+   "eval_p95": 1.97,
+   "levels": {
+    "recast": {
+     "level": "recast",
+     "cases": 40,
+     "unrated": 0,
+     "tp": 11,
+     "fp": 3,
+     "precision": 0.786,
+     "precision_ci": [
+      0.524,
+      0.924
+     ],
+     "recall": 0.48,
+     "recall_ci": [
+      0.3,
+      0.665
+     ],
+     "recall_by": {
+      "single": "7/10",
+      "multi": "5/12",
+      "ctx": "0/3"
+     },
+     "f05": 0.697,
+     "fcr": "1/23",
+     "fcr_rate": 0.043,
+     "fcr_ci": [
+      0.008,
+      0.21
+     ],
+     "critical": 0,
+     "rows": [
+      {
+       "id": "d_c01",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c02",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c03",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c04",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c05",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c06",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c07",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c08",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_v01",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_v02",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_v03",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_v04",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_k01",
+       "kind": "critical",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_k02",
+       "kind": "critical",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_k03",
+       "kind": "critical",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_x01",
+       "kind": "ctx_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_x02",
+       "kind": "ctx_clean",
+       "status": "evaluated",
+       "reported": [
+        [
+         "go",
+         "goes",
+         "agreement.subject_verb",
+         "h",
+         null
+        ]
+       ],
+       "false": [
+        [
+         "go",
+         "goes"
+        ]
+       ]
+      },
+      {
+       "id": "d_x03",
+       "kind": "ctx_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_x04",
+       "kind": "ctx_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_o01",
+       "kind": "voice_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_o02",
+       "kind": "voice_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_s01",
+       "kind": "stt",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_s02",
+       "kind": "stt",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_e01",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "don't",
+         "doesn't",
+         "agreement.subject_verb",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e02",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "am",
+         "",
+         "agreement.subject_verb",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e03",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "buyed",
+         "bought",
+         "morphology.irregular_past",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e04",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "with",
+         "to",
+         "preposition",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e05",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [],
+       "missed": [
+        "children"
+       ]
+      },
+      {
+       "id": "d_e06",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "about",
+         "",
+         "preposition",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e07",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "live",
+         "have lived",
+         "tense.present_perfect",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e08",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "me",
+         "to me",
+         "preposition.dependent",
+         "h",
+         null
+        ]
+       ],
+       "unexpected": [
+        [
+         "me",
+         "to me"
+        ]
+       ],
+       "missed": [
+        "explain this rule to me|explain this rule"
+       ]
+      },
+      {
+       "id": "d_e09",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "many",
+         "a lot of",
+         "collocation.verb_noun",
+         "h",
+         null
+        ]
+       ],
+       "unexpected": [
+        [
+         "many",
+         "a lot of"
+        ]
+       ],
+       "missed": [
+        "There are"
+       ]
+      },
+      {
+       "id": "d_e10",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "interesting",
+         "interested",
+         "word_choice",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_m01",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "go",
+         "went",
+         "tense.past_simple",
+         "h",
+         null
+        ]
+       ],
+       "missed": [
+        "bought",
+        "the shop|a shop|shopping|to the store",
+        "buy milk|bought milk|some milk"
+       ]
+      },
+      {
+       "id": "d_m02",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "have",
+         "has",
+         "agreement.subject_verb",
+         "h",
+         null
+        ]
+       ],
+       "missed": [
+        "three cats",
+        "two dogs"
+       ]
+      },
+      {
+       "id": "d_m03",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "work in bank since five years",
+         "works in a bank since five years",
+         "agreement.subject_verb",
+         "h",
+         null
+        ]
+       ],
+       "missed": [
+        "for five years"
+       ]
+      },
+      {
+       "id": "d_m04",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "don't",
+         "doesn't",
+         "agreement.subject_verb",
+         "h",
+         null
+        ]
+       ],
+       "missed": [
+        "for 3 days"
+       ]
+      },
+      {
+       "id": "d_y01",
+       "kind": "ctx_error",
+       "status": "evaluated",
+       "reported": [],
+       "missed": [
+        "watched"
+       ]
+      },
+      {
+       "id": "d_y02",
+       "kind": "ctx_error",
+       "status": "evaluated",
+       "reported": [],
+       "missed": [
+        "usually have"
+       ]
+      },
+      {
+       "id": "d_y03",
+       "kind": "ctx_error",
+       "status": "evaluated",
+       "reported": [],
+       "missed": [
+        "was born"
+       ]
+      }
+     ]
+    },
+    "log": {
+     "level": "log",
+     "cases": 40,
+     "unrated": 0,
+     "tp": 11,
+     "fp": 3,
+     "precision": 0.786,
+     "precision_ci": [
+      0.524,
+      0.924
+     ],
+     "recall": 0.48,
+     "recall_ci": [
+      0.3,
+      0.665
+     ],
+     "recall_by": {
+      "single": "7/10",
+      "multi": "5/12",
+      "ctx": "0/3"
+     },
+     "f05": 0.697,
+     "fcr": "1/23",
+     "fcr_rate": 0.043,
+     "fcr_ci": [
+      0.008,
+      0.21
+     ],
+     "critical": 0,
+     "rows": [
+      {
+       "id": "d_c01",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c02",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c03",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c04",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c05",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c06",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c07",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c08",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_v01",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_v02",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_v03",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_v04",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_k01",
+       "kind": "critical",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_k02",
+       "kind": "critical",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_k03",
+       "kind": "critical",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_x01",
+       "kind": "ctx_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_x02",
+       "kind": "ctx_clean",
+       "status": "evaluated",
+       "reported": [
+        [
+         "go",
+         "goes",
+         "agreement.subject_verb",
+         "h",
+         null
+        ]
+       ],
+       "false": [
+        [
+         "go",
+         "goes"
+        ]
+       ]
+      },
+      {
+       "id": "d_x03",
+       "kind": "ctx_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_x04",
+       "kind": "ctx_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_o01",
+       "kind": "voice_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_o02",
+       "kind": "voice_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_s01",
+       "kind": "stt",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_s02",
+       "kind": "stt",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_e01",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "don't",
+         "doesn't",
+         "agreement.subject_verb",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e02",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "am",
+         "",
+         "agreement.subject_verb",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e03",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "buyed",
+         "bought",
+         "morphology.irregular_past",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e04",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "with",
+         "to",
+         "preposition",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e05",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [],
+       "missed": [
+        "children"
+       ]
+      },
+      {
+       "id": "d_e06",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "about",
+         "",
+         "preposition",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e07",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "live",
+         "have lived",
+         "tense.present_perfect",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e08",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "me",
+         "to me",
+         "preposition.dependent",
+         "h",
+         null
+        ]
+       ],
+       "unexpected": [
+        [
+         "me",
+         "to me"
+        ]
+       ],
+       "missed": [
+        "explain this rule to me|explain this rule"
+       ]
+      },
+      {
+       "id": "d_e09",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "many",
+         "a lot of",
+         "collocation.verb_noun",
+         "h",
+         null
+        ]
+       ],
+       "unexpected": [
+        [
+         "many",
+         "a lot of"
+        ]
+       ],
+       "missed": [
+        "There are"
+       ]
+      },
+      {
+       "id": "d_e10",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "interesting",
+         "interested",
+         "word_choice",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_m01",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "go",
+         "went",
+         "tense.past_simple",
+         "h",
+         null
+        ]
+       ],
+       "missed": [
+        "bought",
+        "the shop|a shop|shopping|to the store",
+        "buy milk|bought milk|some milk"
+       ]
+      },
+      {
+       "id": "d_m02",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "have",
+         "has",
+         "agreement.subject_verb",
+         "h",
+         null
+        ]
+       ],
+       "missed": [
+        "three cats",
+        "two dogs"
+       ]
+      },
+      {
+       "id": "d_m03",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "work in bank since five years",
+         "works in a bank since five years",
+         "agreement.subject_verb",
+         "h",
+         null
+        ]
+       ],
+       "missed": [
+        "for five years"
+       ]
+      },
+      {
+       "id": "d_m04",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "don't",
+         "doesn't",
+         "agreement.subject_verb",
+         "h",
+         null
+        ]
+       ],
+       "missed": [
+        "for 3 days"
+       ]
+      },
+      {
+       "id": "d_y01",
+       "kind": "ctx_error",
+       "status": "evaluated",
+       "reported": [],
+       "missed": [
+        "watched"
+       ]
+      },
+      {
+       "id": "d_y02",
+       "kind": "ctx_error",
+       "status": "evaluated",
+       "reported": [],
+       "missed": [
+        "usually have"
+       ]
+      },
+      {
+       "id": "d_y03",
+       "kind": "ctx_error",
+       "status": "evaluated",
+       "reported": [],
+       "missed": [
+        "was born"
+       ]
+      }
+     ]
+    }
+   }
+  },
+  {
+   "variant": "B",
+   "repeat": 0,
+   "eval_p50": 1.61,
+   "eval_p95": 2.01,
+   "levels": {
+    "recast": {
+     "level": "recast",
+     "cases": 40,
+     "unrated": 0,
+     "tp": 11,
+     "fp": 2,
+     "precision": 0.846,
+     "precision_ci": [
+      0.578,
+      0.957
+     ],
+     "recall": 0.44,
+     "recall_ci": [
+      0.267,
+      0.629
+     ],
+     "recall_by": {
+      "single": "7/10",
+      "multi": "4/12",
+      "ctx": "0/3"
+     },
+     "f05": 0.714,
+     "fcr": "0/23",
+     "fcr_rate": 0.0,
+     "fcr_ci": [
+      0.0,
+      0.143
+     ],
+     "critical": 0,
+     "rows": [
+      {
+       "id": "d_c01",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c02",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c03",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c04",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c05",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c06",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c07",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c08",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_v01",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_v02",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_v03",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_v04",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_k01",
+       "kind": "critical",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_k02",
+       "kind": "critical",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_k03",
+       "kind": "critical",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_x01",
+       "kind": "ctx_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_x02",
+       "kind": "ctx_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_x03",
+       "kind": "ctx_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_x04",
+       "kind": "ctx_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_o01",
+       "kind": "voice_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_o02",
+       "kind": "voice_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_s01",
+       "kind": "stt",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_s02",
+       "kind": "stt",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_e01",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "don't",
+         "doesn't",
+         "agreement.subject_verb",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e02",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "am",
+         "",
+         "agreement.subject_verb",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e03",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "buyed",
+         "bought",
+         "morphology.irregular_past",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e04",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "with",
+         "to",
+         "preposition",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e05",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [],
+       "missed": [
+        "children"
+       ]
+      },
+      {
+       "id": "d_e06",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "about",
+         "",
+         "preposition",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e07",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "live",
+         "have lived",
+         "tense.present_perfect",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e08",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "me",
+         "to me",
+         "preposition.dependent",
+         "h",
+         null
+        ]
+       ],
+       "unexpected": [
+        [
+         "me",
+         "to me"
+        ]
+       ],
+       "missed": [
+        "explain this rule to me|explain this rule"
+       ]
+      },
+      {
+       "id": "d_e09",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "many",
+         "a lot of",
+         "collocation.verb_noun",
+         "h",
+         null
+        ]
+       ],
+       "unexpected": [
+        [
+         "many",
+         "a lot of"
+        ]
+       ],
+       "missed": [
+        "There are"
+       ]
+      },
+      {
+       "id": "d_e10",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "interesting",
+         "interested",
+         "word_choice",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_m01",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "go",
+         "went",
+         "tense.past_simple",
+         "h",
+         null
+        ]
+       ],
+       "missed": [
+        "bought",
+        "the shop|a shop|shopping|to the store",
+        "buy milk|bought milk|some milk"
+       ]
+      },
+      {
+       "id": "d_m02",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "have",
+         "has",
+         "agreement.subject_verb",
+         "h",
+         null
+        ]
+       ],
+       "missed": [
+        "three cats",
+        "two dogs"
+       ]
+      },
+      {
+       "id": "d_m03",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "work",
+         "works",
+         "morphology.irregular_past",
+         "h",
+         null
+        ]
+       ],
+       "missed": [
+        "in a bank|at a bank|in the bank|at the bank",
+        "for five years"
+       ]
+      },
+      {
+       "id": "d_m04",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "don't",
+         "doesn't",
+         "agreement.subject_verb",
+         "h",
+         null
+        ]
+       ],
+       "missed": [
+        "for 3 days"
+       ]
+      },
+      {
+       "id": "d_y01",
+       "kind": "ctx_error",
+       "status": "evaluated",
+       "reported": [],
+       "missed": [
+        "watched"
+       ]
+      },
+      {
+       "id": "d_y02",
+       "kind": "ctx_error",
+       "status": "evaluated",
+       "reported": [],
+       "missed": [
+        "usually have"
+       ]
+      },
+      {
+       "id": "d_y03",
+       "kind": "ctx_error",
+       "status": "evaluated",
+       "reported": [],
+       "missed": [
+        "was born"
+       ]
+      }
+     ]
+    },
+    "log": {
+     "level": "log",
+     "cases": 40,
+     "unrated": 0,
+     "tp": 11,
+     "fp": 2,
+     "precision": 0.846,
+     "precision_ci": [
+      0.578,
+      0.957
+     ],
+     "recall": 0.44,
+     "recall_ci": [
+      0.267,
+      0.629
+     ],
+     "recall_by": {
+      "single": "7/10",
+      "multi": "4/12",
+      "ctx": "0/3"
+     },
+     "f05": 0.714,
+     "fcr": "0/23",
+     "fcr_rate": 0.0,
+     "fcr_ci": [
+      0.0,
+      0.143
+     ],
+     "critical": 0,
+     "rows": [
+      {
+       "id": "d_c01",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c02",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c03",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c04",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c05",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c06",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c07",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c08",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_v01",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_v02",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_v03",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_v04",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_k01",
+       "kind": "critical",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_k02",
+       "kind": "critical",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_k03",
+       "kind": "critical",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_x01",
+       "kind": "ctx_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_x02",
+       "kind": "ctx_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_x03",
+       "kind": "ctx_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_x04",
+       "kind": "ctx_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_o01",
+       "kind": "voice_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_o02",
+       "kind": "voice_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_s01",
+       "kind": "stt",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_s02",
+       "kind": "stt",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_e01",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "don't",
+         "doesn't",
+         "agreement.subject_verb",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e02",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "am",
+         "",
+         "agreement.subject_verb",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e03",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "buyed",
+         "bought",
+         "morphology.irregular_past",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e04",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "with",
+         "to",
+         "preposition",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e05",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [],
+       "missed": [
+        "children"
+       ]
+      },
+      {
+       "id": "d_e06",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "about",
+         "",
+         "preposition",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e07",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "live",
+         "have lived",
+         "tense.present_perfect",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e08",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "me",
+         "to me",
+         "preposition.dependent",
+         "h",
+         null
+        ]
+       ],
+       "unexpected": [
+        [
+         "me",
+         "to me"
+        ]
+       ],
+       "missed": [
+        "explain this rule to me|explain this rule"
+       ]
+      },
+      {
+       "id": "d_e09",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "many",
+         "a lot of",
+         "collocation.verb_noun",
+         "h",
+         null
+        ]
+       ],
+       "unexpected": [
+        [
+         "many",
+         "a lot of"
+        ]
+       ],
+       "missed": [
+        "There are"
+       ]
+      },
+      {
+       "id": "d_e10",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "interesting",
+         "interested",
+         "word_choice",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_m01",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "go",
+         "went",
+         "tense.past_simple",
+         "h",
+         null
+        ]
+       ],
+       "missed": [
+        "bought",
+        "the shop|a shop|shopping|to the store",
+        "buy milk|bought milk|some milk"
+       ]
+      },
+      {
+       "id": "d_m02",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "have",
+         "has",
+         "agreement.subject_verb",
+         "h",
+         null
+        ]
+       ],
+       "missed": [
+        "three cats",
+        "two dogs"
+       ]
+      },
+      {
+       "id": "d_m03",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "work",
+         "works",
+         "morphology.irregular_past",
+         "h",
+         null
+        ]
+       ],
+       "missed": [
+        "in a bank|at a bank|in the bank|at the bank",
+        "for five years"
+       ]
+      },
+      {
+       "id": "d_m04",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "don't",
+         "doesn't",
+         "agreement.subject_verb",
+         "h",
+         null
+        ]
+       ],
+       "missed": [
+        "for 3 days"
+       ]
+      },
+      {
+       "id": "d_y01",
+       "kind": "ctx_error",
+       "status": "evaluated",
+       "reported": [],
+       "missed": [
+        "watched"
+       ]
+      },
+      {
+       "id": "d_y02",
+       "kind": "ctx_error",
+       "status": "evaluated",
+       "reported": [],
+       "missed": [
+        "usually have"
+       ]
+      },
+      {
+       "id": "d_y03",
+       "kind": "ctx_error",
+       "status": "evaluated",
+       "reported": [],
+       "missed": [
+        "was born"
+       ]
+      }
+     ]
+    }
+   }
+  },
+  {
+   "variant": "B",
+   "repeat": 1,
+   "eval_p50": 1.58,
+   "eval_p95": 2.0,
+   "levels": {
+    "recast": {
+     "level": "recast",
+     "cases": 40,
+     "unrated": 0,
+     "tp": 11,
+     "fp": 2,
+     "precision": 0.846,
+     "precision_ci": [
+      0.578,
+      0.957
+     ],
+     "recall": 0.44,
+     "recall_ci": [
+      0.267,
+      0.629
+     ],
+     "recall_by": {
+      "single": "7/10",
+      "multi": "4/12",
+      "ctx": "0/3"
+     },
+     "f05": 0.714,
+     "fcr": "0/23",
+     "fcr_rate": 0.0,
+     "fcr_ci": [
+      0.0,
+      0.143
+     ],
+     "critical": 0,
+     "rows": [
+      {
+       "id": "d_c01",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c02",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c03",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c04",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c05",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c06",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c07",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c08",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_v01",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_v02",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_v03",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_v04",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_k01",
+       "kind": "critical",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_k02",
+       "kind": "critical",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_k03",
+       "kind": "critical",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_x01",
+       "kind": "ctx_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_x02",
+       "kind": "ctx_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_x03",
+       "kind": "ctx_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_x04",
+       "kind": "ctx_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_o01",
+       "kind": "voice_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_o02",
+       "kind": "voice_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_s01",
+       "kind": "stt",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_s02",
+       "kind": "stt",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_e01",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "don't",
+         "doesn't",
+         "agreement.subject_verb",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e02",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "am",
+         "",
+         "agreement.subject_verb",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e03",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "buyed",
+         "bought",
+         "morphology.irregular_past",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e04",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "with",
+         "to",
+         "preposition",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e05",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [],
+       "missed": [
+        "children"
+       ]
+      },
+      {
+       "id": "d_e06",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "about",
+         "",
+         "preposition",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e07",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "live",
+         "have lived",
+         "tense.present_perfect",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e08",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "me",
+         "to me",
+         "preposition.dependent",
+         "h",
+         null
+        ]
+       ],
+       "unexpected": [
+        [
+         "me",
+         "to me"
+        ]
+       ],
+       "missed": [
+        "explain this rule to me|explain this rule"
+       ]
+      },
+      {
+       "id": "d_e09",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "many",
+         "a lot of",
+         "collocation.verb_noun",
+         "h",
+         null
+        ]
+       ],
+       "unexpected": [
+        [
+         "many",
+         "a lot of"
+        ]
+       ],
+       "missed": [
+        "There are"
+       ]
+      },
+      {
+       "id": "d_e10",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "interesting",
+         "interested",
+         "word_choice",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_m01",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "go",
+         "went",
+         "tense.past_simple",
+         "h",
+         null
+        ]
+       ],
+       "missed": [
+        "bought",
+        "the shop|a shop|shopping|to the store",
+        "buy milk|bought milk|some milk"
+       ]
+      },
+      {
+       "id": "d_m02",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "have",
+         "has",
+         "agreement.subject_verb",
+         "h",
+         null
+        ]
+       ],
+       "missed": [
+        "three cats",
+        "two dogs"
+       ]
+      },
+      {
+       "id": "d_m03",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "work",
+         "works",
+         "morphology.irregular_past",
+         "h",
+         null
+        ]
+       ],
+       "missed": [
+        "in a bank|at a bank|in the bank|at the bank",
+        "for five years"
+       ]
+      },
+      {
+       "id": "d_m04",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "don't",
+         "doesn't",
+         "agreement.subject_verb",
+         "h",
+         null
+        ]
+       ],
+       "missed": [
+        "for 3 days"
+       ]
+      },
+      {
+       "id": "d_y01",
+       "kind": "ctx_error",
+       "status": "evaluated",
+       "reported": [],
+       "missed": [
+        "watched"
+       ]
+      },
+      {
+       "id": "d_y02",
+       "kind": "ctx_error",
+       "status": "evaluated",
+       "reported": [],
+       "missed": [
+        "usually have"
+       ]
+      },
+      {
+       "id": "d_y03",
+       "kind": "ctx_error",
+       "status": "evaluated",
+       "reported": [],
+       "missed": [
+        "was born"
+       ]
+      }
+     ]
+    },
+    "log": {
+     "level": "log",
+     "cases": 40,
+     "unrated": 0,
+     "tp": 11,
+     "fp": 2,
+     "precision": 0.846,
+     "precision_ci": [
+      0.578,
+      0.957
+     ],
+     "recall": 0.44,
+     "recall_ci": [
+      0.267,
+      0.629
+     ],
+     "recall_by": {
+      "single": "7/10",
+      "multi": "4/12",
+      "ctx": "0/3"
+     },
+     "f05": 0.714,
+     "fcr": "0/23",
+     "fcr_rate": 0.0,
+     "fcr_ci": [
+      0.0,
+      0.143
+     ],
+     "critical": 0,
+     "rows": [
+      {
+       "id": "d_c01",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c02",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c03",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c04",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c05",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c06",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c07",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c08",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_v01",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_v02",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_v03",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_v04",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_k01",
+       "kind": "critical",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_k02",
+       "kind": "critical",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_k03",
+       "kind": "critical",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_x01",
+       "kind": "ctx_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_x02",
+       "kind": "ctx_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_x03",
+       "kind": "ctx_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_x04",
+       "kind": "ctx_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_o01",
+       "kind": "voice_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_o02",
+       "kind": "voice_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_s01",
+       "kind": "stt",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_s02",
+       "kind": "stt",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_e01",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "don't",
+         "doesn't",
+         "agreement.subject_verb",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e02",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "am",
+         "",
+         "agreement.subject_verb",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e03",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "buyed",
+         "bought",
+         "morphology.irregular_past",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e04",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "with",
+         "to",
+         "preposition",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e05",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [],
+       "missed": [
+        "children"
+       ]
+      },
+      {
+       "id": "d_e06",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "about",
+         "",
+         "preposition",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e07",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "live",
+         "have lived",
+         "tense.present_perfect",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e08",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "me",
+         "to me",
+         "preposition.dependent",
+         "h",
+         null
+        ]
+       ],
+       "unexpected": [
+        [
+         "me",
+         "to me"
+        ]
+       ],
+       "missed": [
+        "explain this rule to me|explain this rule"
+       ]
+      },
+      {
+       "id": "d_e09",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "many",
+         "a lot of",
+         "collocation.verb_noun",
+         "h",
+         null
+        ]
+       ],
+       "unexpected": [
+        [
+         "many",
+         "a lot of"
+        ]
+       ],
+       "missed": [
+        "There are"
+       ]
+      },
+      {
+       "id": "d_e10",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "interesting",
+         "interested",
+         "word_choice",
+         "h",
+         null
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_m01",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "go",
+         "went",
+         "tense.past_simple",
+         "h",
+         null
+        ]
+       ],
+       "missed": [
+        "bought",
+        "the shop|a shop|shopping|to the store",
+        "buy milk|bought milk|some milk"
+       ]
+      },
+      {
+       "id": "d_m02",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "have",
+         "has",
+         "agreement.subject_verb",
+         "h",
+         null
+        ]
+       ],
+       "missed": [
+        "three cats",
+        "two dogs"
+       ]
+      },
+      {
+       "id": "d_m03",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "work",
+         "works",
+         "morphology.irregular_past",
+         "h",
+         null
+        ]
+       ],
+       "missed": [
+        "in a bank|at a bank|in the bank|at the bank",
+        "for five years"
+       ]
+      },
+      {
+       "id": "d_m04",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "don't",
+         "doesn't",
+         "agreement.subject_verb",
+         "h",
+         null
+        ]
+       ],
+       "missed": [
+        "for 3 days"
+       ]
+      },
+      {
+       "id": "d_y01",
+       "kind": "ctx_error",
+       "status": "evaluated",
+       "reported": [],
+       "missed": [
+        "watched"
+       ]
+      },
+      {
+       "id": "d_y02",
+       "kind": "ctx_error",
+       "status": "evaluated",
+       "reported": [],
+       "missed": [
+        "usually have"
+       ]
+      },
+      {
+       "id": "d_y03",
+       "kind": "ctx_error",
+       "status": "evaluated",
+       "reported": [],
+       "missed": [
+        "was born"
+       ]
+      }
+     ]
+    }
+   }
+  },
+  {
+   "variant": "C",
+   "repeat": 0,
+   "eval_p50": 1.62,
+   "eval_p95": 2.02,
+   "levels": {
+    "recast": {
+     "level": "recast",
+     "cases": 40,
+     "unrated": 0,
+     "tp": 11,
+     "fp": 2,
+     "precision": 0.846,
+     "precision_ci": [
+      0.578,
+      0.957
+     ],
+     "recall": 0.44,
+     "recall_ci": [
+      0.267,
+      0.629
+     ],
+     "recall_by": {
+      "single": "7/10",
+      "multi": "4/12",
+      "ctx": "0/3"
+     },
+     "f05": 0.714,
+     "fcr": "0/23",
+     "fcr_rate": 0.0,
+     "fcr_ci": [
+      0.0,
+      0.143
+     ],
+     "critical": 0,
+     "rows": [
+      {
+       "id": "d_c01",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c02",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c03",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c04",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c05",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c06",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c07",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c08",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_v01",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_v02",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_v03",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_v04",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_k01",
+       "kind": "critical",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_k02",
+       "kind": "critical",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_k03",
+       "kind": "critical",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_x01",
+       "kind": "ctx_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_x02",
+       "kind": "ctx_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_x03",
+       "kind": "ctx_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_x04",
+       "kind": "ctx_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_o01",
+       "kind": "voice_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_o02",
+       "kind": "voice_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_s01",
+       "kind": "stt",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_s02",
+       "kind": "stt",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_e01",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "don't",
+         "doesn't",
+         "agreement.subject_verb",
+         "h",
+         "bielik+lt-fix"
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e02",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "am",
+         "",
+         "agreement.subject_verb",
+         "h",
+         "bielik+lt-fix"
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e03",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "buyed",
+         "bought",
+         "morphology.irregular_past",
+         "h",
+         "bielik+lt-fix"
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e04",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "with",
+         "to",
+         "preposition",
+         "h",
+         "bielik+lt"
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e05",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [],
+       "missed": [
+        "children"
+       ]
+      },
+      {
+       "id": "d_e06",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "about",
+         "",
+         "preposition",
+         "h",
+         "bielik+lt"
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e07",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "live",
+         "have lived",
+         "tense.present_perfect",
+         "h",
+         "bielik+lt"
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e08",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "me",
+         "to me",
+         "preposition.dependent",
+         "h",
+         null
+        ]
+       ],
+       "unexpected": [
+        [
+         "me",
+         "to me"
+        ]
+       ],
+       "missed": [
+        "explain this rule to me|explain this rule"
+       ]
+      },
+      {
+       "id": "d_e09",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "many",
+         "a lot of",
+         "collocation.verb_noun",
+         "h",
+         null
+        ]
+       ],
+       "unexpected": [
+        [
+         "many",
+         "a lot of"
+        ]
+       ],
+       "missed": [
+        "There are"
+       ]
+      },
+      {
+       "id": "d_e10",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "interesting",
+         "interested",
+         "word_choice",
+         "h",
+         "bielik+lt-fix"
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_m01",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "go",
+         "went",
+         "tense.past_simple",
+         "h",
+         null
+        ]
+       ],
+       "missed": [
+        "bought",
+        "the shop|a shop|shopping|to the store",
+        "buy milk|bought milk|some milk"
+       ]
+      },
+      {
+       "id": "d_m02",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "have",
+         "has",
+         "agreement.subject_verb",
+         "h",
+         "bielik+lt-fix"
+        ]
+       ],
+       "missed": [
+        "three cats",
+        "two dogs"
+       ]
+      },
+      {
+       "id": "d_m03",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "work",
+         "works",
+         "morphology.irregular_past",
+         "h",
+         null
+        ]
+       ],
+       "missed": [
+        "in a bank|at a bank|in the bank|at the bank",
+        "for five years"
+       ]
+      },
+      {
+       "id": "d_m04",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "don't",
+         "doesn't",
+         "agreement.subject_verb",
+         "h",
+         null
+        ]
+       ],
+       "missed": [
+        "for 3 days"
+       ]
+      },
+      {
+       "id": "d_y01",
+       "kind": "ctx_error",
+       "status": "evaluated",
+       "reported": [],
+       "missed": [
+        "watched"
+       ]
+      },
+      {
+       "id": "d_y02",
+       "kind": "ctx_error",
+       "status": "evaluated",
+       "reported": [],
+       "missed": [
+        "usually have"
+       ]
+      },
+      {
+       "id": "d_y03",
+       "kind": "ctx_error",
+       "status": "evaluated",
+       "reported": [],
+       "missed": [
+        "was born"
+       ]
+      }
+     ]
+    },
+    "log": {
+     "level": "log",
+     "cases": 40,
+     "unrated": 0,
+     "tp": 14,
+     "fp": 2,
+     "precision": 0.875,
+     "precision_ci": [
+      0.64,
+      0.965
+     ],
+     "recall": 0.56,
+     "recall_ci": [
+      0.371,
+      0.733
+     ],
+     "recall_by": {
+      "single": "7/10",
+      "multi": "7/12",
+      "ctx": "0/3"
+     },
+     "f05": 0.787,
+     "fcr": "0/23",
+     "fcr_rate": 0.0,
+     "fcr_ci": [
+      0.0,
+      0.143
+     ],
+     "critical": 0,
+     "rows": [
+      {
+       "id": "d_c01",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c02",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c03",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c04",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c05",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c06",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c07",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c08",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_v01",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_v02",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_v03",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_v04",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_k01",
+       "kind": "critical",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_k02",
+       "kind": "critical",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_k03",
+       "kind": "critical",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_x01",
+       "kind": "ctx_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_x02",
+       "kind": "ctx_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_x03",
+       "kind": "ctx_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_x04",
+       "kind": "ctx_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_o01",
+       "kind": "voice_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_o02",
+       "kind": "voice_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_s01",
+       "kind": "stt",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_s02",
+       "kind": "stt",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_e01",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "don't",
+         "doesn't",
+         "agreement.subject_verb",
+         "h",
+         "bielik+lt-fix"
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e02",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "am",
+         "",
+         "agreement.subject_verb",
+         "h",
+         "bielik+lt-fix"
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e03",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "buyed",
+         "bought",
+         "morphology.irregular_past",
+         "h",
+         "bielik+lt-fix"
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e04",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "with",
+         "to",
+         "preposition",
+         "h",
+         "bielik+lt"
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e05",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [],
+       "missed": [
+        "children"
+       ]
+      },
+      {
+       "id": "d_e06",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "about",
+         "",
+         "preposition",
+         "h",
+         "bielik+lt"
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e07",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "live",
+         "have lived",
+         "tense.present_perfect",
+         "h",
+         "bielik+lt"
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e08",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "me",
+         "to me",
+         "preposition.dependent",
+         "h",
+         null
+        ]
+       ],
+       "unexpected": [
+        [
+         "me",
+         "to me"
+        ]
+       ],
+       "missed": [
+        "explain this rule to me|explain this rule"
+       ]
+      },
+      {
+       "id": "d_e09",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "many",
+         "a lot of",
+         "collocation.verb_noun",
+         "h",
+         null
+        ]
+       ],
+       "unexpected": [
+        [
+         "many",
+         "a lot of"
+        ]
+       ],
+       "missed": [
+        "There are"
+       ]
+      },
+      {
+       "id": "d_e10",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "interesting",
+         "interested",
+         "word_choice",
+         "h",
+         "bielik+lt-fix"
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_m01",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "go",
+         "went",
+         "tense.past_simple",
+         "h",
+         null
+        ]
+       ],
+       "missed": [
+        "bought",
+        "the shop|a shop|shopping|to the store",
+        "buy milk|bought milk|some milk"
+       ]
+      },
+      {
+       "id": "d_m02",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "have",
+         "has",
+         "agreement.subject_verb",
+         "h",
+         "bielik+lt-fix"
+        ],
+        [
+         "cat",
+         "cats",
+         "morphology.plural",
+         "m",
+         "languagetool-6.6"
+        ]
+       ],
+       "missed": [
+        "two dogs"
+       ]
+      },
+      {
+       "id": "d_m03",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "work",
+         "works",
+         "morphology.irregular_past",
+         "h",
+         null
+        ],
+        [
+         "since",
+         "for",
+         "preposition.time",
+         "m",
+         "languagetool-6.6"
+        ]
+       ],
+       "missed": [
+        "in a bank|at a bank|in the bank|at the bank"
+       ]
+      },
+      {
+       "id": "d_m04",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "don't",
+         "doesn't",
+         "agreement.subject_verb",
+         "h",
+         null
+        ],
+        [
+         "since",
+         "for",
+         "preposition.time",
+         "m",
+         "languagetool-6.6"
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_y01",
+       "kind": "ctx_error",
+       "status": "evaluated",
+       "reported": [],
+       "missed": [
+        "watched"
+       ]
+      },
+      {
+       "id": "d_y02",
+       "kind": "ctx_error",
+       "status": "evaluated",
+       "reported": [],
+       "missed": [
+        "usually have"
+       ]
+      },
+      {
+       "id": "d_y03",
+       "kind": "ctx_error",
+       "status": "evaluated",
+       "reported": [],
+       "missed": [
+        "was born"
+       ]
+      }
+     ]
+    }
+   }
+  },
+  {
+   "variant": "C",
+   "repeat": 1,
+   "eval_p50": 1.62,
+   "eval_p95": 2.03,
+   "levels": {
+    "recast": {
+     "level": "recast",
+     "cases": 40,
+     "unrated": 0,
+     "tp": 11,
+     "fp": 2,
+     "precision": 0.846,
+     "precision_ci": [
+      0.578,
+      0.957
+     ],
+     "recall": 0.44,
+     "recall_ci": [
+      0.267,
+      0.629
+     ],
+     "recall_by": {
+      "single": "7/10",
+      "multi": "4/12",
+      "ctx": "0/3"
+     },
+     "f05": 0.714,
+     "fcr": "0/23",
+     "fcr_rate": 0.0,
+     "fcr_ci": [
+      0.0,
+      0.143
+     ],
+     "critical": 0,
+     "rows": [
+      {
+       "id": "d_c01",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c02",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c03",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c04",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c05",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c06",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c07",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c08",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_v01",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_v02",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_v03",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_v04",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_k01",
+       "kind": "critical",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_k02",
+       "kind": "critical",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_k03",
+       "kind": "critical",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_x01",
+       "kind": "ctx_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_x02",
+       "kind": "ctx_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_x03",
+       "kind": "ctx_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_x04",
+       "kind": "ctx_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_o01",
+       "kind": "voice_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_o02",
+       "kind": "voice_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_s01",
+       "kind": "stt",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_s02",
+       "kind": "stt",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_e01",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "don't",
+         "doesn't",
+         "agreement.subject_verb",
+         "h",
+         "bielik+lt-fix"
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e02",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "am",
+         "",
+         "agreement.subject_verb",
+         "h",
+         "bielik+lt-fix"
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e03",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "buyed",
+         "bought",
+         "morphology.irregular_past",
+         "h",
+         "bielik+lt-fix"
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e04",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "with",
+         "to",
+         "preposition",
+         "h",
+         "bielik+lt"
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e05",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [],
+       "missed": [
+        "children"
+       ]
+      },
+      {
+       "id": "d_e06",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "about",
+         "",
+         "preposition",
+         "h",
+         "bielik+lt"
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e07",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "live",
+         "have lived",
+         "tense.present_perfect",
+         "h",
+         "bielik+lt"
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e08",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "me",
+         "to me",
+         "preposition.dependent",
+         "h",
+         null
+        ]
+       ],
+       "unexpected": [
+        [
+         "me",
+         "to me"
+        ]
+       ],
+       "missed": [
+        "explain this rule to me|explain this rule"
+       ]
+      },
+      {
+       "id": "d_e09",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "many",
+         "a lot of",
+         "collocation.verb_noun",
+         "h",
+         null
+        ]
+       ],
+       "unexpected": [
+        [
+         "many",
+         "a lot of"
+        ]
+       ],
+       "missed": [
+        "There are"
+       ]
+      },
+      {
+       "id": "d_e10",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "interesting",
+         "interested",
+         "word_choice",
+         "h",
+         "bielik+lt-fix"
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_m01",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "go",
+         "went",
+         "tense.past_simple",
+         "h",
+         null
+        ]
+       ],
+       "missed": [
+        "bought",
+        "the shop|a shop|shopping|to the store",
+        "buy milk|bought milk|some milk"
+       ]
+      },
+      {
+       "id": "d_m02",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "have",
+         "has",
+         "agreement.subject_verb",
+         "h",
+         "bielik+lt-fix"
+        ]
+       ],
+       "missed": [
+        "three cats",
+        "two dogs"
+       ]
+      },
+      {
+       "id": "d_m03",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "work",
+         "works",
+         "morphology.irregular_past",
+         "h",
+         null
+        ]
+       ],
+       "missed": [
+        "in a bank|at a bank|in the bank|at the bank",
+        "for five years"
+       ]
+      },
+      {
+       "id": "d_m04",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "don't",
+         "doesn't",
+         "agreement.subject_verb",
+         "h",
+         null
+        ]
+       ],
+       "missed": [
+        "for 3 days"
+       ]
+      },
+      {
+       "id": "d_y01",
+       "kind": "ctx_error",
+       "status": "evaluated",
+       "reported": [],
+       "missed": [
+        "watched"
+       ]
+      },
+      {
+       "id": "d_y02",
+       "kind": "ctx_error",
+       "status": "evaluated",
+       "reported": [],
+       "missed": [
+        "usually have"
+       ]
+      },
+      {
+       "id": "d_y03",
+       "kind": "ctx_error",
+       "status": "evaluated",
+       "reported": [],
+       "missed": [
+        "was born"
+       ]
+      }
+     ]
+    },
+    "log": {
+     "level": "log",
+     "cases": 40,
+     "unrated": 0,
+     "tp": 14,
+     "fp": 2,
+     "precision": 0.875,
+     "precision_ci": [
+      0.64,
+      0.965
+     ],
+     "recall": 0.56,
+     "recall_ci": [
+      0.371,
+      0.733
+     ],
+     "recall_by": {
+      "single": "7/10",
+      "multi": "7/12",
+      "ctx": "0/3"
+     },
+     "f05": 0.787,
+     "fcr": "0/23",
+     "fcr_rate": 0.0,
+     "fcr_ci": [
+      0.0,
+      0.143
+     ],
+     "critical": 0,
+     "rows": [
+      {
+       "id": "d_c01",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c02",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c03",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c04",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c05",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c06",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c07",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c08",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_v01",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_v02",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_v03",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_v04",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_k01",
+       "kind": "critical",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_k02",
+       "kind": "critical",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_k03",
+       "kind": "critical",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_x01",
+       "kind": "ctx_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_x02",
+       "kind": "ctx_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_x03",
+       "kind": "ctx_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_x04",
+       "kind": "ctx_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_o01",
+       "kind": "voice_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_o02",
+       "kind": "voice_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_s01",
+       "kind": "stt",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_s02",
+       "kind": "stt",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_e01",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "don't",
+         "doesn't",
+         "agreement.subject_verb",
+         "h",
+         "bielik+lt-fix"
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e02",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "am",
+         "",
+         "agreement.subject_verb",
+         "h",
+         "bielik+lt-fix"
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e03",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "buyed",
+         "bought",
+         "morphology.irregular_past",
+         "h",
+         "bielik+lt-fix"
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e04",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "with",
+         "to",
+         "preposition",
+         "h",
+         "bielik+lt"
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e05",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [],
+       "missed": [
+        "children"
+       ]
+      },
+      {
+       "id": "d_e06",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "about",
+         "",
+         "preposition",
+         "h",
+         "bielik+lt"
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e07",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "live",
+         "have lived",
+         "tense.present_perfect",
+         "h",
+         "bielik+lt"
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e08",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "me",
+         "to me",
+         "preposition.dependent",
+         "h",
+         null
+        ]
+       ],
+       "unexpected": [
+        [
+         "me",
+         "to me"
+        ]
+       ],
+       "missed": [
+        "explain this rule to me|explain this rule"
+       ]
+      },
+      {
+       "id": "d_e09",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "many",
+         "a lot of",
+         "collocation.verb_noun",
+         "h",
+         null
+        ]
+       ],
+       "unexpected": [
+        [
+         "many",
+         "a lot of"
+        ]
+       ],
+       "missed": [
+        "There are"
+       ]
+      },
+      {
+       "id": "d_e10",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "interesting",
+         "interested",
+         "word_choice",
+         "h",
+         "bielik+lt-fix"
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_m01",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "go",
+         "went",
+         "tense.past_simple",
+         "h",
+         null
+        ]
+       ],
+       "missed": [
+        "bought",
+        "the shop|a shop|shopping|to the store",
+        "buy milk|bought milk|some milk"
+       ]
+      },
+      {
+       "id": "d_m02",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "have",
+         "has",
+         "agreement.subject_verb",
+         "h",
+         "bielik+lt-fix"
+        ],
+        [
+         "cat",
+         "cats",
+         "morphology.plural",
+         "m",
+         "languagetool-6.6"
+        ]
+       ],
+       "missed": [
+        "two dogs"
+       ]
+      },
+      {
+       "id": "d_m03",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "work",
+         "works",
+         "morphology.irregular_past",
+         "h",
+         null
+        ],
+        [
+         "since",
+         "for",
+         "preposition.time",
+         "m",
+         "languagetool-6.6"
+        ]
+       ],
+       "missed": [
+        "in a bank|at a bank|in the bank|at the bank"
+       ]
+      },
+      {
+       "id": "d_m04",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "don't",
+         "doesn't",
+         "agreement.subject_verb",
+         "h",
+         null
+        ],
+        [
+         "since",
+         "for",
+         "preposition.time",
+         "m",
+         "languagetool-6.6"
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_y01",
+       "kind": "ctx_error",
+       "status": "evaluated",
+       "reported": [],
+       "missed": [
+        "watched"
+       ]
+      },
+      {
+       "id": "d_y02",
+       "kind": "ctx_error",
+       "status": "evaluated",
+       "reported": [],
+       "missed": [
+        "usually have"
+       ]
+      },
+      {
+       "id": "d_y03",
+       "kind": "ctx_error",
+       "status": "evaluated",
+       "reported": [],
+       "missed": [
+        "was born"
+       ]
+      }
+     ]
+    }
+   }
+  },
+  {
+   "variant": "D",
+   "repeat": 0,
+   "eval_p50": 1.73,
+   "eval_p95": 2.91,
+   "levels": {
+    "recast": {
+     "level": "recast",
+     "cases": 40,
+     "unrated": 0,
+     "tp": 11,
+     "fp": 2,
+     "precision": 0.846,
+     "precision_ci": [
+      0.578,
+      0.957
+     ],
+     "recall": 0.48,
+     "recall_ci": [
+      0.3,
+      0.665
+     ],
+     "recall_by": {
+      "single": "7/10",
+      "multi": "5/12",
+      "ctx": "0/3"
+     },
+     "f05": 0.734,
+     "fcr": "0/23",
+     "fcr_rate": 0.0,
+     "fcr_ci": [
+      0.0,
+      0.143
+     ],
+     "critical": 0,
+     "rows": [
+      {
+       "id": "d_c01",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c02",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c03",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c04",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c05",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c06",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c07",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c08",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_v01",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_v02",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_v03",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_v04",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_k01",
+       "kind": "critical",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_k02",
+       "kind": "critical",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_k03",
+       "kind": "critical",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_x01",
+       "kind": "ctx_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_x02",
+       "kind": "ctx_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_x03",
+       "kind": "ctx_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_x04",
+       "kind": "ctx_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_o01",
+       "kind": "voice_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_o02",
+       "kind": "voice_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_s01",
+       "kind": "stt",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_s02",
+       "kind": "stt",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_e01",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "don't",
+         "doesn't",
+         "agreement.subject_verb",
+         "h",
+         "bielik+lt-fix"
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e02",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "am",
+         "",
+         "morphology.irregular_past",
+         "h",
+         "bielik+lt"
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e03",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "buyed",
+         "bought",
+         "morphology.irregular_past",
+         "h",
+         "bielik+lt-fix"
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e04",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "with",
+         "to",
+         "preposition",
+         "h",
+         "bielik+lt"
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e05",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [],
+       "missed": [
+        "children"
+       ]
+      },
+      {
+       "id": "d_e06",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "about",
+         "",
+         "preposition",
+         "h",
+         "bielik+lt"
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e07",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "live",
+         "have lived",
+         "tense.present_perfect",
+         "h",
+         "bielik+lt"
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e08",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "me",
+         "to me",
+         "preposition.dependent",
+         "h",
+         null
+        ]
+       ],
+       "unexpected": [
+        [
+         "me",
+         "to me"
+        ]
+       ],
+       "missed": [
+        "explain this rule to me|explain this rule"
+       ]
+      },
+      {
+       "id": "d_e09",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "many",
+         "a lot of",
+         "determiner.quantifier",
+         "h",
+         null
+        ]
+       ],
+       "unexpected": [
+        [
+         "many",
+         "a lot of"
+        ]
+       ],
+       "missed": [
+        "There are"
+       ]
+      },
+      {
+       "id": "d_e10",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "interesting",
+         "interested",
+         "word_choice",
+         "h",
+         "bielik+lt-fix"
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_m01",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "go",
+         "went",
+         "tense.past_simple",
+         "h",
+         null
+        ]
+       ],
+       "missed": [
+        "bought",
+        "the shop|a shop|shopping|to the store",
+        "buy milk|bought milk|some milk"
+       ]
+      },
+      {
+       "id": "d_m02",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "have",
+         "has",
+         "agreement.subject_verb",
+         "h",
+         "bielik+lt-fix"
+        ]
+       ],
+       "missed": [
+        "three cats",
+        "two dogs"
+       ]
+      },
+      {
+       "id": "d_m03",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "work in bank since five years",
+         "works in a bank since five years",
+         "agreement.subject_verb",
+         "h",
+         null
+        ]
+       ],
+       "missed": [
+        "for five years"
+       ]
+      },
+      {
+       "id": "d_m04",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "don't",
+         "doesn't",
+         "agreement.subject_verb",
+         "h",
+         null
+        ]
+       ],
+       "missed": [
+        "for 3 days"
+       ]
+      },
+      {
+       "id": "d_y01",
+       "kind": "ctx_error",
+       "status": "evaluated",
+       "reported": [],
+       "missed": [
+        "watched"
+       ]
+      },
+      {
+       "id": "d_y02",
+       "kind": "ctx_error",
+       "status": "evaluated",
+       "reported": [],
+       "missed": [
+        "usually have"
+       ]
+      },
+      {
+       "id": "d_y03",
+       "kind": "ctx_error",
+       "status": "evaluated",
+       "reported": [],
+       "missed": [
+        "was born"
+       ]
+      }
+     ]
+    },
+    "log": {
+     "level": "log",
+     "cases": 40,
+     "unrated": 0,
+     "tp": 13,
+     "fp": 2,
+     "precision": 0.867,
+     "precision_ci": [
+      0.621,
+      0.963
+     ],
+     "recall": 0.56,
+     "recall_ci": [
+      0.371,
+      0.733
+     ],
+     "recall_by": {
+      "single": "7/10",
+      "multi": "7/12",
+      "ctx": "0/3"
+     },
+     "f05": 0.781,
+     "fcr": "0/23",
+     "fcr_rate": 0.0,
+     "fcr_ci": [
+      0.0,
+      0.143
+     ],
+     "critical": 0,
+     "rows": [
+      {
+       "id": "d_c01",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c02",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c03",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c04",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c05",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c06",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c07",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c08",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_v01",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_v02",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_v03",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_v04",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_k01",
+       "kind": "critical",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_k02",
+       "kind": "critical",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_k03",
+       "kind": "critical",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_x01",
+       "kind": "ctx_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_x02",
+       "kind": "ctx_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_x03",
+       "kind": "ctx_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_x04",
+       "kind": "ctx_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_o01",
+       "kind": "voice_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_o02",
+       "kind": "voice_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_s01",
+       "kind": "stt",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_s02",
+       "kind": "stt",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_e01",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "don't",
+         "doesn't",
+         "agreement.subject_verb",
+         "h",
+         "bielik+lt-fix"
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e02",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "am",
+         "",
+         "morphology.irregular_past",
+         "h",
+         "bielik+lt"
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e03",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "buyed",
+         "bought",
+         "morphology.irregular_past",
+         "h",
+         "bielik+lt-fix"
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e04",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "with",
+         "to",
+         "preposition",
+         "h",
+         "bielik+lt"
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e05",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [],
+       "missed": [
+        "children"
+       ]
+      },
+      {
+       "id": "d_e06",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "about",
+         "",
+         "preposition",
+         "h",
+         "bielik+lt"
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e07",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "live",
+         "have lived",
+         "tense.present_perfect",
+         "h",
+         "bielik+lt"
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e08",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "me",
+         "to me",
+         "preposition.dependent",
+         "h",
+         null
+        ]
+       ],
+       "unexpected": [
+        [
+         "me",
+         "to me"
+        ]
+       ],
+       "missed": [
+        "explain this rule to me|explain this rule"
+       ]
+      },
+      {
+       "id": "d_e09",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "many",
+         "a lot of",
+         "determiner.quantifier",
+         "h",
+         null
+        ]
+       ],
+       "unexpected": [
+        [
+         "many",
+         "a lot of"
+        ]
+       ],
+       "missed": [
+        "There are"
+       ]
+      },
+      {
+       "id": "d_e10",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "interesting",
+         "interested",
+         "word_choice",
+         "h",
+         "bielik+lt-fix"
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_m01",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "go",
+         "went",
+         "tense.past_simple",
+         "h",
+         null
+        ]
+       ],
+       "missed": [
+        "bought",
+        "the shop|a shop|shopping|to the store",
+        "buy milk|bought milk|some milk"
+       ]
+      },
+      {
+       "id": "d_m02",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "have",
+         "has",
+         "agreement.subject_verb",
+         "h",
+         "bielik+lt-fix"
+        ],
+        [
+         "cat",
+         "cats",
+         "morphology.plural",
+         "m",
+         "languagetool-6.6"
+        ]
+       ],
+       "missed": [
+        "two dogs"
+       ]
+      },
+      {
+       "id": "d_m03",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "work in bank since five years",
+         "works in a bank since five years",
+         "agreement.subject_verb",
+         "h",
+         null
+        ],
+        [
+         "since",
+         "for",
+         "preposition.time",
+         "m",
+         "languagetool-6.6"
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_m04",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "don't",
+         "doesn't",
+         "agreement.subject_verb",
+         "h",
+         null
+        ]
+       ],
+       "missed": [
+        "for 3 days"
+       ]
+      },
+      {
+       "id": "d_y01",
+       "kind": "ctx_error",
+       "status": "evaluated",
+       "reported": [],
+       "missed": [
+        "watched"
+       ]
+      },
+      {
+       "id": "d_y02",
+       "kind": "ctx_error",
+       "status": "evaluated",
+       "reported": [],
+       "missed": [
+        "usually have"
+       ]
+      },
+      {
+       "id": "d_y03",
+       "kind": "ctx_error",
+       "status": "evaluated",
+       "reported": [],
+       "missed": [
+        "was born"
+       ]
+      }
+     ]
+    }
+   }
+  },
+  {
+   "variant": "D",
+   "repeat": 1,
+   "eval_p50": 1.69,
+   "eval_p95": 2.94,
+   "levels": {
+    "recast": {
+     "level": "recast",
+     "cases": 40,
+     "unrated": 0,
+     "tp": 11,
+     "fp": 2,
+     "precision": 0.846,
+     "precision_ci": [
+      0.578,
+      0.957
+     ],
+     "recall": 0.48,
+     "recall_ci": [
+      0.3,
+      0.665
+     ],
+     "recall_by": {
+      "single": "7/10",
+      "multi": "5/12",
+      "ctx": "0/3"
+     },
+     "f05": 0.734,
+     "fcr": "0/23",
+     "fcr_rate": 0.0,
+     "fcr_ci": [
+      0.0,
+      0.143
+     ],
+     "critical": 0,
+     "rows": [
+      {
+       "id": "d_c01",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c02",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c03",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c04",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c05",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c06",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c07",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c08",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_v01",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_v02",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_v03",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_v04",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_k01",
+       "kind": "critical",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_k02",
+       "kind": "critical",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_k03",
+       "kind": "critical",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_x01",
+       "kind": "ctx_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_x02",
+       "kind": "ctx_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_x03",
+       "kind": "ctx_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_x04",
+       "kind": "ctx_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_o01",
+       "kind": "voice_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_o02",
+       "kind": "voice_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_s01",
+       "kind": "stt",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_s02",
+       "kind": "stt",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_e01",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "don't",
+         "doesn't",
+         "agreement.subject_verb",
+         "h",
+         "bielik+lt-fix"
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e02",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "am",
+         "",
+         "morphology.irregular_past",
+         "h",
+         "bielik+lt"
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e03",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "buyed",
+         "bought",
+         "morphology.irregular_past",
+         "h",
+         "bielik+lt-fix"
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e04",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "with",
+         "to",
+         "preposition",
+         "h",
+         "bielik+lt"
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e05",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [],
+       "missed": [
+        "children"
+       ]
+      },
+      {
+       "id": "d_e06",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "about",
+         "",
+         "preposition",
+         "h",
+         "bielik+lt"
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e07",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "live",
+         "have lived",
+         "tense.present_perfect",
+         "h",
+         "bielik+lt"
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e08",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "me",
+         "to me",
+         "preposition.dependent",
+         "h",
+         null
+        ]
+       ],
+       "unexpected": [
+        [
+         "me",
+         "to me"
+        ]
+       ],
+       "missed": [
+        "explain this rule to me|explain this rule"
+       ]
+      },
+      {
+       "id": "d_e09",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "many",
+         "a lot of",
+         "determiner.quantifier",
+         "h",
+         null
+        ]
+       ],
+       "unexpected": [
+        [
+         "many",
+         "a lot of"
+        ]
+       ],
+       "missed": [
+        "There are"
+       ]
+      },
+      {
+       "id": "d_e10",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "interesting",
+         "interested",
+         "word_choice",
+         "h",
+         "bielik+lt-fix"
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_m01",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "go",
+         "went",
+         "tense.past_simple",
+         "h",
+         null
+        ]
+       ],
+       "missed": [
+        "bought",
+        "the shop|a shop|shopping|to the store",
+        "buy milk|bought milk|some milk"
+       ]
+      },
+      {
+       "id": "d_m02",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "have",
+         "has",
+         "agreement.subject_verb",
+         "h",
+         "bielik+lt-fix"
+        ]
+       ],
+       "missed": [
+        "three cats",
+        "two dogs"
+       ]
+      },
+      {
+       "id": "d_m03",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "work in bank since five years",
+         "works in a bank since five years",
+         "agreement.subject_verb",
+         "h",
+         null
+        ]
+       ],
+       "missed": [
+        "for five years"
+       ]
+      },
+      {
+       "id": "d_m04",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "don't",
+         "doesn't",
+         "agreement.subject_verb",
+         "h",
+         null
+        ]
+       ],
+       "missed": [
+        "for 3 days"
+       ]
+      },
+      {
+       "id": "d_y01",
+       "kind": "ctx_error",
+       "status": "evaluated",
+       "reported": [],
+       "missed": [
+        "watched"
+       ]
+      },
+      {
+       "id": "d_y02",
+       "kind": "ctx_error",
+       "status": "evaluated",
+       "reported": [],
+       "missed": [
+        "usually have"
+       ]
+      },
+      {
+       "id": "d_y03",
+       "kind": "ctx_error",
+       "status": "evaluated",
+       "reported": [],
+       "missed": [
+        "was born"
+       ]
+      }
+     ]
+    },
+    "log": {
+     "level": "log",
+     "cases": 40,
+     "unrated": 0,
+     "tp": 13,
+     "fp": 2,
+     "precision": 0.867,
+     "precision_ci": [
+      0.621,
+      0.963
+     ],
+     "recall": 0.56,
+     "recall_ci": [
+      0.371,
+      0.733
+     ],
+     "recall_by": {
+      "single": "7/10",
+      "multi": "7/12",
+      "ctx": "0/3"
+     },
+     "f05": 0.781,
+     "fcr": "0/23",
+     "fcr_rate": 0.0,
+     "fcr_ci": [
+      0.0,
+      0.143
+     ],
+     "critical": 0,
+     "rows": [
+      {
+       "id": "d_c01",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c02",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c03",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c04",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c05",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c06",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c07",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_c08",
+       "kind": "clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_v01",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_v02",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_v03",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_v04",
+       "kind": "variant",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_k01",
+       "kind": "critical",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_k02",
+       "kind": "critical",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_k03",
+       "kind": "critical",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_x01",
+       "kind": "ctx_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_x02",
+       "kind": "ctx_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_x03",
+       "kind": "ctx_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_x04",
+       "kind": "ctx_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_o01",
+       "kind": "voice_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_o02",
+       "kind": "voice_clean",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_s01",
+       "kind": "stt",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_s02",
+       "kind": "stt",
+       "status": "evaluated",
+       "reported": []
+      },
+      {
+       "id": "d_e01",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "don't",
+         "doesn't",
+         "agreement.subject_verb",
+         "h",
+         "bielik+lt-fix"
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e02",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "am",
+         "",
+         "morphology.irregular_past",
+         "h",
+         "bielik+lt"
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e03",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "buyed",
+         "bought",
+         "morphology.irregular_past",
+         "h",
+         "bielik+lt-fix"
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e04",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "with",
+         "to",
+         "preposition",
+         "h",
+         "bielik+lt"
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e05",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [],
+       "missed": [
+        "children"
+       ]
+      },
+      {
+       "id": "d_e06",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "about",
+         "",
+         "preposition",
+         "h",
+         "bielik+lt"
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e07",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "live",
+         "have lived",
+         "tense.present_perfect",
+         "h",
+         "bielik+lt"
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_e08",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "me",
+         "to me",
+         "preposition.dependent",
+         "h",
+         null
+        ]
+       ],
+       "unexpected": [
+        [
+         "me",
+         "to me"
+        ]
+       ],
+       "missed": [
+        "explain this rule to me|explain this rule"
+       ]
+      },
+      {
+       "id": "d_e09",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "many",
+         "a lot of",
+         "determiner.quantifier",
+         "h",
+         null
+        ]
+       ],
+       "unexpected": [
+        [
+         "many",
+         "a lot of"
+        ]
+       ],
+       "missed": [
+        "There are"
+       ]
+      },
+      {
+       "id": "d_e10",
+       "kind": "error",
+       "status": "evaluated",
+       "reported": [
+        [
+         "interesting",
+         "interested",
+         "word_choice",
+         "h",
+         "bielik+lt-fix"
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_m01",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "go",
+         "went",
+         "tense.past_simple",
+         "h",
+         null
+        ]
+       ],
+       "missed": [
+        "bought",
+        "the shop|a shop|shopping|to the store",
+        "buy milk|bought milk|some milk"
+       ]
+      },
+      {
+       "id": "d_m02",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "have",
+         "has",
+         "agreement.subject_verb",
+         "h",
+         "bielik+lt-fix"
+        ],
+        [
+         "cat",
+         "cats",
+         "morphology.plural",
+         "m",
+         "languagetool-6.6"
+        ]
+       ],
+       "missed": [
+        "two dogs"
+       ]
+      },
+      {
+       "id": "d_m03",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "work in bank since five years",
+         "works in a bank since five years",
+         "agreement.subject_verb",
+         "h",
+         null
+        ],
+        [
+         "since",
+         "for",
+         "preposition.time",
+         "m",
+         "languagetool-6.6"
+        ]
+       ],
+       "missed": []
+      },
+      {
+       "id": "d_m04",
+       "kind": "multi",
+       "status": "evaluated",
+       "reported": [
+        [
+         "don't",
+         "doesn't",
+         "agreement.subject_verb",
+         "h",
+         null
+        ]
+       ],
+       "missed": [
+        "for 3 days"
+       ]
+      },
+      {
+       "id": "d_y01",
+       "kind": "ctx_error",
+       "status": "evaluated",
+       "reported": [],
+       "missed": [
+        "watched"
+       ]
+      },
+      {
+       "id": "d_y02",
+       "kind": "ctx_error",
+       "status": "evaluated",
+       "reported": [],
+       "missed": [
+        "usually have"
+       ]
+      },
+      {
+       "id": "d_y03",
+       "kind": "ctx_error",
+       "status": "evaluated",
+       "reported": [],
+       "missed": [
+        "was born"
+       ]
+      }
+     ]
+    }
+   }
+  }
+ ]
+}

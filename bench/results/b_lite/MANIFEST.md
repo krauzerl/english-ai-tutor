@@ -17,3 +17,9 @@ baseline, brak istotnego pogorszenia czasu, stabilność przy braku/awarii Langu
 
 ## Dziennik uruchomień
 (uzupełniany w kolejnych commitach)
+- 2026-11-26 21:1x — `dev_AB.json` (A, B ×2, dev) i `audit_A.json` (A, stary zestaw). Ocena: pierwsza wersja
+  `score` (jedno zgłoszenie = jeden błąd). Po obejrzeniu poprawiono `score`: jedno zgłoszenie może naprawić kilka
+  oczekiwanych błędów (np. „works in a bank” = zgodność + przedimek). Zbioru NIE zmieniano (suma bez zmian).
+- 2026-11-26 21:3x — `dev_ABCD.json`, `audit_ABCD.json`: A/B/C/D na dev i starym zestawie, LT 6.6 lokalnie;
+  lista reguł-kandydatów `trust: h` w `lt_map.yaml` wybrana na podstawie surowych dopasowań LT na dev + audit
+  (przed tym uruchomieniem).

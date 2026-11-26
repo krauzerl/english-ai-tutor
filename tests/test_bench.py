@@ -154,9 +154,10 @@ def test_bench_4_systems_deterministic_on_fakes(pack):  # T-BENCH-4
     assert out[0] == out[1]
     assert out[0]["A"] == (1, 1, 0.0)                                  # Bielik trafia, brak fałszywych alarmów
     assert out[0]["B"] == (1, 2, 1.0)                                  # LT: trafienie + fałszywy alarm na poprawnym zdaniu
-    assert out[0]["C"] == (1, 1, 0.0)                                  # C: LT-only ma p=l ⇒ tylko sugestia; Bielik+LT podnosi p
+    # C (B-lite): HE_VERB_AGR jest kandydatem `trust: h` ⇒ LT-only ma p=m (zgłoszenie); zgodność NIE podnosi p (F1)
+    assert out[0]["C"] == (1, 2, 1.0)
     resC, _ = G.run_all(["C"], cases, pack, provider=prov, structured=structured, lt_fn=lt_fn)
-    assert resC["C"]["runs"][0].reports[0].confidence == "h" and resC["C"]["runs"][1].suggestions
+    assert resC["C"]["runs"][0].reports[0].confidence == "m"
     # LT niedostępny: B nieocenione, C degraduje do A
     resB, _ = G.run_all(["B", "C"], cases, pack, provider=prov, structured=structured, lt_fn=lambda t: None)
     assert resB["B"]["score"]["unrated"] == 2 and resB["C"]["score"]["tp"] == 1

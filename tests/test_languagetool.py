@@ -122,7 +122,7 @@ def test_lt_4_merge_rules(pack):  # T-LT-4: R1–R7
     # R1: ten sam span i zgodna kategoria ⇒ 1 obserwacja, poprawka Bielika, pewność +1, źródło bielik+lt
     out, _ = M.merge([B("She have", "She has", "agreement.subject_verb", "m")],
                      [L("She have", "She has", "agreement.subject_verb")], text)
-    assert len(out) == 1 and out[0].p == "h" and out[0].src == "bielik+lt" and out[0].f == "She has"
+    assert len(out) == 1 and out[0].p == "m" and out[0].src == "bielik+lt" and out[0].f == "She has"  # F1: bez +1
     out, _ = M.merge([B("She have", "She has", "agreement.subject_verb", "l")],
                      [L("She have", "He has", "agreement.subject_verb")], text)
     assert out[0].p == "l" and out[0].src is None   # F4.7: różne edycje (LT zmienia też podmiot) ≠ zgodność
@@ -161,7 +161,7 @@ def test_lt_4_merge_eval_and_unrated_stays_unrated(pack):
     lt = [[Obs(s="She have", f="She has", k="error", c="agreement.subject_verb", v=1, p="l", src="languagetool-6.6")]]
     merged = M.merge_eval(ev, [text], lt)
     res = A.evaluate_batch(merged, [text], input_modes=["text"], low_probs=[set()], pack=pack, goals=GOALS | {"en.gram.present_simple"})[0]
-    assert res.rated and len(res.observations) == 1 and res.observations[0].confidence == "h"
+    assert res.rated and len(res.observations) == 1 and res.observations[0].confidence == "m"   # F1: bez +1
     assert res.observations[0].source == "bielik+lt"
     # brak oceny modelu ⇒ nieoceniona; LT sam nie dowodzi poprawności ani błędu
     none = A.evaluate_batch(None, [text], input_modes=["text"], low_probs=[set()], pack=pack, goals=GOALS)[0]

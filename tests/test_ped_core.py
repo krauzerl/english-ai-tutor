@@ -31,7 +31,7 @@ def test_cefr_labels_and_ceiling():
     assert cefr.clamp_theta(6.1) == 5.5
     assert cefr.interval_text(3, 2.4, 3.6, ceiling=True) == "C1 lub wyżej"
     assert cefr.interval_text(1, 0.5, 1.2, floor=True) == "A1 lub niżej"
-    assert cefr.interval_text(3.0, 2.4, 3.6) == "B1, prawdopodobnie A2–B2"
+    assert cefr.interval_text(3.0, 2.4, 3.6) == "przedział A2–B2 (środek: B1)"
     assert cefr.interval_text(3.0, 2.6, 3.4) == "B1"
 
 
