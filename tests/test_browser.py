@@ -323,3 +323,57 @@ def test_phone_width_has_no_horizontal_scroll(page):
         page.goto(f"{page.site}/#/{route}")
         page.locator("main h1").first.wait_for()
         assert page.evaluate("document.documentElement.scrollWidth <= window.innerWidth + 1"), route
+
+
+# --- Quick Chat: poziom, kategoria, tryb ---
+
+def test_medical_roleplay_b1_from_setup_to_feedback_and_prefs_remembered(page):
+    start_profile(page)
+    page.goto(page.site + "/#/chat")
+    expect(page.get_by_text("Poziom automatyczny: A2")).to_be_visible()
+    page.get_by_role("group", name="Poziom").get_by_role("button", name="B1").click()
+    page.locator(".choice", has_text="Medical English").click()
+    page.get_by_role("group", name="Tryb rozmowy").get_by_role("button", name="Roleplay").click()
+    expect(page.locator(".topic").first).to_contain_text("Roleplay")
+    assert page.locator(".topic", has_text="Plan działań w zespole").count() == 0     # B2–C1: nie dla B1
+    page.get_by_role("button", name="Rozpocznij rozmowę").click()
+    expect(page.locator(".msg.scenario")).to_contain_text("Nauczyciel gra")
+    expect(page.locator("#topicnow")).to_contain_text("B1 · Medical English · Roleplay")
+    say(page, "Hello, I am a paramedic. Where does it hurt?", 2)
+    page.locator(".stage").get_by_role("button", name="Zmień temat").click()
+    expect(page.locator(".msg.notice", has_text="nowy temat")).to_be_visible(timeout=15000)
+    expect(page.locator("#topicnow")).to_contain_text("Medical English")
+    end_session(page)
+    expect(page.locator(".msg.info", has_text="nie wiedzy ani decyzji klinicznych")).to_be_visible()
+    page.goto(page.site + "/#/chat")
+    expect(page.get_by_role("group", name="Poziom").get_by_role("button", name="B1")).to_have_attribute("aria-pressed", "true")
+    expect(page.locator(".choice", has_text="Medical English")).to_have_attribute("aria-pressed", "true")
+    expect(page.get_by_role("group", name="Tryb rozmowy").get_by_role("button", name="Roleplay")).to_have_attribute(
+        "aria-pressed", "true")
+    assert page.errors == []
+
+
+@pytest.mark.parametrize("cat,word", [("Technical English", "Technical"), ("Business English", "Business"),
+                                      ("Professional Situations", "Professional"), ("General English", "General")])
+def test_category_and_guided_mode_start(page, cat, word):
+    start_profile(page)
+    page.goto(page.site + "/#/chat")
+    page.locator(".choice", has_text=cat).click()
+    page.get_by_role("group", name="Tryb rozmowy").get_by_role("button", name="Rozmowa prowadzona").click()
+    page.get_by_role("button", name="Rozpocznij rozmowę").click()
+    expect(page.locator("#topicnow")).to_contain_text(f"{word}")
+    expect(page.locator("#topicnow")).to_contain_text("Rozmowa prowadzona")
+    end_session(page)
+
+
+def test_custom_category_requires_own_topic(page):
+    start_profile(page)
+    page.goto(page.site + "/#/chat")
+    page.locator(".choice", has_text="Custom Topic").click()
+    page.get_by_role("button", name="Rozpocznij rozmowę").click()
+    expect(page.locator("#toast")).to_have_text("Wpisz temat.")
+    page.get_by_label("Własny temat").fill("restoring old motorbikes")
+    page.get_by_role("button", name="Rozpocznij rozmowę").click()
+    expect(page.locator("#topicnow")).to_contain_text("restoring old motorbikes")
+    expect(page.locator("#topicnow")).to_contain_text("Własny temat")
+    end_session(page)

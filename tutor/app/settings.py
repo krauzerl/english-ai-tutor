@@ -21,10 +21,16 @@ SCHEMA: dict[str, dict] = {
     "io_mode": {"type": "choice", "choices": ("voice", "text")},
     "input_device": {"type": "str"},          # "default" = urządzenie systemowe
     "output_device": {"type": "str"},
+    # F7: ostatnie ustawienia Quick Chat (poziom „auto” = z diagnozy albo ostrożne A2; nie zmienia diagnozy ani mastery)
+    "chat_level": {"type": "choice", "choices": ("auto", "A1", "A2", "B1", "B2", "C1")},
+    "chat_category": {"type": "choice", "choices": ("general", "technical", "medical", "business", "professional",
+                                                    "custom")},
+    "chat_mode": {"type": "choice", "choices": ("natural", "guided", "roleplay")},
 }
 DEFAULTS = {"tts_voice": "bf_emma", "speed": 1.0, "mic_mode": "ptt", "stt_model": "small.en",
             "conversation_mode": "lesson", "chat_model": CHAT_MODELS[0], "io_mode": "voice",
-            "input_device": "default", "output_device": "default"}
+            "input_device": "default", "output_device": "default",
+            "chat_level": "auto", "chat_category": "general", "chat_mode": "natural"}
 
 
 class SettingError(ValueError):

@@ -50,6 +50,12 @@ def parse(argv: list[str]) -> argparse.Namespace:
     ap.add_argument("--chat", nargs="?", const="ask", metavar="TEMAT",
                     help="Quick Chat: swobodna rozmowa bez celu lekcji (bez TEMAT: wybierzesz z propozycji)")
     ap.add_argument("--minutes", type=int, default=None, help="limit czasu Quick Chat w minutach")
+    ap.add_argument("--chat-level", choices=["auto", "A1", "A2", "B1", "B2", "C1"], default=None,
+                    help="Quick Chat: poziom (domyślnie z profilu; auto = z diagnozy albo ostrożne A2)")
+    ap.add_argument("--chat-category", choices=["general", "technical", "medical", "business", "professional",
+                                                "custom"], default=None, help="Quick Chat: kategoria rozmowy")
+    ap.add_argument("--chat-mode", choices=["natural", "guided", "roleplay"], default=None,
+                    help="Quick Chat: naturalna rozmowa, rozmowa prowadzona albo roleplay")
     ap.add_argument("--weakspots", action="store_true", help="dziennik słabych stron i zakończ")
     ap.add_argument("--drill", metavar="CEL", help="ćwiczenia słabej strony: NUMER z --weakspots, kategoria lub skill")
     ap.add_argument("--achievements", action="store_true", help="osiągnięcia i zakończ")
@@ -170,9 +176,11 @@ def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, l
     allow = bool(p["allow_unreviewed_practice"])
     cur = repo.find_open_session(p["id"])
     chat_topic = None
+    chat_level = chat_level_src = chat_level_note = None
     if a.chat:
         from tutor.app import quickchat as QC
         kind = "chat"
+        chat_level, chat_level_src, chat_level_note = QC.resolve_level(repo, p["id"], a.chat_level)
         if cur and cur["kind"] == "chat":
             chat_topic = repo.get_session_plan(p["id"], cur["id"]).get("topic")
             if a.chat != "ask" and chat_topic and (T0 := _choose_topic(a, repo, p, q, out)) and \
@@ -209,7 +217,11 @@ def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, l
     if a.chat and not (cur and cur["kind"] == "chat"):
         if cur:
             repo.pause_session(p["id"], cur["id"])
-        sid = QC.start(repo, p["id"], chat_topic, a.minutes, a.correction)
+        if not chat_topic.get("id") and a.chat_category in T.chat_catalog()["categories"]:
+            cat = T.chat_catalog()["categories"][a.chat_category]          # własny temat w wybranej kategorii
+            chat_topic = {**chat_topic, "category": cat["id"], "category_pl": cat["pl"]}
+        sid = QC.start(repo, p["id"], chat_topic, a.minutes, a.correction, level=chat_level,
+                       level_source=chat_level_src, category=chat_topic.get("category"), mode=a.chat_mode)
     elif cur and cur["kind"] == kind and (not a.lesson or
                                         repo.get_session_plan(p["id"], cur["id"]).get("lesson") == goal):
         sid = cur["id"]                                # niezakończona sesja (Ctrl+C / awaria): wznów, bez duplikatów
@@ -222,7 +234,10 @@ def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, l
     goals = {}
     system = SYSTEM_PROMPT
     if a.chat:
-        system = QC.system_prompt(chat_topic)
+        cplan = repo.get_session_plan(p["id"], sid)         # wznowienie: scenariusz, poziom i tryb jak w planie
+        chat_level, chat_mode = cplan.get("level") or chat_level, cplan.get("mode") or a.chat_mode or (
+            "roleplay" if chat_topic.get("kind") == "roleplay" else "natural")
+        system = QC.system_prompt(chat_topic, chat_level, chat_mode)
         if a.minutes is None:
             a.minutes = repo.get_session_plan(p["id"], sid).get("minutes")
     if a.lesson:
@@ -253,11 +268,18 @@ def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, l
         if a.chat:
             fresh = not repo.list_turns(p["id"], sid)
             out(f"Quick Chat — temat: {chat_topic['pl']}. (Powiedz „change the topic”, by zmienić; q = koniec.)")
+            cat_pl = T.chat_catalog()["categories"].get(cplan.get("category") or "", {}).get("pl", "Własny temat")
+            out(f"Ustawienia rozmowy: {chat_level} · {cat_pl} · {QC.MODES_PL.get(chat_mode, chat_mode)}")
             if fresh:
-                out(f"Tutor: {QC.opener(chat_topic)}")
-                repo.add_turn(p["id"], sid, "assistant", QC.opener(chat_topic))
+                if cplan.get("level_source") != "manual" and chat_level_note:
+                    out(f"[{chat_level_note}]")
+                if (sc := QC.scenario_line(chat_topic)) and chat_mode == "roleplay":
+                    out(sc)
+                first = QC.opener(chat_topic, chat_level)
+                out(f"Tutor: {first}")
+                repo.add_turn(p["id"], sid, "assistant", first)
                 if speak:
-                    speak(QC.opener(chat_topic))
+                    speak(first)
         if a.lesson:
             proceed = _lesson(L, repo, lesson_pack, p, sid, skill, items, svc, a, q, mic, stt, ep, out, speak)
         switched = None
@@ -278,10 +300,13 @@ def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, l
                 out(f"You: {text}")
                 req = INTENT.requested_topic(text) if a.chat else None
                 if a.chat and (req or INTENT.detect(text) == "skip"):  # „zmień temat”: wskazany albo z generatora
-                    used = {t["id"] for t in repo.get_session_plan(p["id"], sid).get("topics", []) if t.get("id")}
-                    nxt = T.custom(req) if req else T.suggest(repo, p["id"], 1, exclude=used)[0]
+                    cp = repo.get_session_plan(p["id"], sid)
+                    used = {t["id"] for t in cp.get("topics", []) if t.get("id")}
+                    nxt = T.custom(req) if req else T.suggest(
+                        repo, p["id"], 1, exclude=used, category=cp.get("category") or "general",
+                        level=cp.get("level") or "B1", mode=cp.get("mode") or "natural")[0]
                     base = QC.switch(repo, p["id"], sid, nxt)
-                    tutor.system = base + QC.switch_note(nxt)       # tylko na tę jedną odpowiedź
+                    tutor.system = base + QC.switch_note(nxt, cp.get("level") or "B1")   # tylko na tę odpowiedź
                     switched = base
                     out(f"[nowy temat: {nxt['pl']}]")
                 speaking = threading.Event()
@@ -319,9 +344,13 @@ def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, l
             notes = FB.summary_lines(repo, conv_pack, p["id"], sid)
             for ln in notes:
                 out(ln)
+            if a.chat and not notes:
+                out("Brak sugestii poprawek w ocenionych wypowiedziach.")
             if speak and a.lesson:
                 from tutor.app import lesson_voice as LV
                 speak(LV.farewell(bool(notes)))
+        if proceed and a.chat and repo.get_session_plan(p["id"], sid).get("category") == "medical":
+            out("Informacja zwrotna dotyczy wyłącznie języka, nie wiedzy ani decyzji klinicznych.")
         clean = proceed                               # `q` w trakcie ćwiczeń = pauza (lekcję można wznowić)
     except KeyboardInterrupt:
         pass
@@ -348,7 +377,8 @@ def _choose_topic(a, repo, p, q, out) -> dict | None:
     from tutor.app import topics as T
     if a.chat != "ask":
         return T.get(a.chat) or T.custom(a.chat)
-    shown, n = T.suggest(repo, p["id"], 4), 0
+    shown, n = T.suggest(repo, p["id"], 4, category=a.chat_category or "general", mode=a.chat_mode or "natural",
+                         level=QC.resolve_level(repo, p["id"], a.chat_level)[0]), 0
     while True:
         out("Wybierz temat rozmowy (numer), `r` = wylosuj inne, albo wpisz własny temat; q = anuluj:")
         for i, t in enumerate(shown, 1):
@@ -451,6 +481,10 @@ def _apply_settings(a, argv, repo, p) -> None:
         if not given("--" + dev.replace("_", "-")) and eff[dev] != "default":
             setattr(a, dev, eff[dev])
     a.chat_model = repo.get_settings(p["id"]).get("chat_model")    # tylko jawny wybór w profilu nadpisuje config
+    for opt, key in (("--chat-level", "chat_level"), ("--chat-category", "chat_category"),
+                     ("--chat-mode", "chat_mode")):
+        if not given(opt):
+            setattr(a, key, eff[key])
 
 
 def _history_settings(a, repo, p, out) -> None:

@@ -274,40 +274,66 @@ const textMode = () => { const cb = document.getElementById("textmode"); return 
 // ---------- Quick Chat: wybór ----------
 const TOPIC_TONE = { food: "amber", tech: "turq", work: "terra", hobbies: "green", travel: "turq", home: "amber", people: "terra", health: "green" };
 function topicCard(t, onclick) {
-  return h("button", { class: "topic", type: "button", onclick }, chip(t.category_pl, TOPIC_TONE[t.category] || ""), h("strong", {}, t.pl), h("em", { lang: "en" }, t.q));
+  const tag = t.kind === "roleplay" ? `Roleplay · ${(t.lv || []).join("–")}` : (t.lv ? (t.lv || []).join("–") : t.category_pl);
+  return h("button", { class: "topic", type: "button", onclick }, chip(tag, t.kind === "roleplay" ? "terra" : TOPIC_TONE[t.category] || "turq"),
+    h("strong", {}, t.pl), t.kind === "roleplay" ? h("em", {}, t.context_pl) : h("em", { lang: "en" }, t.opener || t.q));
 }
 
+const MODE_ABOUT = {
+  natural: "Swobodna rozmowa. Nauczyciel podąża za Tobą i nie poprawia drobiazgów.",
+  guided: "Nauczyciel prowadzi rozmowę, podsuwa zwroty i słownictwo, pomaga budować odpowiedzi.",
+  roleplay: "Nauczyciel gra rolę w konkretnej sytuacji (np. pacjent, rekruter, klient). Uwagi językowe na końcu.",
+};
 async function screenChat(main) {
-  let seed = null;
+  const opt = await q("/api/chat_options");
+  const st = { level: opt.prefs.level, category: opt.prefs.category, mode: opt.prefs.mode, seed: null, topics: [] };
   const list = h("div", { class: "topic-grid", "aria-live": "polite" });
-  const custom = h("input", { type: "text", maxlength: 80, placeholder: "np. my first job, football, cats…", "aria-label": "Własny temat" });
+  const autoNote = h("p", { class: "note muted" });
+  const modeNote = h("p", { class: "note muted" });
+  const custom = h("input", { type: "text", maxlength: 80, placeholder: "np. my first job, Linux servers, a difficult patient…", "aria-label": "Własny temat" });
   const minutes = seg("Czas rozmowy", [["", "bez limitu"], ["5", "5"], ["10", "10"], ["15", "15"], ["20", "20"], ["30", "30"]], "");
   const corr = seg("Intensywność poprawek", [["summary", "na końcu"], ["periodic", "czasem"], ["intensive", "na bieżąco"]], S.settings?.values?.correction || "summary");
-  const start = (args) => startSession("chat", { ...args, minutes: minutes.value || null, correction: corr.value, text_mode: textMode() });
-  const draw = async () => {
-    const ts = await q("/api/topics", seed === null ? "" : `&seed=${seed}`);
-    list.replaceChildren(...ts.map((t) => topicCard(t, () => start({ topic: t.id }))));
-  };
-  await draw();
-  const hist = await q("/api/chats").catch(() => []);
+  const start = (args) => startSession("chat", { ...args, level: st.level, category: st.category, mode: st.mode,
+    minutes: minutes.value || null, correction: corr.value, text_mode: textMode() });
   const customGo = () => (custom.value.trim() ? start({ custom: custom.value.trim() }) : toast("Wpisz temat."));
   custom.addEventListener("keydown", (e) => { if (e.key === "Enter") customGo(); });
+  const draw = async () => {
+    autoNote.textContent = st.level === "auto" ? opt.auto.notice : "Ręczny wybór poziomu nie zmienia wyniku diagnozy ani postępów.";
+    modeNote.textContent = MODE_ABOUT[st.mode];
+    if (st.category === "custom") { list.replaceChildren(note("Wpisz własny temat poniżej — rozmowa będzie w wybranym trybie i na wybranym poziomie.", "muted")); st.topics = []; return; }
+    st.topics = await q("/api/topics", `&category=${st.category}&level=${st.level}&mode=${st.mode}${st.seed === null ? "" : `&seed=${st.seed}`}`);
+    list.replaceChildren(...st.topics.map((t) => topicCard(t, () => start({ topic: t.id }))));
+  };
+  const cats = h("div", { class: "choice-grid", role: "group", "aria-label": "Kategoria rozmowy" }, opt.categories.map((c) =>
+    h("button", { type: "button", class: "choice", "data-v": c.id, onclick: () => { st.category = c.id; st.seed = null; mark(); draw(); } },
+      h("strong", {}, c.pl), h("span", {}, c.about_pl))));
+  const mark = () => cats.querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.v === st.category)));
+  mark();
+  const levels = seg("Poziom", opt.levels.map((l) => [l, l === "auto" ? "Automatyczny" : l]), st.level, (v) => { st.level = v; draw(); });
+  const modes = seg("Tryb rozmowy", opt.modes.map((m) => [m.id, m.pl]), st.mode, (v) => { st.mode = v; st.seed = null; draw(); });
+  const go = () => (st.category === "custom" || !st.topics.length ? customGo() : start({ topic: st.topics[0].id }));
+  await draw();
+  const hist = await q("/api/chats").catch(() => []);
   main.append(
-    pageHead("Rozmowa z nauczycielem", "Quick Chat", "Swobodna rozmowa po angielsku. Kliknij temat, aby zacząć od razu."),
+    pageHead("Rozmowa z nauczycielem", "Quick Chat", "Wybierz poziom, kategorię i tryb. Temat jest opcjonalny — możesz od razu zacząć od propozycji."),
     h("div", { class: "chat-setup" },
       h("div", { class: "stack" },
-        h("div", { class: "greet" }, mascot("idle", 88), h("p", { class: "speech", lang: "en" }, "Hi! Pick a topic and let's just talk. I'll help with mistakes along the way.")),
-        cardT("chat", "Tematy", h("span", { class: "more" }, btn("Wylosuj inne", () => { seed = Math.floor(Math.random() * 1e9); draw(); }, "sm quiet", "dice")), list),
-        card("Własny temat", h("div", { class: "custom-topic" }, custom, btn("Rozmawiaj o tym", customGo, "primary", "play")),
-          note("Temat zakończony znakiem zapytania staje się pierwszym pytaniem nauczyciela.", "muted"))),
+        card(null, h("div", { class: "opts" },
+          h("div", { class: "opt" }, h("span", {}, "1 · Poziom"), levels, autoNote),
+          h("div", { class: "opt" }, h("span", {}, "2 · Kategoria"), cats),
+          h("div", { class: "opt" }, h("span", {}, "3 · Tryb"), modes, modeNote)),
+          h("div", { class: "row start-row" }, btn("Rozpocznij rozmowę", go, "primary lg", "play"), h("span", { class: "muted" }, "z pierwszą propozycją poniżej albo z Twoim tematem"))),
+        cardT("chat", "4 · Temat (opcjonalnie)", h("span", { class: "more" }, btn("Wylosuj inne", () => { st.seed = Math.floor(Math.random() * 1e9); draw(); }, "sm quiet", "dice")),
+          list, h("div", { class: "custom-topic" }, custom, btn("Rozmawiaj o tym", customGo, "", "play")))),
       h("div", { class: "stack" },
+        h("div", { class: "greet" }, mascot("idle", 72), h("p", { class: "speech", lang: "en" }, "Choose how we talk today. You can change the topic at any time.")),
         card("Ustawienia rozmowy", h("div", { class: "opts" },
           h("div", { class: "opt" }, h("span", {}, "Czas (minuty)"), minutes),
           h("div", { class: "opt" }, h("span", {}, "Poprawki"), corr),
           h("div", { class: "opt" }, h("span", {}, "Tryb"), modeRow()),
           note("Quick Chat nie nadaje statusu opanowania. Poprawki to sugestie modelu i mogą być błędne.", "muted"))),
         hist.length ? card("Ostatnie rozmowy", h("ul", { class: "mini-list" }, hist.slice(0, 5).map((c) => h("li", {}, icon("chat", 20),
-          h("div", {}, h("div", { class: "t" }, (c.topics || []).join(" → ") || "—"), h("div", { class: "s" }, `${fmtDate(c.started_at)} · ${fmtMin(c.seconds_active)}`)),
+          h("div", {}, h("div", { class: "t" }, (c.topics || []).join(" → ") || "—"), h("div", { class: "s" }, `${fmtDate(c.started_at)} · ${fmtMin(c.seconds_active)}${c.level ? " · " + c.level : ""}`)),
           h("span", { class: "s" }, `${c.user_turns ?? 0} wyp.`))))) : null)));
 }
 
@@ -696,13 +722,15 @@ function drawEvent(ev, store = true) {
     if (k === "tutor") { s.speaking = true; s.said = (s.lastKind === "tutor" && s.said ? `${s.said} ` : "") + ev.text; }
     if (["prompt", "listening", "end", "you"].includes(k)) s.speaking = false;
     if (k === "error") s.error = ev.text;
+    if (k === "chatinfo") s.chatinfo = ev.text;
+    if (k === "scenario") s.scenario = ev.text;
     if (k === "info" && ev.text.startsWith("Quick Chat — temat:")) s.topic = ev.text.replace("Quick Chat — temat:", "").split("(")[0].trim().replace(/\.$/, "");
     if (k === "notice" && ev.text.startsWith("nowy temat:")) s.topic = ev.text.replace("nowy temat:", "").trim();
     if (!["prompt", "metric", "listening"].includes(k)) s.lastKind = k;
   }
   const log = S.logEl;            // także przed wstawieniem widoku do strony (odtwarzanie historii po zmianie układu)
   if (!log) return;
-  if (["prompt", "start", "metric", "listening", "recording"].includes(k)) return;
+  if (["prompt", "start", "metric", "listening", "recording", "chatinfo"].includes(k)) return;
   if (k === "info" && /^(\[Enter\]|Profil:|Quick Chat — temat:)/.test(ev.text)) return;        // diagnostyka i instrukcje CLI
   if (k === "goal" && s.layout === "task") return;                                              // cel ma własne miejsce
   const last = log.lastElementChild;
@@ -719,6 +747,7 @@ function drawEvent(ev, store = true) {
   else if (k === "correction_head") el = h("div", { class: "msg correction-head" }, "Do poprawy w tej rozmowie (sugestie modelu)");
   else if (k === "correction") el = h("div", { class: "msg correction" }, h("div", { class: "fix" }, fixLine(ev.span, ev.fix)),
     ev.why ? h("div", { class: "why" }, ev.why) : null, ev.stt ? h("div", { class: "why" }, "Możliwe, że źle usłyszałem — sprawdź, czy tak powiedziałeś/aś.") : null);
+  else if (k === "scenario") el = h("div", { class: "msg scenario" }, h("b", {}, "Scenariusz"), h("p", {}, ev.text));
   else if (k === "heard") el = h("div", { class: "msg heard" }, `Rozpoznano: ${ev.text}`);
   else if (k === "error") el = h("div", { class: "msg error", role: "alert" }, h("b", {}, "Problem"), h("p", {}, ev.text));
   else if (k === "end") el = h("div", { class: "msg sys" }, ev.code ? "Sesja zakończona z błędem." : "Sesja zamknięta. Wyniki zapisano.");
@@ -745,7 +774,8 @@ function drawSide() {
     document.getElementById("next").textContent = nextText(s, state);
     const min = Math.floor((Date.now() - s.started) / 60000);
     document.getElementById("topicnow").replaceChildren(h("span", {}, s.kind === "chat" ? "Temat" : "Rozmowa po lekcji"),
-      h("strong", {}, s.kind === "chat" ? (s.topic || "…") : (s.goal || "…")), h("div", { class: "muted" }, `${min} min`));
+      h("strong", {}, s.kind === "chat" ? (s.topic || "…") : (s.goal || "…")),
+      h("div", { class: "muted" }, [s.chatinfo, `${min} min`].filter(Boolean).join(" · ")));
     return;
   }
   const now = document.getElementById("now");
@@ -819,7 +849,7 @@ async function route() {
 async function boot() {
   document.getElementById("brand").append(mascotHead(36), h("span", {}, pxText("AI Tutor", 3), h("small", {}, "angielski · lokalnie")));
   try { await loadProfiles(); } catch (e) { toast(e.message); }
-  api("/api/system").then((st) => { S.system = st; setStatus(); }).catch(() => {});
+  try { S.system = await api("/api/system"); } catch (e) { /* bez statusu: tryb tekstowy domyślnie */ }
   try {
     const r = await api("/api/session/events?since=0");
     if (r.running) {   // po odświeżeniu strony wracamy do trwającej sesji

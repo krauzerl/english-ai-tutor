@@ -55,6 +55,10 @@ def classify(line: str) -> dict:
         return {"kind": "prompt", "text": ""}
     if s.startswith(("✓", "✗", "Poprawna odpowiedź", "Wynik ćwiczeń", "Koniec ćwiczeń")) or _SUMMARY.match(s):
         return {"kind": "feedback", "text": s}
+    if s.startswith("Scenariusz:"):
+        return {"kind": "scenario", "text": s.removeprefix("Scenariusz:").strip()}
+    if s.startswith("Ustawienia rozmowy:"):
+        return {"kind": "chatinfo", "text": s.removeprefix("Ustawienia rozmowy:").strip()}
     if s.startswith("Do poprawy w tej rozmowie"):
         return {"kind": "correction_head", "text": s}
     if m := _CORR.match(s):                           # „• „span” → „fix” — wyjaśnienie” z podsumowania korekt

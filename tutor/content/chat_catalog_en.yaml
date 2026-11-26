@@ -1,0 +1,276 @@
+# Katalog Quick Chat (F7): kategorie, tematy do rozmowy i scenariusze roleplay. Treść oryginalna.
+# Pola tematu: id, pl (etykieta), lv [od, do] (CEFR, orientacyjnie), q (pytanie otwierające B1+),
+#   q_easy (opcjonalnie: prostsze pytanie dla A1–A2).
+# Pola scenariusza: id, pl, lv, role (kogo gra nauczyciel), learner (kim jest uczeń), context_pl (opis dla ucznia),
+#   setup (szczegóły sytuacji dla modelu, po angielsku), opener (pierwsza kwestia w roli), opener_easy (opcjonalnie).
+categories:
+  general:
+    pl: General English
+    about_pl: Dojrzałe rozmowy o codzienności, podróżach, planach i współczesnym świecie.
+    topics:
+      - {id: gen.work_life, pl: Praca a życie prywatne, lv: [A2, C1], q: "How do you keep a balance between work and the rest of your life?", q_easy: "What do you usually do after work?"}
+      - {id: gen.trip, pl: "Podróż, którą pamiętasz", lv: [A2, C1], q: "Tell me about a trip you still remember well. What made it special?", q_easy: "Where did you travel last year?"}
+      - {id: gen.city, pl: "Miejsce, w którym mieszkasz", lv: [A2, C1], q: "What would you change about the place where you live, if you could?", q_easy: "What do you like about your town?"}
+      - {id: gen.skill, pl: Nowa umiejętność, lv: [A2, C1], q: "What skill have you learned as an adult, and how did you learn it?", q_easy: "What are you learning at the moment?"}
+      - {id: gen.news, pl: Wiadomości i media, lv: [B1, C1], q: "How do you follow the news, and which sources do you trust?"}
+      - {id: gen.habits, pl: Zdrowe nawyki, lv: [A2, C1], q: "Which habit has made the biggest difference to your energy or health?", q_easy: "Do you do any sport during the week?"}
+      - {id: gen.plans, pl: Plany na najbliższy rok, lv: [A2, C1], q: "What are your main plans for the next twelve months?", q_easy: "What are your plans for this year?"}
+      - {id: gen.story, pl: Książka albo film, lv: [A2, C1], q: "Which book or film has stayed with you, and why?", q_easy: "What film did you watch recently?"}
+      - {id: gen.everyday_tech, pl: Technologia na co dzień, lv: [A2, C1], q: "Which piece of technology would be hardest for you to live without?", q_easy: "What do you use your phone for every day?"}
+      - {id: gen.remote_work, pl: Zmiany w świecie pracy, lv: [B2, C1], q: "Do you think remote work is good for people and companies in the long run?"}
+      - {id: gen.ai_society, pl: AI a zwykła praca, lv: [B2, C1], q: "How do you think AI will change ordinary jobs over the next ten years?"}
+    roleplays:
+      - id: gen.rp.hotel
+        pl: Problem w hotelu
+        lv: [A2, B2]
+        role: a hotel receptionist
+        learner: a guest who has a problem with the room
+        context_pl: "Jesteś gościem hotelu. W pokoju jest problem (wybierz jaki: hałas, zepsuta klimatyzacja, zły pokój). Nauczyciel gra recepcjonistę."
+        setup: "Evening, a mid-range hotel. You are polite and helpful but the hotel is almost full, so a new room is not easy to find."
+        opener: "Good evening, reception. How can I help you?"
+      - id: gen.rp.flat
+        pl: Wynajem mieszkania
+        lv: [A2, B2]
+        role: a landlord showing a flat
+        learner: a person who wants to rent the flat
+        context_pl: "Oglądasz mieszkanie do wynajęcia. Zapytaj o cenę, rachunki, umowę i okolicę. Nauczyciel gra właściciela."
+        setup: "A two-room flat near the city centre. Rent 2,800 zloty plus bills, minimum contract twelve months, no pets."
+        opener: "Hi, come in. So, this is the flat. What would you like to know?"
+      - id: gen.rp.return
+        pl: Reklamacja w sklepie
+        lv: [A2, B1]
+        role: a shop assistant
+        learner: a customer returning a faulty product
+        context_pl: "Kupiłeś słuchawki, które po tygodniu przestały działać. Chcesz je zwrócić albo wymienić. Nauczyciel gra sprzedawcę."
+        setup: "An electronics shop. The customer needs the receipt; exchange is possible, a refund only within 14 days."
+        opener: "Hello! What can I do for you today?"
+
+  technical:
+    pl: Technical English / IT
+    about_pl: Programowanie, Python, AI, systemy, sieci, bezpieczeństwo, projektowanie aplikacji.
+    topics:
+      - {id: it.python, pl: Projekt w Pythonie, lv: [A2, C1], q: "Tell me about a Python project you have worked on. What problem did it solve?", q_easy: "Do you use Python? What do you use it for?"}
+      - {id: it.debugging, pl: Trudny błąd w kodzie, lv: [B1, C1], q: "Describe a difficult bug you fixed. How did you find the cause?"}
+      - {id: it.ai_tools, pl: Narzędzia AI w pracy, lv: [B1, C1], q: "How do you use AI tools in your work, and where do they let you down?"}
+      - {id: it.os, pl: System operacyjny, lv: [A2, C1], q: "Which operating system do you use every day, and what do you like or dislike about it?", q_easy: "Which operating system do you use?"}
+      - {id: it.web_request, pl: "Co się dzieje, gdy otwierasz stronę", lv: [B1, C1], q: "Can you explain, in simple words, what happens when you open a website in a browser?"}
+      - {id: it.security, pl: Cyberbezpieczeństwo, lv: [B1, C1], q: "What security mistakes do people make most often with passwords and updates?"}
+      - {id: it.app_design, pl: Projekt aplikacji, lv: [B1, C1], q: "If you were designing an app for language learners, what would you build first, and why?"}
+      - {id: it.code_review, pl: Code review, lv: [B2, C1], q: "In your experience, what makes a code review useful rather than annoying?"}
+      - {id: it.local_ai, pl: AI lokalnie czy w chmurze, lv: [B2, C1], q: "What are the advantages and limits of running AI models locally instead of in the cloud?"}
+    roleplays:
+      - id: it.rp.standup
+        pl: Daily stand-up
+        lv: [B1, C1]
+        role: a team lead running the daily stand-up
+        learner: a developer reporting progress and a blocker
+        context_pl: "Poranny stand-up zespołu. Powiedz, co zrobiłeś wczoraj, co robisz dziś i co cię blokuje. Nauczyciel gra team leada."
+        setup: "A small product team, two-week sprint, release on Friday. Ask short follow-up questions about the blocker and offer help."
+        opener: "Morning, everyone. Let's start with you. What did you work on yesterday, and is anything blocking you?"
+      - id: it.rp.interview
+        pl: Rozmowa techniczna
+        lv: [B1, C1]
+        role: a technical interviewer
+        learner: a candidate for a junior Python developer job
+        context_pl: "Rozmowa o pracę na stanowisko junior Python developer. Opowiedz o doświadczeniu i projektach. Nauczyciel gra rekrutera technicznego."
+        setup: "A software house. Ask about projects, Git, testing, and one simple design question. Be friendly and professional."
+        opener: "Thanks for joining. To start, could you tell me about a project you're proud of?"
+      - id: it.rp.helpdesk
+        pl: Zgłoszenie do helpdesku
+        lv: [A2, B2]
+        role: an office worker whose laptop has a problem
+        learner: an IT support technician
+        context_pl: "Jesteś pracownikiem IT supportu. Użytkownik dzwoni z problemem z laptopem. Zadawaj pytania i poprowadź go krok po kroku."
+        setup: "The laptop cannot connect to the office Wi-Fi since this morning; other people's laptops work. You are not technical."
+        opener: "Hi, this is Anna from accounting. My laptop won't connect to the Wi-Fi and I have a meeting in twenty minutes."
+      - id: it.rp.client_app
+        pl: Klient zamawia aplikację
+        lv: [B2, C1]
+        role: a small business owner who wants a booking app
+        learner: a software developer proposing a solution
+        context_pl: "Klient chce aplikację do rezerwacji wizyt. Dopytaj o wymagania i zaproponuj rozwiązanie. Nauczyciel gra klienta."
+        setup: "A physiotherapy clinic with three therapists. Budget is limited; the owner cares about simplicity and SMS reminders."
+        opener: "Hello! So, as I mentioned in my email, we need a better way for patients to book appointments."
+
+  medical:
+    pl: Medical English
+    about_pl: Język w ochronie zdrowia, szczególnie w ratownictwie medycznym. Ocena dotyczy języka, nie wiedzy klinicznej.
+    topics:
+      - {id: med.shift, pl: Dyżur w zespole ratownictwa, lv: [A2, C1], q: "What does a typical shift look like in emergency medical services?", q_easy: "What do you do at work?"}
+      - {id: med.calls, pl: Najczęstsze wezwania, lv: [A2, C1], q: "What kinds of emergency calls do you get most often, and why do you think that is?", q_easy: "Why do people call an ambulance?"}
+      - {id: med.equipment, pl: Sprzęt w karetce, lv: [A2, B2], q: "Which equipment in the ambulance do you use most often, and what is it for?", q_easy: "What is in an ambulance?"}
+      - {id: med.team_talk, pl: Komunikacja w zespole, lv: [B1, C1], q: "How does good communication inside an ambulance crew work in practice?"}
+      - {id: med.handover_info, pl: Dobre przekazanie pacjenta, lv: [B1, C1], q: "What information should a good patient handover include, and in what order?"}
+      - {id: med.stress, pl: Stres po trudnym wezwaniu, lv: [B1, C1], q: "How do medical teams deal with stress after a difficult call?"}
+    roleplays:
+      - id: med.rp.chest_pain
+        pl: Ból w klatce piersiowej
+        lv: [A2, C1]
+        role: a 58-year-old man with chest pain
+        learner: a paramedic taking the history
+        context_pl: "Jesteś ratownikiem. Wezwanie do domu: mężczyzna, 58 lat, ból w klatce piersiowej. Zbierz wywiad po angielsku (początek, charakter, promieniowanie, objawy towarzyszące, choroby, leki, alergie). Nauczyciel gra pacjenta."
+        setup: "Pain started about 40 minutes ago while watching TV, pressing, spreading to the left arm, with sweating and nausea. History: high blood pressure, takes ramipril, no allergies, smokes. Frightened but cooperative."
+        opener: "Oh... thank God you're here. It's my chest. It really hurts."
+        opener_easy: "Hello... My chest hurts. It hurts a lot."
+      - id: med.rp.breathless
+        pl: Duszność
+        lv: [A2, C1]
+        role: a 71-year-old woman who is short of breath
+        learner: a paramedic assessing the patient
+        context_pl: "Jesteś ratownikiem. Kobieta, 71 lat, duszność od rana. Zbierz wywiad i uspokajaj pacjentkę. Nauczyciel gra pacjentkę."
+        setup: "Breathless since this morning, worse when walking, a cough with some phlegm for three days. Has COPD, uses an inhaler, lives alone. Speaks in short phrases because of the breathlessness."
+        opener: "I... can't catch my breath. It's been... like this... since the morning."
+      - id: med.rp.trauma
+        pl: Uraz po upadku z roweru
+        lv: [A2, B2]
+        role: a 24-year-old cyclist who fell
+        learner: a paramedic at the scene
+        context_pl: "Jesteś ratownikiem na miejscu zdarzenia. Rowerzysta upadł na ulicy. Zapytaj o mechanizm urazu, ból, utratę przytomności. Nauczyciel gra poszkodowanego."
+        setup: "Fell off the bike about ten minutes ago, landed on the right wrist, wore a helmet, does not remember hitting the head, wrist swollen and very painful, no other complaints."
+        opener: "Ow... I fell off my bike. My wrist really hurts."
+      - id: med.rp.history
+        pl: Wywiad z pacjentem (ból brzucha)
+        lv: [A2, C1]
+        role: a 35-year-old patient with abdominal pain
+        learner: a paramedic taking a structured history
+        context_pl: "Zbierz pełny wywiad: objawy, alergie, leki, przeszłość medyczna, ostatni posiłek, okoliczności. Nauczyciel gra pacjenta z bólem brzucha."
+        setup: "Pain in the lower right abdomen since last night, worse when moving, slight fever, no appetite. No regular medicines, allergic to penicillin, last meal yesterday evening."
+        opener: "Hi. I've had this pain in my stomach since last night and it's getting worse."
+      - id: med.rp.handover
+        pl: Przekazanie pacjenta na SOR
+        lv: [B1, C1]
+        role: a triage nurse in the emergency department
+        learner: a paramedic handing over a patient
+        context_pl: "Przywozisz pacjenta na SOR. Przekaż go pielęgniarce triażowej w uporządkowany sposób (np. kto, co się stało, objawy, co zrobiliście). Pacjenta wymyśl sam. Nauczyciel gra pielęgniarkę."
+        setup: "A busy emergency department. Listen to the handover, then ask two or three short clarifying questions about timing, vital signs and medicines given."
+        opener: "Hi, I'm the triage nurse. Okay, what have you got for me?"
+      - id: med.rp.relative
+        pl: Rozmowa z rodziną pacjenta
+        lv: [B1, C1]
+        role: the worried daughter of a patient
+        learner: a paramedic who must explain what is happening
+        context_pl: "Zabieracie ojca kobiety do szpitala. Spokojnie wyjaśnij, co się dzieje i dokąd jedziecie. Nauczyciel gra zdenerwowaną córkę."
+        setup: "Her father, 80, fainted at home and is now awake but weak. She is anxious, asks many questions and wants to come in the ambulance."
+        opener: "Is he going to be okay? What's happening? Can I come with him?"
+      - id: med.rp.crew
+        pl: Plan działań w zespole
+        lv: [B2, C1]
+        role: your partner paramedic on the same call
+        learner: the lead paramedic planning the next steps
+        context_pl: "Jesteście we dwóch u pacjenta. Uzgodnij z partnerem podział zadań i kolejne kroki. Nauczyciel gra partnera z zespołu."
+        setup: "A conscious patient with a suspected stroke, symptoms started 50 minutes ago. Discuss tasks, timing and transport briefly and professionally; follow the lead paramedic's decisions."
+        opener: "Okay, I've got the monitor ready. What do you want me to do first?"
+      - id: med.rp.case
+        pl: Prezentacja przypadku
+        lv: [B2, C1]
+        role: a senior emergency physician
+        learner: a paramedic presenting a recent case
+        context_pl: "Przedstaw lekarzowi przypadek z niedawnego wyjazdu (wymyślony). Odpowiadaj na pytania. Nauczyciel gra starszego lekarza."
+        setup: "A short teaching conversation. Ask the learner to present the case, then ask about the timeline, findings and the reasons for their decisions. Comment on the clarity of the presentation, not on clinical correctness."
+        opener: "I've got a few minutes. Tell me about an interesting case from your recent shifts."
+
+  business:
+    pl: Business English
+    about_pl: Spotkania, negocjacje, prezentacje, startupy, inwestycje, zarządzanie projektami.
+    topics:
+      - {id: biz.meetings, pl: Spotkania, lv: [A2, C1], q: "How do you prepare for an important meeting?", q_easy: "Do you have many meetings at work?"}
+      - {id: biz.company, pl: Twoja firma, lv: [A2, C1], q: "What does your company do, and who are its main customers?", q_easy: "Where do you work, and what does your company do?"}
+      - {id: biz.workday, pl: Dzień w pracy, lv: [A2, B2], q: "What does a busy day at work look like for you?", q_easy: "What time do you start and finish work?"}
+      - {id: biz.negotiation, pl: Negocjacje, lv: [B1, C1], q: "Tell me about a time you had to negotiate something. How did it go?"}
+      - {id: biz.startup, pl: Pomysł na startup, lv: [B1, C1], q: "If you started a company, what problem would it solve, and for whom?"}
+      - {id: biz.investing, pl: Inwestowanie w firmy, lv: [B2, C1], q: "What would convince you to invest in a small company?"}
+      - {id: biz.international, pl: Współpraca międzynarodowa, lv: [B1, C1], q: "What is difficult about working with people from other countries?"}
+      - {id: biz.projects, pl: Zarządzanie projektem, lv: [B1, C1], q: "How do you keep a project on schedule when things go wrong?"}
+      - {id: biz.presentations, pl: Prezentacje biznesowe, lv: [B1, C1], q: "What makes a business presentation convincing?"}
+    roleplays:
+      - id: biz.rp.investor
+        pl: Rozmowa z inwestorem
+        lv: [B2, C1]
+        role: an experienced angel investor
+        learner: a founder pitching a startup
+        context_pl: "Przedstaw inwestorowi swój startup (wymyśl go) i odpowiadaj na pytania o rynek, model biznesowy i zespół. Nauczyciel gra inwestora."
+        setup: "Fifteen minutes in a café. Interested but sceptical: ask about customers, revenue, competition and what the money is for."
+        opener: "Thanks for meeting me. So, tell me what you're building and why now."
+      - id: biz.rp.supplier
+        pl: Negocjacja z dostawcą
+        lv: [B1, C1]
+        role: a sales manager at a supplier
+        learner: a buyer who wants a better price
+        context_pl: "Chcesz obniżyć cenę lub poprawić warunki dostaw u dostawcy. Negocjuj. Nauczyciel gra kierownika sprzedaży."
+        setup: "The buyer orders 2,000 units a month. You can offer a small discount for a longer contract or faster payment, not for nothing."
+        opener: "Good to see you again. I understand you wanted to talk about the new contract?"
+      - id: biz.rp.delay
+        pl: Opóźniony projekt i niezadowolony klient
+        lv: [B1, C1]
+        role: a client unhappy about a delay
+        learner: the project manager
+        context_pl: "Projekt jest opóźniony o dwa tygodnie. Wyjaśnij klientowi sytuację i zaproponuj plan. Nauczyciel gra klienta."
+        setup: "The client needs the system before a trade fair in one month. Frustrated but reasonable if given a clear plan."
+        opener: "I'll be honest, I'm not happy. We were supposed to see the system two weeks ago. What's going on?"
+      - id: biz.rp.partner
+        pl: Nowy partner zagraniczny
+        lv: [A2, B2]
+        role: a potential business partner from Germany
+        learner: a representative of a Polish company
+        context_pl: "Pierwsze spotkanie z potencjalnym partnerem z Niemiec. Przedstaw firmę i porozmawiajcie o współpracy. Nauczyciel gra partnera."
+        setup: "A video call. Friendly, a bit formal; interested in delivery times, quality and communication."
+        opener: "Hello, nice to meet you. Could you tell me a little about your company?"
+
+  professional:
+    pl: Professional Situations
+    about_pl: Rozmowa kwalifikacyjna, konferencja, prezentacja projektu, klient, telefon, problemy w pracy.
+    topics:
+      - {id: pro.career, pl: Doświadczenie zawodowe, lv: [A2, C1], q: "What has been the most useful experience in your career so far?", q_easy: "What was your first job?"}
+      - {id: pro.feedback, pl: Informacja zwrotna, lv: [B1, C1], q: "How do you prefer to receive feedback at work, and how do you give it?"}
+      - {id: pro.online_meetings, pl: Spotkania online, lv: [B1, C1], q: "What makes an online meeting work well, in your experience?"}
+      - {id: pro.email, pl: Profesjonalny e-mail, lv: [B1, C1], q: "What makes a work email clear and polite?"}
+      - {id: pro.events, pl: Konferencje i wydarzenia, lv: [A2, C1], q: "Tell me about a conference or professional event you attended.", q_easy: "Do you go to work events or trainings?"}
+    roleplays:
+      - id: pro.rp.job_interview
+        pl: Rozmowa kwalifikacyjna
+        lv: [A2, C1]
+        role: a recruiter
+        learner: a candidate for a job of your choice
+        context_pl: "Rozmowa o pracę. Na początku powiedz, na jakie stanowisko aplikujesz. Nauczyciel gra rekrutera."
+        setup: "A friendly first interview. Ask about experience, strengths, a difficult situation and why the candidate wants the job."
+        opener: "Hello, thanks for coming in. Before we start, which position are you applying for?"
+      - id: pro.rp.networking
+        pl: Networking na konferencji
+        lv: [B1, C1]
+        role: another attendee at an industry conference
+        learner: yourself, meeting new people
+        context_pl: "Przerwa kawowa na konferencji branżowej. Nawiąż rozmowę, przedstaw się i wymieńcie się informacjami. Nauczyciel gra innego uczestnika."
+        setup: "A two-day conference about digital health and technology. You work in a mid-size company and like meeting new people."
+        opener: "Hi! Is this your first time at this conference?"
+      - id: pro.rp.project_qa
+        pl: Pytania po prezentacji projektu
+        lv: [B1, C1]
+        role: a manager listening to a project presentation
+        learner: the presenter
+        context_pl: "Właśnie skończyłeś prezentację projektu (wymyśl jaki). Odpowiadaj na pytania przełożonego. Nauczyciel gra menedżera."
+        setup: "Ask about the goal, cost, timeline and risks, one question at a time."
+        opener: "Thank you, that was interesting. Can you summarise the main goal of the project in one or two sentences?"
+      - id: pro.rp.client
+        pl: Spotkanie z klientem
+        lv: [B1, C1]
+        role: a new client
+        learner: a company representative
+        context_pl: "Pierwsze spotkanie z nowym klientem. Ustal jego potrzeby i zaproponuj kolejne kroki. Nauczyciel gra klienta."
+        setup: "A mid-size logistics company looking for a partner to improve communication with drivers. Has a deadline and a fixed budget."
+        opener: "Nice to meet you. We've heard good things about your company. Shall we start?"
+      - id: pro.rp.phone
+        pl: Rozmowa telefoniczna
+        lv: [A2, B2]
+        role: a receptionist at a company
+        learner: a caller who needs to reschedule a meeting
+        context_pl: "Dzwonisz do firmy, żeby przełożyć spotkanie z panem Smithem. Nauczyciel gra recepcjonistkę."
+        setup: "Mr Smith is out of the office today. Possible new times: Thursday 10:00 or Friday 14:30. Take a message if needed."
+        opener: "Good morning, Brightway Solutions, Emma speaking. How can I help you?"
+      - id: pro.rp.deadline
+        pl: Problem z terminem w zespole
+        lv: [B1, C1]
+        role: a colleague who disagrees about a deadline
+        learner: a team member trying to solve the problem
+        context_pl: "Kolega z zespołu nie zgadza się z terminem, który obiecałeś klientowi. Rozwiąż problem spokojnie. Nauczyciel gra kolegę."
+        setup: "The colleague thinks the deadline is unrealistic and feels nobody asked them. Open to a compromise if listened to."
+        opener: "Can we talk for a minute? I just saw the deadline you gave the client, and honestly, I don't think we can make it."

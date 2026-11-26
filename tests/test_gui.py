@@ -113,6 +113,8 @@ def test_classify_engine_lines():
                                                          "Końcówka -s tylko przy he/she/it.")
     assert R.classify("• „ship” → „sheep” (możliwe, że źle usłyszałem — sprawdź)")["stt"] is True
     assert R.classify("Do poprawy w tej rozmowie (to sugestie modelu — mogę się mylić):")["kind"] == "correction_head"
+    assert R.classify("Scenariusz: Jesteś ratownikiem.") == {"kind": "scenario", "text": "Jesteś ratownikiem."}
+    assert R.classify("Ustawienia rozmowy: B1 · Medical English · Roleplay")["kind"] == "chatinfo"
 
 
 def test_runner_one_session_at_a_time_and_errors_are_events():

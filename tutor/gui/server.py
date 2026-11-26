@@ -70,6 +70,21 @@ def system_status(ollama_url: str | None = None) -> dict:
             "devices": devices, "audio_error": audio_error}
 
 
+def chat_choice(src: dict) -> tuple[str, str, str]:
+    """Poziom, kategoria i tryb Quick Chat z białej listy (brak = wartości domyślne)."""
+    from tutor.app import topics as T
+    level = str(src.get("level") or "auto")
+    category = str(src.get("category") or "general")
+    mode = str(src.get("mode") or "natural")
+    if level not in ("auto", *T.LEVELS):
+        raise BadRequest("level: auto, A1–C1")
+    if category not in T.CATEGORIES:
+        raise BadRequest(f"category: {', '.join(T.CATEGORIES)}")
+    if mode not in T.MODES:
+        raise BadRequest(f"mode: {', '.join(T.MODES)}")
+    return level, category, mode
+
+
 def session_argv(api: TutorAPI, pid: int, kind: str, args: dict) -> list[str]:
     """Białe listy wartości. Wszystkie wartości jako `--opcja=wartość` (tekst ucznia nie stanie się flagą)."""
     from tutor.app import exams as EX
@@ -89,6 +104,8 @@ def session_argv(api: TutorAPI, pid: int, kind: str, args: dict) -> list[str]:
         if not value or value == "ask":
             raise BadRequest("Wybierz albo wpisz temat")
         argv.append(f"--chat={value}")
+        level, category, mode = chat_choice(args)
+        argv += [f"--chat-level={level}", f"--chat-category={category}", f"--chat-mode={mode}"]
         if (m := args.get("minutes")) not in (None, ""):
             if int(m) not in QC.MINUTES:
                 raise BadRequest(f"minutes: {QC.MINUTES}")
@@ -158,7 +175,11 @@ class App:
                 return api.home(pid)
             if path == "/api/topics":
                 seed = q.get("seed")
-                return api.chat_topics(pid, 4, seed=int(seed) if seed not in (None, "") else None)
+                level, category, mode = chat_choice(q)
+                return api.chat_topics(pid, 4, seed=int(seed) if seed not in (None, "") else None,
+                                       category=category, level=level, mode=mode)
+            if path == "/api/chat_options":
+                return api.chat_options(pid)
             if path == "/api/lessons":
                 return {"suggestion": api.lesson_suggestion(pid), "catalog": api.lesson_catalog(pid)}
             simple = {"/api/placement": api.placement_info, "/api/progress": api.progress,
@@ -202,8 +223,12 @@ class App:
                 return api.update_settings(pid, ch)
             if path == "/api/session/start":
                 kind = str(body.get("kind", ""))
-                argv = session_argv(api, pid, kind, body.get("args") or {})
+                args = body.get("args") or {}
+                argv = session_argv(api, pid, kind, args)
                 self.runner.start(argv, kind)
+                if kind == "chat":                       # ostatnie ustawienia rozmowy zapamiętane w profilu
+                    level, category, mode = chat_choice(args)
+                    api.update_settings(pid, {"chat_level": level, "chat_category": category, "chat_mode": mode})
                 return {"ok": True, "kind": kind}
             raise LookupError(path)
         finally:

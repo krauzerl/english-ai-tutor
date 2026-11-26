@@ -23,10 +23,11 @@ def test_catalog_is_diverse_and_local():
     assert all(len(t["q"]) > 15 for t in c.values())
 
 
-def test_suggestions_come_from_different_categories(repo):
+def test_suggestions_stay_in_chosen_category(repo):
     pid = repo.create_profile("ann")
-    s = T.suggest(repo, pid, 4, seed=1)
-    assert len(s) == 4 and len({t["category"] for t in s}) == 4
+    for cat in ("general", "technical", "medical", "business", "professional"):
+        s = T.suggest(repo, pid, 4, seed=1, category=cat)
+        assert len(s) == 4 and {t["category"] for t in s} == {cat} and {t["kind"] for t in s} == {"topic"}
 
 
 def test_reroll_gives_other_topics_and_history_rotates(repo):
@@ -43,18 +44,18 @@ def test_reroll_gives_other_topics_and_history_rotates(repo):
     assert T.history(repo, pid)[-6:] == [x for x in T.history(repo, pid)[-6:]] and len(set(T.history(repo, pid))) == 6
 
 
-def test_least_recently_used_category_comes_first(repo):
+def test_recently_used_topics_are_not_proposed_again(repo):
     pid = repo.create_profile("ann")
-    for tid in ("fd.favorite", "fd.cooking", "tr.dream"):
+    for tid in ("gen.trip", "gen.city", "gen.plans"):
         QC.start(repo, pid, T.get(tid))
-    cats = [t["category"] for t in T.suggest(repo, pid, 3, seed=5)]
-    assert "food" not in cats and "travel" not in cats
+    ids = {t["id"] for t in T.suggest(repo, pid, 4, seed=5, category="general")}
+    assert not ids & {"gen.trip", "gen.city", "gen.plans"}
 
 
 def test_profiles_have_separate_history(repo):
     a, b = repo.create_profile("a"), repo.create_profile("b")
-    QC.start(repo, a, T.get("fd.favorite"))
-    assert T.history(repo, b) == [] and T.history(repo, a) == ["fd.favorite"]
+    QC.start(repo, a, T.get("gen.trip"))
+    assert T.history(repo, b) == [] and T.history(repo, a) == ["gen.trip"]
 
 
 def test_custom_topic_is_not_in_rotation_history(repo):
@@ -159,7 +160,7 @@ def test_change_topic_instruction_applies_to_one_reply_only(env):
     env.go(Gated({}, "hi", "can we change the topic please", "and now?", "q"), ["--no-audio", "--chat", "fd.favorite"],
            llm=conv, ev=EvalProv())
     plan = env.repo.get_session_plan(env.pid, env.repo.list_sessions(env.pid)[0]["id"])
-    q = plan["topic"]["q"]
+    q = T.opener(plan["topic"], plan["level"])                # pytanie dopasowane do poziomu rozmowy
     assert q in conv.calls[1][0].content and q not in conv.calls[2][0].content and q not in conv.calls[0][0].content
 
 

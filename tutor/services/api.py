@@ -77,8 +77,22 @@ class TutorAPI:
                 "open_session": self.repo.find_open_session(pid)}
 
     # --- Quick Chat ---
-    def chat_topics(self, pid: int, n: int = 4, seed: int | None = None) -> list[dict]:
-        return T.suggest(self.repo, pid, n, seed=seed)
+    def chat_topics(self, pid: int, n: int = 4, seed: int | None = None, category: str = "general",
+                    level: str = "auto", mode: str = "natural") -> list[dict]:
+        lv = QC.resolve_level(self.repo, pid, level)[0]
+        return [{**t, "opener": T.opener(t, lv)} for t in T.suggest(self.repo, pid, n, seed=seed, category=category,
+                                                                    level=lv, mode=mode)]
+
+    def chat_options(self, pid: int) -> dict:
+        """Wybór przed rozmową: poziomy, kategorie, tryby, ostatnie ustawienia profilu i wynik poziomu „auto”."""
+        eff = ST.effective(self.repo, pid)
+        lv, src, notice = QC.resolve_level(self.repo, pid, "auto")
+        cats = list(T.chat_catalog()["categories"].values()) + [
+            {"id": "custom", "pl": "Custom Topic", "about_pl": "Dowolny własny temat."}]
+        return {"levels": ["auto", *T.LEVELS], "categories": cats,
+                "modes": [{"id": m, "pl": QC.MODES_PL[m]} for m in T.MODES],
+                "prefs": {"level": eff["chat_level"], "category": eff["chat_category"], "mode": eff["chat_mode"]},
+                "auto": {"level": lv, "source": src, "notice": notice}}
 
     def chat_start(self, pid: int, topic_id: str | None = None, custom: str | None = None,
                    minutes: int | None = None, correction: str | None = None) -> dict:
