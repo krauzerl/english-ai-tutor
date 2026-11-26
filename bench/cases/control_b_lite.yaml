@@ -1,0 +1,156 @@
+# Zbiór kontrolny B-lite (autor: Claude Opus 5.5, 2026-11-26). STATUS: NIEZWALIDOWANY.
+# Napisany PRZED uruchomieniem jakiegokolwiek wariantu na tym zbiorze; bez patrzenia na odpowiedzi modelu,
+# bez kopiowania `audit_control.yaml`, `grammar_gold.yaml`, `teacher_f7.yaml`. Autor = jedna osoba (AI):
+# oczekiwane poprawki NIE są złotym standardem, dopóki człowiek ich nie zrecenzuje (`review` niżej).
+# Recenzji człowieka NIE wolno zastąpić oceną innego modelu.
+#
+# Ochrona przed dopasowywaniem (pre-rejestracja):
+#   * split=dev  — wolno oglądać wyniki i stroić politykę fuzji / reguły (tylko na tej części);
+#   * split=held — uruchamiany WYŁĄCZNIE w końcowej bramce GO/NO-GO (wszystkie warianty naraz, ten sam kod);
+#     wyniki held nie mogą być użyte do zmian promptu, reguł ani polityki. Suma SHA-256 pliku zapisana
+#     w `bench/results/b_lite/MANIFEST.md` w commicie przed pierwszym uruchomieniem.
+#
+# Pola:  kind: clean | variant | critical | ctx_clean | voice_clean | stt | error | multi | ctx_error
+#        prev: poprzednia wypowiedź tutora (kontekst; wariant A jej nie dostaje)
+#        mode: text (domyślnie) | voice;  low: słowa niepewne wg Whispera (tylko voice)
+#        errors: [{fix_has: "forma|forma2", cat: "rodzina|rodzina2"}] — błąd wykryty, gdy po poprawce zdanie
+#                zawiera `fix_has`, a przed nią nie;  keep: tokeny, których poprawka NIE może usunąć
+#                (negacja, liczby, jednostki, nazwy) — usunięcie = krytyczna zmiana znaczenia.
+# Kryteria liczy `bench/b_lite.py` (opis metryk w tym pliku).
+review: {status: unvalidated, human_reviewer: null, reviewed_at: null}
+eval:
+  # ===================== DEV (strojenie dozwolone) =====================
+  - {id: d_c01, split: dev, kind: clean, text: "I've been working here for three years."}
+  - {id: d_c02, split: dev, kind: clean, text: "Could you tell me where the station is?"}
+  - {id: d_c03, split: dev, kind: clean, text: "If it rains tomorrow, we'll stay at home."}
+  - {id: d_c04, split: dev, kind: clean, text: "She's taller than her brother."}
+  - {id: d_c05, split: dev, kind: clean, text: "We didn't have enough time to finish the report."}
+  - {id: d_c06, split: dev, kind: clean, text: "Everyone was tired after the long shift."}
+  - {id: d_c07, split: dev, kind: clean, text: "I'm looking forward to meeting you."}
+  - {id: d_c08, split: dev, kind: clean, text: "The meeting has been moved to Thursday."}
+  - {id: d_v01, split: dev, kind: variant, text: "I parked the car in the car park near the centre."}
+  - {id: d_v02, split: dev, kind: variant, text: "We need to organize the files by color."}
+  - {id: d_v03, split: dev, kind: variant, text: "I've gotten used to the noise."}
+  - {id: d_v04, split: dev, kind: variant, text: "My flat is on the ground floor."}
+  - {id: d_k01, split: dev, kind: critical, text: "The patient denies chest pain.", keep: ["denies"]}
+  - {id: d_k02, split: dev, kind: critical, text: "Give 2 mg of morphine every 4 hours.", keep: ["2 mg", "4 hours"]}
+  - {id: d_k03, split: dev, kind: critical, text: "Dr Nowak doesn't work on Mondays.", keep: ["Nowak", "doesn't|does not"]}
+  - {id: d_x01, split: dev, kind: ctx_clean, prev: "What did you do last weekend?", text: "I visited my grandparents in Lublin."}
+  - {id: d_x02, split: dev, kind: ctx_clean, prev: "How often do you go to the gym?", text: "I go twice a week, usually in the evening."}
+  - {id: d_x03, split: dev, kind: ctx_clean, prev: "Have you ever been to Spain?", text: "Yes, I went there in 2019."}
+  - {id: d_x04, split: dev, kind: ctx_clean, prev: "What are you doing at the moment?", text: "I'm cooking dinner for my kids."}
+  - {id: d_o01, split: dev, kind: voice_clean, mode: voice, text: "Yeah I think so but I'm not sure about the price."}
+  - {id: d_o02, split: dev, kind: voice_clean, mode: voice, text: "I work in Katowice at a small IT company."}
+  - {id: d_s01, split: dev, kind: stt, mode: voice, low: [weak], text: "I'll see you next weak."}
+  - {id: d_s02, split: dev, kind: stt, mode: voice, low: [no], text: "I don't no the answer."}
+  - {id: d_e01, split: dev, kind: error, text: "He don't like coffee.", errors: [{fix_has: "doesn't|does not", cat: "agreement|tense|omission"}]}
+  - {id: d_e02, split: dev, kind: error, text: "I am agree with you.", errors: [{fix_has: "I agree", cat: "omission|word|verb|morphology|grammar|tense"}]}
+  - {id: d_e03, split: dev, kind: error, text: "Yesterday I buyed new shoes.", errors: [{fix_has: "bought", cat: "morphology|tense"}]}
+  - {id: d_e04, split: dev, kind: error, text: "She is married with a doctor.", errors: [{fix_has: "married to", cat: "preposition"}]}
+  - {id: d_e05, split: dev, kind: error, text: "I have two childrens.", errors: [{fix_has: "children", cat: "morphology|agreement"}]}
+  - {id: d_e06, split: dev, kind: error, text: "We discussed about the budget.", errors: [{fix_has: "discussed the budget", cat: "preposition|word"}]}
+  - {id: d_e07, split: dev, kind: error, text: "I live here since 2010.", errors: [{fix_has: "have lived|'ve lived|have been living|'ve been living", cat: "tense"}]}
+  - {id: d_e08, split: dev, kind: error, text: "Can you explain me this rule?", errors: [{fix_has: "explain this rule to me|explain this rule", cat: "word|preposition|grammar|verb"}]}
+  - {id: d_e09, split: dev, kind: error, text: "There is many people in the room.", errors: [{fix_has: "There are", cat: "agreement"}]}
+  - {id: d_e10, split: dev, kind: error, text: "I'm interesting in history.", errors: [{fix_has: "interested", cat: "morphology|word"}]}
+  - {id: d_m01, split: dev, kind: multi, text: "Yesterday I go to shop and buy a milk.", errors: [{fix_has: "went", cat: "tense"}, {fix_has: "bought", cat: "tense"}, {fix_has: "the shop|a shop|shopping|to the store", cat: "article|word"}, {fix_has: "buy milk|bought milk|some milk", cat: "article|determiner|count"}]}
+  - {id: d_m02, split: dev, kind: multi, text: "She have three cat and two dog.", errors: [{fix_has: "has", cat: "agreement"}, {fix_has: "three cats", cat: "morphology|agreement"}, {fix_has: "two dogs", cat: "morphology|agreement"}]}
+  - {id: d_m03, split: dev, kind: multi, text: "My brother work in bank since five years.", errors: [{fix_has: "has worked|has been working|works", cat: "agreement|tense"}, {fix_has: "in a bank|at a bank|in the bank|at the bank", cat: "article"}, {fix_has: "for five years", cat: "preposition"}]}
+  - {id: d_m04, split: dev, kind: multi, text: "The patient don't have fever since 3 days.", keep: ["3", "fever"], errors: [{fix_has: "doesn't|does not|hasn't|has not", cat: "agreement|tense|omission"}, {fix_has: "for 3 days", cat: "preposition"}]}
+  - {id: d_y01, split: dev, kind: ctx_error, prev: "What did you do yesterday evening?", text: "I watch a film with my wife.", errors: [{fix_has: "watched", cat: "tense"}]}
+  - {id: d_y02, split: dev, kind: ctx_error, prev: "What do you usually have for breakfast?", text: "I usually had eggs and toast.", errors: [{fix_has: "usually have", cat: "tense"}]}
+  - {id: d_y03, split: dev, kind: ctx_error, prev: "Where were you born?", text: "I am born in Poznań.", errors: [{fix_has: "was born", cat: "tense"}]}
+
+  # ===================== HELD-OUT (tylko końcowa bramka) =====================
+  # --- poprawne ---
+  - {id: h_c01, split: held, kind: clean, text: "I haven't decided yet."}
+  - {id: h_c02, split: held, kind: clean, text: "He used to play the guitar when he was a student."}
+  - {id: h_c03, split: held, kind: clean, text: "The documents were signed yesterday."}
+  - {id: h_c04, split: held, kind: clean, text: "If I had more money, I would travel more."}
+  - {id: h_c05, split: held, kind: clean, text: "Let's grab a coffee after work."}
+  - {id: h_c06, split: held, kind: clean, text: "None of the tests were positive."}
+  - {id: h_c07, split: held, kind: clean, text: "I've already sent you the link."}
+  - {id: h_c08, split: held, kind: clean, text: "We should have left earlier."}
+  - {id: h_c09, split: held, kind: clean, text: "My daughter is good at maths."}
+  - {id: h_c10, split: held, kind: clean, text: "How long have you been learning English?"}
+  - {id: h_c11, split: held, kind: clean, text: "The deployment failed because of a missing config file."}
+  - {id: h_c12, split: held, kind: clean, text: "I'd like to book a table for two, please."}
+  - {id: h_c13, split: held, kind: clean, text: "She asked me what time it was."}
+  - {id: h_c14, split: held, kind: clean, text: "Not bad, thanks. A bit busy, to be honest."}
+  - {id: h_c15, split: held, kind: clean, text: "There were fewer people than we expected."}
+  - {id: h_c16, split: held, kind: clean, text: "I'm used to working at night."}
+  # --- warianty BrE/AmE i akceptowalne alternatywy ---
+  - {id: h_v01, split: held, kind: variant, text: "I'll call you on Monday."}
+  - {id: h_v02, split: held, kind: variant, text: "I'll call you Monday."}
+  - {id: h_v03, split: held, kind: variant, text: "The government has announced new rules."}
+  - {id: h_v04, split: held, kind: variant, text: "The government have announced new rules."}
+  - {id: h_v05, split: held, kind: variant, text: "We need to analyse the results."}
+  - {id: h_v06, split: held, kind: variant, text: "I took the elevator to the fifth floor."}
+  - {id: h_v07, split: held, kind: variant, text: "Did you eat yet?"}
+  - {id: h_v08, split: held, kind: variant, text: "She's in hospital with a broken leg."}
+  - {id: h_v09, split: held, kind: variant, text: "I'm going to write to my manager."}
+  - {id: h_v10, split: held, kind: variant, text: "The programme starts at half past seven."}
+  # --- krytyczne: negacja, liczby, jednostki, nazwy (każda korekta = fałszywa; usunięcie `keep` = krytyczne) ---
+  - {id: h_k01, split: held, kind: critical, text: "The patient is not allergic to penicillin.", keep: ["not"]}
+  - {id: h_k02, split: held, kind: critical, text: "Blood pressure is 120 over 80.", keep: ["120", "80"]}
+  - {id: h_k03, split: held, kind: critical, text: "The server can't handle more than 500 requests per second.", keep: ["can't|cannot|can not", "500"]}
+  - {id: h_k04, split: held, kind: critical, text: "Mrs Wiśniewska never takes sugar in her tea.", keep: ["Wiśniewska", "never"]}
+  - {id: h_k05, split: held, kind: critical, text: "We shouldn't restart the database before 6 p.m.", keep: ["shouldn't|should not", "6"]}
+  - {id: h_k06, split: held, kind: critical, text: "He has no history of diabetes.", keep: ["no"]}
+  - {id: h_k07, split: held, kind: critical, text: "The invoice is due in 14 days.", keep: ["14"]}
+  - {id: h_k08, split: held, kind: critical, text: "Paramedics found the man unconscious but breathing.", keep: ["unconscious", "breathing"]}
+  # --- kontekst: poprawne w kontekście (ryzyko fałszywej korekty czasu) ---
+  - {id: h_x01, split: held, kind: ctx_clean, prev: "What did you study at university?", text: "I studied economics in Kraków."}
+  - {id: h_x02, split: held, kind: ctx_clean, prev: "What do you do in your free time?", text: "I read a lot and sometimes I play chess."}
+  - {id: h_x03, split: held, kind: ctx_clean, prev: "Have you finished the project?", text: "Not yet, I'm still testing it."}
+  - {id: h_x04, split: held, kind: ctx_clean, prev: "What will you do after the course?", text: "I'm going to look for a new job."}
+  - {id: h_x05, split: held, kind: ctx_clean, prev: "How was your holiday?", text: "It was great, we swam every day."}
+  - {id: h_x06, split: held, kind: ctx_clean, prev: "What happened when you arrived?", text: "The doors were locked, so we waited outside."}
+  - {id: h_x07, split: held, kind: ctx_clean, prev: "Do you like your job?", text: "Yes, I do. My team is really friendly."}
+  - {id: h_x08, split: held, kind: ctx_clean, prev: "Tell me about your morning routine.", text: "I get up at seven, have a shower and take the tram."}
+  # --- głos: poprawne transkrypcje (bez korekt interpunkcji, wielkich liter, nazw) ---
+  - {id: h_o01, split: held, kind: voice_clean, mode: voice, text: "So basically I was working the whole weekend."}
+  - {id: h_o02, split: held, kind: voice_clean, mode: voice, text: "my colleague Bartek helped me with the migration"}
+  - {id: h_o03, split: held, kind: voice_clean, mode: voice, text: "Well it depends, maybe on Friday, maybe next week."}
+  - {id: h_o04, split: held, kind: voice_clean, mode: voice, text: "I live in Bielsko-Biała, it's in the south."}
+  - {id: h_o05, split: held, kind: voice_clean, mode: voice, text: "We use Kubernetes and Postgres at work."}
+  # --- głos: błędy rozpoznania (słowo niepewne wg Whispera) — korekta językowa = fałszywa ---
+  - {id: h_s01, split: held, kind: stt, mode: voice, low: [whether], text: "The whether is nice today."}
+  - {id: h_s02, split: held, kind: stt, mode: voice, low: [by], text: "I want to by a new phone."}
+  - {id: h_s03, split: held, kind: stt, mode: voice, low: [hear], text: "I've lived hear for ten years."}
+  - {id: h_s04, split: held, kind: stt, mode: voice, low: [one], text: "I one the first prize."}
+  # --- pojedyncze błędy ---
+  - {id: h_e01, split: held, kind: error, text: "She go to work by bus.", errors: [{fix_has: "goes", cat: "agreement|tense"}]}
+  - {id: h_e02, split: held, kind: error, text: "I didn't went to the party.", errors: [{fix_has: "didn't go|did not go", cat: "tense|morphology|omission"}]}
+  - {id: h_e03, split: held, kind: error, text: "He is more taller than me.", errors: [{fix_has: "He is taller", cat: "morphology|comparative"}]}
+  - {id: h_e04, split: held, kind: error, text: "I have seen him yesterday.", errors: [{fix_has: "I saw him", cat: "tense"}]}
+  - {id: h_e05, split: held, kind: error, text: "Where you live?", errors: [{fix_has: "Where do you live", cat: "omission|word_order|question"}]}
+  - {id: h_e06, split: held, kind: error, text: "I am working here since January.", errors: [{fix_has: "have been working|'ve been working|have worked|'ve worked", cat: "tense"}]}
+  - {id: h_e07, split: held, kind: error, text: "Can I have an information about the course?", errors: [{fix_has: "some information|any information|have information", cat: "determiner|article|count"}]}
+  - {id: h_e08, split: held, kind: error, text: "He said me that he was ill.", errors: [{fix_has: "told me|said to me|said that", cat: "word|verb|preposition|grammar"}]}
+  - {id: h_e09, split: held, kind: error, text: "I must to finish this today.", errors: [{fix_has: "must finish", cat: "omission|modal|verb|grammar|morphology"}]}
+  - {id: h_e10, split: held, kind: error, text: "The childrens are playing in the garden.", errors: [{fix_has: "The children", cat: "morphology|agreement"}]}
+  - {id: h_e11, split: held, kind: multi, text: "I'm waiting for you since an hour.", errors: [{fix_has: "for an hour", cat: "preposition|tense"}, {fix_has: "have been waiting|'ve been waiting", cat: "tense"}]}
+  - {id: h_e12, split: held, kind: error, text: "If I will see him, I'll tell him.", errors: [{fix_has: "If I see him", cat: "tense|conditional"}]}
+  - {id: h_e13, split: held, kind: error, text: "My sister has 25 years.", keep: ["25"], errors: [{fix_has: "is 25", cat: "word|verb|grammar"}]}
+  - {id: h_e14, split: held, kind: error, text: "We was at home all day.", errors: [{fix_has: "We were", cat: "agreement|tense"}]}
+  - {id: h_e15, split: held, kind: error, text: "I look forward to hear from you.", errors: [{fix_has: "to hearing", cat: "morphology|word|verb"}]}
+  - {id: h_e16, split: held, kind: error, text: "She doesn't likes cold weather.", errors: [{fix_has: "doesn't like", cat: "agreement|morphology|tense"}]}
+  - {id: h_e17, split: held, kind: error, text: "I go to the work at eight.", errors: [{fix_has: "go to work", cat: "article"}]}
+  - {id: h_e18, split: held, kind: error, text: "The patient was transported to hospital and he feel better now.", keep: ["patient"], errors: [{fix_has: "he feels|he is feeling|he's feeling", cat: "agreement|tense"}]}
+  # --- wiele błędów w jednym zdaniu ---
+  - {id: h_m01, split: held, kind: multi, text: "Last year I visit London and I see the Big Ben.", errors: [{fix_has: "visited", cat: "tense"}, {fix_has: "saw", cat: "tense"}, {fix_has: "see Big Ben|saw Big Ben", cat: "article"}]}
+  - {id: h_m02, split: held, kind: multi, text: "He don't know where is the station.", errors: [{fix_has: "doesn't know|does not know", cat: "agreement|tense|omission"}, {fix_has: "where the station is", cat: "word_order"}]}
+  - {id: h_m03, split: held, kind: multi, text: "I have a lot of works and I am very tiring.", errors: [{fix_has: "a lot of work", cat: "morphology|count|determiner|agreement"}, {fix_has: "very tired|am tired", cat: "morphology|word"}]}
+  - {id: h_m04, split: held, kind: multi, text: "My friends was very kind and they helps me a lot.", errors: [{fix_has: "friends were", cat: "agreement|tense"}, {fix_has: "they helped|they help me", cat: "agreement|tense"}]}
+  - {id: h_m05, split: held, kind: multi, text: "Yesterday we have a meeting with a client and he was angry on us.", errors: [{fix_has: "we had", cat: "tense"}, {fix_has: "angry with us|angry at us", cat: "preposition"}]}
+  - {id: h_m06, split: held, kind: multi, text: "She can speaks three language very good.", errors: [{fix_has: "can speak", cat: "morphology|agreement|omission|verb"}, {fix_has: "three languages", cat: "morphology|agreement"}, {fix_has: "very well", cat: "word|morphology|adverb"}]}
+  - {id: h_m07, split: held, kind: multi, text: "The patient have pain in his chest since two hours.", keep: ["chest", "two"], errors: [{fix_has: "has had|has been having|has pain|has been in pain", cat: "agreement|tense"}, {fix_has: "for two hours", cat: "preposition"}]}
+  - {id: h_m08, split: held, kind: multi, text: "I didn't knew that the server need a restart.", errors: [{fix_has: "didn't know|did not know", cat: "tense|morphology"}, {fix_has: "server needed|server needs", cat: "agreement|tense"}]}
+  # --- błąd widoczny dopiero w kontekście ---
+  - {id: h_y01, split: held, kind: ctx_error, prev: "What did you have for dinner last night?", text: "I eat pizza with my friends.", errors: [{fix_has: "ate|had", cat: "tense"}]}
+  - {id: h_y02, split: held, kind: ctx_error, prev: "How did you get to work today?", text: "I take the bus, as always.", errors: [{fix_has: "took", cat: "tense"}]}
+  - {id: h_y03, split: held, kind: ctx_error, prev: "What were you doing when the alarm went off?", text: "I sleep.", errors: [{fix_has: "was sleeping", cat: "tense"}]}
+  - {id: h_y04, split: held, kind: ctx_error, prev: "Where did you go on holiday last summer?", text: "We go to Croatia for two weeks.", errors: [{fix_has: "went", cat: "tense"}]}
+  - {id: h_y05, split: held, kind: ctx_error, prev: "How long have you known your best friend?", text: "I know him since school.", errors: [{fix_has: "have known|'ve known", cat: "tense"}]}
+  - {id: h_y06, split: held, kind: ctx_error, prev: "Did you enjoy the concert yesterday?", text: "Yes, it is amazing.", errors: [{fix_has: "it was", cat: "tense"}]}
