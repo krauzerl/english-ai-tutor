@@ -19,7 +19,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import statistics
 import time
 from pathlib import Path
 
@@ -65,14 +64,15 @@ def score(cases: list[dict], results: list, level: str = "recast") -> dict:
         row["reported"] = [[o.span, o.fix, o.category, o.confidence, o.source] for o in rep]
         errors = c.get("errors", [])
         hit = [False] * len(errors)
-        for o in rep:
-            m = next((j for j, e in enumerate(errors) if _fixed(c["text"], o, e["fix_has"].split("|"))), None)
-            if m is None:
+        for o in rep:                  # jedno zgłoszenie może naprawić kilka oczekiwanych błędów naraz
+            m = [j for j, e in enumerate(errors) if _fixed(c["text"], o, e["fix_has"].split("|"))]
+            if not m:
                 fp += 1
                 row.setdefault("unexpected" if errors else "false", []).append([o.span, o.fix])
-            elif not hit[m]:
+            elif not all(hit[j] for j in m):          # duplikat już trafionego błędu: ani TP, ani FP
                 tp += 1
-                hit[m] = True
+                for j in m:
+                    hit[j] = True
             if c.get("keep") and not _kept(c["text"], o, c["keep"]):
                 crit += 1
                 row.setdefault("critical", []).append([o.span, o.fix])

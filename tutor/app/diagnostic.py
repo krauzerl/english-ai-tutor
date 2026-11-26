@@ -140,7 +140,8 @@ def run(repo, pack: C.Pack, pid: int, sid: int, ask: Callable[[C.Item | dict, in
                 return rep
             rep.outcomes.append(r)
             continue
-        pool = items_for(pack, area, allow_unreviewed)
+        pool = D.fresh_pool(items_for(pack, area, allow_unreviewed), repo.practiced_items(pid),
+                            rb.diagnosis["min_items"])
         if len(pool) < rb.diagnosis["min_items"]:
             st["finished"].append(area)
             rep.outcomes.append(AreaOutcome(area, "not_tested", reason="za mało zadań w banku"))

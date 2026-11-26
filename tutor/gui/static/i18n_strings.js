@@ -254,6 +254,8 @@ I18N.add([
   ["Na liście", "Na liście", "On the list"],
   ["Powtórki nie nadają statusu opanowania. Limit: 20 dziennie.", "Powtórki nie nadają statusu opanowania. Limit: 20 dziennie.", "Reviews never mark skills as mastered. Limit: 20 a day."],
   ["Potwierdzony ćwiczeniami", "Potwierdzony ćwiczeniami", "Confirmed by exercises"],
+  ["Potwierdzony ćwiczeniem kontrolnym", "Potwierdzony ćwiczeniem kontrolnym", "Confirmed by a check exercise"],
+  ["W ćwiczeniu poprawnie — błąd tylko w rozmowie", "W ćwiczeniu poprawnie — błąd tylko w rozmowie", "Correct in the exercise — error seen only in conversation"],
   ["Sugestia modelu", "Sugestia modelu", "Model suggestion"],
   ["Możliwy błąd rozpoznawania mowy", "Możliwy błąd rozpoznawania mowy", "Possible speech recognition error"],
   ["Za mało danych", "Za mało danych", "Not enough data"],

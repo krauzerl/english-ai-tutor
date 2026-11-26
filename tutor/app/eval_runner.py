@@ -20,11 +20,14 @@ class ModelUnavailable(Exception):
 def make_queue(repo, pack: Pack, provider, structured, *, profile_id: int, session_id: int,
                goals: dict[str, str], clock: Callable[[], datetime] = lambda: datetime.now(UTC),
                model: str | None = None, prompt_version: str = "turn_eval.v3",
-               theta: dict[str, float] | None = None, batch: int = 5) -> EvalQueue:
+               theta: dict[str, float] | None = None, batch: int = 1, context: bool = False) -> EvalQueue:
+    """`context`: model oceny dostaje poprzednią wypowiedź tutora (tylko przy partii 1 — kontekst jest wspólny dla
+    całego wywołania). Domyślnie wyłączone do czasu wyniku eksperymentu B (bench/b_lite.py)."""
     def evaluate(items: list[Pending]):
+        prev = tutor_prev(repo, profile_id, session_id, items[0].turn_id) if context and len(items) == 1 else ""
         res = turn_eval.evaluate_texts(pack, provider, structured, [p.text for p in items],
                                        input_modes=[p.input_mode for p in items],
-                                       low_probs=[set(p.low_probs) for p in items], goals=goals)
+                                       low_probs=[set(p.low_probs) for p in items], goals=goals, tutor_prev=prev)
         if all(r.eval_status != "evaluated" for r in res):
             raise ModelUnavailable
         return res
@@ -32,14 +35,32 @@ def make_queue(repo, pack: Pack, provider, structured, *, profile_id: int, sessi
     def apply(p: Pending, r) -> None:
         ingest.apply_turn_evaluation(repo, pack, profile_id, session_id, p.turn_id, r, input_mode=p.input_mode,
                                      text=p.text, goals=set(goals), now=clock(), model=model,
-                                     prompt_version=prompt_version, low_prob_words=sorted(p.low_probs) or None,
-                                     theta=theta)
+                                     prompt_version=prompt_version + ("+ctx" if context else ""),
+                                     low_prob_words=sorted(p.low_probs) or None,
+                                     theta=theta, tutor_prev=tutor_prev(repo, profile_id, session_id, p.turn_id))
         repo.clear_dropped(profile_id, p.turn_id)
 
     def on_drop(p: Pending) -> None:
         repo.mark_dropped(profile_id, session_id, p.turn_id, p.input_mode, clock().isoformat())
 
     return EvalQueue(evaluate, apply, batch=batch, on_drop=on_drop)
+
+
+def eval_context() -> bool:
+    """Ustawienie `[evaluation] context` w config.toml (domyślnie False: eksperyment B bez potwierdzonej korzyści)."""
+    from tutor import config
+    return bool((config.raw_config().get("evaluation") or {}).get("context", False))
+
+
+def tutor_prev(repo, profile_id: int, session_id: int, turn_id: int) -> str:
+    """Ostatnia wypowiedź tutora przed turą ucznia `turn_id` (z SQLite, więc działa też po restarcie)."""
+    prev = ""
+    for t in repo.list_turns(profile_id, session_id):
+        if t["id"] >= turn_id:
+            break
+        if t["role"] == "assistant":
+            prev = t["text"]
+    return prev
 
 
 def restore_pending(repo, queue: EvalQueue, profile_id: int, session_id: int) -> int:

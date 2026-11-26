@@ -224,7 +224,8 @@ def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, l
             if ch is None:
                 err("Brak celu lekcji z dostępnymi materiałami (wyjaśnienie i zadania).")
                 return 1
-            goal, choice = ch.skill_id, {"source": ch.source, "reason": ch.reason, "provisional": ch.provisional}
+            goal, choice = ch.skill_id, {"source": ch.source, "reason": ch.reason, "provisional": ch.provisional,
+                                         "category": ch.category}
         try:
             L.prepare(lesson_pack, goal, allow_unreviewed=allow)
         except L.LessonError as e:
@@ -759,7 +760,7 @@ def _eval_service(repo, conn, p, sid, eval_llm, build_eval, out, goals=None, pac
     if eval_llm.external or not eval_llm.health():
         out("[ocena wyłączona: model oceny niedostępny lokalnie; wypowiedzi zostaną ocenione później]")
         return None
-    from tutor.app.eval_runner import make_queue
+    from tutor.app.eval_runner import eval_context, make_queue
     from tutor.app.session_service import SessionService
     from tutor.llm.structured import structured
     from tutor.pedagogy import content as C
@@ -768,7 +769,7 @@ def _eval_service(repo, conn, p, sid, eval_llm, build_eval, out, goals=None, pac
     svc = SessionService(
         repo, lambda: Repo(open_db(path)),
         lambda wrepo: make_queue(wrepo, pack, eval_llm, structured, profile_id=p["id"], session_id=sid,
-                                goals=goals or {}, batch=1),
+                                goals=goals or {}, batch=1, context=eval_context()),
         # batch=1: Qwen3 8B ocenia 1 wypowiedź w ~2 s, partię 5 w ~30 s (pomiar F7); wypowiedź ucznia anuluje całą
         # trwającą partię, więc przy partiach po 5 ocena w rozmowie prawie nigdy się nie kończyła.
         p["id"], sid)

@@ -108,17 +108,24 @@ def _speech(repo, pid: int, since: datetime | None, until: datetime | None) -> d
 
 
 def _retention(atts: list[dict], pack: C.Pack) -> dict:
-    """Próby wykonane ≥ RETENTION_DAYS po poprzedniej próbie tej samej umiejętności (pamięć po przerwie)."""
+    """Próby wykonane ≥ RETENTION_DAYS po poprzedniej próbie tej samej umiejętności (pamięć po przerwie).
+    Liczy się tylko NOWE zadanie (pierwsza próba tego `item_id`): powtórzenie znanego zadania mierzy pamięć zadania,
+    nie umiejętności; próby bez zadania (rozmowa) też nie są niezależnym dowodem trwałości."""
     last: dict[str, datetime] = {}
+    seen: set[tuple[str, str]] = set()
     delayed, reviews = [], []
     for a in atts:
         t = _dt(a["created_at"])
         prev = last.get(a["skill_id"])
-        if prev and (t - prev).days >= RETENTION_DAYS and a["hint_level"] == 0 and not _fb(a).get("stt_uncertain"):
-            delayed.append({"days": (t - prev).days, "correct": bool(a["correct"]),
-                            "new_item": True})
+        key = (a["skill_id"], a["item_id"])
+        new_item = bool(a["item_id"]) and key not in seen
+        if prev and (t - prev).days >= RETENTION_DAYS and a["hint_level"] == 0 and not _fb(a).get("stt_uncertain") \
+                and new_item:
+            delayed.append({"days": (t - prev).days, "correct": bool(a["correct"]), "new_item": True})
         if _fb(a).get("review"):
             reviews.append(bool(a["correct"]))
+        if a["item_id"]:
+            seen.add(key)
         last[a["skill_id"]] = t
     week = [d for d in delayed if d["days"] >= 7]
     two = [d for d in delayed if d["days"] >= 14]

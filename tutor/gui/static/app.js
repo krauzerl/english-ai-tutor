@@ -485,6 +485,8 @@ function growthSection(g) {
 
 const REL = {
   "potwierdzony ćwiczeniami": ["ok", t("Potwierdzony ćwiczeniami")],
+  "potwierdzony ćwiczeniem kontrolnym": ["ok", t("Potwierdzony ćwiczeniem kontrolnym")],
+  "w ćwiczeniu kontrolnym poprawnie — błąd widziany tylko w rozmowie": ["none", t("W ćwiczeniu poprawnie — błąd tylko w rozmowie")],
   "sugestia modelu": ["warn", t("Sugestia modelu")],
   "niepewna transkrypcja STT": ["stt", t("Możliwy błąd rozpoznawania mowy")],
   "za mało danych": ["none", t("Za mało danych")],

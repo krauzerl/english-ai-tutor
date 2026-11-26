@@ -38,8 +38,12 @@ def recast_directive(repo, pack: Pack, pid: int, sid: int, style: str, goals: se
         if d.candidate is None:
             continue
         c = d.candidate
-        repo.set_session_plan(pid, sid, {**plan, "recast": {"done": [*st["done"], c.obs_id], "last_turn": turn_index,
-                                                            "cats": [*st["cats"], c.category]}})
+        keys = {"recast": {"done": [*st["done"], c.obs_id], "last_turn": turn_index, "cats": [*st["cats"], c.category]}}
+        if kinds[c.obs_id] == "error":          # uptake: czy uczeń sam użyje poprawionej formy w oknie tur
+            keys["reuse_targets"] = K.add_reuse_target(plan, skill_id=c.skill_id, category=c.category, fix=c.fix,
+                                                       from_turn=turn_index, span=c.span,
+                                                       obs_id=c.obs_id)["reuse_targets"]
+        repo.set_session_plan_keys(pid, sid, **keys)       # tylko własne klucze: bez nadpisania `uptake` z oceny
         hedge = (" You may have misheard the student, so make it a friendly check, not a correction."
                  if kinds[c.obs_id] == "stt_suspect" else "")
         if len(st["done"]) % 2 == 1 and kinds[c.obs_id] == "error":   # zrównoważony: co druga korekta = samopoprawa

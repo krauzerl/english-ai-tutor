@@ -1,0 +1,4 @@
+474 MiB
+               razem       użyte       wolne    dzielone   buf/cache    dostępne
+Pamięć:        32035       10661        1862          54       19468       21373
+Wymiana:        8191           0        8191

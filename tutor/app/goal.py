@@ -23,6 +23,7 @@ class Choice:
     source: str            # starter | plan | error
     reason: str
     provisional: bool      # poziom niezweryfikowany diagnozą
+    category: str | None = None   # source=error: kategoria błędu, którą lekcja ma potwierdzić ćwiczeniem (AGV)
 
 
 def completed(repo, profile_id: int) -> dict[str, dict]:
@@ -45,6 +46,19 @@ def declared_easy(repo, profile_id: int) -> set[str]:
         plan = repo.get_session_plan(profile_id, s["id"]) if s["kind"] == "lesson" else {}
         if plan.get("declared_easy") and plan.get("lesson"):
             out.add(plan["lesson"])
+    return out
+
+
+def agv_checks(repo, profile_id: int) -> dict[str, dict]:
+    """Ostatni zakończony wynik ćwiczenia potwierdzającego (AGV) per kategoria błędu: {outcome, at, skill_id}."""
+    out: dict[str, dict] = {}
+    for s in repo.list_sessions(profile_id):
+        if s["kind"] != "lesson":
+            continue
+        a = (repo.get_session_plan(profile_id, s["id"]) or {}).get("agv") or {}
+        if a.get("outcome") in ("confirmed", "not_confirmed", "inconclusive") and \
+                a["at"] >= out.get(a["category"], {}).get("at", ""):
+            out[a["category"]] = a
     return out
 
 
@@ -83,18 +97,24 @@ def choose(repo, pack: C.Pack, profile_id: int, now: datetime, _use_easy: bool =
             if d["ok"] < d["total"] else None
 
     plan = planner.plan(inp)
+    checks = agv_checks(repo, profile_id)
     for e in sorted(repo.list_errors(profile_id), key=lambda e: (-(e.get("severity_max") or 1), e["category"])):
         recurring = e.get("status") == "recurring" or (
             e.get("count", 0) >= 3 and e.get("status") not in ("resolved", "improving"))
         if not recurring:
             continue
+        chk = checks.get(e["category"])
+        if chk and chk["outcome"] != "confirmed" and (e.get("last_seen") or "") <= chk["at"]:
+            continue        # ćwiczenie nie potwierdziło problemu, a od tego czasu brak nowej obserwacji: nie wymuszamy
         cat, parent = e["category"], e["category"].split(".")[0]
         rank = {sid: 0 if cat in pack.skills[sid].error_categories else 1 for sid in pack.skills
                 if {cat, parent} & set(pack.skills[sid].error_categories)}
         for sid in sorted(rank, key=lambda x: (rank[x], x)):      # dokładna kategoria przed jej rodzicem
             if usable(sid) is not None:
-                return Choice(sid, "error", f"Powtarzający się błąd w rozmowach ({cat}). To sugestia modelu, "
-                              "niezweryfikowana — sprawdzimy to w zadaniach.", True)
+                why = ("Powtarzający się błąd w rozmowach ({cat}), potwierdzony wcześniej w ćwiczeniu — utrwalimy to."
+                       if chk and chk["outcome"] == "confirmed" else "Powtarzający się błąd w rozmowach ({cat}). To "
+                       "sugestia modelu, niezweryfikowana — sprawdzimy to w zadaniach.")
+                return Choice(sid, "error", why.format(cat=cat), True, category=cat)
     for t in plan["practice"]:
         pre = usable(t["skill_id"])
         if pre is None:

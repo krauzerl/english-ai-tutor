@@ -199,7 +199,8 @@ def apply_turn_evaluation(repo: Repo, pack: Pack, profile_id: int, session_id: i
                 gated += 1          # twierdzenie modelu bez potwierdzenia deterministycznego (target_patterns)
                 continue
             aid = repo.add_attempt(profile_id, pos.skill_id, ok, session_id=session_id, response=pos.quote,
-                                   source=CONVERSATION, hint_level=0, feedback={"bkt": CONVERSATION},
+                                   source=CONVERSATION, hint_level=0,      # dowód do p, nigdy do statusu mastery
+                                   feedback={"bkt": CONVERSATION, "no_mastery": True},
                                    dedupe_key=f"{CONVERSATION}:{turn_id}:{pos.skill_id}:{pos.quote.lower()}:{int(ok)}")
             if aid:
                 touched.add(pos.skill_id)
@@ -212,12 +213,39 @@ def apply_turn_evaluation(repo: Repo, pack: Pack, profile_id: int, session_id: i
             if prev.status != new.status:
                 transitions.append({"skill_id": sid, "from": prev.status, "to": new.status})
         err_events = _recompute_errors(repo, pack, profile_id, now)
+        uptake = _uptake(repo, pack, profile_id, session_id, turn_id, text, result)
         voc = _vocab_use(repo, pack, profile_id, session_id, text, vocab_targets or [], tutor_prev,
                          set(low_prob_words or []), [c.span for c in result.observations if c.kind == "error"], now)
         repo.mark_applied(profile_id, turn_id, _iso(now))
     return {"applied": True, "reason": "applied", "events": {"skills": transitions, "errors": err_events,
                                                               "new_observations": new_obs, "vocab": voc,
+                                                              "uptake": uptake,
                                                               "gated": gated, "levels": dict(levels)}}
+
+
+def _uptake(repo: Repo, pack: Pack, profile_id: int, session_id: int, turn_id: int, text: str,
+            result: UttResult) -> list[dict]:
+    """Ślady uptake dla celów z `plan.reuse_targets` (dodawanych przy korekcie w rozmowie). Każdy cel rozstrzyga się
+    raz (pierwszy wynik w oknie). Zapis w planie sesji — to dowód obserwacyjny, nie próba BKT."""
+    from tutor.pedagogy import correction as K
+    plan = repo.get_session_plan(profile_id, session_id) or {}
+    targets = plan.get("reuse_targets") or []
+    if not targets:
+        return []
+    idx = sum(1 for t in repo.list_turns(profile_id, session_id) if t["role"] == "user" and t["id"] <= turn_id)
+    cats = {c.category for c in result.observations if c.kind == "error" and c.status == "valid" and c.category}
+    done = {(u["category"], u["fix"]) for u in plan.get("uptake") or []}
+    new = []
+    for t in targets:
+        if (t["category"], t["fix"]) in done:
+            continue
+        r = K.uptake_check(t, idx, text, cats, pack.rubric)
+        if r:
+            new.append({"category": t["category"], "fix": t["fix"], "skill_id": t.get("skill_id"),
+                        "obs_id": t.get("obs_id"), "turn_id": turn_id, "result": r})
+    if new:
+        repo.set_session_plan_keys(profile_id, session_id, uptake=[*(plan.get("uptake") or []), *new])
+    return new
 
 
 def _confirmed_use(pack: Pack, pos, ok: bool) -> bool:
@@ -316,7 +344,7 @@ def apply_item_attempt(repo: Repo, pack: Pack, profile_id: int, session_id: int 
 
 def apply_confirmation(repo: Repo, pack: Pack, profile_id: int, session_id: int | None, req, item_id: str,
                        correct: bool, *, now: datetime, dedupe_key: str, response: str | None = None,
-                       hint_level: int = 0) -> dict:
+                       hint_level: int = 0, n_options: int | None = None) -> dict:
     """Kontrakt F5 (AGV): wynik niezależnego zadania potwierdzającego problem z rozmowy (`evidence.ConfirmRequest`).
     To zwykła próba zadania (źródło `remediation`, BKT `production`) — jedyna droga do oceny `confirmed`.
     Wynik całej prośby: `evidence.outcome([...])` po wszystkich zadaniach."""
@@ -324,7 +352,8 @@ def apply_confirmation(repo: Repo, pack: Pack, profile_id: int, session_id: int 
         raise ValueError(f"{item_id} nie należy do prośby o potwierdzenie")
     return apply_item_attempt(repo, pack, profile_id, session_id, item_id, req.skill_id, correct,
                               source="remediation", dedupe_key=dedupe_key, now=now, response=response,
-                              hint_level=hint_level, agv={"category": req.category, "reason": req.reason})
+                              hint_level=hint_level, agv={"category": req.category, "reason": req.reason},
+                              n_options=n_options, allow_mastery=False)   # potwierdzenie ≠ opanowanie
 
 
 def words_in(text: str, pack: Pack) -> int:

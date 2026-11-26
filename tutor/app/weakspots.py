@@ -87,15 +87,22 @@ def build(repo, pack: C.Pack, pid: int, now: datetime) -> dict:
     errors = []
     wrong = [(h, s) for s in repo.list_skill_states(pid) for h in repo.attempt_history(pid, s["skill_id"])
              if not h["correct"]]
+    from tutor.app.goal import agv_checks
+    checks = agv_checks(repo, pid)
     for e in sorted(repo.list_errors(pid), key=lambda e: (-e["count"], e["category"])):
         cat = e["category"]
+        agv = (checks.get(cat) or {}).get("outcome")
         mine = [o for o in obs if o["category"] == cat]
         skills = _skills_for(pack, cat)
         confirmed = [h for h, s in wrong if s["skill_id"] in skills and h["source"] in ("practice", "remediation",
                                                                                          "diagnosis", "retention")]
         sure = [o for o in mine if o["kind"] == "error" and o["confidence"] == "h"]
         stt = [o for o in mine if o["kind"] == "stt_suspect"]
-        if confirmed:
+        if agv == "confirmed":
+            rel = "potwierdzony ćwiczeniem kontrolnym"
+        elif agv == "not_confirmed" and (e["last_seen"] or "") <= checks[cat]["at"]:
+            rel = "w ćwiczeniu kontrolnym poprawnie — błąd widziany tylko w rozmowie"
+        elif confirmed:
             rel = "potwierdzony ćwiczeniami"
         elif sure:
             rel = "sugestia modelu"
@@ -106,7 +113,7 @@ def build(repo, pack: C.Pack, pid: int, now: datetime) -> dict:
         errors.append({"category": cat, "count": e["count"], "status": e["status"], "reliability": rel,
                        "example": e["example"], "correction": e["correction"], "skills": skills,
                        "trend": _trend(repo, pid, mine, now), "first_seen": e["first_seen"],
-                       "last_seen": e["last_seen"], "confirmed_by_exercises": len(confirmed)})
+                       "last_seen": e["last_seen"], "confirmed_by_exercises": len(confirmed), "agv": agv})
     stt_only = [o for o in repo.list_observations(pid, status="valid") if o["kind"] == "stt_suspect"
                 and o["id"] not in rejected]
     words = {}

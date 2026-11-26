@@ -68,7 +68,7 @@ def queue(env, pack, prov, **kw):
 def test_integration_batches_and_persists_ledger(env, pack):
     repo, pid, sid, _ = env
     prov = Prov()
-    q = queue(env, pack, prov)
+    q = queue(env, pack, prov, batch=5)                            # wsad jawnie (domyślnie 1 od B-lite)
     ps = turns(repo, pid, sid, 7)
     for p in ps:
         q.submit(p)

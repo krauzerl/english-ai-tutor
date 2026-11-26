@@ -124,6 +124,10 @@
   can_do_pl: Używam częstych czasowników nieregularnych w przeszłości.
   prereqs: [en.gram.past_simple_regular]
   error_categories: [morphology.irregular_past]
+  # B-lite: wzorzec potwierdza tylko obecność konstrukcji w cytacie modelu (nie poprawność całego zdania);
+  # brak dopasowania ≠ błąd ucznia. Kontrprzykłady: tests/test_target_patterns.py
+  target_patterns:
+  - '\b(?<!did\s)(?<!didn''t\s)(?<!to\s)(?<!have\s)(?<!has\s)(?<!had\s)(?<!will\s)(?<!can\s)(?<!could\s)(?<!would\s)(?<!should\s)(?<!must\s)(?:went|saw|took|came|gave|ate|drank|wrote|spoke|broke|chose|drove|flew|swam|knew|grew|threw|began|ran|sang|forgot|fell|became)\b'
   explanation_ref: grammar/irregular_past.md
 - id: en.gram.past_simple_neg_q
   lang: en
@@ -158,6 +162,10 @@
   can_do_pl: Porównuję dwie rzeczy (bigger than, more interesting).
   prereqs: []
   error_categories: [morphology.comparative]
+  # B-lite: wzorzec potwierdza tylko obecność konstrukcji w cytacie modelu (nie poprawność całego zdania);
+  # brak dopasowania ≠ błąd ucznia. Kontrprzykłady: tests/test_target_patterns.py
+  target_patterns:
+  - '\b(?<!more\s)(?<!most\s)(?!(?:rath|oth|whet|eith|neith|nev|ev|und|ov|aft|lat|furth)er\b)\w{3,}er\s+than\b|\bmore\s+(?!\w+er\b)\w{4,}\s+than\b|\b(?<!more\s)(?<!most\s)(?:better|worse|fewer|less)\s+than\b'
 - id: en.gram.superlatives
   lang: en
   domain: grammar
@@ -206,6 +214,10 @@
   can_do_pl: Mówię o doświadczeniach i skutkach przeszłości dla teraz.
   prereqs: [en.gram.past_simple_regular, en.gram.irregular_past]
   error_categories: [tense.present_perfect]
+  # B-lite: wzorzec potwierdza tylko obecność konstrukcji w cytacie modelu (nie poprawność całego zdania);
+  # brak dopasowania ≠ błąd ucznia. Kontrprzykłady: tests/test_target_patterns.py
+  target_patterns:
+  - '\b(?:have|has|''ve|haven''t|hasn''t)\s+(?:(?:not|never|ever|already|just|recently)\s+)?(?:been|done|gone|seen|known|taken|given|eaten|written|spoken|broken|chosen|driven|flown|swum|forgotten|met|found|come|become|bought|brought|thought|told|said|heard|left|lost|made|kept|sent|spent|got|gotten|had|read|won|\w{2,}(?<!e)ed)\b'
   explanation_ref: grammar/present_perfect.md
 - id: en.gram.present_perfect_vs_past
   lang: en
@@ -306,6 +318,10 @@
   can_do_pl: Mówię o niespełnionych warunkach w przeszłości.
   prereqs: [en.gram.second_conditional, en.gram.present_perfect]
   error_categories: [tense.past_perfect]
+  # B-lite: wzorzec potwierdza tylko obecność konstrukcji w cytacie modelu (nie poprawność całego zdania);
+  # brak dopasowania ≠ błąd ucznia. Kontrprzykłady: tests/test_target_patterns.py
+  target_patterns:
+  - '\bif\b[^.?!]*\b(?:had|hadn''t)\s+(?:not\s+)?(?:been|done|gone|seen|known|taken|given|eaten|written|spoken|broken|chosen|driven|flown|swum|forgotten|met|found|come|become|bought|brought|thought|told|said|heard|left|lost|made|kept|sent|spent|got|gotten|had|read|won|\w{2,}(?<!e)ed)\b[^.?!]*\b(?:would|could|might)(?:n''t| not)?\s+have\s+(?:been|done|gone|seen|known|taken|given|eaten|written|spoken|broken|chosen|driven|flown|swum|forgotten|met|found|come|become|bought|brought|thought|told|said|heard|left|lost|made|kept|sent|spent|got|gotten|had|read|won|\w{2,}(?<!e)ed)\b'
   explanation_ref: grammar/third_conditional.md
 - id: en.gram.past_perfect
   lang: en

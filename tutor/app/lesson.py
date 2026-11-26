@@ -54,7 +54,7 @@ def prepare(pack: C.Pack, skill_id: str, n: int = N_ITEMS,
     items = [i for i in C.select_items(pack, pool="practice", purpose="practice", skill_id=skill_id,
                              allow_unreviewed_practice=allow_unreviewed)
              if i.type not in C.OPEN_TYPES and i.answers]
-    items.sort(key=lambda i: (i.difficulty, i.id))
+    items.sort(key=lambda i: ("diagnosis" in i.pools, i.difficulty, i.id))   # najpierw zadania spoza diagnozy
     if not items:
         raise LessonError(f"Cel {skill_id} nie ma zadań zamkniętych do ćwiczeń.")
     return sk, items[:n]
@@ -205,8 +205,10 @@ def run_exercises(repo, pack: C.Pack, profile_id: int, session_id: int, sk: C.Sk
     """`ask` zwraca None = uczeń kończy (postęp zostaje zapisany; wznowienie pomija zrobione zadania)."""
     plan = repo.get_session_plan(profile_id, session_id) or {"lesson": sk.id, "items": [i.id for i in items]}
     done, ok = list(plan.get("done", [])), list(plan.get("ok", []))
+    agv = _agv_request(pack, sk, items, plan)          # lekcja z powodu błędu z rozmowy = ćwiczenie potwierdzające
     cat = _category(pack, sk)
     skipped = 0
+    first: dict[str, bool] = {}
     from tutor.app import lesson_voice as V
     speak = speak or (lambda _t: None)                     # głos tylko w trybie głosowym; ekran zawsze
     for idx, item in enumerate(items):
@@ -226,8 +228,9 @@ def run_exercises(repo, pack: C.Pack, profile_id: int, session_id: int, sk: C.Sk
                 say("✓ Dobrze." + (" (po podpowiedzi)" if tries else "")
                     + (f" {item.explanation_pl}" if item.explanation_pl else ""))
                 speak(V.correct(tries))
-                _record(repo, pack, profile_id, session_id, sk, item, True, a, tries, now)
+                _record(repo, pack, profile_id, session_id, sk, item, True, a, tries, now, agv)
                 ok.append(item.id)
+                first[item.id] = tries == 0
                 break
             if verdict == "finish":                       # koniec sesji: jak `q` (postęp zapisany, lekcja wznawialna)
                 say("Dobrze, kończymy na dziś. Lekcję możesz wznowić później.")
@@ -266,20 +269,51 @@ def run_exercises(repo, pack: C.Pack, profile_id: int, session_id: int, sk: C.Sk
                 continue
             say(f"Poprawna odpowiedź: {item.answers[0]}" + (f"\n{item.explanation_pl}" if item.explanation_pl else ""))
             speak(V.reveal(item))
-            _record(repo, pack, profile_id, session_id, sk, item, False, a, 4, now)
+            _record(repo, pack, profile_id, session_id, sk, item, False, a, 4, now, agv)
+            first[item.id] = False
             break
         if item is None:                                   # pominięte: zostaje do zrobienia
             continue
         done.append(item.id)
-        repo.set_session_plan(profile_id, session_id, {**plan, "done": done, "ok": ok})
+        plan = {**plan, "done": done, "ok": ok}
+        if agv:
+            plan = {**plan, "agv": _agv_state(plan, agv, first, items, now)}
+        repo.set_session_plan(profile_id, session_id, plan)
     return Result(len(ok), len(done), skipped=skipped)
 
 
-def _record(repo, pack, pid, sid, sk, item, correct, a: Answer, hint_level, now) -> None:
+def _agv_request(pack: C.Pack, sk: C.Skill, items: list[C.Item], plan: dict):
+    """ConfirmRequest dla lekcji wybranej z powtarzającego się błędu (`choice.source == "error"`), inaczej None."""
+    from tutor.pedagogy import evidence as EV
+    ch = plan.get("choice") or {}
+    if ch.get("source") != "error" or not ch.get("category"):
+        return None
+    return EV.ConfirmRequest(sk.id, ch["category"], tuple(i.id for i in items),
+                             any(i.review.status != "human_reviewed" for i in items), f"error:{ch['category']}")
+
+
+def _agv_state(plan: dict, req, first: dict[str, bool], items: list[C.Item], now: datetime) -> dict:
+    """Wynik potwierdzenia liczony z PIERWSZYCH prób (bez podpowiedzi). Ćwiczenie następuje po wyjaśnieniu, więc
+    `not_confirmed` znaczy „umie w ćwiczeniu kontrolowanym”, a nie „błędu w rozmowie nie było”."""
+    from tutor.pedagogy import evidence as EV
+    prev = plan.get("agv") or {}
+    res = {**prev.get("results", {}), **first}
+    complete = all(i.id in res for i in items)
+    return {"category": req.category, "skill_id": req.skill_id, "results": res,
+            "outcome": EV.outcome(list(res.values())) if complete else "pending", "after_explanation": True,
+            "unverified_items": req.unverified_items, "at": now.strftime("%Y-%m-%dT%H:%M:%SZ")}
+
+
+def _record(repo, pack, pid, sid, sk, item, correct, a: Answer, hint_level, now, agv=None) -> None:
+    n_opt = len(item.options) if item.options else None
+    if agv is not None:                      # AGV: próba `remediation`, bez wpływu na status mastery
+        ingest.apply_confirmation(repo, pack, pid, sid, agv, item.id, correct, now=now,
+                                  dedupe_key=f"lesson:{sid}:{item.id}", response=a.text, hint_level=hint_level,
+                                  n_options=n_opt)
+        return
     ingest.apply_item_attempt(repo, pack, pid, sid, item.id, sk.id, correct, source="practice",
                               dedupe_key=f"lesson:{sid}:{item.id}", now=now, response=a.text,
-                              hint_level=hint_level, n_options=len(item.options) if item.options else None,
-                              allow_mastery=False)
+                              hint_level=hint_level, n_options=n_opt, allow_mastery=False)
 
 
 def _heard(a: Answer) -> str:

@@ -187,6 +187,12 @@ class Repo:
             "SELECT * FROM attempt WHERE profile_id=? AND skill_id=? ORDER BY created_at, id",
             (profile_id, skill_id)))
 
+    def practiced_items(self, profile_id: int) -> set[str]:
+        """Zadania, które uczeń już widział poza diagnozą (lekcje, powtórki, egzaminy): w diagnozie są „zużyte”."""
+        return {r[0] for r in self.conn.execute(
+            "SELECT DISTINCT item_id FROM attempt WHERE profile_id=? AND item_id IS NOT NULL AND source<>'diagnosis'",
+            (profile_id,))}
+
     def attempt_days(self, profile_id: int, skill_id: str) -> list[str]:
         return [r[0] for r in self.conn.execute(
             "SELECT DISTINCT day FROM attempt WHERE profile_id=? AND skill_id=? ORDER BY day",
@@ -476,6 +482,16 @@ class Repo:
     def set_session_plan(self, profile_id: int, session_id: int, plan: dict) -> None:
         self.conn.execute("UPDATE session SET plan_json=? WHERE id=? AND profile_id=?",
                           (json.dumps(plan), session_id, profile_id))
+
+    def set_session_plan_keys(self, profile_id: int, session_id: int, **keys) -> None:
+        """Atomowa zmiana wybranych kluczy planu (json_set w jednym UPDATE): wątek oceny i wątek rozmowy piszą różne
+        klucze i nie nadpisują sobie nawzajem całego planu."""
+        if not keys:
+            return
+        paths = ", ".join("?, json(?)" for _ in keys)
+        args = [x for k, v in keys.items() for x in (f"$.{k}", json.dumps(v))]
+        self.conn.execute(f"UPDATE session SET plan_json=json_set(coalesce(plan_json,'{{}}'), {paths}) "
+                          "WHERE id=? AND profile_id=?", (*args, session_id, profile_id))
 
     def get_session_plan(self, profile_id: int, session_id: int) -> dict:
         r = self.conn.execute("SELECT plan_json FROM session WHERE id=? AND profile_id=?",

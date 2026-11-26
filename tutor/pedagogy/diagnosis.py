@@ -86,6 +86,13 @@ def available_items(pack: Pack, area: str, mode: str) -> list:
     return select_items(pack, pool="diagnosis", purpose=purpose, area=area)
 
 
+def fresh_pool(pool: list, practiced: set[str], need: int) -> list:
+    """Bez zadań znanych uczniowi z ćwiczeń (zapamiętana odpowiedź zawyża wynik diagnozy). Gdy zostałoby mniej niż
+    `need`, zwraca całą pulę — mały bank nie może zablokować diagnozy (shortcut: do czasu większego banku)."""
+    fresh = [i for i in pool if i.id not in practiced]
+    return fresh if len(fresh) >= need else pool
+
+
 def start(pack: Pack, area: str, mode: str, seed: int) -> dict:
     """Nowy stan. `verified` wymaga otwartej bramy (T-CONTENT-2); `provisional` ≥ min_items użytecznych zadań."""
     d = pack.rubric.diagnosis

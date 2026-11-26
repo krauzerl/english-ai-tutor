@@ -63,7 +63,7 @@ def run(repo, pack: C.Pack, pid: int, sid: int, ask: Callable[[C.Item, int], L.A
     for area in areas:
         if area in st["finished"]:
             continue
-        pool = _items(pack, area, allow_unreviewed)
+        pool = D.fresh_pool(_items(pack, area, allow_unreviewed), repo.practiced_items(pid), rb.diagnosis["min_items"])
         if len(pool) < rb.diagnosis["min_items"]:
             continue
         state = st["areas"].get(area) or D.start(pack, area, "provisional", pid)

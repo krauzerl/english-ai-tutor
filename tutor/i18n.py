@@ -274,6 +274,9 @@ EXACT.update({
     "nie sprawdzono": "not tested", "nie sprawdzane przez aplikację": "not checked by the app",
     "za mało danych": "not enough data", "wstępny obraz": "preliminary picture",
     "potwierdzony ćwiczeniami": "confirmed by exercises", "sugestia modelu": "model suggestion",
+    "potwierdzony ćwiczeniem kontrolnym": "confirmed by a check exercise",
+    "w ćwiczeniu kontrolnym poprawnie — błąd widziany tylko w rozmowie":
+        "correct in the check exercise — error seen only in conversation",
     "niepewna transkrypcja STT": "uncertain speech transcript",
     "sugestia modelu (wysoka pewność)": "model suggestion (high confidence)",
     "sugestia modelu (niska pewność)": "model suggestion (low confidence)",

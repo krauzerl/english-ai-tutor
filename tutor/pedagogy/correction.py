@@ -161,11 +161,13 @@ def attempt_record(lad: Ladder, correct: bool) -> dict:
 
 
 # --- ponowne użycie (uptake) ---
-def add_reuse_target(plan: dict, *, skill_id: str | None, category: str, fix: str, from_turn: int) -> dict:
+def add_reuse_target(plan: dict, *, skill_id: str | None, category: str, fix: str, from_turn: int,
+                     span: str | None = None, obs_id: int | None = None) -> dict:
     targets = list(plan.get("reuse_targets", []))
     key = (category, skill_id, fix)
     if all((t["category"], t["skill_id"], t["fix"]) != key for t in targets):
-        targets.append({"skill_id": skill_id, "category": category, "fix": fix, "from_turn": from_turn})
+        targets.append({"skill_id": skill_id, "category": category, "fix": fix, "from_turn": from_turn,
+                        "span": span, "obs_id": obs_id})
     return {**plan, "reuse_targets": targets}
 
 
@@ -185,3 +187,24 @@ def reuse_outcome(target: dict, turn_index: int, *, positive_skills: set[str], e
     if target["category"] in error_categories:
         return {"source": "conversation", "hint_level": 0, "correct": False, "skill_id": target["skill_id"]}
     return None
+
+
+def changed_words(span: str, fix: str) -> set[str]:
+    """Słowa poprawki, których nie było w cytacie („I go there” → „I went there” ⇒ {went})."""
+    sw = set(norm_answer(span).split())
+    return {w for w in norm_answer(fix).split() if w not in sw}
+
+
+def uptake_check(target: dict, turn_index: int, text: str, error_categories: set[str],
+                 rubric: Rubric) -> str | None:
+    """Deterministyczny ślad uptake po korekcie: `repeated` — ocena tej tury znów zgłasza tę kategorię (dowód
+    zależny od modelu); `used_ok` — uczeń sam użył poprawionej formy (wszystkie zmienione słowa) bez błędu tej
+    kategorii; None — poza oknem albo brak okazji. To NIE jest dowód opanowania (nie zasila BKT)."""
+    lo, hi = reuse_window(target, rubric)
+    if not lo <= turn_index <= hi:
+        return None
+    if target["category"] in error_categories:
+        return "repeated"
+    want = changed_words(target.get("span") or "", target["fix"])
+    words = set(norm_answer(text).split())
+    return "used_ok" if want and want <= words else None
