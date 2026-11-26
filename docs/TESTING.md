@@ -95,7 +95,7 @@ Use your normal profile; nothing is reset. Start with `python main.py --gui`.
 CLI equivalents: `--finish-evals`, `--assess [areas]`, `--stt-confirm`, `profile reset|delete NAME --yes`.
 
 ## 3c. After the final audit (owner, about 30 minutes, on top of 3b)
-Details and measurements: `docs/ai-work/f7-audit/AUDIT_FINAL.md`. Before the first start, your database will be
+Measurements: section 5 below. Before the first start, your database will be
 migrated v7 → v8 (a `.bak` copy is written to `~/.local/share/english-ai-tutor/backups/` first).
 1. **No correction of correct English:** in Quick Chat type “I watch matches on TV every weekend.”, “Do you take any
    medicines?”, “The team are working hard.” — none may appear as an error in the summary or the journal.
@@ -185,3 +185,22 @@ Measured on the author's machine with Qwen3 8B in Ollama; your numbers will diff
 
 Single runs on one machine; chat numbers vary with sampling. "We have ten paying customers." was not falsely corrected
 in these runs; the new tense rule makes sure it is dropped when the model does it.
+
+### Final F7 audit (independent control set and measurements)
+`python -m bench.audit_control --repeat 3` — 59 utterances written before the measurement: 30 correct sentences,
+8 accepted BrE/AmE or register variants, 5 speech-recognition errors (voice mode, uncertain word), 8 single errors,
+5 sentences with several errors, plus held-out cases. A report is a false correction when the model flags a
+correct sentence, variant or recognition error as a language error.
+
+| | before the audit (`156f572`) | after the audit |
+|---|---|---|
+| false corrections (correct / variants / STT) | 1/30 · 1/8 · 0/5 | 1/30 · 0/8 · 0/5 |
+| errors detected | 15/22 | 14/22 |
+| spoken multiple-choice answers accepted (Kokoro → Whisper, 30 recordings) | 5/30 | 19/30 |
+
+Whisper `small.en` on 90 synthetic phrases: 58/90 exact, 61/90 after normalising digits and contractions. The misses
+are single words (*am*, *is*, *the*, *B*) and proper names (*Gdańsk*, *Booking.com*); full sentences are almost always
+right. Qwen3 results in Ollama vary between server restarts even at temperature 0, so differences of one to three
+cases are noise. Two false corrections seen in live chats (*I watch matches* → *a match*, *any medicines* →
+*medicine*) are now dropped by deterministic rules with unit tests.
+

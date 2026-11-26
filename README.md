@@ -1,169 +1,190 @@
 # AI Language Tutor
 
-**A local-first AI tutor for learning English by talking. A local LLM holds the conversation; a deterministic teaching engine decides what you practise.**
+A local, voice-first English tutor. A local LLM holds the conversation and suggests corrections; a deterministic
+teaching engine decides what counts as evidence, what you practise next and when you review it.
 
-Speak with a tutor on your own machine, get corrections after you finish talking, and let spaced repetition bring
-weak skills back. Models run through [Ollama](https://ollama.com), speech runs on-device, and no paid API is required.
+Everything runs on your own computer: models through [Ollama](https://ollama.com), speech recognition and speech
+synthesis on the CPU, learner data in a local SQLite file. No paid API is needed.
 
-> **Status: early development (v0.1).** A local browser interface (`python main.py --gui`) and the command line share one
-> engine. The pieces below work and are covered by automated tests,
-> but the voice features have not yet been accepted on a real microphone end to end. Read [Feature status](#feature-status)
-> before you rely on anything. The project has **no licence yet** (see [Licence](#licence)).
+![Home screen](docs/screenshots/01-home.png)
 
-## Why this is not just another chatbot
+> **Status: research prototype, version 0.1 (development milestone F7).** The browser interface and the command line
+> share one engine and are covered by automated tests. The voice path has been tested with simulated and synthetic
+> audio, **not yet accepted on a real user's microphone**. Placement and assessment results are provisional
+> estimates, **not official CEFR levels**. The project has **no licence yet** (see [Licence](#licence)).
 
-- **The LLM observes, code decides.** The model quotes mistakes and labels them. Scores, mastery, review schedules and
-  lesson plans come from plain, tested Python (`tutor/pedagogy/`). No number shown to a learner comes straight from an LLM.
-- **It does not pretend to be sure.** Corrections from free conversation are shown as *suggestions*. Until a measured quality
-  gate passes (it is closed today), they never lower mastery or force remedial lessons. Speech-recognition doubt is tracked
-  and labelled instead of being blamed on the learner.
-- **Mastery cannot be farmed.** Replaying an item, getting help, or answers flagged as uncertain do not count as evidence
-  of mastery. Automatic mastery is currently switched off, and one test suite exists specifically to keep it that way.
-- **Your data stays local.** Profiles, history and progress live in a SQLite file on your disk. Voice mode keeps
-  transcripts, never audio.
+## Contents
 
-## Feature status
+- [Features](#features)
+- [Screenshots](#screenshots)
+- [Models and technology](#models-and-technology)
+- [Architecture and data flow](#architecture-and-data-flow)
+- [Requirements](#requirements)
+- [Installation on Ubuntu](#installation-on-ubuntu)
+- [Configuration](#configuration)
+- [Usage](#usage)
+- [Assessment, adaptive learning and progress](#assessment-adaptive-learning-and-progress)
+- [Achievements](#achievements)
+- [Testing](#testing)
+- [Repository structure](#repository-structure)
+- [Known limitations](#known-limitations)
+- [Roadmap](#roadmap)
+- [Documentation](#documentation)
+- [Licence](#licence)
 
-| Status | Feature |
+## Features
+
+| Area | What it does |
 |---|---|
-| **Experimental** | Browser interface (`--gui`): every mode below from one window, on `127.0.0.1` only. Pixel-art design with an original frog mascot, awaiting the owner's approval of the look |
-| **Available** | Quick Chat: level (automatic or A1–C1), category (General, Technical/IT, Medical with an emergency-services focus, Business, Professional, custom topic), mode (natural, guided, role-play with 25 scenarios); topic rotation within the category, "change the topic" mid-chat, time limit, correction intensity. Medical role-plays are language practice only |
-| **Available** | Local learner profiles (create, list, select, export, delete) and per-profile settings |
-| **Available** | Progress, learning history and 25 achievements, all computed from recorded evidence; achievements are separate from skill mastery |
-| **Available** | Content tooling: validation, attribution, review workflow; grammar-correction benchmark (`bench/`) |
-| **Experimental** | Voice conversation (faster-whisper + Kokoro). Works, but time to first speech is about 3 s on the author's hardware, and it has not completed a real-microphone acceptance test |
-| **Experimental** | Standard lessons (explanation, exercises, spoken answers, hints, skipping), chosen from your data; no placement test needed |
-| **Experimental** | Optional "Określ poziom" placement (grammar and vocabulary); result is a provisional estimate, never a certified CEFR level |
-| **Experimental** | Spaced-repetition reviews (FSRS), weak-spots journal with targeted drills (each entry labelled: confirmed by exercises, model suggestion, uncertain speech recognition, or not enough data) |
-| **Experimental** | Exam-path architecture with one demo path (Polish 8th-grade English exam): practice sections and a readiness summary of counts, no points and no official score. The official exam facts in the definition are marked "confirm in the CKE bulletin" |
-| **Experimental** | Optional LanguageTool grammar hints (localhost only, off by default) |
-| **Not enabled** | Automatic mastery from conversation. The code exists; the gate stays closed until benchmark and human review evidence exists |
-| **Planned** | Final visual design of the GUI, more exam paths, more learning languages, pronunciation feedback, human review of the exercise bank |
+| **Quick Chat** | Free conversation at a chosen level (automatic or A1–C1), in one of six categories (General, Technical/IT, Medical with an emergency-services focus, Business, Professional situations, your own topic) and three modes (natural, guided, role-play). 40 topics and 25 role-play scenarios. Commands such as “change the topic”, “repeat”, “explain more simply” and “I want to finish” are recognised in speech or text. |
+| **Corrections** | Three policies: at the end, balanced (default) and intensive. Corrections are labelled as model suggestions; you can dispute one or mark it as a speech-recognition error in the weak-spots journal. |
+| **Lessons** | Short missions: explanation, closed exercises with hints, then a short conversation that uses the target form. The next lesson is chosen from your recorded evidence. |
+| **Assessment** | Optional quick placement and a comprehensive assessment of six skills with an uncertainty range. Writing and speaking are collected as evidence only. |
+| **Reviews** | Spaced repetition with FSRS; reviews use items you have not seen first, then the least recently used. |
+| **Progress** | Estimates from first, independent attempts on new items, adjusted for difficulty; retention after 3, 7 and 14 days; model error suggestions per 100 words. Trends are shown only with enough data. |
+| **Achievements** | 100 standard and 50 hidden badges computed from real records, kept separate from skill mastery. |
+| **Exam practice** | One demonstration path (Polish 8th-grade English exam) with section practice and a readiness summary — no points, no score prediction. |
+| **Interface** | Local browser GUI in Polish or English, pixel-art design with a frog mascot (three concepts, final choice pending). The command line is in Polish. |
+| **Profiles** | Several local learners, per-profile settings, JSON export, progress reset and profile deletion with confirmation and a backup file. |
 
-Current limits you should know about:
+## Screenshots
 
-- **One learning language: English.** Instructions, explanations and tutor messages around the lessons are in **Polish**,
-  so today this is a tool for Polish speakers learning English.
-- **Content is a pilot.** 115 skills (CEFR A1 to C1), 144 exercise items, 5 conversation scenarios and 2,809 NGSL words.
-  **No item is human-reviewed** (104 are `ai_checked`, 40 are `draft`).
-- **Interface language is Polish.** The GUI runs in your browser but stays on this computer; the look is not final.
-- **Model limits.** Qwen3 8B follows tutoring instructions imperfectly (for example the escalating correction ladder), and its
-  explanations of corrections can be wrong. Treat them as suggestions.
+All images come from the running application (`python main.py --gui`, English interface) with an isolated
+demonstration profile. Conversations were held with the local Qwen3 8B model; exercise and assessment data were
+produced by the application's own lesson, review and assessment code with simulated answers.
 
-## AI models and technology
+| | |
+|---|---|
+| ![Quick Chat setup](docs/screenshots/02-quick-chat-setup.png) **Quick Chat setup:** level, category, mode, time and correction policy. | ![Quick Chat with feedback](docs/screenshots/03-quick-chat-feedback.png) **Quick Chat:** after the conversation, model suggestions with explanations. |
+| ![Medical role-play](docs/screenshots/04-medical-roleplay.png) **Medical English role-play:** the tutor stays in the patient's role. | ![Lessons](docs/screenshots/05-lessons.png) **Lessons:** mission map by level; the recommendation comes from recorded evidence. |
+| ![Assessment](docs/screenshots/06-assessment.png) **Assessment:** six-skill profile with ranges, history and evidence counts. | ![Progress](docs/screenshots/07-progress.png) **Progress:** first-attempt estimates; “not enough data” instead of an invented trend. |
+| ![Achievements](docs/screenshots/08-achievements.png) **Achievements:** standard and hidden badges, filters and search. | ![Settings](docs/screenshots/09-settings.png) **Settings:** interface language, mascot concept, models, correction policy, voice and audio devices. |
 
-| Component | Technology | Purpose |
+## Models and technology
+
+| Component | Technology | Role |
 |---|---|---|
-| Conversation and evaluation | **Qwen3 8B** (`qwen3:8b`, Ollama, thinking off) | Tutor replies, topic talk, structured error observations |
-| Polish text generation | **Bielik 11B v2.3 Instruct** (`SpeakLeash/bielik-11b-v2.3-instruct:Q4_K_M`) | Configured role `generation` for Polish texts; also the model of the legacy `python main.py` chat. No user-facing command calls the role yet |
-| Speech to text | **faster-whisper**, `small.en`, CPU int8 | Transcribes your speech; word confidence feeds the "uncertain recognition" label |
-| Text to speech | **Kokoro** (`kokoro-onnx`, int8), voice `bf_emma` | Tutor voice; speed adjustable. Piper is an optional alternative (GPL-3.0, see [Licence](#licence)) |
-| Grammar hints (optional) | **LanguageTool 6.6**, local server | Extra evidence on grammar errors; never the source of truth |
-| Scoring and reports | Own code | Rubrics, evidence levels, error taxonomy, speech-recognition noise filtering |
-| Mastery | Bayesian Knowledge Tracing (fixed parameters) | Skill state from evidence, with the mastery gate described above |
-| Spaced repetition | **FSRS** (`fsrs` library) | Review scheduling; retention checks at 7 and 30 days |
-| Planning | Deterministic planner | Picks reviews, recurring errors, skills in progress and the next unlocked skill |
-| Storage | **SQLite**, additive migrations | One file, every learner table keyed by profile with cascading delete |
-| Language | Python 3.12+, `requests`, `pydantic`, `PyYAML`, `sounddevice`, `numpy` | Core and voice I/O |
-| Cloud (off by default) | Gemini via `google-genai` | Optional provider; needs your own key and explicit per-profile consent |
+| Conversation and evaluation | **Qwen3 8B** (`qwen3:8b` in Ollama, thinking off) | Tutor replies; structured observations of errors in learner utterances |
+| Optional alternative | **Bielik 11B v2.3 Instruct** (`SpeakLeash/bielik-11b-v2.3-instruct:Q4_K_M`) | Selectable for any role in `config.toml`; used by the legacy `python main.py` text chat |
+| Speech to text | **faster-whisper** `small.en`, CPU int8 | Transcription with word confidence (uncertain words are tracked, never counted as learner errors) |
+| Text to speech | **Kokoro** (`kokoro-onnx`, int8), default voice `bf_emma` | Tutor voice, three speed presets; exercises are read in parts with pauses |
+| Grammar hints (optional, off) | **LanguageTool** 6.6 on localhost | Extra evidence only |
+| Scoring, mastery, planning | Own Python code | Rubrics, evidence levels, error taxonomy, Bayesian Knowledge Tracing, planner |
+| Spaced repetition | **FSRS** (`fsrs` library) | Review scheduling |
+| Storage | **SQLite**, versioned additive migrations | One file per user account; every learner table keyed by profile |
+| GUI | Python standard library HTTP server, plain JavaScript | No CDN, no external requests from the page |
+| Cloud (off by default) | Gemini via `google-genai` | Optional provider; needs your own key and per-profile consent |
 
-Defaults per role live in `tutor/llm/__init__.py`. The model choice comes from a **preliminary** benchmark on one machine
-(130 cases, no human-reviewed gold standard). Qwen3 gave fewer false corrections and faster replies than Bielik 11B; it
-may change after review. Any role can be pointed at another Ollama model in `config.toml` (see [Configuration](#configuration)).
+Default models per role are defined in `tutor/llm/__init__.py`. Qwen3 8B was chosen over Bielik 11B in a
+preliminary benchmark on one machine (130 cases, gold standard not yet reviewed by a human).
 
-## How it works
+## Architecture and data flow
 
 ```mermaid
 flowchart LR
-    GUI[Browser GUI, 127.0.0.1] <--> SRV[Local HTTP server]
-    SRV <--> APP
+    GUI[Browser GUI on 127.0.0.1] <--> SRV[Local HTTP server]
+    SRV <--> APP[Session logic]
     MIC[Microphone] --> STT[faster-whisper]
-    STT --> APP[Session logic]
+    STT --> APP
     APP <--> LLM[Qwen3 8B via Ollama]
-    APP --> TTS[Kokoro TTS] --> SPK[Speaker]
-    APP --> ING[Observation ingest and quality gate]
-    LT[LanguageTool, optional] -.-> ING
-    ING --> ENG[Teaching engine: BKT, FSRS, planner, reports]
+    APP --> TTS[Kokoro] --> SPK[Speaker]
+    APP --> Q[Evaluation queue]
+    Q <--> LLM
+    Q --> ING[Validators and ingest]
+    ING --> ENG[Teaching engine: evidence, BKT, FSRS, planner]
     ENG <--> DB[(SQLite)]
-    CONTENT[Skills, items, topics, exam paths: YAML] --> ENG
-    ENG --> APP
+    CONTENT[Skills, items, topics, exam paths in YAML] --> ENG
 ```
 
-1. You speak (or type); Whisper transcribes and flags words it was unsure about.
-2. The tutor replies through the LLM, shaped by your profile, topic and correction intensity.
-3. Mistakes are extracted as structured observations, filtered for recognition noise, and stored with their evidence level.
-4. The engine updates skill state, schedules reviews and plans the next lesson from stored evidence only.
+1. You speak or type. Whisper transcribes and marks words it was unsure about.
+2. The tutor replies through the LLM, shaped by level, topic, mode and correction policy.
+3. Each utterance is evaluated in the background, one at a time. The model only quotes and labels errors; code
+   checks every observation (the quote must exist, accepted variants and recognition errors are dropped, a
+   correction must change something and must not change the meaning) before it is stored.
+4. The engine updates skill state, schedules reviews and plans the next lesson from stored evidence only. Pending
+   evaluations survive a restart and are completed later.
 
-## Getting started
+Design rules that the tests enforce:
 
-**Supported system:** developed and tested on Ubuntu 24.04. Other Linux distributions should work; macOS and Windows are untested.
-**Python:** 3.12 or newer. **Ollama:** 0.9.0 or newer (needed for the `think` setting).
+- **The LLM observes, code decides.** No number shown to a learner comes directly from a model.
+- **Conversation corrections are suggestions.** Until a measured quality gate is passed (closed today) they never
+  change mastery. Lessons, reviews and assessments cannot mark a skill as mastered on their own.
+- **Repetition is not progress.** Repeating an item, answers after a hint and uncertain transcriptions are counted
+  separately from independent first attempts.
+- **Data stays local.** Transcripts are stored; audio is never saved.
 
-### Quick Start
+## Requirements
 
-Text mode needs only the core install and Ollama. Voice adds the `voice` extra and two Kokoro files.
-Both paths were tested from a clean clone.
+**Operating system:** developed and tested on Ubuntu 24.04. Other Linux distributions should work; macOS and Windows
+are untested.
+
+**Software:** Python 3.12 or newer (also installed cleanly on 3.13), Ollama 0.9.0 or newer, `libportaudio2` for audio.
+
+**Measured on the author's machine** (Ryzen 7 3700X, 31 GiB RAM, RTX 2060 SUPER 8 GiB, Ollama 0.9.0):
+
+| Item | Measurement |
+|---|---|
+| Qwen3 8B (Q4_K_M, thinking off) | about 6.0 GiB VRAM, fully on the GPU, about 50 tokens/s |
+| Tutor reply, text mode | first token typically 0.6–1.1 s after the model is loaded |
+| Evaluation of one utterance | about 0.8–2 s in the background |
+| Whisper `small.en` + Kokoro | CPU int8; the app process peaked around 1.2 GiB RAM |
+| Disk | `qwen3:8b` 5.2 GB, Kokoro files about 120 MB, Whisper `small.en` downloaded on first use |
+
+Not measured and therefore not promised: CPU-only inference, GPUs with less than 8 GiB, other microphones.
+Text mode needs no microphone or speakers.
+
+## Installation on Ubuntu
 
 ```bash
-# 1. Code and virtual environment
+# 1. System packages
+sudo apt install python3-venv git libportaudio2
+
+# 2. Code and virtual environment
 git clone https://github.com/krauzerl/english-ai-tutor.git
 cd english-ai-tutor
 python3 -m venv .venv
 source .venv/bin/activate
-pip install -e .
+pip install -e .                 # core: enough for text mode and the GUI
+pip install -e ".[voice]"        # faster-whisper, Kokoro, sounddevice
 
-# 2. Language model (install Ollama first: https://ollama.com)
+# 3. Ollama and the model (install Ollama from https://ollama.com first)
 ollama pull qwen3:8b
+ollama list                      # the server must be running: system service or `ollama serve`
 
-# 3. Profile and first conversation (text mode, no microphone or voice files needed)
-python main.py profile create alice
-python main.py --voice --no-audio --chat
-```
-
-For voice, add:
-
-```bash
-pip install -e ".[voice]"
+# 4. Kokoro voice files (only for voice)
 mkdir -p ~/.local/share/english-ai-tutor/models/kokoro
 cd ~/.local/share/english-ai-tutor/models/kokoro
 curl -LO https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/kokoro-v1.0.int8.onnx
 curl -LO https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/voices-v1.0.bin
 cd -
-python main.py --voice --chat
+
+# 5. First profile and start
+python main.py profile create alice
+python main.py --gui
 ```
 
-Whisper (`small.en`) is downloaded automatically by faster-whisper the first time speech recognition starts.
+The Whisper model (`small.en`) is downloaded by faster-whisper the first time speech recognition starts. Check the
+audio devices with `python main.py --voice --list-devices`; `docs/TESTING.md` has read-only Ubuntu audio checks.
 
-### Detailed installation
+Optional extras: `".[dev]"` (tests and linting), `".[browser-tests]"` (Playwright GUI tests), `".[piper]"` (Piper
+voice, GPL-3.0), `".[gemini]"` (cloud provider). `pyproject.toml` is the single source of dependencies.
 
-1. **System packages (Ubuntu).** `sudo apt install python3.12-venv git`. For a microphone and speakers also
-   `sudo apt install libportaudio2`. Without PortAudio the app prints a notice and still works in text mode.
-2. **Environment.** Use a virtual environment as above. `pyproject.toml` is the single source of dependencies.
-   Other extras: `".[dev]"` for tests and linting, `".[piper]"` for the GPL-licensed Piper voice, `".[gemini]"` for the optional cloud provider.
-3. **Ollama.** Install it, make sure the server is running (`ollama serve`, or the system service), then pull models.
-   The default conversation and evaluation model is `qwen3:8b`. Pull Bielik only if you want it:
-   `ollama pull SpeakLeash/bielik-11b-v2.3-instruct:Q4_K_M`.
-4. **Audio.** `python main.py --voice --list-devices` lists devices; choose with `--input-device` and `--output-device`.
-   The default microphone mode is push-to-talk: press Enter to start and stop recording.
-5. **Profile.** `python main.py profile create NAME`. The last created or selected profile is used by default.
+## Configuration
 
-### Configuration
-
-Optional file `~/.config/english-ai-tutor/config.toml` (created on demand, outside the repository, mode 0600). Example:
+Optional file `~/.config/english-ai-tutor/config.toml` (outside the repository, mode 0600):
 
 ```toml
 [llm.conversation]
 provider = "ollama"
 model = "qwen3:8b"
-think = false          # leave unset for models without a thinking mode, such as Bielik
+think = false            # omit for models without a thinking mode, such as Bielik
 
 [llm.evaluation]
 provider = "ollama"
-model = "SpeakLeash/bielik-11b-v2.3-instruct:Q4_K_M"   # optional: Bielik instead of Qwen3
+model = "qwen3:8b"
 
 [llm.ollama]
 url = "http://localhost:11434"
-num_ctx = 8192
 
 [voice]
 tts = "kokoro"
@@ -172,123 +193,159 @@ stt_model = "small.en"
 
 [languagetool]
 enabled = false
-url = "http://127.0.0.1:8081"   # localhost only; other hosts are rejected
+url = "http://127.0.0.1:8081"    # localhost only; other hosts are rejected
 ```
 
-Profile-level preferences are set with `--set KEY=VALUE` (`--set ?` lists them): speed, voice, correction style,
-session length, `io_mode=text` (always text mode), `input_device` / `output_device`, and `chat_model` (the conversation
-model: `qwen3:8b` or Bielik 11B). `chat_model` changes only the conversation; evaluation stays on Qwen3 8B.
-Command-line flags override profile settings.
+Per-profile preferences are changed in the GUI (**Settings**) or with `python main.py --voice --set KEY=VALUE`
+(`--set ?` lists the keys): interface language, speech pace, voice, correction policy, text or voice mode,
+transcription confirmation, audio devices and the conversation model.
 
 ## Usage
 
-### Graphical interface
+### Browser interface
 
 ```bash
-python main.py --gui              # opens http://127.0.0.1:8765/ in your browser
+python main.py --gui                          # opens http://127.0.0.1:8765/
 python main.py --gui --port 8800 --no-browser
 ```
 
-The start screen leads with four actions: talk, continue learning, review, see progress. In voice mode press the
-microphone button to start recording and press it again (**Stop**) to finish; the microphone and speakers are used by
-the Python process, not by the browser. Tick **Tryb tekstowy** to type instead. Closing the terminal (`Ctrl+C`) stops
-the server; an unfinished lesson, review or placement resumes from **Kontynuuj**. Step-by-step manual checks,
-including a real-microphone scenario, are in [docs/TESTING.md](docs/TESTING.md).
+The server listens only on `127.0.0.1`. In voice mode, press **Speak** to record and press it again to stop; the
+microphone and speakers are used by the Python process, not by the browser. Use **I prefer to type** or the text-mode
+switch to type instead. `Ctrl+C` in the terminal stops the server; unfinished lessons, reviews and assessments resume.
 
 ### Command line
 
-
-All commands run from the repository root with the virtual environment active. Add `--no-audio` for text-only use.
+All commands run from the repository root with the virtual environment active. Add `--no-audio` for text only.
+Command-line messages are in Polish.
 
 ```bash
-python main.py --voice --chat                          # Quick Chat: pick a topic (number, r = random, or your own text)
-python main.py --voice --chat fd.cooking --minutes 10  # fixed topic, 10-minute limit
-python main.py --voice --lesson                        # lesson chosen from your data (no placement needed)
-python main.py --voice --lesson en.gram.to_be_present  # a specific skill
-python main.py --voice --placement                     # optional level estimate
-python main.py --voice --review                        # spaced-repetition reviews
-python main.py --voice --weakspots                     # weak-spots journal; --drill N practises entry N
-python main.py --voice --exam                          # exam paths and readiness; --exam e8_english to practise
-python main.py --voice --progress                      # also: --history, --achievements
-python main.py --voice --set speed=1.1 --set correction=periodic
+python main.py --voice --chat                                   # Quick Chat: choose a topic or type your own
+python main.py --voice --chat --chat-level B1 --chat-category medical --chat-mode roleplay
+python main.py --voice --lesson                                 # next lesson chosen from your data
+python main.py --voice --placement                              # quick placement (grammar, vocabulary)
+python main.py --voice --assess grammar,vocabulary,reading      # comprehensive assessment of chosen skills
+python main.py --voice --review                                 # spaced-repetition reviews
+python main.py --voice --weakspots                              # weak-spots journal; --drill N practises entry N
+python main.py --voice --progress                               # also --history, --achievements
+python main.py --voice --exam e8_english                        # exam practice path
+python main.py --voice --finish-evals                           # finish evaluations left after earlier sessions
 
-python main.py profile list                            # also: select, export, delete
-python main.py content validate en                     # validate the content pack
-python -m bench.grammar --system A                     # grammar-correction benchmark (needs Ollama)
+python main.py profile list                                     # also create, select, export, reset, delete
+python main.py content validate en                              # validate the content pack
 ```
 
-`python main.py` without `--voice` starts a minimal legacy text chat fixed to Bielik 11B. Results from lessons, placement and
-exams are estimates from recorded evidence, not official grades. Command output and tutor messages are mostly in Polish.
+`python main.py` without options starts a minimal legacy text chat with Bielik; `python main.py --help` prints the
+entry points.
 
-## Hardware requirements
+## Assessment, adaptive learning and progress
 
-**Measured** on the author's machine: Ubuntu 24.04, Ryzen 7 3700X, 31 GiB RAM, RTX 2060 SUPER (8 GiB), Ollama 0.9.0.
+- **Quick placement** asks a few grammar and vocabulary questions to choose starting material.
+- **Comprehensive assessment** covers grammar, vocabulary, reading and listening with adaptive item selection (the
+  most informative item for the current estimate) and stops when the estimate is precise enough. Each skill is
+  estimated separately and shown with a range. Writing and speaking tasks collect evidence (length, model error
+  suggestions per 100 words) **without a level**, because there is no validated rubric for them yet. Listening needs
+  audio, speaking needs a microphone; skills that were not tested are shown as untested.
+- **Lessons** are chosen by a deterministic planner from due reviews, recurring errors, skills in progress and the
+  next unlocked skill. A lesson never marks a skill as mastered.
+- **Reviews** use FSRS. Retention is reported from attempts made at least 3, 7 and 14 days after the previous
+  attempt on the same skill.
+- **Progress** compares the first and the last 14 days only when both periods have at least 8 independent first
+  attempts; otherwise it says “not enough data”. Time spent and badges are explicitly not evidence.
 
-| Item | Measurement |
-|---|---|
-| Qwen3 8B (Q4_K_M, thinking off) | About 6.0 GiB VRAM, 100% on GPU, about 50 tokens/s |
-| Bielik 11B v2.3 (Q4_K_M) | About 7.2 GiB VRAM plus about 7 GB RAM, partly offloaded to CPU, about 30 tokens/s (another run measured lower) |
-| Whisper `small.en` and Kokoro | Run on CPU (int8); the app process peaked around 1.2 GiB RAM with both loaded, and the GPU stays free for the LLM |
-| Time to first speech | About 3 s, at the limit of the project's 3 s target |
-| Disk | `qwen3:8b` 5.2 GB, Bielik 11B 6.7 GB, Kokoro files 120 MB, plus the Whisper model |
+The exercise bank has 115 skills (A1–C1) and 204 items: 161 checked by an AI model, 43 drafts, **none reviewed by a
+human yet**. Items, explanations and benchmark cases are labelled with their review status.
 
-**Not measured, so not promised:** CPU-only inference, GPUs under 8 GiB, other operating systems, other microphones.
-A smaller or CPU-only setup may work with a smaller model but has not been tried. You need a microphone and speakers (or
-headphones) for voice; tests and text mode need neither.
+## Achievements
 
-## Privacy and offline operation
+150 badges: 100 standard ones in eight categories (regularity, lessons, conversations, reviews, improving weak spots,
+challenges, assessment, milestones) and 50 hidden ones. Every badge is a rule over recorded facts — finished
+sessions, independent attempts, reviews, assessments, settings changes — and is awarded once per profile. Hidden
+badges show only a hint until they are earned. Badges never change skill estimates or mastery; resetting progress
+removes them.
 
-- Models run locally: Ollama for the LLM, faster-whisper and Kokoro on your CPU.
-- Conversations, profiles and progress are stored in a local SQLite database under `~/.local/share/english-ai-tutor/`. Audio is not saved.
-- Profiles can be exported (JSON) and deleted completely with `python main.py profile export|delete`.
-- The GUI server listens only on `127.0.0.1` and checks a per-launch token on every command. The runtime talks to your own Ollama server on `localhost`. Optional LanguageTool must also be on localhost; the adapter refuses other hosts.
-- Network access is needed once for setup: package install, Ollama model pull, Kokoro file download, and the Whisper download on first use.
-- Gemini is off by default, needs your own key and per-profile consent, and enforces local spending limits.
-- "Works with no network after setup" is the design, but it was **not** verified with the network disabled on every path, so this README does not claim "100% offline".
-
-## Testing and quality
+## Testing
 
 ```bash
 pip install -e ".[dev]"
-pytest              # unit and integration tests, no models or audio hardware needed
+pytest                      # unit, integration and GUI tests with fake models; no Ollama, no audio hardware
 ruff check .
 python main.py content validate en
-pytest -m live      # needs a running Ollama; Gemini live tests may cost money
+
+pytest -m live              # needs a running Ollama with qwen3:8b (Gemini live tests skip without a key)
+
+pip install -e ".[browser-tests]" && playwright install chromium
+pytest tests/test_browser.py              # GUI flows in headless Chromium with a fake model
+
+python -m bench.audit_control --repeat 3  # independent control set for false corrections (needs Ollama)
+python -m bench.grammar --system A        # grammar-correction benchmark (needs Ollama)
 ```
 
-On this branch: `775 passed, 1 skipped, 15 deselected` (the 15 are the live tests), and `ruff` reports no issues.
-GUI tests drive the real HTTP server and session engine with fake models; `tests/test_browser.py` (23 flows) drives
-Chromium through Playwright (`pip install -e ".[browser-tests]"`, then `playwright install chromium`; the tests skip
-without it). Conversations, lessons, reviews and placement were also run against a local Qwen3 8B; see
-[docs/TESTING.md](docs/TESTING.md).
-Audio is exercised with simulated input and output only; real microphone and speaker behaviour is a manual acceptance step.
-Live tests call a real local model and can vary between runs. There is no CI service configured.
+At release: 1,212 tests pass (1 skipped; the 15 live tests are deselected by default), 13 live tests pass with Qwen3
+8B, 25 Playwright tests pass, `ruff` reports no issues. There is no CI service; tests are run locally. Results of
+live tests and benchmarks vary between runs. Manual acceptance steps, including a real-microphone scenario, and the
+measurements are in [docs/TESTING.md](docs/TESTING.md).
+
+## Repository structure
+
+```text
+main.py                  entry point: --gui, --voice, profile, content
+tutor/
+  app/                   sessions, lessons, assessment, reviews, progress, achievements, evaluation queue
+  pedagogy/              content model, evidence validation, mastery (BKT), FSRS, planner, diagnosis
+  llm/                   Ollama and Gemini providers, structured output, usage budget
+  voice/                 audio I/O, faster-whisper, Kokoro, command-line session loop
+  gui/                   local HTTP server and static browser interface
+  services/              API used by the GUI
+  store/                 SQLite access and migrations
+  content/               skills, exercise items, explanations, chat catalogue, exam paths (YAML/Markdown)
+bench/                   benchmarks and the control set (cases in bench/cases/)
+tests/                   pytest suite; tests/live needs Ollama; tests/test_browser.py needs Playwright
+tools/                   content extraction and generation helpers
+docs/                    testing guide, troubleshooting, screenshots
+```
+
+## Known limitations
+
+- **Language suggestions can be wrong.** Qwen3 8B misses roughly a third of errors in the control set and sometimes
+  proposes a wrong correction (for example *I have seen him yesterday* → *had seen*). Corrections are shown as
+  suggestions and can be disputed; they do not change mastery.
+- **Speech recognition.** Whisper `small.en` is reliable on full sentences but weak on single words (*am*, *is*,
+  *the*, the letter *B*) and on proper names (*Gdańsk*, *Booking.com*). When the app is unsure it asks you to repeat
+  or confirm, and uncertain words are never counted as your errors. The voice path has **not** been accepted on a
+  real user's microphone.
+- **No validated speaking or writing score.** These skills are collected as evidence only.
+- **Not a CEFR certificate.** All levels are provisional estimates from material that no human has reviewed.
+- **Single learning language.** English only; command-line messages, explanations and some content descriptions
+  are in Polish, so the app is aimed at Polish speakers. The GUI is available in Polish and English.
+- **Intensive correction** interrupts only for errors that affect meaning or are lesson goals; minor slips go to
+  the end-of-conversation summary.
+- **Backups** made before a reset or deletion are JSON exports; there is no restore command yet.
+- **Mascot** name and final design are not decided; three concepts can be switched in Settings.
 
 ## Roadmap
 
-Done: Quick Chat, voice pipeline, lessons, optional placement, FSRS reviews, weak-spots journal, achievements, history,
-first exam path, service layer, local browser GUI (functional; visual style not final).
+Planned, in rough order and without dates:
 
-Next, roughly in this order and without dates:
+1. Owner acceptance on a real microphone and latency work for voice sessions.
+2. Human review of the exercise bank and of the benchmark gold standard.
+3. A validated rubric before any speaking or writing level is shown.
+4. Choice of the mascot and a restore command for profile backups.
+5. More exam paths, more learning languages and an English command line.
 
-1. Accept voice sessions on a real microphone and optimise latency.
-2. Human review of the exercise bank and of the benchmark gold standard; validate that the lessons actually teach.
-3. Approve and finish the GUI look; human review of the frog mascot name and art.
-4. More exam paths, with data confirmed against official sources.
-5. More learning languages through additional `tutor/content/<lang>/` packs, and interface translations.
+## Documentation
 
-## Contributing
-
-Small, focused pull requests are easiest to review. Setup, checks and content rules are in [CONTRIBUTING.md](CONTRIBUTING.md).
-Report bugs and ideas in [GitHub issues](https://github.com/krauzerl/english-ai-tutor/issues); report vulnerabilities
-privately as described in [SECURITY.md](SECURITY.md). No response times are promised. Common problems are in
-[docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md); changes are listed in [CHANGELOG.md](CHANGELOG.md).
+- [docs/TESTING.md](docs/TESTING.md) — running the app, automated tests, owner test plans, microphone checks, measurements
+- [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) — common problems
+- [CHANGELOG.md](CHANGELOG.md) — changes by milestone
+- [CONTRIBUTING.md](CONTRIBUTING.md) — setup, checks and content rules
+- [SECURITY.md](SECURITY.md) — reporting vulnerabilities
+- [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) and [`tutor/content/en/ATTRIBUTION.md`](tutor/content/en/ATTRIBUTION.md) — sources and licences of teaching material
 
 ## Licence
 
-**The project has no licence yet**, so all rights are reserved by the author and the code is not licensed for reuse.
-A licence decision is pending with the owner.
+**No licence has been chosen yet.** Until the author decides, all rights are reserved and the code is not licensed
+for reuse.
 
-Teaching material is adapted from third-party works under CC BY 4.0 and CC BY-SA 4.0, with attribution and change
-notices: see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) and [`tutor/content/en/ATTRIBUTION.md`](tutor/content/en/ATTRIBUTION.md).
-Models and dependencies are not redistributed and keep their own licences. The optional Piper voice package is GPL-3.0.
+Teaching material adapted from third-party works under CC BY 4.0 and CC BY-SA 4.0 keeps its attribution and change
+notices (see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)). Models and dependencies are not redistributed and
+keep their own licences; the optional Piper voice package is GPL-3.0.

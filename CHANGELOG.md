@@ -15,6 +15,9 @@ Notable changes. The project has no releases yet; versions below are development
 - **Chat / i18n:** a custom topic typed as a sentence gets a natural opener; Exams screen fully in English;
   `main.py --help`.
 - **Bench:** `python -m bench.audit_control` — independent control set (clean, variants, STT, multi-error, held-out).
+- **English sessions:** topic name, conversation settings and role-play scenario are shown in English.
+- **Documentation:** new README with real screenshots of the application (`docs/screenshots/`), audit measurements
+  in `docs/TESTING.md`. F7 merged into `main`.
 
 ### F7 quality and product completion
 - **Teacher:** ending the session ("No, I want to finish our conversation for now") wins over a new topic; intents
