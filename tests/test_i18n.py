@@ -82,3 +82,20 @@ def test_exam_texts_translated_including_yaml_newline_and_joined_labels():
     for t in texts:
         assert tr(t, "en") != t, t
     assert tr("Słuchanie: coś nowego", "en") == "Słuchanie: coś nowego"     # tylko gdy obie części są znane
+
+
+def test_chat_session_events_in_english():
+    """Zrzuty README: w sesji EN nazwa tematu, ustawienia rozmowy i scenka zostawały po polsku."""
+    from tutor.app import topics as T
+    from tutor.gui.runner import classify
+    from tutor.i18n import tr, tr_event
+
+    def ev(line, lang="en"):
+        return tr_event(classify(line), lang)["text"]
+    topic = ev("Quick Chat — temat: Miejsce, w którym mieszkasz. (Powiedz „change the topic”, by zmienić; q = koniec.)")
+    assert topic.startswith("Quick Chat — temat: The place where you live.")       # prefiks czyta app.js
+    assert ev("Ustawienia rozmowy: B1 · General English · Naturalna rozmowa") == "B1 · General English · Natural conversation"
+    rp = T.get("med.rp.trauma")
+    assert ev("Scenariusz: " + rp["context_pl"]) == f"You are {rp['learner']}. The tutor plays {rp['role']}."
+    assert ev("Scenariusz: " + rp["context_pl"], "pl") == rp["context_pl"]
+    assert tr("bez limitu", "en") == "no limit" and tr("B1 · coś nowego", "en") == "B1 · coś nowego"

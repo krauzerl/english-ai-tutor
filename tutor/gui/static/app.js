@@ -259,7 +259,7 @@ async function screenHome(main) {
   const recent = cardT("progress", t("Ostatnio"), h("a", { class: "more", href: "#/progress" }, t("Historia")),
     hs.sessions.length ? h("ul", { class: "mini-list" }, hs.sessions.slice(0, 3).map((s) => h("li", {}, icon(KIND_ICON[s.kind] || "chat", 22),
       h("div", {}, h("div", { class: "t" }, KIND_PL[s.kind] || s.title), h("div", { class: "s" }, `${fmtDate(s.started_at)} · ${fmtMin(s.seconds)}`)),
-      h("span", { class: "s" }, s.attempts ? `${s.attempts_correct}/${s.attempts} zad.` : plural(s.user_turns, t("wypowiedź"), t("wypowiedzi"), t("wypowiedzi"))))))
+      h("span", { class: "s" }, s.attempts ? `${s.attempts_correct}/${s.attempts} ${t("zad.")}` : plural(s.user_turns, t("wypowiedź"), t("wypowiedzi"), t("wypowiedzi"))))))
       : note(t("Jeszcze nic — pierwsza rozmowa zajmie 5 minut."), "muted"));
 
   const pending = d.pending_evals ? h("section", { class: "quest" }, h("div", { class: "icon-box" }, icon("review", 30)),
@@ -301,8 +301,8 @@ async function screenChat(main) {
   const autoNote = h("p", { class: "note muted" });
   const modeNote = h("p", { class: "note muted" });
   const custom = h("input", { type: "text", maxlength: 80, placeholder: t("np. my first job, Linux servers, a difficult patient…"), "aria-label": t("Własny temat") });
-  const minutes = seg(t("Czas rozmowy"), [["", "bez limitu"], ["5", "5"], ["10", "10"], ["15", "15"], ["20", "20"], ["30", "30"]], "");
-  const corr = seg(t("Intensywność poprawek"), [["summary", t("na końcu")], ["periodic", "czasem"], ["intensive", t("na bieżąco")]], S.settings?.values?.correction || "summary");
+  const minutes = seg(t("Czas rozmowy"), [["", t("bez limitu")], ["5", "5"], ["10", "10"], ["15", "15"], ["20", "20"], ["30", "30"]], "");
+  const corr = seg(t("Intensywność poprawek"), [["summary", t("na końcu")], ["periodic", t("czasem")], ["intensive", t("na bieżąco")]], S.settings?.values?.correction || "summary");
   const start = (args) => startSession("chat", { ...args, level: st.level, category: st.category, mode: st.mode,
     minutes: minutes.value || null, correction: corr.value, text_mode: textMode() });
   const customGo = () => (custom.value.trim() ? start({ custom: custom.value.trim() }) : toast(t("Wpisz temat.")));
@@ -880,7 +880,7 @@ function drawEvent(ev, store = true) {
     if (k === "chatinfo") s.chatinfo = ev.text;
     if (k === "scenario") s.scenario = ev.text;
     if (k === "info" && ev.text.startsWith("Quick Chat — temat:")) s.topic = ev.text.replace("Quick Chat — temat:", "").split("(")[0].trim().replace(/\.$/, "");
-    if (k === "notice" && ev.text.startsWith("nowy temat:")) s.topic = ev.text.replace("nowy temat:", "").trim();
+    if (k === "notice" && /^(nowy temat|new topic):/.test(ev.text)) s.topic = ev.text.replace(/^(nowy temat|new topic):/, "").trim();
     if (!["prompt", "metric", "listening"].includes(k)) s.lastKind = k;
   }
   const log = S.logEl;            // także przed wstawieniem widoku do strony (odtwarzanie historii po zmianie układu)

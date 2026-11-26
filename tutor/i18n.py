@@ -78,7 +78,7 @@ _P = [
     (r"^Wznawiam (?:ćwiczenia|powtórki|diagnozę|dopasowanie) \(sesja #(?P<n>\d+)\)\.$", "Resuming (session #{n})."),
     (r"^Quick Chat — temat: (?P<t>.*)\. \(Powiedz „change the topic”, by zmienić; q = koniec\.\)$",
      "Quick Chat — topic: {t}. (Say “change the topic” to change it.)"),
-    (r"^nowy temat: (?P<t>.*)$", "new topic: {t}"),
+    (r"^nowy temat: (?P<t>.*)$", lambda m: "new topic: " + tr(m["t"], "en")),
     (r"^sprawdzam jeszcze (?P<n>\d+) wypowiedzi przed podsumowaniem…$",
      "checking {n} more answers before the summary…"),
     (r"^(?P<n>\d+) wypowiedzi oceni później: GUI \(Historia\) albo `--finish-evals`\.$",
@@ -158,6 +158,10 @@ def tr(text: str, lang: str = "pl") -> str:
     lead = text[:len(text) - len(text.lstrip("\n"))]
     if body in EXACT:
         return lead + EXACT[body]
+    if " · " in body:                                    # „B1 · General English · Naturalna rozmowa”
+        parts = [tr(x, lang) for x in body.split(" · ")]
+        if parts != body.split(" · "):
+            return lead + " · ".join(parts)
     head, sep, tail = body.partition(": ")              # „Nazwa sekcji: uwaga” sklejone w backendzie
     if sep and head in EXACT and (t := tr(tail, lang)) != tail:
         return lead + EXACT[head] + sep + t
@@ -170,10 +174,28 @@ def tr(text: str, lang: str = "pl") -> str:
     return text
 
 
+_TOPIC = "Quick Chat — temat: "
+
+
+def _scenario_en(text: str) -> str:
+    """Opis scenki z pól angielskich katalogu (`learner`, `role`); polski `context_pl` nie ma tłumaczenia."""
+    from tutor.app import topics as T
+    for it in T.chat_catalog("en")["items"].values():
+        if it.get("context_pl") == text and it.get("learner") and it.get("role"):
+            return f"You are {it['learner']}. The tutor plays {it['role']}."
+    return text
+
+
 def tr_event(ev: dict, lang: str) -> dict:
     """Zdarzenie sesji GUI: tłumaczymy pola tekstowe komunikatów, nigdy wypowiedzi ucznia ani tutora."""
     if lang != "en" or ev.get("kind") in ("you", "tutor", "heard", "stt_confirm", "task"):
         return ev
+    text = ev.get("text") or ""
+    if ev.get("kind") == "scenario":
+        return {**ev, "text": _scenario_en(text)}
+    if ev.get("kind") == "info" and text.startswith(_TOPIC):     # GUI czyta nazwę po polskim prefiksie
+        name = text[len(_TOPIC):].split(". (")[0]
+        return {**ev, "text": _TOPIC + tr(name, lang) + text[len(_TOPIC) + len(name):]}
     return {**ev, **{k: tr(v, lang) for k, v in ev.items() if k in ("text", "why") and isinstance(v, str)}}
 
 
@@ -261,7 +283,7 @@ EXACT.update({
     "przywrócone": "restored", "poprawa": "improving", "pogorszenie": "getting worse", "bez zmian": "no change",
     "szacunek wstępny": "preliminary estimate",
     "Szkoła i nauka": "School and learning", "Czas wolny": "Free time", "Wakacje": "Holidays",
-    "Znajomi i rodzina": "Friends and family",
+    "Znajomi i rodzina": "Friends and family", "bez limitu": "no limit", "czasem": "now and then",
     "Podział punktów i dokładny opis zadań należy potwierdzić w Informatorze CKE; aplikacja ich nie odtwarza.":
         "Confirm the points and exact task types in the official CKE guide; the app does not reproduce them.",
     "Egzamin nie ma części ustnej; mówienie ćwiczymy dodatkowo w Quick Chat na tematach egzaminacyjnych.":

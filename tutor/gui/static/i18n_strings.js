@@ -415,6 +415,7 @@ I18N.add([
   ["tryb głosowy", "tryb głosowy", "voice mode"],
   ["tryb tekstowy", "tryb tekstowy", "text mode"],
   ["Wolę napisać", "Wolę napisać", "I prefer to type"],
+  ["zad.", "zad.", "tasks"], ["bez limitu", "bez limitu", "no limit"], ["czasem", "czasem", "now and then"],
   ["Nie wiem", "Nie wiem", "I don't know"],
   ["Pomiń", "Pomiń", "Skip"],
   ["Podpowiedź", "Podpowiedź", "Hint"],
