@@ -21,7 +21,12 @@ CASES = Path(__file__).parent / "cases" / "audit_control.yaml"
 
 
 def _applied(text: str, o) -> str:
-    s = text.replace(o.span, o.fix or "", 1) if o.span and o.span in text else (o.fix or "")
+    """Zdanie po poprawce. Najpierw dopasowanie całych słów („an” nie trafia w „Can”), potem podciąg."""
+    pat = rf"(?<!\w){re.escape(o.span)}(?!\w)" if o.span else None
+    if pat and re.search(pat, text):
+        s = re.sub(pat, lambda _m: o.fix or "", text, count=1)
+    else:
+        s = text.replace(o.span, o.fix or "", 1) if o.span and o.span in text else (o.fix or "")
     return " ".join(s.split())
 
 

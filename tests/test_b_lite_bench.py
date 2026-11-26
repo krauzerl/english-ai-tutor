@@ -29,3 +29,8 @@ def test_control_set_splits_and_ids():
         for e in c.get("errors", []):           # oczekiwana forma nie może już być w zdaniu (inaczej nie do wykrycia)
             from bench.audit_control import _has
             assert not all(_has(c["text"], a) for a in e["fix_has"].split("|")), c["id"]
+
+
+def test_applied_matches_whole_words():
+    from bench.audit_control import _applied
+    assert _applied("Can I have an information?", _o("an", "some")) == "Can I have some information?"

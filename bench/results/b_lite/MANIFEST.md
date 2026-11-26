@@ -23,3 +23,10 @@ baseline, brak istotnego pogorszenia czasu, stabilność przy braku/awarii Langu
 - 2026-11-26 21:3x — `dev_ABCD.json`, `audit_ABCD.json`: A/B/C/D na dev i starym zestawie, LT 6.6 lokalnie;
   lista reguł-kandydatów `trust: h` w `lt_map.yaml` wybrana na podstawie surowych dopasowań LT na dev + audit
   (przed tym uruchomieniem).
+- 2026-11-26 22:0x — **BRAMKA held-out (jedyne uruchomienie)**: `held_ABCD.json` (A/B/C/D ×2, LT 6.6), suma zbioru
+  zgodna (`run_gate.sh`). Po obejrzeniu wyników wykryto błąd FUNKCJI OCENY (nie systemu): `_applied` podmieniał
+  podciąg („an” w „Can”), przez co trafna poprawka h_e07 liczyła się jako FP. Poprawiono na granice słów
+  (`bench/audit_control.py`, test) i przeliczono WSZYSTKIE zapisane wiersze bez ponownego uruchamiania modelu
+  (`bench/b_lite_rescore.py` → klucz `rescored`, logi `*_rescored.log`). Systemu oceny, promptu, polityki fuzji ani
+  zbioru po bramce NIE zmieniano.
+- `conv_lt_on.json` / `conv_lt_off.json`: TTFT rozmowy z LT działającym w tle i bez LT.

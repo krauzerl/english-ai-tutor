@@ -1,0 +1,11 @@
+{
+ "model": "qwen3:8b",
+ "n": 12,
+ "ttft_p50": 0.08,
+ "ttft_p95": 0.1,
+ "first_sentence_p50": 0.14,
+ "first_sentence_p95": 0.33,
+ "lt_running": false,
+ "lt_rss_mib": null,
+ "vram_mib": 6795.0
+}
