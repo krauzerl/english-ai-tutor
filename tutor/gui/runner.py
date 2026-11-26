@@ -13,15 +13,24 @@ import time
 from collections.abc import Callable
 
 MAX_EVENTS = 3000
+_SUMMARY = re.compile(r"Powtórki: \d+/\d+")
 _TASK = re.compile(r"^(?:\[(?P<tag>[^\]]+)\])?\s*Zadanie (?P<i>\d+)/(?P<n>\d+): (?P<text>.*)$", re.S)
 
 
 # Wskazówki silnika pisane dla terminala -> nazwy przycisków GUI.
-_GUI_WORDS = [("poleceniem `--placement`", "przyciskiem „Określ poziom”"), ("poleceniem `--review`", "przyciskiem „Powtórki”"),
-              ("z tym samym `--lesson`", "przyciskiem „Lekcja”"), ("poleceniem `--lesson`", "przyciskiem „Lekcja”"),
-              ("z `--weakspots`", "z dziennika słabych stron"), ("(`--review`)", ""), ("tym samym poleceniem", "tym samym przyciskiem"),
-              ("q = przerwij i wznów później", "„Zakończ” = przerwij i wznów później"), ("(q = przerwij, lekcję można wznowić)",
-              "(„Zakończ” = przerwij, lekcję można wznowić)"), ("(q = koniec)", "(„Zakończ” = koniec)"), ("q = koniec", "„Zakończ” = koniec")]
+_GUI_WORDS = [
+    ("poleceniem `--placement`", "przyciskiem „Określ poziom”"),
+    ("poleceniem `--review`", "przyciskiem „Powtórki”"),
+    ("z tym samym `--lesson`", "przyciskiem „Lekcja”"),
+    ("poleceniem `--lesson`", "przyciskiem „Lekcja”"),
+    ("z `--weakspots`", "z dziennika słabych stron"),
+    ("(`--review`)", ""),
+    ("tym samym poleceniem", "tym samym przyciskiem"),
+    ("q = przerwij i wznów później", "„Zakończ” = przerwij i wznów później"),
+    ("(q = przerwij, lekcję można wznowić)", "(„Zakończ” = przerwij, lekcję można wznowić)"),
+    ("(q = koniec)", "(„Zakończ” = koniec)"),
+    ("q = koniec", "„Zakończ” = koniec"),
+]
 
 
 def _gui_text(s: str) -> str:
@@ -43,7 +52,7 @@ def classify(line: str) -> dict:
             return {"kind": kind, "text": s[len(prefix):].strip() if kind in ("tutor", "you", "heard") else s}
     if s == ">":
         return {"kind": "prompt", "text": ""}
-    if s.startswith(("✓", "✗", "Poprawna odpowiedź", "Wynik ćwiczeń", "Koniec ćwiczeń")) or re.match(r"Powtórki: \d+/\d+", s):
+    if s.startswith(("✓", "✗", "Poprawna odpowiedź", "Wynik ćwiczeń", "Koniec ćwiczeń")) or _SUMMARY.match(s):
         return {"kind": "feedback", "text": s}
     if s.startswith("[") and s.endswith("]"):
         return {"kind": "notice", "text": s[1:-1]}
