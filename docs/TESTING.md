@@ -56,6 +56,44 @@ About 15 minutes. Use a test profile.
    your own answer shown above it, and the frog in the "Spróbuj jeszcze raz" state. Click **Przerwij i zapisz**,
    go to Start, click **Wróć do lekcji**. Expected: the lesson continues at the same task.
 
+## 3a. Owner test plan (about 45 minutes)
+
+Use a fresh test profile ("Profile" → new profile) so the results are easy to check.
+
+| # | What | How | Check |
+|---|---|---|---|
+| 1 | Ubuntu audio check | Section 4a below | You hear the test sound; the recording plays back |
+| 2 | First voice conversation | Quick Chat → General English, level Automatyczny, Naturalna rozmowa → **Rozpocznij rozmowę**, voice mode | Section 4 steps 1–5 |
+| 3 | Medical English | Level B1, Medical English, Roleplay → pick "Ból w klatce piersiowej" | The scenario card appears; the teacher speaks as the patient; ask about onset, character, radiation, medicines, allergies; ask "What does radiate mean?"; finish; the summary and the note "dotyczy wyłącznie języka" appear |
+| 4 | Technical English | Level B1, Technical English / IT, Naturalna rozmowa | Questions stay technical; ask the teacher a Python question; say "Can we talk about cybersecurity?" |
+| 5 | Ordinary chat | General English, Rozmowa prowadzona | The teacher offers phrases ("You could say: …") when you get stuck |
+| 6 | Full lesson | Lekcje → the recommended mission → answer all tasks, at least one wrong on purpose, then the short conversation, then **Zakończ** | Hint after the wrong answer; the lesson ends with a summary |
+| 7 | Error recognition | In any chat say or write "Yesterday I go to work by bus" and "She don't like it" | They appear in "Do poprawy" at the end and later in **Słabe strony** as model suggestions |
+| 8 | Progress saved | **Postępy**, **Osiągnięcia**, **Start → Ostatnio** | The sessions from this test are listed under the test profile only |
+
+## 4a. Ubuntu: microphone and speakers before the app (read-only checks)
+
+These commands only list devices or record and play a short test; they do not change any system setting.
+
+```bash
+pactl list short sources          # microphones the system sees
+```
+```bash
+pactl list short sinks            # speakers / headphones
+```
+```bash
+arecord -d 4 -f cd /tmp/mic-test.wav && aplay /tmp/mic-test.wav
+```
+Say a sentence during the four seconds; you should hear it back. If not, choose the right input and output in
+Ubuntu **Settings → Sound** (by hand) and repeat.
+```bash
+python main.py --voice --list-devices
+```
+This shows the device names the tutor sees. If the default device is wrong, choose it in the app:
+**Ustawienia → Głos i dźwięk → Mikrofon / Głośnik (urządzenie)** and save.
+
+The voice path counts as verified only after this test on your devices.
+
 ## 4. Real microphone and speakers (owner acceptance)
 
 Automated tests use a simulated microphone. This scenario needs the real devices. About 15 minutes, quiet room.

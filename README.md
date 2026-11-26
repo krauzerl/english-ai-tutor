@@ -27,7 +27,7 @@ weak skills back. Models run through [Ollama](https://ollama.com), speech runs o
 | Status | Feature |
 |---|---|
 | **Experimental** | Browser interface (`--gui`): every mode below from one window, on `127.0.0.1` only. Pixel-art design with an original frog mascot, awaiting the owner's approval of the look |
-| **Available** | Quick Chat: topic generator (33 topics, 8 categories, rotation from your history, your own topic, "change the topic" mid-chat), time limit, correction intensity (`summary`, `periodic`, `intensive`) |
+| **Available** | Quick Chat: level (automatic or A1–C1), category (General, Technical/IT, Medical with an emergency-services focus, Business, Professional, custom topic), mode (natural, guided, role-play with 25 scenarios); topic rotation within the category, "change the topic" mid-chat, time limit, correction intensity. Medical role-plays are language practice only |
 | **Available** | Local learner profiles (create, list, select, export, delete) and per-profile settings |
 | **Available** | Progress, learning history and 25 achievements, all computed from recorded evidence; achievements are separate from skill mastery |
 | **Available** | Content tooling: validation, attribution, review workflow; grammar-correction benchmark (`bench/`) |
@@ -256,8 +256,8 @@ python main.py content validate en
 pytest -m live      # needs a running Ollama; Gemini live tests may cost money
 ```
 
-On this branch: `725 passed, 1 skipped, 15 deselected` (the 15 are the live tests), and `ruff` reports no issues.
-GUI tests drive the real HTTP server and session engine with fake models; `tests/test_browser.py` (17 flows) drives
+On this branch: `775 passed, 1 skipped, 15 deselected` (the 15 are the live tests), and `ruff` reports no issues.
+GUI tests drive the real HTTP server and session engine with fake models; `tests/test_browser.py` (23 flows) drives
 Chromium through Playwright (`pip install -e ".[browser-tests]"`, then `playwright install chromium`; the tests skip
 without it). Conversations, lessons, reviews and placement were also run against a local Qwen3 8B; see
 [docs/TESTING.md](docs/TESTING.md).

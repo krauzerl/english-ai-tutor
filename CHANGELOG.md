@@ -11,6 +11,14 @@ Notable changes. The project has no releases yet; versions below are development
   subject pronoun ("I usually drinks" → "drink") is stored as `agreement.subject_verb`, not as an irregular past
   form. Observations saved earlier keep their original category.
 
+### Added (Quick Chat)
+- Level (automatic from the optional placement, otherwise a cautious A2 with a notice; or A1–C1 by hand, which never
+  changes placement or mastery), category (General, Technical/IT, Medical, Business, Professional, custom) and mode
+  (natural, guided, role-play). 40 topics and 25 role-play scenarios with CEFR ranges; choices remembered per profile.
+- Role-play: Polish scenario context first, the tutor stays in role, language feedback after. The prompt drops the
+  "always ask a question" rule in role-play and forbids taking over the learner's role or giving professional advice
+  the character would not have (found in a Qwen3 audit: a "patient" suggested a drug).
+
 ### Fixed (teacher audit with Qwen3 8B)
 - Conversation evaluation runs one utterance at a time (a batch of five took ~30 s and was cancelled by any learner
   activity, so most turns were still unevaluated when the chat ended). The summary waits up to 3 s per pending

@@ -166,3 +166,9 @@ def test_cli_custom_category_with_guided_mode(env):
     text = "\n".join(out)
     assert "Ustawienia rozmowy: B2 · Własny temat · Rozmowa prowadzona" in text
     assert "sentence frame" in conv.calls[0][0].content and "repairing old radios" in conv.calls[0][0].content
+
+
+def test_roleplay_prompt_drops_always_ask_rule_and_forbids_role_takeover():
+    p = QC.system_prompt(T.get("med.rp.chest_pain"), "B1", "roleplay")
+    assert QC._FOLLOW_UP not in p and "you're the professional" in p and "Never take over" in p
+    assert QC._FOLLOW_UP in QC.system_prompt(T.get("gen.trip"), "B1", "natural")

@@ -27,6 +27,7 @@ LEVEL_NOTES = {
     "C1": "The student is advanced (CEFR C1): talk as you would to a fluent colleague, with precise vocabulary and "
           "nuance; you may use up to three sentences and challenge their reasoning politely.",
 }
+_FOLLOW_UP = "First react to what the student actually said, then ask ONE short follow-up question. "
 LONG_OK = " Never ask the student to keep answers short: longer answers are welcome at every level."
 MODE_NOTES = {
     "natural": " Mode: natural conversation. Follow the student's lead like a real conversation partner and sometimes "
@@ -80,17 +81,25 @@ def system_prompt(topic: dict, level: str = "B1", mode: str = "natural") -> str:
     """Prompt rozmowy: temat + poziom + tryb + charakter kategorii. Bez osobnego systemu rozmów (ten sam VoiceTutor)."""
     level = level if level in T.LEVELS else "B1"
     cat = topic.get("category", "general")
-    base = SYSTEM_PROMPT + " " + LEVEL_NOTES[level] + LONG_OK + CATEGORY_NOTES.get(cat, "")
     if mode == "roleplay":
+        # W roli nie obowiązuje zasada „zawsze zadaj pytanie”: audyt F7 (Qwen3) pokazał, że pacjent zaczynał wtedy
+        # przeprowadzać wywiad z ratownikiem i powtarzać jego kwestie.
+        core = SYSTEM_PROMPT.replace(_FOLLOW_UP, "React to what the student actually said. ")
+        base = core + " " + LEVEL_NOTES[level] + LONG_OK + CATEGORY_NOTES.get(cat, "")
         role = topic.get("role") or "a person who naturally fits this situation (say who you are in your first reply)"
         learner = topic.get("learner") or "themselves"
         setup = topic.get("setup") or f"The situation is about: {topic['pl']}."
         return (base + f" Mode: role-play. You are {role}. The student is {learner}. Situation: {setup} "
-                f"Stay in character the whole time and speak only as {role} would. You do not have to ask a question "
-                "in every reply; react as the character would. Do not act as a teacher and do not correct grammar "
-                "during the role-play (feedback comes after it). If the student asks you to explain a word or to "
-                "repeat, do it briefly and stay in the role. If the student clearly asks to stop or to change the "
-                "topic, follow that.")
+                f"Stay in character the whole time and speak only as {role} would. Answer the student's questions "
+                "as the character; ask a question only when the character naturally would. Never take over the "
+                "student's role: do not ask the questions they should ask, and never repeat their words as your "
+                "own. If the student asks the character for professional advice the character would not have "
+                "(for example a patient asked which medicine to give), answer as the character would, for example "
+                "“I don't know, you're the professional”. Do not act as a teacher and do not correct "
+                "grammar during the role-play (feedback comes after it). If the student asks you to explain a word "
+                "or to repeat, do it briefly and stay in the role. If the student clearly asks to stop or to change "
+                "the topic, follow that.")
+    base = SYSTEM_PROMPT + " " + LEVEL_NOTES[level] + LONG_OK + CATEGORY_NOTES.get(cat, "")
     return (base + MODE_NOTES.get(mode, MODE_NOTES["natural"]) + f" Current topic: “{topic['pl']}” "
             f"({topic.get('category_pl', '')}). Stay on this topic unless the student changes it.")
 
