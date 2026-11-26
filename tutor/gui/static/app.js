@@ -128,7 +128,7 @@ const skillPl = (id) => (S.catalog || []).find((c) => c.skill_id === id)?.can_do
 // ---------- nawigacja ----------
 const NAV = [
   ["Nauka", [["home", "Start", "home"], ["chat", "Quick Chat", "chat"], ["lesson", "Lekcje", "lesson"], ["review", "Powtórki", "review"]]],
-  ["Rozwój", [["weak", "Słabe strony", "weak"], ["placement", "Określ poziom", "level"], ["exam", "Egzaminy", "exam"]]],
+  ["Rozwój", [["weak", "Słabe strony", "weak"], ["placement", "Diagnoza", "level"], ["exam", "Egzaminy", "exam"]]],
   ["Ty", [["progress", "Postępy", "progress"], ["achievements", "Osiągnięcia", "trophy"], ["settings", "Ustawienia", "gear"]]],
 ];
 
@@ -192,11 +192,11 @@ async function screenProfiles(main) {
 }
 
 // ---------- Start ----------
-const KIND_PL = { voice: "Rozmowa", chat: "Quick Chat", lesson: "Lekcja", review: "Powtórki", placement: "Poziom", exam: "Egzamin", drill: "Ćwiczenia" };
-const KIND_GEN = { voice: "rozmowy", chat: "rozmowy", lesson: "lekcji", review: "powtórek", placement: "sprawdzania poziomu", exam: "egzaminu", drill: "ćwiczeń" };
+const KIND_PL = { voice: "Rozmowa", chat: "Quick Chat", lesson: "Lekcja", review: "Powtórki", placement: "Poziom", exam: "Egzamin", drill: "Ćwiczenia", assessment: "Diagnoza", evals: "Ocena" };
+const KIND_GEN = { voice: "rozmowy", chat: "rozmowy", lesson: "lekcji", review: "powtórek", placement: "sprawdzania poziomu", exam: "egzaminu", drill: "ćwiczeń", assessment: "diagnozy" };
 // polska odmiana liczebnika: 1 wypowiedź, 2–4 wypowiedzi, 5+ wypowiedzi
 const plural = (n, one, few, many) => `${n} ${n === 1 ? one : [2, 3, 4].includes(n % 10) && ![12, 13, 14].includes(n % 100) ? few : many}`;
-const KIND_ICON = { voice: "chat", chat: "chat", lesson: "lesson", review: "review", placement: "level", exam: "exam", drill: "weak" };
+const KIND_ICON = { voice: "chat", chat: "chat", lesson: "lesson", review: "review", placement: "level", exam: "exam", drill: "weak", assessment: "level", evals: "review" };
 
 async function screenHome(main) {
   if (!S.pid) {
@@ -211,7 +211,7 @@ async function screenHome(main) {
   const [d, ac, hs, ls, pr] = await Promise.all([q("/api/home"), q("/api/achievements"), q("/api/history"), q("/api/lessons"), q("/api/progress")]);
   S.catalog = ls.catalog;
   const open = d.open_session;
-  const t = hs.totals;
+  const tot = hs.totals;
   const sugName = d.suggested_lesson ? skillPl(d.suggested_lesson.skill_id) : null;
 
   const hero = h("section", { class: "hero" }, scene(),
@@ -230,7 +230,7 @@ async function screenHome(main) {
         () => startSession("lesson", { text_mode: defaultTextMode() })),
     action("", "review", "3 · Powtórka", d.due_reviews ? `${d.due_reviews} do powtórki` : "Brak zaległych", d.due_reviews ? "Sprawdź, czy pamiętasz — na nowych przykładach." : "Wrócą, gdy nadejdzie ich termin.",
       d.due_reviews ? "Powtórz teraz" : "Zobacz", () => (d.due_reviews ? startSession("review", { text_mode: defaultTextMode() }) : go("#/review"))),
-    action("", "progress", "4 · Postępy", `${t.lessons_completed} lekcji · ${fmtMin(t.study_seconds)}`, `${ac.earned} z ${ac.total} odznak. Historia z zapisów na tym komputerze.`, "Zobacz postępy", () => go("#/progress")));
+    action("", "progress", "4 · Postępy", `${tot.lessons_completed} lekcji · ${fmtMin(tot.study_seconds)}`, `${ac.earned} z ${ac.total} odznak. Historia z zapisów na tym komputerze.`, "Zobacz postępy", () => go("#/progress")));
 
   // wyprawa: bieżący rozdział (pierwszy z nieopanowanymi misjami)
   const status = {};
@@ -255,13 +255,16 @@ async function screenHome(main) {
       h("span", { class: "s" }, s.attempts ? `${s.attempts_correct}/${s.attempts} zad.` : plural(s.user_turns, "wypowiedź", "wypowiedzi", "wypowiedzi")))))
       : note("Jeszcze nic — pierwsza rozmowa zajmie 5 minut.", "muted"));
 
-  main.append(hero, actions, h("div", { class: "grid-2" }, journey, h("div", { class: "stack" }, challenges, recent)));
+  const pending = d.pending_evals ? h("section", { class: "quest" }, h("div", { class: "icon-box" }, icon("review", 30)),
+    h("div", {}, h("p", {}, t("ev.pending", { n: d.pending_evals }))), btn(t("ev.run"), () => startSession("evals", {}), "", "play")) : null;
+  main.append(hero, pending, actions, h("div", { class: "grid-2" }, journey, h("div", { class: "stack" }, challenges, recent)));
 }
 
 function resume(open) {
   const map = { chat: "chat", lesson: "lesson", placement: "placement", review: "review", exam: "exam" };
   if (open.kind === "chat") return startSession("chat", { topic: (open.plan && open.plan.topic && open.plan.topic.id) || "fd.cooking", text_mode: defaultTextMode() });
   if (open.kind === "exam") return go("#/exam");
+  if (open.kind === "assessment") return go("#/placement");
   startSession(map[open.kind] || "lesson", { text_mode: defaultTextMode() });
 }
 
@@ -388,17 +391,89 @@ async function screenReview(main) {
 }
 
 async function screenPlacement(main) {
-  const d = await q("/api/placement");
-  main.append(pageHead("Dobrowolnie", "Określ poziom", d.notice),
+  const [d, qp] = await Promise.all([q("/api/assessment"), q("/api/placement")]);
+  await catalog();
+  const p = d.profile;
+  const audio = voiceAvailable();
+  const picks = new Set(d.areas.filter((a) => (a !== "listening" && a !== "speaking") || audio));
+  const boxes = d.areas.map((a) => {
+    const need = a === "listening" && !audio ? t("dg.need_audio") : a === "speaking" && !audio ? t("dg.need_mic") : null;
+    const cb = h("input", { type: "checkbox", checked: picks.has(a), disabled: !!need, onchange: (e) => (e.target.checked ? picks.add(a) : picks.delete(a)) });
+    return h("label", { class: "check" }, cb, h("span", {}, t(`area.${a}`)),
+      d.open_areas.includes(a) ? h("em", { class: "muted" }, ` — ${t("dg.not_ready")}`) : null, need ? h("em", { class: "muted" }, ` (${need})`) : null);
+  });
+  const startFull = () => {
+    if (!picks.size) return toast(t("dg.choose_one"));
+    startSession("assessment", { areas: d.areas.filter((a) => picks.has(a)), text_mode: textMode() });
+  };
+  const row = (a) => {
+    const lt = a.latest;
+    const ev = (a.open_evidence || []).slice(-1)[0];
+    const val = lt ? `${lt.label}` : ev ? t("dg.open_ev", { words: ev.words, per: ev.errors_per_100 ?? "—" }) : t("common.not_tested");
+    const unc = lt && lt.range ? t("dg.range", { lo: lt.range[0].toFixed(1), hi: lt.range[1].toFixed(1) }) : "—";
+    return [t(`area.${a.area}`), val, lt ? t("common.items", { n: a.evidence }) : "—", unc, a.history.length ? a.history.map((x) => `${fmtDay(x.date)}: ${x.level}`).join(" · ") : "—"];
+  };
+  main.append(pageHead(t("dg.eyebrow"), t("dg.title"), t("dg.sub")),
+    d.resume ? h("section", { class: "quest" }, h("div", { class: "icon-box" }, icon("level", 36)),
+      h("div", {}, h("h3", {}, t("dg.resume", { done: d.resume.finished.length, all: d.resume.areas.length }))),
+      btn(t("common.resume"), () => startSession("assessment", { areas: d.resume.areas, text_mode: textMode() }), "primary lg", "play")) : null,
     h("div", { class: "grid-2" },
-      card("Jak to działa", h("ul", { class: "limits" },
-        h("li", {}, "Kilka krótkich pytań z gramatyki i słownictwa."), h("li", {}, "Możesz przerwać w każdej chwili i wrócić później."),
-        h("li", {}, "Ponowne sprawdzenie nie kasuje historii nauki."), h("li", {}, "Niepewne rozpoznanie mowy nie obniża wyniku.")),
-      table(["Obszar", "Pytania w banku"], d.areas.map((a) => [areaPl(a.area), a.items])),
-      h("div", { class: "row" }, modeRow(), btn(d.results.length ? "Sprawdź ponownie" : "Zacznij", () => startSession("placement", { text_mode: textMode() }), "primary lg", "level"))),
-      card("Wyniki (szacunek wstępny)", d.results.length ? h("ul", { class: "mini-list" }, d.results.map((r) => h("li", {}, icon("level", 22),
-        h("div", {}, h("div", { class: "t" }, `${areaPl(r.area)}: ${r.label || "—"}`), h("div", { class: "s" }, `${fmtDate(r.measured_at)} · ${r.status}${r.notice ? " · " + r.notice : ""}`)), h("span"))))
-        : note("Jeszcze nie sprawdzano poziomu. Wynik to szacunek, nie certyfikat CEFR.", "muted"))));
+      card(t("dg.full"), note(t("dg.full_desc")), h("div", { class: "checks" }, boxes),
+        h("div", { class: "row" }, modeRow(), btn(t("dg.full_start"), startFull, "primary lg", "level"))),
+      card(t("dg.quick"), note(t("dg.quick_desc")),
+        h("div", { class: "row" }, btn(t("dg.quick_start"), () => startSession("placement", { text_mode: textMode() }), "", "level")))),
+    card(t("dg.profile"), p.areas.some((a) => a.tested) ? table([t("dg.profile"), t("dg.latest"), t("dg.evidence"), t("dg.uncertainty"), t("dg.history")], p.areas.map(row))
+      : note(t("dg.none_yet"), "muted"), note(p.notice, "muted")),
+    h("div", { class: "grid-2" },
+      card(t("dg.recs"), h("ul", { class: "limits" }, p.recommendations.map((r) => h("li", {}, r.text_pl,
+        r.skills && r.skills.length ? h("div", { class: "row" }, r.skills.map((sk) => btn(skillPl(sk), () => startSession("lesson", { skill: sk, text_mode: defaultTextMode() }), "sm quiet", "lesson"))) : null)))),
+      card(t("dg.bank"), table(["", "A1", "A2", "B1", "B2", "C1"], Object.entries(d.coverage).map(([a, lv]) => [t(`area.${a}`), ...["A1", "A2", "B1", "B2", "C1"].map((l) => lv[l])])),
+        p.strengths.length ? note(`${t("dg.strengths")}: ${p.strengths.map((a) => t(`area.${a}`)).join(", ")}`) : null,
+        p.weaknesses.length ? note(`${t("dg.weaknesses")}: ${p.weaknesses.map((a) => t(`area.${a}`)).join(", ")}`) : null,
+        p.untested.length ? note(`${t("dg.untested")}: ${p.untested.map((a) => t(`area.${a}`)).join(", ")}`, "muted") : null)));
+}
+
+// Wykres szacunku (θ) w czasie: pas = ±1 SD; oś Y opisana poziomami A1–C1 (to skala zadań, nie certyfikat).
+function thetaChart(points, label) {
+  const W = 320, H = 150, P = 28, y = (th) => H - P - ((th - 0.5) / 5.5) * (H - 2 * P), x = (i) => P + (points.length < 2 ? 0 : (i * (W - 2 * P)) / (points.length - 1));
+  const ns = "http://www.w3.org/2000/svg";
+  const el = (tag, at) => { const e = document.createElementNS(ns, tag); for (const [k, v] of Object.entries(at)) e.setAttribute(k, v); return e; };
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, class: "chart", role: "img", "aria-label": label });
+  ["A1", "A2", "B1", "B2", "C1"].forEach((lv, k) => {
+    svg.append(el("line", { x1: P, x2: W - P, y1: y(k + 1), y2: y(k + 1), class: "grid" }));
+    const tx = el("text", { x: 2, y: y(k + 1) + 4, class: "axis" }); tx.textContent = lv; svg.append(tx);
+  });
+  const band = points.map((p, i) => `${x(i)},${y(p.theta + p.sd)}`).concat(points.map((p, i) => `${x(points.length - 1 - i)},${y(points[points.length - 1 - i].theta - points[points.length - 1 - i].sd)}`));
+  svg.append(el("polygon", { points: band.join(" "), class: "band" }));
+  svg.append(el("polyline", { points: points.map((p, i) => `${x(i)},${y(p.theta)}`).join(" "), class: "line" }));
+  points.forEach((p, i) => { const c = el("circle", { cx: x(i), cy: y(p.theta), r: 3.5, class: "dot" }); const tt = el("title", {}); tt.textContent = `${p.week}: ${p.correct}/${p.n}`; c.append(tt); svg.append(c); });
+  return svg;
+}
+
+function growthSection(g) {
+  const cmpText = (c) => c.status === "insufficient" ? t("gr.insufficient", { n: g.rules.min_trend }) : t(`gr.${c.status}`);
+  const closed = ["grammar", "vocabulary", "reading", "listening"].map((a) => {
+    const r = g.areas[a];
+    return h("article", { class: "growth" }, h("h3", {}, t(`area.${a}`)),
+      h("p", { class: `trend ${r.compare.status}` }, cmpText(r.compare)),
+      r.timeline.length >= 2 ? thetaChart(r.timeline, `${t("area." + a)} — ${t("gr.chart", { n: g.rules.min_point })}`) : note(t("gr.no_chart"), "muted"),
+      h("ul", { class: "limits" }, h("li", {}, t("gr.independent", { n: r.independent })),
+        h("li", {}, t("gr.after_hint", { c: r.after_hint.correct, n: r.after_hint.n })), h("li", {}, t("gr.repeats", { n: r.repeats_excluded }))));
+  });
+  const speech = ["speaking", "writing"].map((a) => {
+    const r = g.areas[a];
+    return [t(`area.${a}`), r.first.per_100 ?? "—", r.last.per_100 ?? "—", r.compare.status === "insufficient" ? t("common.too_little") : t(`gr.${r.compare.status}`)];
+  });
+  const rt = g.retention;
+  return h("section", { class: "stack" },
+    cardT("progress", t("gr.title"), null, note(t("gr.sub")), note(t("gr.compare", { d: g.windows.days }), "muted"),
+      h("div", { class: "growth-grid" }, closed)),
+    h("div", { class: "grid-2" },
+      card(t("gr.speech"), table(["", t("gr.compare", { d: g.windows.days }).split(" vs ")[0], t("gr.compare", { d: g.windows.days }).split(" vs ")[1] || "", ""], speech)),
+      card(t("gr.retention"), h("ul", { class: "limits" }, h("li", {}, t("gr.ret_3", { c: rt.after_3_days.correct, n: rt.after_3_days.n })),
+        h("li", {}, t("gr.ret_7", { c: rt.after_7_days.correct, n: rt.after_7_days.n })), h("li", {}, t("gr.ret_rev", { c: rt.reviews.correct, n: rt.reviews.n })),
+        h("li", {}, t("gr.errors", { r: g.errors.recurring, s: g.errors.resolved }))))),
+    note(t("gr.not_evidence"), "muted"));
 }
 
 const REL = {
@@ -427,7 +502,8 @@ async function screenWeak(main) {
             h("p", { class: "muted" }, `${e.count}× · ostatnio ${fmtDate(e.last_seen)} · trend: ${t.direction || "za mało danych"}`),
             e.skills.length ? h("div", {}, btn("Ćwicz to", () => startSession("drill", { target: String(i + 1), text_mode: defaultTextMode() }), "primary", "play")) : note("Brak materiałów do ćwiczeń dla tej kategorii.", "muted"));
         })) : null,
-        note("Trend pokazujemy dopiero przy co najmniej 5 wypowiedziach w obu okresach (14 dni).", "muted")),
+        note("Trend pokazujemy dopiero przy co najmniej 5 wypowiedziach w obu okresach (14 dni).", "muted"),
+        d.entries.length ? card(t("ws.entries"), h("div", { class: "weak-list" }, d.entries.map((e) => journalEntry(e)))) : null),
       h("div", { class: "stack" },
         d.weak_skills.length ? card("Umiejętności poniżej połowy", h("ul", { class: "mini-list" }, d.weak_skills.map((w) => h("li", {}, icon("weak", 20),
           h("div", {}, h("div", { class: "t" }, skillPl(w.skill)), h("div", { class: "s" }, `${w.correct}/${w.attempts} poprawnie`)),
@@ -435,6 +511,22 @@ async function screenWeak(main) {
         d.vocabulary.length ? card("Słowa do utrwalenia", table(["Słowo", "Pomyłki"], d.vocabulary.map((w) => [w.term, w.misses]))) : null,
         card("Niepewne rozpoznanie mowy", h("p", {}, `${d.stt_uncertain.count} — ${d.stt_uncertain.note}`)),
         d.due_reviews.length ? card("Do powtórki", h("p", {}, d.due_reviews.map(skillPl).join(", ")), btn("Zacznij powtórki", () => go("#/review"))) : null)));
+}
+
+function journalEntry(e) {
+  const review = async (verdict) => {
+    try { await api("/api/weakspots/review", { pid: S.pid, observation_id: e.id, verdict }); route(); } catch (err) { toast(err.message); }
+  };
+  const [cls] = e.kind === "stt_suspect" ? ["stt"] : e.confidence === "h" ? ["warn"] : ["none"];
+  return h("article", { class: `weak${e.counted ? "" : " struck"}` },
+    h("header", {}, h("strong", {}, catPl(e.category)), h("span", { class: `badge ${cls}` }, e.reliability)),
+    e.utterance ? h("p", {}, h("b", {}, t("ws.said") + ": "), h("span", { lang: "en" }, e.utterance)) : null,
+    h("p", { class: "example" }, fixLine(e.span, e.fix)), h("p", {}, e.explanation),
+    e.context ? h("p", { class: "muted" }, h("b", {}, t("ws.context") + ": "), h("span", { lang: "en" }, e.context)) : null,
+    h("p", { class: "muted" }, `${fmtDate(e.date)} · ${t("ws.source")}: ${e.source}` + (e.review_pl ? ` · ${e.review_pl}` : "") + (e.counted ? "" : ` · ${t("ws.not_counted")}`)),
+    h("div", { class: "row" }, e.counted ? [btn(t("ws.dispute"), () => review("disputed"), "sm quiet"), btn(t("ws.stt"), () => review("stt_error"), "sm quiet")]
+      : btn(t("ws.restore"), () => review("restored"), "sm quiet"),
+    e.counted && e.category ? btn(t("ws.drill"), () => startSession("drill", { target: e.category, text_mode: defaultTextMode() }), "sm", "play") : null));
 }
 
 async function screenExam(main) {
@@ -459,15 +551,16 @@ async function screenExam(main) {
 async function screenProgress(main) {
   const [p, hs, ac] = await Promise.all([q("/api/progress"), q("/api/history"), q("/api/achievements")]);
   await catalog();
-  const t = hs.totals;
+  const tot = hs.totals;
   const small = (n) => (n < 5 ? " (mała próba)" : "");
   const groups = [["mastered", "Opanowane", "amber"], ["working", "W toku", "green"], ["struggling", "Wymagają pracy", "terra"], ["too_few", "Za mało prób", "turq"]];
   const status = { ended: "zakończona", paused: "przerwana", active: "trwa", abandoned: "porzucona" };
   main.append(
     pageHead("Dziennik nauki", "Postępy", "Wszystko pochodzi z bazy na tym komputerze. Czas nauki to przybliżenie z odstępów między zapisami."),
+    growthSection(p.growth),
     h("div", { class: "stats" },
-      stat("Czas nauki", fmtMin(t.study_seconds)), stat("Sesje", t.sessions), stat("Ukończone lekcje", t.lessons_completed),
-      stat("Powtórki", t.reviews_done), stat("Twoje wypowiedzi", t.user_turns), stat("Odznaki", `${ac.earned}/${ac.total}`)),
+      stat("Czas nauki", fmtMin(tot.study_seconds)), stat("Sesje", tot.sessions), stat("Ukończone lekcje", tot.lessons_completed),
+      stat("Powtórki", tot.reviews_done), stat("Twoje wypowiedzi", tot.user_turns), stat("Odznaki", `${ac.earned}/${ac.total}`)),
     h("div", { class: "grid-2" },
       card("Umiejętności", ...groups.map(([k, label, tone]) => p.skills[k].length ? h("div", { class: "stack" },
         h("h3", { class: "card-title" }, chip(label, tone), h("span", { class: "muted" }, String(p.skills[k].length))),
@@ -592,7 +685,7 @@ async function screenSettings(main) {
 }
 
 // ---------- sesja ----------
-const KIND_TITLE = { chat: "Quick Chat", lesson: "Lekcja", placement: "Określ poziom", review: "Powtórki", drill: "Ćwiczenia słabej strony", exam: "Ćwiczenia egzaminacyjne" };
+const KIND_TITLE = { chat: "Quick Chat", lesson: "Lekcja", placement: "Szybkie dopasowanie", review: "Powtórki", drill: "Ćwiczenia słabej strony", exam: "Ćwiczenia egzaminacyjne", assessment: "Diagnoza", evals: "Dokończenie oceny" };
 const STATE_PL = { listening: "Słucham…", thinking: "Myślę…", speaking: "Mówię…", turn: "Twoja kolej", idle: "Sesja zakończona", connecting: "Łączę…",
   encouraging: "Spróbuj jeszcze raz", success: "Dobrze!", explaining: "Wyjaśniam", error: "Problem" };
 

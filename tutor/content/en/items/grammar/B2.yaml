@@ -1,4 +1,5 @@
 # Bank pilotażowy (AI-draft, niezweryfikowany przez człowieka). Zmiany statusu: tylko `main.py content review`.
+# F7: zadania diagnostyczne (AI-draft, Claude; status tylko przez solve-check/recenzję)
 - id: en.pilot.gram.b2.01
   lang: en
   skill_ids:
@@ -91,3 +92,128 @@
     reviewer: null
     reviewed_at: null
     notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka)'
+- id: en.f7.gram.b2.01
+  lang: en
+  skill_ids:
+  - en.gram.past_perfect
+  area: grammar
+  type: mc
+  cefr: B2
+  difficulty: -0.2
+  pools:
+  - diagnosis
+  domain: general
+  prompt: When we arrived at the station, the train ___.
+  stimulus: null
+  options:
+  - already left
+  - had already left
+  - has already left
+  - was already leaving
+  answers:
+  - had already left
+  explanation_pl: 'Wcześniejsze zdarzenie w przeszłości: past perfect.'
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: f7_diag.v1
+    created_at: '2026-11-26'
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.f7.gram.b2.02
+  lang: en
+  skill_ids:
+  - en.gram.wish_if_only
+  area: grammar
+  type: mc
+  cefr: B2
+  difficulty: 0.0
+  pools:
+  - diagnosis
+  domain: general
+  prompt: I wish I ___ more time to study yesterday.
+  stimulus: null
+  options:
+  - have
+  - had
+  - had had
+  - would have
+  answers:
+  - had had
+  explanation_pl: 'Żal o przeszłość: wish + past perfect.'
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: f7_diag.v1
+    created_at: '2026-11-26'
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: niezgodność z kluczem (sędzia niezwalidowany)'
+- id: en.f7.gram.b2.03
+  lang: en
+  skill_ids:
+  - en.gram.modals_deduction
+  area: grammar
+  type: mc
+  cefr: B2
+  difficulty: 0.2
+  pools:
+  - diagnosis
+  domain: general
+  prompt: She isn't answering her phone. She ___ be in the meeting.
+  stimulus: null
+  options:
+  - must
+  - mustn't
+  - can
+  - should to
+  answers:
+  - must
+  explanation_pl: 'Wnioskowanie o teraźniejszości: must be.'
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: f7_diag.v1
+    created_at: '2026-11-26'
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.f7.gram.b2.04
+  lang: en
+  skill_ids:
+  - en.gram.present_perfect_continuous
+  area: grammar
+  type: gap
+  cefr: B2
+  difficulty: 0.4
+  pools:
+  - diagnosis
+  domain: general
+  prompt: I'm exhausted. I ___ (work) since six o'clock this morning.
+  stimulus: null
+  options: null
+  answers:
+  - have been working
+  - '''ve been working'
+  explanation_pl: 'Czynność trwająca do teraz: have been + -ing.'
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: f7_diag.v1
+    created_at: '2026-11-26'
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'

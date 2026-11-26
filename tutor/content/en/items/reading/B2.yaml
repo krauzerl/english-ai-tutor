@@ -1,4 +1,5 @@
 # Bank pilotażowy (AI-draft, niezweryfikowany przez człowieka). Zmiany statusu: tylko `main.py content review`.
+# F7: zadania diagnostyczne (AI-draft, Claude; status tylko przez solve-check/recenzję)
 - id: en.pilot.read.b2.01
   lang: en
   skill_ids:
@@ -101,3 +102,68 @@
     reviewer: null
     reviewed_at: null
     notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka)'
+- id: en.f7.read.b2.01
+  lang: en
+  skill_ids:
+  - en.read.argument_structure
+  area: reading
+  type: reading_mc
+  cefr: B2
+  difficulty: 0.0
+  pools:
+  - diagnosis
+  domain: general
+  prompt: What is the writer's main argument?
+  stimulus: Remote work has clearly boosted individual productivity in many firms. Yet unless managers deliberately create opportunities for informal contact, team culture tends to erode, and new employees
+    find it hard to learn from colleagues.
+  options:
+  - Remote work should be banned
+  - Remote work helps productivity but harms team culture unless managed
+  - Offices are always more productive
+  - Workers prefer long commutes
+  answers:
+  - Remote work helps productivity but harms team culture unless managed
+  explanation_pl: 'Teza: produktywność rośnie, ale kultura zespołu cierpi bez zarządzania.'
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: f7_diag.v1
+    created_at: '2026-11-26'
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.f7.read.b2.02
+  lang: en
+  skill_ids:
+  - en.read.argument_structure
+  area: reading
+  type: reading_mc
+  cefr: B2
+  difficulty: 0.3
+  pools:
+  - diagnosis
+  domain: general
+  prompt: What does 'however' introduce in the text?
+  stimulus: Electric cars produce no exhaust fumes. However, the electricity they use is not always generated from clean sources.
+  options:
+  - An example
+  - A contrasting point
+  - A conclusion
+  - A definition
+  answers:
+  - A contrasting point
+  explanation_pl: However wprowadza kontrast.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: f7_diag.v1
+    created_at: '2026-11-26'
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'

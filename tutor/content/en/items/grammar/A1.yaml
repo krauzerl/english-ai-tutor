@@ -1,4 +1,5 @@
 # Bank pilotażowy (AI-draft, niezweryfikowany przez człowieka). Zmiany statusu: tylko `main.py content review`.
+# F7: zadania diagnostyczne (AI-draft, Claude; status tylko przez solve-check/recenzję)
 - id: en.pilot.gram.a1.01
   lang: en
   skill_ids:
@@ -728,6 +729,130 @@
     prompt_version: gen_item.v1
     created_at: '2026-11-22'
     refs: []
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.f7.gram.a1.01
+  lang: en
+  skill_ids:
+  - en.gram.present_simple
+  area: grammar
+  type: mc
+  cefr: A1
+  difficulty: -0.4
+  pools:
+  - diagnosis
+  domain: general
+  prompt: My sister ___ in a hospital.
+  stimulus: null
+  options:
+  - work
+  - works
+  - working
+  - is work
+  answers:
+  - works
+  explanation_pl: '3. os. l. poj. w present simple: works.'
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: f7_diag.v1
+    created_at: '2026-11-26'
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.f7.gram.a1.02
+  lang: en
+  skill_ids:
+  - en.gram.there_is_are
+  area: grammar
+  type: gap
+  cefr: A1
+  difficulty: -0.2
+  pools:
+  - diagnosis
+  domain: general
+  prompt: ___ two chairs in the kitchen.
+  stimulus: null
+  options: null
+  answers:
+  - There are
+  explanation_pl: 'Liczba mnoga: there are.'
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: f7_diag.v1
+    created_at: '2026-11-26'
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.f7.gram.a1.03
+  lang: en
+  skill_ids:
+  - en.gram.can_ability
+  area: grammar
+  type: mc
+  cefr: A1
+  difficulty: 0.0
+  pools:
+  - diagnosis
+  domain: general
+  prompt: ___ you swim?
+  stimulus: null
+  options:
+  - Do
+  - Can
+  - Are
+  - Does
+  answers:
+  - Can
+  explanation_pl: 'Pytanie o umiejętność: Can you…?'
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: f7_diag.v1
+    created_at: '2026-11-26'
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.f7.gram.a1.04
+  lang: en
+  skill_ids:
+  - en.gram.present_continuous
+  area: grammar
+  type: mc
+  cefr: A1
+  difficulty: 0.3
+  pools:
+  - diagnosis
+  domain: general
+  prompt: Look! The children ___ in the garden.
+  stimulus: null
+  options:
+  - play
+  - plays
+  - are playing
+  - is play
+  answers:
+  - are playing
+  explanation_pl: 'Czynność teraz: are + -ing.'
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: f7_diag.v1
+    created_at: '2026-11-26'
   review:
     status: ai_checked
     reviewer: null

@@ -21,6 +21,12 @@ DOMAINS = ["general", "grammar", "conversation", "tech_it", "interview"]
 STATUSES = ["draft", "ai_checked", "human_reviewed", "rejected", "suspect"]
 ITEM_TYPES = ["mc", "gap", "transform", "translate_pl", "reorder", "reading_mc", "listening_mc",
               "dictation", "open_write", "open_speak"]
+_YL = getattr(yaml, "CSafeLoader", yaml.SafeLoader)      # libyaml (C): ~5× szybciej niż czysty Python
+
+
+def _yload(text: str):
+    return yaml.load(text, Loader=_YL)  # noqa: S506 - CSafeLoader/SafeLoader (bez dowolnych obiektów)
+
 MC_TYPES = {"mc", "reading_mc", "listening_mc"}
 OPEN_TYPES = {"open_write", "open_speak"}
 PRODUCTIVE_TYPES = {"gap", "transform", "translate_pl", "reorder", "dictation"}
@@ -355,7 +361,7 @@ def load_pseudowords(root: Path | None = None, lang: str = "en") -> tuple[list[s
     p = (root or content_root()) / lang / "vocab" / "pseudowords.yaml"
     if not p.exists():
         return [], False
-    d = yaml.safe_load(p.read_text(encoding="utf-8"))
+    d = _yload(p.read_text(encoding="utf-8"))
     return list(d["words"]), (d.get("review") or {}).get("status") == "human_reviewed"
 
 
@@ -438,8 +444,8 @@ def _read_list(path: Path, rep: Report) -> list[tuple[int, dict]]:
         return []
     text = path.read_text(encoding="utf-8")
     try:
-        node = yaml.compose(text)
-        data = yaml.safe_load(text)
+        node = yaml.compose(text, Loader=_YL)
+        data = _yload(text)
     except yaml.YAMLError as e:
         rep.errors.append(f"{path.name}: niepoprawny YAML: {e}")
         return []
@@ -456,7 +462,7 @@ def _read_map(path: Path, rep: Report) -> dict:
         rep.errors.append(f"brak pliku {path.name}")
         return {}
     try:
-        data = yaml.safe_load(path.read_text(encoding="utf-8"))
+        data = _yload(path.read_text(encoding="utf-8"))
     except yaml.YAMLError as e:
         rep.errors.append(f"{path.name}: niepoprawny YAML: {e}")
         return {}
@@ -482,7 +488,7 @@ def _split_front(text: str) -> tuple[dict, str]:
     m = re.match(r"---\n(.*?)\n---\n(.*)", text, re.S)
     if not m:
         return {}, text
-    return yaml.safe_load(m.group(1)) or {}, m.group(2)
+    return _yload(m.group(1)) or {}, m.group(2)
 
 
 def _load_pack(lang: str, root: Path, rep: Report) -> Pack:
@@ -996,7 +1002,7 @@ def _patch_item(pack: Pack, item_id: str, mutate) -> None:
     path, _ = pack.item_files[item_id]
     text = path.read_text(encoding="utf-8")
     header = "".join(ln for ln in text.splitlines(keepends=True) if ln.startswith("#"))
-    data = yaml.safe_load(text)
+    data = _yload(text)
     for d in data:
         if d["id"] == item_id:
             mutate(d)
@@ -1047,7 +1053,7 @@ def review_targets(pack: Pack, kinds: tuple[str, ...] = ("explanations", "scenar
 def _patch_front(path: Path, mutate) -> None:
     text = path.read_text(encoding="utf-8")
     m = re.match(r"---\n(.*?)\n---\n(.*)", text, re.S)
-    fm = yaml.safe_load(m.group(1))
+    fm = _yload(m.group(1))
     mutate(fm)
     tmp = path.with_suffix(".tmp")
     tmp.write_text("---\n" + yaml.safe_dump(fm, allow_unicode=True, sort_keys=False, width=200) + "---\n"
@@ -1058,7 +1064,7 @@ def _patch_front(path: Path, mutate) -> None:
 def _patch_map(path: Path, mutate) -> None:
     text = path.read_text(encoding="utf-8")
     header = "".join(ln for ln in text.splitlines(keepends=True) if ln.startswith("#"))
-    d = yaml.safe_load(text)
+    d = _yload(text)
     mutate(d)
     tmp = path.with_suffix(".tmp")
     tmp.write_text(header + yaml.safe_dump(d, allow_unicode=True, sort_keys=False, width=200), encoding="utf-8")
@@ -1068,7 +1074,7 @@ def _patch_map(path: Path, mutate) -> None:
 def _patch_list_file(path: Path, doc_id: str, mutate, key: str = "id") -> None:
     text = path.read_text(encoding="utf-8")
     header = "".join(ln for ln in text.splitlines(keepends=True) if ln.startswith("#"))
-    data = yaml.safe_load(text)
+    data = _yload(text)
     for d in data:
         if d[key] == doc_id:
             mutate(d)
@@ -1096,7 +1102,7 @@ def set_review_doc(pack: Pack, kind: str, doc_id: str, status: str, *, reviewer:
         _patch_front(pack.root / doc_id, lambda fm: fm.__setitem__("review", rv))
     elif kind == "scenario":
         f = next(f for f in (pack.root / "scenarios").glob("*.yaml")
-                 if (yaml.safe_load(f.read_text(encoding="utf-8")) or {}).get("id") == doc_id)
+                 if (_yload(f.read_text(encoding="utf-8")) or {}).get("id") == doc_id)
         _patch_map(f, lambda d: d.__setitem__("review", rv))
     elif kind == "phrase":
         _patch_list_file(pack.root / "phrases.yaml", doc_id, lambda d: d.__setitem__("review", rv))
@@ -1124,7 +1130,7 @@ def append_draft(pack: Pack, item: dict) -> str:
     path.parent.mkdir(parents=True, exist_ok=True)
     text = path.read_text(encoding="utf-8") if path.exists() else ""
     header = "".join(ln for ln in text.splitlines(keepends=True) if ln.startswith("#"))
-    data = (yaml.safe_load(text) if text else None) or []
+    data = (_yload(text) if text else None) or []
     data.append(item)
     path.write_text(header + yaml.safe_dump(data, allow_unicode=True, sort_keys=False, width=200),
                     encoding="utf-8")

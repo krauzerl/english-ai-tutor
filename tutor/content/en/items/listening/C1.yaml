@@ -1,4 +1,5 @@
 # Bank pilotażowy (AI-draft, niezweryfikowany przez człowieka). Zmiany statusu: tylko `main.py content review`.
+# F7: zadania diagnostyczne (AI-draft, Claude; status tylko przez solve-check/recenzję)
 - id: en.pilot.listen.c1.01
   lang: en
   skill_ids:
@@ -95,3 +96,67 @@
     reviewer: null
     reviewed_at: null
     notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka)'
+- id: en.f7.listen.c1.01
+  lang: en
+  skill_ids:
+  - en.listen.fast_speech_inference
+  area: listening
+  type: listening_mc
+  cefr: C1
+  difficulty: 0.0
+  pools:
+  - diagnosis
+  domain: general
+  prompt: What can we infer about the speaker?
+  stimulus: null
+  options:
+  - He enjoyed the conference
+  - He was disappointed by the conference
+  - He organised the conference
+  - He didn't attend the conference
+  answers:
+  - He was disappointed by the conference
+  explanation_pl: ‘Could have been an email’ = rozczarowanie.
+  audio_text: Well, three days, twenty talks, and most of it could've been an email, to be honest. At least the coffee was decent.
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: f7_diag.v1
+    created_at: '2026-11-26'
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.f7.listen.c1.02
+  lang: en
+  skill_ids:
+  - en.listen.fast_speech_inference
+  area: listening
+  type: listening_mc
+  cefr: C1
+  difficulty: 0.3
+  pools:
+  - diagnosis
+  domain: general
+  prompt: What is the speaker suggesting?
+  stimulus: null
+  options:
+  - They should hire more staff
+  - The deadline is unrealistic
+  - The project is finished
+  - They need a bigger office
+  answers:
+  - The deadline is unrealistic
+  explanation_pl: Moving the goalposts / nobody can do it by Friday.
+  audio_text: Look, I'm all for ambition, but if anyone thinks this'll be tested, documented and shipped by Friday, they're living on another planet.
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: f7_diag.v1
+    created_at: '2026-11-26'
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'

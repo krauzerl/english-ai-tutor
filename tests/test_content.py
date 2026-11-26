@@ -30,13 +30,13 @@ def tmp_root(tmp_path):
 def test_content_validates_clean():  # DoD F3
     rep = C.validate("en")
     assert rep.ok, rep.errors
-    assert rep.n_skills >= 80 and rep.n_items == 60 + 84   # F3 + pilotaż F4.6 (84)
+    assert rep.n_skills >= 80 and rep.n_items == 60 + 84 + 60   # F3 + pilotaż F4.6 (84) + diagnoza F7 (60)
 
 
 def test_content_1_items_schema_and_pilot_shape(pack):  # T-CONTENT-1
     cells = {}
     for i in pack.items.values():
-        if i.id.startswith("en.f46."):   # pilotaż F4.6 ma własny test (T-CONTENT-7)
+        if i.id.startswith(("en.f46.", "en.f7.")):   # pilotaż F4.6 i diagnoza F7 mają własne testy
             continue
         assert i.skill_ids and all(s in pack.skills for s in i.skill_ids)
         assert i.review.status in C.STATUSES and i.answers
@@ -253,3 +253,15 @@ def test_solve_check_agree_disagree(tmp_root):
 
 def test_gen_items_refuses_mass_generation(capsys):
     assert gen_items.main(["en", "--skill", "x", "--n", "50"]) == 1
+
+
+def test_f7_diagnostic_items_are_ai_drafts_with_honest_status():
+    pack = C.load("en")
+    f7 = [i for i in pack.items.values() if i.id.startswith("en.f7.")]
+    assert len(f7) == 60 and all(i.pools == ["diagnosis"] for i in f7)
+    assert all(i.provenance.source == "ai_generated" and i.review.status in ("draft", "ai_checked") for i in f7)
+    assert not any(i.review.status == "human_reviewed" for i in f7)           # AI ≠ recenzja człowieka
+    for area in ("grammar", "vocabulary", "reading", "listening"):
+        for lv in C.CEFR_LEVELS[:5]:
+            assert any(i.area == area and i.cefr == lv for i in f7), (area, lv)
+    assert all(i.audio_text for i in f7 if i.type == "listening_mc")

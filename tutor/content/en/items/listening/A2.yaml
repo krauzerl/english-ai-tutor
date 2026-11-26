@@ -1,4 +1,5 @@
 # Bank pilotażowy (AI-draft, niezweryfikowany przez człowieka). Zmiany statusu: tylko `main.py content review`.
+# F7: zadania diagnostyczne (AI-draft, Claude; status tylko przez solve-check/recenzję)
 - id: en.pilot.listen.a2.01
   lang: en
   skill_ids:
@@ -94,3 +95,67 @@
     reviewer: null
     reviewed_at: null
     notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka)'
+- id: en.f7.listen.a2.01
+  lang: en
+  skill_ids:
+  - en.listen.short_dialogues
+  area: listening
+  type: listening_mc
+  cefr: A2
+  difficulty: 0.0
+  pools:
+  - diagnosis
+  domain: general
+  prompt: Where are the speakers?
+  stimulus: null
+  options:
+  - In a shop
+  - In a restaurant
+  - At a station
+  - In a hospital
+  answers:
+  - In a restaurant
+  explanation_pl: Menu, order, dessert = restauracja.
+  audio_text: Are you ready to order? — Yes, I'll have the soup, please. And could we see the dessert menu later?
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: f7_diag.v1
+    created_at: '2026-11-26'
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.f7.listen.a2.02
+  lang: en
+  skill_ids:
+  - en.listen.short_dialogues
+  area: listening
+  type: listening_mc
+  cefr: A2
+  difficulty: 0.3
+  pools:
+  - diagnosis
+  domain: general
+  prompt: What time does the film start?
+  stimulus: null
+  options:
+  - At seven
+  - At half past seven
+  - At eight
+  - At quarter to eight
+  answers:
+  - At half past seven
+  explanation_pl: Half past seven = 7:30.
+  audio_text: Let's meet at seven. The film starts at half past seven, so we'll have time to buy tickets.
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: f7_diag.v1
+    created_at: '2026-11-26'
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'

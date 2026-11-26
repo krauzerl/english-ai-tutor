@@ -366,6 +366,35 @@ class Repo:
             " AND (? IS NULL OR created_at>=?) AND (? IS NULL OR status=?) ORDER BY id",
             (profile_id, session_id, session_id, since, since, status, status)))
 
+    # --- przegląd korekt przez ucznia (F7) ---
+    def add_observation_review(self, profile_id: int, observation_id: int, verdict: str,
+                               note: str | None = None) -> int:
+        """Nowy wpis (historia zostaje). Obserwacja musi należeć do profilu."""
+        if not self.conn.execute("SELECT 1 FROM observation WHERE id=? AND profile_id=?",
+                                 (observation_id, profile_id)).fetchone():
+            raise ValueError("observation not found for profile")
+        return self.conn.execute(
+            "INSERT INTO observation_review(profile_id,observation_id,verdict,note) VALUES (?,?,?,?)",
+            (profile_id, observation_id, verdict, note)).lastrowid
+
+    def observation_reviews(self, profile_id: int) -> dict[int, dict]:
+        """{observation_id: ostatni wpis przeglądu} (ostatni wygrywa)."""
+        out: dict[int, dict] = {}
+        for r in _rows(self.conn.execute(
+                "SELECT * FROM observation_review WHERE profile_id=? ORDER BY id", (profile_id,))):
+            out[r["observation_id"]] = r
+        return out
+
+    def rejected_observation_ids(self, profile_id: int) -> set[int]:
+        return {k for k, v in self.observation_reviews(profile_id).items() if v["verdict"] in ("disputed", "stt_error")}
+
+    def delete_error_log_except(self, profile_id: int, keep: set[tuple[str, str | None]]) -> None:
+        """Rejestr błędów to stan pochodny: wpisy bez żadnej ważnej obserwacji znikają (ślad zostaje w
+        `observation` + `observation_review`)."""
+        for r in self.list_errors(profile_id):
+            if (r["category"], r["skill_id"]) not in keep:
+                self.conn.execute("DELETE FROM error_log WHERE id=? AND profile_id=?", (r["id"], profile_id))
+
     # --- rejestr błędów ---
     def put_error_log(self, profile_id: int, category: str, skill_id: str | None, *, count: int, status: str,
                       severity_max: int, reopened: int, example: str | None, correction: str | None,

@@ -1,4 +1,5 @@
 # Bank pilotażowy (AI-draft, niezweryfikowany przez człowieka). Zmiany statusu: tylko `main.py content review`.
+# F7: zadania diagnostyczne (AI-draft, Claude; status tylko przez solve-check/recenzję)
 - id: en.pilot.gram.a2.01
   lang: en
   skill_ids:
@@ -299,6 +300,130 @@
     prompt_version: gen_item.v1
     created_at: '2026-11-22'
     refs: []
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.f7.gram.a2.01
+  lang: en
+  skill_ids:
+  - en.gram.past_simple_neg_q
+  area: grammar
+  type: mc
+  cefr: A2
+  difficulty: -0.3
+  pools:
+  - diagnosis
+  domain: general
+  prompt: ___ you see the match last night?
+  stimulus: null
+  options:
+  - Do
+  - Did
+  - Were
+  - Have
+  answers:
+  - Did
+  explanation_pl: 'Pytanie w past simple: Did + bezokolicznik.'
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: f7_diag.v1
+    created_at: '2026-11-26'
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.f7.gram.a2.02
+  lang: en
+  skill_ids:
+  - en.gram.comparatives
+  area: grammar
+  type: gap
+  cefr: A2
+  difficulty: 0.0
+  pools:
+  - diagnosis
+  domain: general
+  prompt: This phone is ___ (cheap) than my old one.
+  stimulus: null
+  options: null
+  answers:
+  - cheaper
+  explanation_pl: 'Stopień wyższy krótkiego przymiotnika: -er.'
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: f7_diag.v1
+    created_at: '2026-11-26'
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.f7.gram.a2.03
+  lang: en
+  skill_ids:
+  - en.gram.have_to_must
+  area: grammar
+  type: mc
+  cefr: A2
+  difficulty: 0.2
+  pools:
+  - diagnosis
+  domain: general
+  prompt: You ___ wear a seatbelt in a car. It's the law.
+  stimulus: null
+  options:
+  - have to
+  - don't have to
+  - can
+  - would
+  answers:
+  - have to
+  explanation_pl: 'Obowiązek: have to.'
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: f7_diag.v1
+    created_at: '2026-11-26'
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.f7.gram.a2.04
+  lang: en
+  skill_ids:
+  - en.gram.countable_uncountable
+  area: grammar
+  type: mc
+  cefr: A2
+  difficulty: 0.4
+  pools:
+  - diagnosis
+  domain: general
+  prompt: How ___ water do you drink every day?
+  stimulus: null
+  options:
+  - many
+  - much
+  - few
+  - lot
+  answers:
+  - much
+  explanation_pl: 'Water jest niepoliczalne: how much.'
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: f7_diag.v1
+    created_at: '2026-11-26'
   review:
     status: ai_checked
     reviewer: null

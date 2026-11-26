@@ -30,7 +30,7 @@ from tutor.store.repo import Repo
 STATIC = Path(__file__).parent / "static"
 MAX_BODY = 64 * 1024
 MAX_TEXT = 500
-KINDS = ("chat", "lesson", "placement", "review", "drill", "exam", "evals")
+KINDS = ("chat", "lesson", "placement", "review", "drill", "exam", "evals", "assessment")
 
 
 class BadRequest(Exception):
@@ -120,14 +120,21 @@ def session_argv(api: TutorAPI, pid: int, kind: str, args: dict) -> list[str]:
             argv.append("--lesson")
     elif kind == "placement":
         argv.append("--placement")
+    elif kind == "assessment":
+        from tutor.app import diagnostic as DG
+        areas = args.get("areas") or list(DG.AREAS)
+        if not isinstance(areas, list) or not areas or any(a not in DG.AREAS for a in areas):
+            raise BadRequest(f"areas: {', '.join(DG.AREAS)}")
+        argv.append("--assess=" + ",".join(dict.fromkeys(areas)))
     elif kind == "evals":                                   # dokończenie oczekujących ocen (ten sam silnik co CLI)
         argv.append("--finish-evals")
     elif kind == "review":
         argv.append("--review")
     elif kind == "drill":
         target = str(args.get("target") or "")
-        if not ((target.isdigit() and 1 <= int(target) <= 99) or target in api.pack(pid).skills):
-            raise BadRequest("drill: numer wpisu z dziennika albo umiejętność")
+        if not ((target.isdigit() and 1 <= int(target) <= 99) or target in api.pack(pid).skills
+                or target in api.pack(pid).errors.ids()):
+            raise BadRequest("drill: numer wpisu z dziennika, kategoria błędu albo umiejętność")
         argv.append(f"--drill={target}")
     elif kind == "exam":
         path = args.get("path")
@@ -187,6 +194,7 @@ class App:
             if path == "/api/lessons":
                 return {"suggestion": api.lesson_suggestion(pid), "catalog": api.lesson_catalog(pid)}
             simple = {"/api/placement": api.placement_info, "/api/progress": api.progress,
+                      "/api/assessment": api.assessment,
                       "/api/weakspots": api.weakspots, "/api/achievements": api.achievements,
                       "/api/history": api.history, "/api/exams": api.exam_paths, "/api/settings": api.settings,
                       "/api/chats": api.chat_history}
@@ -220,6 +228,11 @@ class App:
             if path == "/api/profiles/select":
                 config.set_last_profile(pid)
                 return {"ok": True}
+            if path == "/api/weakspots/review":
+                verdict = str(body.get("verdict", ""))
+                if verdict not in ("disputed", "stt_error", "restored"):
+                    raise BadRequest("verdict: disputed, stt_error, restored")
+                return api.review_observation(pid, int(body.get("observation_id", 0)), verdict)
             if path == "/api/settings":
                 ch = body.get("changes")
                 if not isinstance(ch, dict):

@@ -1,4 +1,5 @@
 # Bank pilotażowy (AI-draft, niezweryfikowany przez człowieka). Zmiany statusu: tylko `main.py content review`.
+# F7: zadania diagnostyczne (AI-draft, Claude; status tylko przez solve-check/recenzję)
 - id: en.pilot.listen.b1.01
   lang: en
   skill_ids:
@@ -95,3 +96,67 @@
     reviewer: null
     reviewed_at: null
     notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka)'
+- id: en.f7.listen.b1.01
+  lang: en
+  skill_ids:
+  - en.listen.announcements_gist
+  area: listening
+  type: listening_mc
+  cefr: B1
+  difficulty: 0.0
+  pools:
+  - diagnosis
+  domain: general
+  prompt: What should passengers do?
+  stimulus: null
+  options:
+  - Go to platform three
+  - Wait for the next train
+  - Take a bus to the next station
+  - Buy new tickets
+  answers:
+  - Take a bus to the next station
+  explanation_pl: Replacement bus.
+  audio_text: Because of work on the line, there are no trains between here and Gdynia today. Please take the replacement bus outside the main entrance to the next station.
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: f7_diag.v1
+    created_at: '2026-11-26'
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.f7.listen.b1.02
+  lang: en
+  skill_ids:
+  - en.listen.announcements_gist
+  area: listening
+  type: listening_mc
+  cefr: B1
+  difficulty: 0.3
+  pools:
+  - diagnosis
+  domain: general
+  prompt: Why is the museum closing early?
+  stimulus: null
+  options:
+  - Because of a private event
+  - Because of bad weather
+  - Because of a power cut
+  - Because it's a holiday
+  answers:
+  - Because of a private event
+  explanation_pl: Private event this evening.
+  audio_text: Good afternoon, visitors. Please note that the museum will close at four o'clock today, an hour earlier than usual, because of a private event this evening.
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: f7_diag.v1
+    created_at: '2026-11-26'
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'

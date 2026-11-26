@@ -1,4 +1,5 @@
 # Bank pilotażowy (AI-draft, niezweryfikowany przez człowieka). Zmiany statusu: tylko `main.py content review`.
+# F7: zadania diagnostyczne (AI-draft, Claude; status tylko przez solve-check/recenzję)
 - id: en.pilot.listen.b2.01
   lang: en
   skill_ids:
@@ -94,3 +95,67 @@
     reviewer: null
     reviewed_at: null
     notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka)'
+- id: en.f7.listen.b2.01
+  lang: en
+  skill_ids:
+  - en.listen.opinions_detail
+  area: listening
+  type: listening_mc
+  cefr: B2
+  difficulty: 0.0
+  pools:
+  - diagnosis
+  domain: general
+  prompt: What is the speaker's opinion about the new app?
+  stimulus: null
+  options:
+  - It's perfect
+  - It's useful but the design is confusing
+  - It's useless
+  - It's too expensive
+  answers:
+  - It's useful but the design is confusing
+  explanation_pl: Useful features, confusing layout.
+  audio_text: Honestly, the new app has some really useful features, like offline maps. But the menus are so confusing that I spent ten minutes looking for the settings.
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: f7_diag.v1
+    created_at: '2026-11-26'
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.f7.listen.b2.02
+  lang: en
+  skill_ids:
+  - en.listen.opinions_detail
+  area: listening
+  type: listening_mc
+  cefr: B2
+  difficulty: 0.3
+  pools:
+  - diagnosis
+  domain: general
+  prompt: Why didn't the speaker take the job?
+  stimulus: null
+  options:
+  - The salary was too low
+  - The commute was too long
+  - She didn't like the team
+  - The company closed
+  answers:
+  - The commute was too long
+  explanation_pl: Two hours each way.
+  audio_text: The salary was actually better than in my current job, and the team seemed lovely. But it would have meant two hours on the train each way, and I just couldn't face that.
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: f7_diag.v1
+    created_at: '2026-11-26'
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'

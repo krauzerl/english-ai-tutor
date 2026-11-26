@@ -1,4 +1,5 @@
 # Bank pilotażowy (AI-draft, niezweryfikowany przez człowieka). Zmiany statusu: tylko `main.py content review`.
+# F7: zadania diagnostyczne (AI-draft, Claude; status tylko przez solve-check/recenzję)
 - id: en.pilot.read.a1.01
   lang: en
   skill_ids:
@@ -98,3 +99,67 @@
     reviewer: null
     reviewed_at: null
     notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka)'
+- id: en.f7.read.a1.01
+  lang: en
+  skill_ids:
+  - en.read.signs_notices
+  area: reading
+  type: reading_mc
+  cefr: A1
+  difficulty: 0.2
+  pools:
+  - diagnosis
+  domain: general
+  prompt: What does the sign mean?
+  stimulus: 'NO SWIMMING. DANGER: DEEP WATER.'
+  options:
+  - You can swim here
+  - Swimming is not allowed
+  - The pool is open
+  - Swim only with a teacher
+  answers:
+  - Swimming is not allowed
+  explanation_pl: No swimming = zakaz pływania.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: f7_diag.v1
+    created_at: '2026-11-26'
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.f7.read.a1.02
+  lang: en
+  skill_ids:
+  - en.read.signs_notices
+  area: reading
+  type: reading_mc
+  cefr: A1
+  difficulty: 0.4
+  pools:
+  - diagnosis
+  domain: general
+  prompt: When is the shop closed?
+  stimulus: OPENING HOURS. Monday–Friday 9–18. Saturday 10–14. Sunday closed.
+  options:
+  - On Saturday
+  - On Sunday
+  - On Monday morning
+  - Every evening
+  answers:
+  - On Sunday
+  explanation_pl: 'Sunday: closed.'
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: f7_diag.v1
+    created_at: '2026-11-26'
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'

@@ -13,6 +13,7 @@ from tutor.pedagogy.content import Pack
 
 def _candidates(repo, pack: Pack, pid: int, sid: int, goals: set[str], skip: set[int]) -> list[tuple[K.Candidate, str]]:
     out = []
+    skip = set(skip) | repo.rejected_observation_ids(pid)          # F7: zakwestionowane przez ucznia
     for o in repo.list_observations(pid, sid, status="valid"):
         if o["kind"] not in ("error", "stt_suspect") or o["confidence"] != "h" or not o["fix"] or o["id"] in skip:
             continue

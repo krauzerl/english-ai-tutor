@@ -93,8 +93,11 @@ def _recompute_skill(repo: Repo, pack: Pack, profile_id: int, skill_id: str, now
 
 def _recompute_errors(repo: Repo, pack: Pack, profile_id: int, now: datetime) -> list[dict]:
     """error_log z obserwacji (nadpisuje stan pochodny). Zwraca przejścia statusów."""
-    obs = repo.list_observations(profile_id, status="valid")
+    rejected = repo.rejected_observation_ids(profile_id)       # F7: zakwestionowane / błąd STT nie liczą się
+    obs = [o for o in repo.list_observations(profile_id, status="valid") if o["id"] not in rejected]
     agg = E.aggregate(obs, now, pack.rubric)
+    if rejected:
+        repo.delete_error_log_except(profile_id, set(agg))
     existing = {(r["category"], r["skill_id"]): r for r in repo.list_errors(profile_id)}
     events = []
     for (cat, sid), g in agg.items():
@@ -115,6 +118,17 @@ def _recompute_errors(repo: Repo, pack: Pack, profile_id: int, now: datetime) ->
         if status != prev:
             events.append({"category": cat, "from": prev, "to": status})
     return events
+
+
+def review_observation(repo: Repo, pack: Pack, profile_id: int, observation_id: int, verdict: str,
+                       now: datetime, note: str | None = None) -> None:
+    """Uczeń kwestionuje korektę (`disputed`), oznacza błąd rozpoznania mowy (`stt_error`) albo cofa to
+    (`restored`). Historia zostaje; rejestr błędów (stan pochodny) liczony od nowa w tej samej transakcji."""
+    if verdict not in ("disputed", "stt_error", "accepted", "restored"):
+        raise ValueError(verdict)
+    with repo.transaction():
+        repo.add_observation_review(profile_id, observation_id, verdict, note)
+        _recompute_errors(repo, pack, profile_id, now)
 
 
 def _opportunity_sessions(repo: Repo, profile_id: int, cat: str, sid: str | None, obs: list[dict]) -> list[dict]:

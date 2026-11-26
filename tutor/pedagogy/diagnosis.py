@@ -100,13 +100,19 @@ def start(pack: Pack, area: str, mode: str, seed: int) -> dict:
     return {"area": area, "mode": mode, "seed": seed, "asked": [], "elapsed_min": 0.0}
 
 
+def _prior(state: dict) -> tuple[float, float] | None:
+    """F7: prior obszaru z wyników innych obszarów tej samej diagnozy (`state["prior"]`), inaczej domyślny."""
+    p = state.get("prior")
+    return (float(p[0]), float(p[1])) if p else None
+
+
 def next_item(state: dict, items: list[ItemLike], rubric: Rubric) -> ItemLike | None:
-    """Zadanie o `b` najbliższym średniej a posteriori; remis losowo (ziarno ze stanu)."""
+    """Zadanie o `b` najbliższym średniej a posteriori (maksimum informacji); remis losowo (ziarno ze stanu)."""
     used = {a["id"] for a in state["asked"]}
     cands = [i for i in items if i.id not in used]
     if not cands:
         return None
-    mean = stats(posterior(state["asked"], rubric), rubric)["mean"]
+    mean = stats(posterior(state["asked"], rubric, _prior(state)), rubric)["mean"]
     dist = {i.id: abs(item_b(i, rubric) - mean) for i in cands}
     best = min(dist.values())
     ties = sorted((i for i in cands if dist[i.id] - best < 1e-9), key=lambda i: i.id)
@@ -125,7 +131,7 @@ def stop_reason(state: dict, rubric: Rubric) -> str | None:
         return "max_items"
     if state["elapsed_min"] >= d["time_limit_min"]:
         return "time_limit"
-    if n >= d["min_items"] and stats(posterior(state["asked"], rubric), rubric)["sd"] < d["stop_sd"]:
+    if n >= d["min_items"] and stats(posterior(state["asked"], rubric, _prior(state)), rubric)["sd"] < d["stop_sd"]:
         return "precision"
     return None
 
@@ -154,7 +160,7 @@ class Result:
 def result(state: dict, rubric: Rubric) -> Result:
     d = rubric.diagnosis
     asked = state["asked"]
-    s = stats(posterior(asked, rubric), rubric)
+    s = stats(posterior(asked, rubric, _prior(state)), rubric)
     top = level_index(d["top_level"])
     recent = asked[-d["recent_window"]:]
     right = sum(a["correct"] for a in recent)

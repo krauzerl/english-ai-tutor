@@ -1,4 +1,5 @@
 # Bank pilotażowy (AI-draft, niezweryfikowany przez człowieka). Zmiany statusu: tylko `main.py content review`.
+# F7: zadania diagnostyczne (AI-draft, Claude; status tylko przez solve-check/recenzję)
 - id: en.pilot.read.b1.01
   lang: en
   skill_ids:
@@ -100,3 +101,67 @@
     reviewer: null
     reviewed_at: null
     notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka)'
+- id: en.f7.read.b1.01
+  lang: en
+  skill_ids:
+  - en.read.articles_gist
+  area: reading
+  type: reading_mc
+  cefr: B1
+  difficulty: 0.0
+  pools:
+  - diagnosis
+  domain: general
+  prompt: What is the main idea of the text?
+  stimulus: Since the city opened forty kilometres of new bike lanes two years ago, the number of people cycling to work has doubled. Local shops near the lanes also report more customers.
+  options:
+  - Cycling is dangerous in cities
+  - More people cycle to work since the city built bike lanes
+  - Cars are cheaper than bikes
+  - The city closed several roads
+  answers:
+  - More people cycle to work since the city built bike lanes
+  explanation_pl: 'Główna myśl: nowe ścieżki = więcej rowerzystów.'
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: f7_diag.v1
+    created_at: '2026-11-26'
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.f7.read.b1.02
+  lang: en
+  skill_ids:
+  - en.read.articles_gist
+  area: reading
+  type: reading_mc
+  cefr: B1
+  difficulty: 0.3
+  pools:
+  - diagnosis
+  domain: general
+  prompt: According to the text, why do people choose online courses?
+  stimulus: A recent survey found that most adults who take online courses do so because of the flexible timetable. Price was the second most important reason, while the quality of teaching came only fifth.
+  options:
+  - They are always free
+  - They can study when it suits them
+  - Teachers are better online
+  - They get a degree faster
+  answers:
+  - They can study when it suits them
+  explanation_pl: Flexible timetable.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: f7_diag.v1
+    created_at: '2026-11-26'
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'

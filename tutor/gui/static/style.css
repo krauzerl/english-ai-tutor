@@ -487,3 +487,18 @@ form.settings { display: grid; grid-template-columns: repeat(auto-fill, minmax(2
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
+
+/* F7: diagnoza, wzrost, dziennik */
+.checks { display: grid; gap: 6px; margin: 8px 0 12px; }
+.growth-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+.growth h3 { margin: 0 0 4px; text-transform: capitalize; }
+.trend { font-weight: 600; margin: 0 0 6px; }
+.trend.up { color: var(--primary-dark); } .trend.down { color: var(--terra-dark); } .trend.insufficient { color: var(--paper-muted); font-weight: 400; }
+.chart { width: 100%; max-width: 360px; height: auto; display: block; }
+.chart .grid { stroke: var(--paper-3); stroke-width: 1; }
+.chart .axis { font: 10px var(--mono); fill: var(--paper-muted); }
+.chart .band { fill: var(--turq); opacity: .25; }
+.chart .line { fill: none; stroke: var(--turq-ink); stroke-width: 2; }
+.chart .dot { fill: var(--turq-ink); }
+.weak.struck { opacity: .6; }
+.weak.struck .example { text-decoration: line-through; }

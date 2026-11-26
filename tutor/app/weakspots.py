@@ -43,8 +43,47 @@ def _trend(repo, pid: int, obs: list[dict], now: datetime) -> dict:
     return {**out, "direction": "poprawa" if a < b else "pogorszenie" if a > b else "bez zmian"}
 
 
+SOURCE_PL = {"turn_eval.v3": "ocena wypowiedzi (model)"}
+VERDICT_PL = {"disputed": "zakwestionowane przez Ciebie", "stt_error": "oznaczone jako błąd rozpoznania mowy",
+              "accepted": "potwierdzone przez Ciebie", "restored": "przywrócone"}
+
+
+def entries(repo, pack: C.Pack, pid: int, limit: int = 60) -> list[dict]:
+    """Wpisy dziennika: wypowiedź, kontekst (poprzednia kwestia tutora), korekta, kategoria, wiarygodność, data,
+    źródło oceny, wyjaśnienie dopasowane do edycji i stan przeglądu przez ucznia. Najnowsze pierwsze."""
+    from tutor.app.feedback import explain_edit
+    reviews = repo.observation_reviews(pid)
+    out = []
+    obs = [o for o in repo.list_observations(pid, status="valid")
+           if o["kind"] in ("error", "stt_suspect") and o["fix"]][-limit:]
+    turns: dict[int, list[dict]] = {}
+    for o in reversed(obs):
+        sess = turns.setdefault(o["session_id"], repo.list_turns(pid, o["session_id"]))
+        idx = next((k for k, t in enumerate(sess) if t["id"] == o["turn_id"]), None)
+        utt = sess[idx] if idx is not None else None
+        ctx = next((t["text"] for t in reversed(sess[:idx or 0]) if t["role"] == "assistant"), None)
+        rv = reviews.get(o["id"])
+        if o["kind"] == "stt_suspect":
+            rel = "niepewna transkrypcja STT"
+        elif o["confidence"] == "h":
+            rel = "sugestia modelu (wysoka pewność)"
+        else:
+            rel = "sugestia modelu (niska pewność)"
+        out.append({"id": o["id"], "utterance": utt["text"] if utt else None,
+                    "input": utt["input_mode"] if utt else None, "context": ctx, "span": o["span"], "fix": o["fix"],
+                    "category": o["category"], "kind": o["kind"], "confidence": o["confidence"], "reliability": rel,
+                    "date": o["created_at"], "source": SOURCE_PL.get(o["prompt_version"] or "", "ocena wypowiedzi")
+                    + (f" · {o['model']}" if o["model"] else ""),
+                    "explanation": explain_edit(pack, o["span"], o["fix"], o["category"] or ""),
+                    "review": rv["verdict"] if rv else None,
+                    "review_pl": VERDICT_PL.get(rv["verdict"]) if rv else None,
+                    "counted": not (rv and rv["verdict"] in ("disputed", "stt_error"))})
+    return out
+
+
 def build(repo, pack: C.Pack, pid: int, now: datetime) -> dict:
-    obs = [o for o in repo.list_observations(pid, status="valid") if o["category"]]
+    rejected = repo.rejected_observation_ids(pid)                 # F7: zakwestionowane nie są słabą stroną
+    obs = [o for o in repo.list_observations(pid, status="valid") if o["category"] and o["id"] not in rejected]
     errors = []
     wrong = [(h, s) for s in repo.list_skill_states(pid) for h in repo.attempt_history(pid, s["skill_id"])
              if not h["correct"]]
@@ -68,7 +107,8 @@ def build(repo, pack: C.Pack, pid: int, now: datetime) -> dict:
                        "example": e["example"], "correction": e["correction"], "skills": skills,
                        "trend": _trend(repo, pid, mine, now), "first_seen": e["first_seen"],
                        "last_seen": e["last_seen"], "confirmed_by_exercises": len(confirmed)})
-    stt_only = [o for o in repo.list_observations(pid, status="valid") if o["kind"] == "stt_suspect"]
+    stt_only = [o for o in repo.list_observations(pid, status="valid") if o["kind"] == "stt_suspect"
+                and o["id"] not in rejected]
     words = {}
     for h, s in wrong:
         sk = pack.skills.get(s["skill_id"])
@@ -86,8 +126,8 @@ def build(repo, pack: C.Pack, pid: int, now: datetime) -> dict:
             weak_skills.append({"skill": s["skill_id"], "attempts": len(h), "correct": ok})
     return {"errors": errors, "stt_uncertain": {"count": len(stt_only), "note": "to NIE są błędy ucznia — możliwe "
             "pomyłki rozpoznawania mowy"}, "vocabulary": sorted(words.values(), key=lambda w: -w["misses"]),
-            "weak_skills": weak_skills, "due_reviews": sorted(set(due)), "has_data": bool(errors or words or
-            weak_skills or stt_only)}
+            "weak_skills": weak_skills, "due_reviews": sorted(set(due)), "entries": entries(repo, pack, pid),
+            "has_data": bool(errors or words or weak_skills or stt_only or rejected)}
 
 
 def render(rep: dict) -> list[str]:

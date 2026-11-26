@@ -48,6 +48,8 @@ def parse(argv: list[str]) -> argparse.Namespace:
     ap.add_argument("--placement", action="store_true",
                     help="wstępne dopasowanie poziomu (gramatyka, słownictwo; głosem lub tekstem), potem koniec")
     ap.add_argument("--review", action="store_true", help="powtórki zaległych umiejętności (FSRS), potem koniec")
+    ap.add_argument("--assess", nargs="?", const="all", metavar="OBSZARY",
+                    help="pełna diagnoza (dobrowolna): all albo lista, np. grammar,reading,listening; wznawialna")
     ap.add_argument("--progress", action="store_true", help="pokaż postęp z zapisanych dowodów i zakończ")
     ap.add_argument("--finish-evals", action="store_true",
                     help="dokończ oceny wypowiedzi czekających po zakończonych rozmowach, pokaż podsumowania")
@@ -172,6 +174,10 @@ def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, l
         _placement_phase(a, repo, p, llm, tts, sink, mic, stt, lines, out)
         _shutdown(mic, sink, conn, db)
         return 0
+    if a.assess:
+        code = _assessment_phase(a, repo, p, llm, tts, sink, mic, stt, lines, out, eval_llm, err)
+        _shutdown(mic, sink, conn, db)
+        return code
     if a.exam:
         _exam_phase(a, repo, p, llm, tts, sink, mic, stt, lines, out)
         _shutdown(mic, sink, conn, db)
@@ -441,6 +447,81 @@ def _asker(a, q, mic, stt, ep, svc, speak, out):
             if mode == "voice" and speak:
                 speak(LV.silence())
     return ask
+
+
+def _open_evaluator(pack, eval_llm):
+    """Sugestie błędów modelu dla zadań otwartych diagnozy (dowód, nie poziom). None = brak modelu oceny."""
+    prov = eval_llm
+    if prov is None:
+        try:
+            prov = build_provider("evaluation")
+        except Exception:  # noqa: BLE001
+            return None
+    if prov.external or not prov.health():
+        return None
+    from tutor.app.turn_eval import evaluate_texts
+    from tutor.llm.structured import structured
+
+    def evaluate(text: str, mode: str) -> dict | None:
+        r = evaluate_texts(pack, prov, structured, [text], input_modes=[mode], low_probs=[set()])[0]
+        if r.eval_status != "evaluated":
+            return None
+        errs = [o for o in r.observations if o.status == "valid" and o.kind == "error" and o.confidence == "h"]
+        words = max(len(text.split()), 1)
+        return {"errors": len(errs), "errors_per_100": round(100 * len(errs) / words, 1),
+                "examples": [[o.span, o.fix] for o in errs[:3]]}
+    return evaluate
+
+
+def _assessment_phase(a, repo, p, llm, tts, sink, mic, stt, lines, out, eval_llm, err) -> int:
+    """Pełna diagnoza (dobrowolna, wznawialna). Wybór obszarów: `--assess all` albo lista po przecinku."""
+    from tutor.app import diagnostic as DG
+    from tutor.pedagogy import content as C
+    areas = DG.AREAS if a.assess == "all" else tuple(x.strip() for x in a.assess.split(",") if x.strip())
+    if not areas or any(x not in DG.AREAS for x in areas):
+        err(f"--assess: all albo lista z: {', '.join(DG.AREAS)}")
+        return 1
+    pack = C.load(p["target_lang"])
+    cur = repo.find_open_session(p["id"])
+    if cur and cur["kind"] == "assessment":
+        sid = cur["id"]
+        repo.resume_session(p["id"], sid)
+        out(f"Wznawiam diagnozę (sesja #{sid}).")
+    else:
+        if cur:
+            repo.pause_session(p["id"], cur["id"])
+        sid = repo.start_session(p["id"], "assessment")
+        repo.set_session_plan(p["id"], sid, {"assessment": {"areas": list(areas), "states": {}, "counts": {},
+                                                            "skipped": [], "finished": [], "results": {},
+                                                            "open": {}}})
+    q = lines or _lines()
+    tutor = VoiceTutor(repo, p["id"], sid, llm, tts, sink)
+    speak = None if a.no_audio else _speaker(tutor, q, mic, None, out)
+    out("Diagnoza kompetencji (dobrowolna; q = przerwij i wznów później). Wyniki to szacunki wstępne z przedziałem "
+        "niepewności, nie oficjalny poziom CEFR. Niepewne rozpoznanie mowy nie obniża wyniku.")
+    ask = _asker(a, q, mic, stt, A.Endpointer(), None, speak, out)
+    try:
+        rep = DG.run(repo, pack, p["id"], sid, ask, out, now=datetime.now(UTC), speak=speak,
+                     allow_unreviewed=bool(p["allow_unreviewed_practice"]), mode="voice" if mic else "text",
+                     audio=not a.no_audio, evaluate=_open_evaluator(pack, eval_llm))
+    except KeyboardInterrupt:
+        repo.pause_session(p["id"], sid)
+        return 0
+    if rep.quit:
+        repo.pause_session(p["id"], sid)
+        out("Diagnoza przerwana — wznowisz ją poleceniem `--assess`.")
+        return 0
+    repo.end_session(p["id"], sid)
+    prof = DG.profile(repo, pack, p["id"])
+    out("\nProfil kompetencji:")
+    for ar in prof["areas"]:
+        lt = ar["latest"]
+        out(f"  {ar['name_pl']}: " + (f"{lt['label']} (zadań: {lt['n_items']})" if lt else
+                                      "dowody zadania otwartego" if ar.get("open_evidence") else "nie sprawdzono"))
+    for r in prof["recommendations"]:
+        out(f"• {r['text_pl']}")
+    out(prof["notice"])
+    return 0
 
 
 def _placement_phase(a, repo, p, llm, tts, sink, mic, stt, lines, out) -> bool:

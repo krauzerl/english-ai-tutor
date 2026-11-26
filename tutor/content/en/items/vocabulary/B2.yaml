@@ -1,4 +1,5 @@
 # Bank pilotażowy (AI-draft, niezweryfikowany przez człowieka). Zmiany statusu: tylko `main.py content review`.
+# F7: zadania diagnostyczne (AI-draft, Claude; status tylko przez solve-check/recenzję)
 - id: en.pilot.vocab.b2.01
   lang: en
   skill_ids:
@@ -94,3 +95,131 @@
     reviewer: null
     reviewed_at: null
     notes: 'solve_check: niezgodność z kluczem'
+- id: en.f7.vocab.b2.01
+  lang: en
+  skill_ids:
+  - en.vocab.idioms
+  area: vocabulary
+  type: mc
+  cefr: B2
+  difficulty: -0.2
+  pools:
+  - diagnosis
+  domain: general
+  prompt: The exam was a piece of ___; I finished it in twenty minutes.
+  stimulus: null
+  options:
+  - bread
+  - cake
+  - pie
+  - sugar
+  answers:
+  - cake
+  explanation_pl: 'Idiom: a piece of cake = bułka z masłem.'
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: f7_diag.v1
+    created_at: '2026-11-26'
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.f7.vocab.b2.02
+  lang: en
+  skill_ids:
+  - en.vocab.news_media
+  area: vocabulary
+  type: mc
+  cefr: B2
+  difficulty: 0.0
+  pools:
+  - diagnosis
+  domain: general
+  prompt: The story made the ___ in all the national newspapers.
+  stimulus: null
+  options:
+  - headlines
+  - titles
+  - covers
+  - topics
+  answers:
+  - headlines
+  explanation_pl: Make the headlines = trafić na pierwsze strony.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: f7_diag.v1
+    created_at: '2026-11-26'
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.f7.vocab.b2.03
+  lang: en
+  skill_ids:
+  - en.vocab.abstract_nouns
+  area: vocabulary
+  type: mc
+  cefr: B2
+  difficulty: 0.2
+  pools:
+  - diagnosis
+  domain: general
+  prompt: There's a growing ___ that the project will fail.
+  stimulus: null
+  options:
+  - concern
+  - worry about
+  - care
+  - fear of
+  answers:
+  - concern
+  explanation_pl: Concern = obawa (rzeczownik abstrakcyjny).
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: f7_diag.v1
+    created_at: '2026-11-26'
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.f7.vocab.b2.04
+  lang: en
+  skill_ids:
+  - en.vocab.idioms
+  area: vocabulary
+  type: mc
+  cefr: B2
+  difficulty: 0.4
+  pools:
+  - diagnosis
+  domain: general
+  prompt: The two companies decided to ___ forces to develop the product.
+  stimulus: null
+  options:
+  - join
+  - link
+  - merge
+  - connect
+  answers:
+  - join
+  explanation_pl: 'Kolokacja: join forces.'
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: f7_diag.v1
+    created_at: '2026-11-26'
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: niezgodność z kluczem (sędzia niezwalidowany)'

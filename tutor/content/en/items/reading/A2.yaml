@@ -1,4 +1,5 @@
 # Bank pilotażowy (AI-draft, niezweryfikowany przez człowieka). Zmiany statusu: tylko `main.py content review`.
+# F7: zadania diagnostyczne (AI-draft, Claude; status tylko przez solve-check/recenzję)
 - id: en.pilot.read.a2.01
   lang: en
   skill_ids:
@@ -98,3 +99,67 @@
     reviewer: null
     reviewed_at: null
     notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka)'
+- id: en.f7.read.a2.01
+  lang: en
+  skill_ids:
+  - en.read.short_messages
+  area: reading
+  type: reading_mc
+  cefr: A2
+  difficulty: 0.0
+  pools:
+  - diagnosis
+  domain: general
+  prompt: Why is Tom writing?
+  stimulus: Hi Anna, I'm stuck in traffic. Can we meet at 3 instead of 2? Same café. Tom
+  options:
+  - To cancel a meeting
+  - To change the time of a meeting
+  - To invite Anna to dinner
+  - To say he is ill
+  answers:
+  - To change the time of a meeting
+  explanation_pl: Tom przesuwa spotkanie na 15:00.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: f7_diag.v1
+    created_at: '2026-11-26'
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.f7.read.a2.02
+  lang: en
+  skill_ids:
+  - en.read.short_messages
+  area: reading
+  type: reading_mc
+  cefr: A2
+  difficulty: 0.3
+  pools:
+  - diagnosis
+  domain: general
+  prompt: What must Kasia bring?
+  stimulus: Kasia, the pool trip is on Saturday. The bus is free and lunch is included. Just bring a towel! Ms Green
+  options:
+  - Food
+  - A towel
+  - Money for the bus
+  - Nothing
+  answers:
+  - A towel
+  explanation_pl: Bring a towel.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: f7_diag.v1
+    created_at: '2026-11-26'
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'

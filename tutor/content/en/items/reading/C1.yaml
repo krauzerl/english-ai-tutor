@@ -1,4 +1,5 @@
 # Bank pilotażowy (AI-draft, niezweryfikowany przez człowieka). Zmiany statusu: tylko `main.py content review`.
+# F7: zadania diagnostyczne (AI-draft, Claude; status tylko przez solve-check/recenzję)
 - id: en.pilot.read.c1.01
   lang: en
   skill_ids:
@@ -99,3 +100,68 @@
     reviewer: null
     reviewed_at: null
     notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka)'
+- id: en.f7.read.c1.01
+  lang: en
+  skill_ids:
+  - en.read.implicit_meaning
+  area: reading
+  type: reading_mc
+  cefr: C1
+  difficulty: 0.0
+  pools:
+  - diagnosis
+  domain: general
+  prompt: What does the writer imply about the minister?
+  stimulus: Asked directly whether taxes would rise, the minister delivered a lengthy statement about the government's commitment to fairness and its values, before thanking the journalist and moving to
+    the next question.
+  options:
+  - She is very popular
+  - She avoided answering the question
+  - She resigned
+  - She agreed with the journalist
+  answers:
+  - She avoided answering the question
+  explanation_pl: Long statement about values instead of an answer = unikanie odpowiedzi.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: f7_diag.v1
+    created_at: '2026-11-26'
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.f7.read.c1.02
+  lang: en
+  skill_ids:
+  - en.read.implicit_meaning
+  area: reading
+  type: reading_mc
+  cefr: C1
+  difficulty: 0.3
+  pools:
+  - diagnosis
+  domain: general
+  prompt: What is the tone of the review?
+  stimulus: The restaurant bravely serves the same frozen lasagne it has served since 1998, and diners who enjoy waiting forty minutes for it will feel right at home.
+  options:
+  - Enthusiastic
+  - Ironic and critical
+  - Neutral and factual
+  - Sad
+  answers:
+  - Ironic and critical
+  explanation_pl: ‘Bravely’ + ‘as long as’ = ironia.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: f7_diag.v1
+    created_at: '2026-11-26'
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'

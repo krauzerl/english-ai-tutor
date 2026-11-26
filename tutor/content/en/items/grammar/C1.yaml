@@ -1,4 +1,5 @@
 # Bank pilotażowy (AI-draft, niezweryfikowany przez człowieka). Zmiany statusu: tylko `main.py content review`.
+# F7: zadania diagnostyczne (AI-draft, Claude; status tylko przez solve-check/recenzję)
 - id: en.pilot.gram.c1.01
   lang: en
   skill_ids:
@@ -306,3 +307,131 @@
     reviewer: null
     reviewed_at: null
     notes: 'solve_check: niezgodność z kluczem (sędzia niezwalidowany)'
+- id: en.f7.gram.c1.01
+  lang: en
+  skill_ids:
+  - en.gram.inversion
+  area: grammar
+  type: mc
+  cefr: C1
+  difficulty: -0.2
+  pools:
+  - diagnosis
+  domain: general
+  prompt: Not only ___ late, but he also forgot the documents.
+  stimulus: null
+  options:
+  - he arrived
+  - did he arrive
+  - he did arrive
+  - arrived he
+  answers:
+  - did he arrive
+  explanation_pl: 'Po Not only na początku zdania: inwersja (did he arrive).'
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: f7_diag.v1
+    created_at: '2026-11-26'
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.f7.gram.c1.02
+  lang: en
+  skill_ids:
+  - en.gram.mixed_conditionals
+  area: grammar
+  type: mc
+  cefr: C1
+  difficulty: 0.0
+  pools:
+  - diagnosis
+  domain: general
+  prompt: If I had accepted that job, I ___ in London now.
+  stimulus: null
+  options:
+  - would live
+  - would be living
+  - will live
+  - had lived
+  answers:
+  - would be living
+  explanation_pl: 'Mieszany tryb: przeszły warunek, skutek teraz: would be + -ing.'
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: f7_diag.v1
+    created_at: '2026-11-26'
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.f7.gram.c1.03
+  lang: en
+  skill_ids:
+  - en.gram.cleft_sentences
+  area: grammar
+  type: mc
+  cefr: C1
+  difficulty: 0.2
+  pools:
+  - diagnosis
+  domain: general
+  prompt: ___ really annoys me is the noise from the street.
+  stimulus: null
+  options:
+  - That
+  - What
+  - Which
+  - It
+  answers:
+  - What
+  explanation_pl: 'Zdanie rozszczepione: What … is …'
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: f7_diag.v1
+    created_at: '2026-11-26'
+  review:
+    status: draft
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: niezgodność z kluczem (sędzia niezwalidowany)'
+- id: en.f7.gram.c1.04
+  lang: en
+  skill_ids:
+  - en.gram.subjunctive_formal
+  area: grammar
+  type: mc
+  cefr: C1
+  difficulty: 0.4
+  pools:
+  - diagnosis
+  domain: general
+  prompt: The committee recommended that the project ___ postponed.
+  stimulus: null
+  options:
+  - is
+  - be
+  - was
+  - will be
+  answers:
+  - be
+  explanation_pl: 'Formalny tryb łączący po recommend that: be.'
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-sonnet-5-5
+    prompt_version: f7_diag.v1
+    created_at: '2026-11-26'
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'

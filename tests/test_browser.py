@@ -131,7 +131,7 @@ def test_switch_profile_keeps_data_separate(page):
 def test_every_screen_renders_without_errors(page):
     start_profile(page)
     for route, heading in [("chat", "Quick Chat"), ("lesson", "Lekcje"), ("review", "Powtórki"),
-                           ("placement", "Określ poziom"), ("weak", "Słabe strony"), ("exam", "Egzaminy"),
+                           ("placement", "Diagnoza"), ("weak", "Słabe strony"), ("exam", "Egzaminy"),
                            ("progress", "Postępy"), ("achievements", "Osiągnięcia"), ("settings", "Ustawienia"),
                            ("profiles", "Profile")]:
         page.goto(f"{page.site}/#/{route}")
@@ -246,8 +246,8 @@ def test_review_flow_when_due(page):
 def test_placement_start_and_pause(page):
     start_profile(page)
     page.goto(page.site + "/#/placement")
-    page.get_by_role("button", name="Zacznij").click()
-    expect(page.locator(".mission-bar h1")).to_have_text("Określ poziom")
+    page.get_by_role("button", name="Zacznij szybkie dopasowanie").click()
+    expect(page.locator(".mission-bar h1")).to_have_text("Szybkie dopasowanie")
     expect(page.locator(".task-card .stem")).not_to_contain_text("Pierwsze zadanie", timeout=15000)
     expect(page.locator(".coach").get_by_role("button", name="Podpowiedź")).to_have_count(0)   # w diagnozie bez podpowiedzi
     end_session(page)
@@ -266,7 +266,7 @@ def test_weakspots_progress_achievements_settings(page):
     expect(page.locator("main h1")).to_contain_text("Słabe strony")
     page.goto(page.site + "/#/progress")
     expect(page.locator(".stat", has_text="Sesje")).to_contain_text("1")
-    expect(page.locator("table.grid")).to_contain_text("Quick Chat")
+    expect(page.locator("table.grid").last).to_contain_text("Quick Chat")
     page.goto(page.site + "/#/achievements")
     earned, total = map(int, page.locator(".counter strong").inner_text().split("/"))
     expect(page.locator(".badge-card")).to_have_count(total)
@@ -377,3 +377,14 @@ def test_custom_category_requires_own_topic(page):
     expect(page.locator("#topicnow")).to_contain_text("restoring old motorbikes")
     expect(page.locator("#topicnow")).to_contain_text("Własny temat")
     end_session(page)
+
+
+def test_full_assessment_screen_and_start(page):
+    start_profile(page)
+    page.goto(page.site + "/#/placement")
+    expect(page.locator("main h1").first).to_contain_text("Diagnoza")
+    expect(page.get_by_text("nie oficjalny poziom CEFR").first).to_be_visible()
+    page.get_by_role("button", name="Zacznij diagnozę").click()
+    expect(page.locator(".mission-bar h1")).to_have_text("Diagnoza")
+    end_session(page)
+    assert page.errors == []

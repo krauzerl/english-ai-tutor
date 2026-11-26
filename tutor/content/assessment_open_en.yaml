@@ -1,0 +1,36 @@
+# F7: zadania otwarte diagnozy (pisanie, mówienie). Autor: Claude (AI), status: draft — NIE zrecenzowane przez
+# człowieka. Wynik tych zadań to wyłącznie DOWODY (liczba słów, zdania, sugestie błędów modelu na 100 słów),
+# nigdy poziom CEFR: ocena produkcji wymaga zwalidowanej rubryki i recenzenta.
+# `descriptor`: skrót deskryptora CEFR (sens, nie cytat), `min_words`: minimum, by odpowiedź liczyła się jako próba.
+status: draft
+tasks:
+  - {id: w.a1.1, area: writing, cefr: A1, min_words: 15, descriptor: "simple phrases about oneself",
+     prompt: "Write 3–4 sentences about yourself: your name, where you live and what you like.",
+     prompt_pl: "Napisz 3–4 zdania o sobie: imię, gdzie mieszkasz, co lubisz."}
+  - {id: w.a2.1, area: writing, cefr: A2, min_words: 30, descriptor: "short simple message about everyday matters",
+     prompt: "Write a short message to a friend. Invite them to your birthday party and say when and where it is.",
+     prompt_pl: "Napisz krótką wiadomość do znajomego: zaproś na urodziny, podaj kiedy i gdzie."}
+  - {id: w.b1.1, area: writing, cefr: B1, min_words: 60, descriptor: "connected text on familiar topics, experiences",
+     prompt: "Describe a trip you remember well. Where did you go, what happened, and how did you feel?",
+     prompt_pl: "Opisz podróż, którą dobrze pamiętasz: dokąd, co się wydarzyło, jak się czułeś/aś."}
+  - {id: w.b2.1, area: writing, cefr: B2, min_words: 100, descriptor: "clear detailed text, arguments for and against",
+     prompt: "Some people think working from home is better than working in an office. Give arguments for and against and your own opinion.",
+     prompt_pl: "Praca zdalna czy w biurze? Podaj argumenty za i przeciw oraz swoje zdanie."}
+  - {id: w.c1.1, area: writing, cefr: C1, min_words: 140, descriptor: "well-structured text on complex subjects",
+     prompt: "Should governments limit the use of artificial intelligence in schools? Write a well-structured argument with examples.",
+     prompt_pl: "Czy państwo powinno ograniczać użycie AI w szkołach? Uporządkowana argumentacja z przykładami."}
+  - {id: s.a1.1, area: speaking, cefr: A1, min_words: 10, descriptor: "simple phrases about where one lives and people one knows",
+     prompt: "Tell me about your family. Who is in your family?",
+     prompt_pl: "Opowiedz o swojej rodzinie."}
+  - {id: s.a2.1, area: speaking, cefr: A2, min_words: 20, descriptor: "describe daily routine in simple terms",
+     prompt: "Describe a typical day: what do you do in the morning, afternoon and evening?",
+     prompt_pl: "Opisz typowy dzień: rano, po południu, wieczorem."}
+  - {id: s.b1.1, area: speaking, cefr: B1, min_words: 40, descriptor: "narrate an experience, give reasons",
+     prompt: "Tell me about a problem you solved at work or at school. What did you do and why?",
+     prompt_pl: "Opowiedz o problemie, który rozwiązałeś/aś w pracy lub szkole: co zrobiłeś/aś i dlaczego."}
+  - {id: s.b2.1, area: speaking, cefr: B2, min_words: 60, descriptor: "explain a viewpoint with advantages and disadvantages",
+     prompt: "What are the advantages and disadvantages of living in a big city? What would you choose and why?",
+     prompt_pl: "Zalety i wady życia w dużym mieście; co byś wybrał/a i dlaczego."}
+  - {id: s.c1.1, area: speaking, cefr: C1, min_words: 80, descriptor: "present complex ideas fluently, with nuance",
+     prompt: "How has technology changed the way people build relationships? Discuss different perspectives.",
+     prompt_pl: "Jak technologia zmieniła budowanie relacji? Omów różne perspektywy."}

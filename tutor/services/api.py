@@ -10,11 +10,14 @@ Jeśli kiedyś dodamy serwer HTTP, wiążemy WYŁĄCZNIE 127.0.0.1."""
 from __future__ import annotations
 
 import dataclasses
+import threading
 from datetime import UTC, datetime
 
 from tutor.app import achievements as AC
+from tutor.app import diagnostic as DG
 from tutor.app import exams as EX
 from tutor.app import goal as G
+from tutor.app import growth as GR
 from tutor.app import history as H
 from tutor.app import lesson as L
 from tutor.app import placement as PL
@@ -26,6 +29,8 @@ from tutor.app import topics as T
 from tutor.app import weakspots as WS
 from tutor.pedagogy import content as C
 from tutor.store.repo import Repo
+
+_PACK_LOCK = threading.Lock()      # GUI: równoległe żądania nie wczytują paczki treści kilka razy naraz
 
 
 class ServiceError(Exception):
@@ -58,8 +63,9 @@ class TutorAPI:
 
     def pack(self, pid: int) -> C.Pack:
         lang = self._profile(pid)["target_lang"]
-        if lang not in self._packs:
-            self._packs[lang] = C.load(lang)
+        with _PACK_LOCK:
+            if lang not in self._packs:
+                self._packs[lang] = C.load(lang)
         return self._packs[lang]
 
     # --- ekran główny ---
@@ -142,11 +148,33 @@ class TutorAPI:
                 "results": H.placements(self.repo, pid), "voluntary": True,
                 "notice": "Wynik jest szacunkiem wstępnym, nie diagnozą CEFR."}
 
+    def assessment(self, pid: int) -> dict:
+        """Pełna diagnoza: profil sześciu kompetencji, pokrycie banku, otwarta (wznawialna) sesja."""
+        pack, allow = self.pack(pid), bool(self._profile(pid)["allow_unreviewed_practice"])
+        cur = self.repo.find_open_session(pid)
+        resume = None
+        if cur and cur["kind"] == "assessment":
+            st = (self.repo.get_session_plan(pid, cur["id"]) or {}).get("assessment") or {}
+            resume = {"session_id": cur["id"], "areas": st.get("areas", []), "finished": st.get("finished", [])}
+        return {"profile": DG.profile(self.repo, pack, pid), "coverage": DG.coverage(pack, allow),
+                "areas": list(DG.AREAS), "open_areas": list(DG.OPEN), "resume": resume, "voluntary": True}
+
     # --- raporty ---
     def progress(self, pid: int) -> dict:
-        return PG.build(self.repo, self.pack(pid), pid, self.now())
+        pack = self.pack(pid)
+        return {**PG.build(self.repo, pack, pid, self.now()), "growth": GR.build(self.repo, pack, pid, self.now()),
+                "assessment": DG.profile(self.repo, pack, pid)}
 
     def weakspots(self, pid: int) -> dict:
+        return WS.build(self.repo, self.pack(pid), pid, self.now())
+
+    def review_observation(self, pid: int, observation_id: int, verdict: str) -> dict:
+        """Uczeń kwestionuje korektę / oznacza błąd STT / przywraca. Historia zostaje."""
+        from tutor.app import ingest
+        try:
+            ingest.review_observation(self.repo, self.pack(pid), pid, int(observation_id), verdict, self.now())
+        except ValueError as e:
+            raise ServiceError(f"Nie można zapisać: {e}") from e
         return WS.build(self.repo, self.pack(pid), pid, self.now())
 
     def achievements(self, pid: int, award: bool = True) -> dict:
