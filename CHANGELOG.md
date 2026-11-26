@@ -4,6 +4,34 @@ Notable changes. The project has no releases yet; versions below are development
 
 ## Unreleased
 
+### F7 quality and product completion
+- **Teacher:** ending the session ("No, I want to finish our conversation for now") wins over a new topic; intents
+  finish / change topic / skip / repeat / explain / help with counter-examples. Correction policies: relaxed, balanced
+  (new default; existing profiles moved from `summary` to `periodic` by migration 008) and intensive; role-play is not
+  interrupted. Tense swaps without time context (`have → had`) and corrections without a real word change are
+  dropped; agreement pairs and wrong-tense edits get the right category; explanations follow the actual edit.
+  The conversation prompt no longer forces praise → question and forbids invented AI experiences; a per-turn style
+  note and the guard cut repeated exclamations.
+- **Pending assessments:** a conversation ends even when some answers are not assessed yet; they are finished later
+  (`--finish-evals`, Home → “Finish assessing”) without double counting; the summary says when it is incomplete.
+- **Audio:** speech pace presets slow / normal / fast (0.8 / 0.9 / 1.05, default 0.9; pitch unchanged); exercises
+  are read in parts with pauses; uncertain transcripts can be sent, re-recorded or corrected (a correction is never a
+  language error). Whisper settings unchanged (measured: no gain from the short-utterance variant).
+- **Assessment:** optional quick placement plus a comprehensive six-skill assessment (`--assess`): adaptive grammar,
+  vocabulary, reading and listening with a cross-area prior; writing and speaking as evidence only (not ready for
+  level scoring). Pause, resume, repeat; profile with history, uncertainty, untested areas and recommendations.
+  60 new diagnosis items (AI drafts; 57 passed a blind model check, none human-reviewed).
+- **Progress:** estimates from first independent attempts on new items, adjusted for difficulty; hints and repeats
+  separate; trends only with enough data; retention after 3 / 7 / 14 days; charts per skill.
+- **Weak-spots journal:** utterance, context, fix, category, reliability, date and source; dispute a correction or
+  mark it as a speech-recognition error (history kept); practise one category.
+- **Interface:** Polish / English per profile (central mechanism for screens and engine messages); progress reset and
+  profile deletion with name confirmation and a JSON backup.
+- **Achievements:** 100 standard + 50 hidden rules computed from real records, idempotent, never affecting mastery;
+  trophy hall with categories, filters, search and secrets.
+- **Mascot:** three pixel-art concepts to choose from (name not chosen yet).
+- Content pack loads about 6× faster (libyaml).
+
 ### Fixed
 - Text mode (`--no-audio`) no longer loads Kokoro, PortAudio or any voice model. A core install (`pip install -e .`) is
   enough for text conversations and lessons. `numpy` moved to the core dependencies for this.

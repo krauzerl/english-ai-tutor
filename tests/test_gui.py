@@ -283,7 +283,9 @@ def test_session_error_reaches_gui(srv, monkeypatch):
 
 
 @pytest.mark.parametrize("kind,args", [("placement", {}), ("review", {}), ("exam", {"path": "e8_english"}),
-                                       ("drill", {"target": "en.gram.articles_basic"})])
+                                       ("drill", {"target": "en.gram.articles_basic"}),
+                                       ("drill", {"target": "article.missing"}),
+                                       ("assessment", {"areas": ["grammar", "vocabulary"]})])
 def test_every_session_kind_starts_and_stops_cleanly(srv, xdg, kind, args):
     pid = make_profile(srv)
     code, r = srv.post("/api/session/start", {"pid": pid, "kind": kind, "args": {**args, "text_mode": True}})
@@ -338,3 +340,41 @@ def test_content_pack_is_loaded_once_per_server(srv):
     c1.close()
     c2.close()
     assert a._packs is b._packs is srv.app._packs          # ~0,7 s na wczytanie: nie przy każdym żądaniu
+
+
+# --- F7: nowe trasy (bezpieczeństwo, walidacja, ochrona danych) ---
+def test_f7_routes_need_token_and_validate(srv):
+    pid = make_profile(srv)
+    for path, body in (("/api/profiles/reset", {"pid": pid, "confirm": "ann"}),
+                       ("/api/profiles/delete", {"pid": pid, "confirm": "ann"}),
+                       ("/api/weakspots/review", {"pid": pid, "observation_id": 1, "verdict": "disputed"})):
+        assert srv.post(path, body, headers={"X-Tutor-Token": "zly"})[0] == 403
+    assert srv.post("/api/weakspots/review", {"pid": pid, "observation_id": 1, "verdict": "delete"})[0] == 400
+    assert srv.post("/api/weakspots/review", {"pid": pid, "observation_id": 999, "verdict": "disputed"})[0] == 400
+    for areas in (["maths"], "grammar", [], ["grammar", "--help"]):
+        assert srv.post("/api/session/start", {"pid": pid, "kind": "assessment", "args": {"areas": areas}})[0] == 400
+    assert srv.post("/api/session/start", {"pid": pid, "kind": "drill", "args": {"target": "article.missing; rm"}})[0] \
+        == 400
+    assert srv.post("/api/profiles/delete", {"pid": pid, "confirm": "bob"})[0] == 400      # zła nazwa: nic nie znika
+    assert srv.get(f"/api/home?pid={pid}")[0] == 200
+
+
+def test_reset_refused_while_a_session_runs(srv):
+    pid = make_profile(srv)
+    srv.app.runner._run = lambda argv, lines, **kw: (lines.get(), 0)[1]          # sesja czeka na wejście
+    srv.post("/api/session/start", {"pid": pid, "kind": "review", "args": {"text_mode": True}})
+    code, r = srv.post("/api/profiles/reset", {"pid": pid, "confirm": "ann"})
+    assert code == 400 and "sesja" in r["error"].lower()
+    srv.post("/api/session/stop", {})
+    srv.wait_end()
+    code, r = srv.post("/api/profiles/reset", {"pid": pid, "confirm": "ann", "backup": False})
+    assert code == 200 and r["backup"] is None
+
+
+def test_english_profile_gets_translated_api_text(srv):
+    pid = make_profile(srv)
+    srv.post("/api/settings", {"pid": pid, "changes": {"ui_lang": "en"}})
+    _, r = srv.get(f"/api/chat_options?pid={pid}")
+    assert r["auto"]["notice"].startswith("Automatic level")
+    _, w = srv.get(f"/api/weakspots?pid={pid}")
+    assert "NOT learner errors" in w["stt_uncertain"]["note"]

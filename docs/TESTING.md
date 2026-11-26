@@ -71,6 +71,29 @@ Use a fresh test profile ("Profile" → new profile) so the results are easy to 
 | 7 | Error recognition | In any chat say or write "Yesterday I go to work by bus" and "She don't like it" | They appear in "Do poprawy" at the end and later in **Słabe strony** as model suggestions |
 | 8 | Progress saved | **Postępy**, **Osiągnięcia**, **Start → Ostatnio** | The sessions from this test are listed under the test profile only |
 
+## 3b. F7 retest (owner, about 60 minutes)
+Use your normal profile; nothing is reset. Start with `python main.py --gui`.
+1. **Pending assessments:** on Home, if “answers are waiting to be assessed” appears, click *Finish assessing* and
+   check the summary of the old conversation (History or the journal).
+2. **Ending a conversation:** in Quick Chat say or type “No, I want to finish our conversation for now.” — the tutor
+   must say goodbye and show the summary, not start a new topic. Also try “I want to finish my project this week.”
+   (the chat must continue).
+3. **Naturalness and corrections:** 10 minutes of Quick Chat (balanced corrections). Note: replies ending without a
+   question, short corrections or self-correction prompts, no correction of correct sentences (try
+   “We have ten paying customers.”). At the end: 3–5 issues with explanations, and a note if assessment is incomplete.
+4. **Voice:** Settings → *Speech pace* slow / normal / fast. In a lesson, listen: instruction, task, each option and
+   the command are read separately. Answer one-word tasks; when *Did I hear you correctly?* appears, try *Record
+   again* and correcting the text.
+5. **Assessment:** Assessment → choose areas → *Start assessment*; quit midway, come back, *Resume*. Check the profile
+   table (range, evidence, untested areas, recommendations).
+6. **Progress and journal:** Progress → “Am I really improving?” (with little data it must say *not enough data*).
+   Weak spots → dispute one correction, mark one as a speech error; counts change, history stays.
+7. **Language and profile:** Settings → *Interface language* English → screens in English → back to Polish.
+   Create a test profile, add a chat, then *Reset progress* and *Delete profile* on that test profile only.
+8. **Achievements and mascot:** Achievements → filters, search, *Secrets*. Settings → *Mascot (proposal)* A / B / C;
+   choose one concept and one of the names in `docs/ai-work/f7-quality/MASCOT_PROPOSAL.md` (local) or tell us.
+CLI equivalents: `--finish-evals`, `--assess [areas]`, `--stt-confirm`, `profile reset|delete NAME --yes`.
+
 ## 4a. Ubuntu: microphone and speakers before the app (read-only checks)
 
 These commands only list devices or record and play a short test; they do not change any system setting.
@@ -129,3 +152,21 @@ Measured on the author's machine with Qwen3 8B in Ollama; your numbers will diff
 | Teacher reply, text mode | typically 3.8 s (1.4–9 s) to the first sentence |
 | Evaluation of one utterance | ~1.8 s; a batch of five ~30 s (hence one at a time) |
 | SQLite `PRAGMA integrity_check` after audit runs | `ok`, WAL mode |
+
+### F7 teacher benchmark (Qwen3 8B, expectations set by hand, not by the model)
+`python -m bench.teacher --out result.json` — 30 sentences (15 correct, 15 with errors), 16 commands, an 8-turn chat.
+
+| | before F7 (`23ae82d`) | after F7 |
+|---|---|---|
+| false corrections on correct sentences | 0/15 | 0/15 |
+| missed errors | 3/15 | 3/15 |
+| wrong error category | 7/15 | 3/15 |
+| explanation fits the actual error | 1/5 | 5/5 |
+| commands recognised (finish, topic, repeat, explain, counter-examples) | 7/16 | 16/16 |
+| chat replies ending with a question | 8/8 | 6/8 |
+| replies opening with an exclamation | 7/8 | 4/8 |
+| stock praise / invented AI experiences | 1 / 1 | 0 / 0 |
+| assessment time per answer (median) | 1.0 s | 1.0 s |
+
+Single runs on one machine; chat numbers vary with sampling. "We have ten paying customers." was not falsely corrected
+in these runs; the new tense rule makes sure it is dropped when the model does it.

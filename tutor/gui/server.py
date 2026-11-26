@@ -123,7 +123,7 @@ def session_argv(api: TutorAPI, pid: int, kind: str, args: dict) -> list[str]:
         argv.append("--placement")
     elif kind == "assessment":
         from tutor.app import diagnostic as DG
-        areas = args.get("areas") or list(DG.AREAS)
+        areas = args.get("areas", list(DG.AREAS))
         if not isinstance(areas, list) or not areas or any(a not in DG.AREAS for a in areas):
             raise BadRequest(f"areas: {', '.join(DG.AREAS)}")
         argv.append("--assess=" + ",".join(dict.fromkeys(areas)))
