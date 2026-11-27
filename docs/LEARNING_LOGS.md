@@ -40,6 +40,8 @@ SQLite already held the learning history; the pilot only adds what was missing.
 | session end: status, reason (quit, finish_intent, time_up, interrupted, lesson_paused, error), counts, pending/dropped evaluations | event `log.session_end` |
 | lessons: attempts, first answers, hints, retries, source (practice, remediation, …) | `attempt` |
 | why a lesson was chosen, control-exercise result (confirmed / not_confirmed / inconclusive), uptake after a correction | session plan (`plan_json`: `choice`, `agv`, `uptake`) |
+| learning from a recurring mistake: stage of each task (`pre` check before the explanation, `practice`, `post` test on other tasks, `transfer` after a break, `check` at the start of Quick Chat), result of each task (`independent`, `assisted`, `wrong`, `ambiguous`), stage times | session plan (`stages`, `results`, `stage_at`, `cycle`), event `log.remediation` (counts per stage, no text) |
+| conversation activity per day: minutes, utterances (voice/text), words per utterance, longest utterance, speaking time (length of accepted recordings), model suggestions per 100 evaluated words, self-repairs visible in the transcript, uptake | computed for the report from `turn`, `turn_meta`, `observation`, `log.stt` (nothing new is stored) |
 
 Events are rows in the existing `app_event` table (kinds `log.*` and `report.*`, with `session_id`; migration 009 only
 adds that column and an index). The JSONL mirror contains the same events with IDs, timings and statuses but **no
@@ -52,6 +54,14 @@ text**: text fields are replaced by their length (`original_len`, `quote_len`, �
 * A missed mistake is recorded only when the learner reports it (`report.missed_error`), and it stays `unverified`.
 * Uptake and correct use in conversation are observations; they never set mastery (mastery stays locked).
 * A corrected transcript is a speech-recognition correction, never a language error.
+* Conversation activity (minutes, words, speaking time, number of suggestions) is **not** evidence of progress.
+  Pronunciation is not scored (a transcript does not measure it). An utterance without a correction is not counted
+  as correct: Qwen3 misses part of the mistakes.
+* Evidence of improvement comes only from closed tasks checked by code: the check before the explanation, the test
+  after the lesson on other tasks, the transfer on new tasks after at least 3 days, and the short checks at the start
+  of Quick Chat. A task answered after a hint is `assisted`; an answer the speech recogniser was unsure about is
+  `ambiguous` and is counted neither way. Most skills have only 3 practice tasks, so a stage often has one task: the
+  report marks it "1 zadanie, słaby dowód".
 
 ## Commands
 
@@ -78,10 +88,13 @@ niejasne"; during a session, **Zgłoś problem** saves a report linked to your l
 
 ## Report
 
-Sections: A — sessions, time, activities, topics, lessons; B — error categories (suggestions, split by confidence),
+Sections: A — sessions, time, activities, topics, lessons, and the conversation activity table (labelled "not
+evidence of progress"); B — error categories (suggestions, split by confidence),
 examples with the utterance, ambiguous cases, recurring problems and their control-exercise result; C — skills
 practised with first independent attempts, retries and hints, BKT estimate (not mastery), control exercises, uptake,
-why each lesson was chosen, retention on new items; D — disputed corrections, reports, STT statistics, evaluation
+why each lesson was chosen, retention on new items, and "Nauka na błędach": per mistake category, the check, practice,
+test, transfer and Quick Chat checks with their real results and how often the mistake came back in conversation
+after the last check; D — disputed corrections, reports, STT statistics, evaluation
 status, validator drops, runtime errors; E — cases for review.
 
 ## Export format (version 1)

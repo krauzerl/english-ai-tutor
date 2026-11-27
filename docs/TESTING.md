@@ -56,7 +56,7 @@ About 15 minutes. Use a test profile.
    your own answer shown above it, and the frog in the "Spróbuj jeszcze raz" state. Click **Przerwij i zapisz**,
    go to Start, click **Wróć do lekcji**. Expected: the lesson continues at the same task.
 
-## 3d. Pilot: daily-use test (owner, about 40 minutes)
+## 3d. Pilot: daily-use test (owner, about 60 minutes)
 
 Use your normal profile: the first start after this update upgrades the database (migration 009, only adds a column)
 and makes a backup in `~/.local/share/english-ai-tutor/backups/` first.
@@ -99,6 +99,22 @@ Check: `ollama list` shows `qwen3:8b`.
 9. **Where the logs are.** `python main.py logs path` → `~/.local/share/english-ai-tutor/learning-logs/`
    (`sessions/` JSONL without text, `reports/`, `exports/`). Details and the export format:
    [LEARNING_LOGS.md](LEARNING_LOGS.md).
+
+10. **Learning from a recurring mistake (15 min).** After three conversations with the same kind of mistake,
+    **Lekcje** → the suggested lesson. Expected order: a short **check without hints** (the rule and the answers
+    appear only after it; asking for help gives no hint) → the explanation → practice with hints → a **test on
+    different tasks**. The end shows each stage separately, for example "Sprawdzenie wstępne: 0/1 · Ćwiczenia: 1/1 ·
+    Test samodzielny: 1/1". Run the suggested lesson again the same day: it should **not** offer the same lesson
+    again. Three or more days later the suggestion should be a **check on new tasks** (transfer), without an
+    explanation.
+11. **Quick Chat only (any day).** With a recurring mistake in the journal, start Quick Chat: before the first
+    question you get a short check (2 tasks, voice or text; say "skip" to go straight to the conversation). It
+    appears at most every 2 days; switch it off in **Ustawienia → Krótkie sprawdzenie głosowe przed Quick Chat**.
+12. **After 7 days of Quick Chat.** `python main.py logs report --days 7`. Section A has a table **"Aktywność w
+    rozmowach — to NIE są dowody postępu"** (minutes, utterances, words per utterance, speaking time from the
+    recordings, model suggestions per 100 words). Section C, **"Nauka na błędach — dowody z zadań kontrolnych"**,
+    lists only real answers to the checks, per mistake category. Pronunciation is not scored. An utterance with no
+    correction is not counted as correct.
 
 To give a report to an AI model later: `python main.py logs export --days 14`, read the files in the printed
 directory, remove anything private, then share `report.md`, `cases.jsonl` and `README.md` (see LEARNING_LOGS.md).

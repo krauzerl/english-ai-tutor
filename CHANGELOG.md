@@ -4,6 +4,21 @@ Notable changes. The project has no releases yet; versions below are development
 
 ## Unreleased
 
+### Learning from recurring mistakes (branch `rnd/teaching-intelligence-b-lite`)
+- **Lesson from a recurring mistake has stages:** a check without hints *before* the explanation (the control
+  result now comes from it, `after_explanation: false`), the explanation, practice with hints (easier tasks first),
+  then a test on tasks not used before. Each task result is `independent`, `assisted`, `wrong` or `ambiguous`
+  (unsure speech recognition: counted neither way). Interrupting and resuming keeps the stage results.
+- **Planner (`goal.choose`):** uses the check, the test, the transfer and whether the mistake came back in
+  conversation. It does not repeat the same lesson on the same day, stops after 2 lessons per category in 14 days,
+  and 3 days after a successful test offers a **transfer** check on new tasks (retention pool, other context when
+  available). A correct result is never treated as lasting improvement; mastery stays locked.
+- **Quick Chat:** a short check (2 new closed tasks, voice or text, "skip" to go on) before the conversation when a
+  mistake is recurring, at most every 2 days; setting `chat_checks`.
+- **Report:** conversation activity per day (minutes, utterances, words, speaking time, suggestions per 100 words,
+  self-repairs) labelled as *not* evidence; "Nauka na błędach" with before/after results from real answers; event
+  `log.remediation`. Weak-spots journal shows the stage status of each mistake.
+
 ### Pilot readiness: learning logs (branch `rnd/teaching-intelligence-b-lite`)
 - **Learning logs:** session metadata (models, prompt version, correction mode, level, topic, app version) in
   `session.model_json`; events `log.*` / `report.*` in `app_event` with `session_id` (migration 009, additive); JSONL
