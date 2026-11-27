@@ -56,6 +56,53 @@ About 15 minutes. Use a test profile.
    your own answer shown above it, and the frog in the "Spróbuj jeszcze raz" state. Click **Przerwij i zapisz**,
    go to Start, click **Wróć do lekcji**. Expected: the lesson continues at the same task.
 
+## 3d. Pilot: daily-use test (owner, about 40 minutes)
+
+Use your normal profile: the first start after this update upgrades the database (migration 009, only adds a column)
+and makes a backup in `~/.local/share/english-ai-tutor/backups/` first.
+
+**Ollama.** On this computer the models are stored for the system service (`/usr/share/ollama`), and the service is
+disabled. Start one of these in a separate terminal and leave it running:
+
+```bash
+sudo systemctl start ollama
+```
+
+```bash
+OLLAMA_MODELS=/usr/share/ollama/.ollama/models ollama serve
+```
+
+Check: `ollama list` shows `qwen3:8b`.
+
+1. **Start the GUI.** `cd ~/english-ai-tutor && source .venv/bin/activate && python main.py --gui`. Expected: the
+   browser opens `http://127.0.0.1:8765/`, the status bar shows the model.
+2. **Text conversation (5 min).** Quick Chat, text mode, level B1, any topic. Make a mistake on purpose
+   ("Last weekend I go to the cinema"), ask the teacher "What do you usually do on weekends?", then write
+   "Let's stop here". Expected: the teacher says it has no weekends / personal life (no invented experiences);
+   at the end a "Do poprawy" list (suggestions, can be wrong).
+3. **Voice conversation (5 min).** Same, voice mode: click **Mów**, speak, click again. If the "Czy dobrze
+   usłyszałem?" box appears, correct one word and send. Expected: your corrected text appears as your utterance; no
+   language mistake is recorded for the misheard word. (The microphone path was not tested on real hardware by the
+   author of this change — only with simulated audio.)
+4. **Full lesson (10 min).** **Lekcje** → recommended lesson → explanation → all tasks (answer one wrong on purpose)
+   → short conversation → **Zakończ**. Expected: hints after a wrong answer, a score, the lesson ends.
+5. **Report a wrong correction.** **Słabe strony** → a journal entry → **To była poprawna wypowiedź** → type the
+   form you think is right (or leave empty). Expected: the entry is struck out and no longer counted.
+   During any session you can also use **Zgłoś problem** (missed mistake, misheard, unclear explanation, wrong
+   answer key).
+6. **Check the error journal.** **Słabe strony**: every entry has a reliability label ("sugestia modelu",
+   "potwierdzony ćwiczeniem kontrolnym", …).
+7. **Next-lesson recommendation.** **Lekcje**: the suggested lesson shows *why* it was chosen. After three
+   conversations with the same kind of mistake, the suggestion should name that mistake.
+8. **Learning report.** **Postępy → Raport z nauki**, or in a terminal:
+   `python main.py logs report` (prints the file path; `--days 30` for a month).
+9. **Where the logs are.** `python main.py logs path` → `~/.local/share/english-ai-tutor/learning-logs/`
+   (`sessions/` JSONL without text, `reports/`, `exports/`). Details and the export format:
+   [LEARNING_LOGS.md](LEARNING_LOGS.md).
+
+To give a report to an AI model later: `python main.py logs export --days 14`, read the files in the printed
+directory, remove anything private, then share `report.md`, `cases.jsonl` and `README.md` (see LEARNING_LOGS.md).
+
 ## 3a. Owner test plan (about 45 minutes)
 
 Use a fresh test profile ("Profile" → new profile) so the results are easy to check.

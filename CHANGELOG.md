@@ -4,6 +4,20 @@ Notable changes. The project has no releases yet; versions below are development
 
 ## Unreleased
 
+### Pilot readiness: learning logs (branch `rnd/teaching-intelligence-b-lite`)
+- **Learning logs:** session metadata (models, prompt version, correction mode, level, topic, app version) in
+  `session.model_json`; events `log.*` / `report.*` in `app_event` with `session_id` (migration 009, additive); JSONL
+  mirror without utterance text in `learning-logs/sessions/`; STT original and corrected transcript, re-records,
+  timings; teacher reply timing; errors; session end reason. Switch: setting `learning_log` / `logs on|off`.
+- **Reports and export:** `python main.py logs report|export|flag|path|prune|delete`; GUI **Postępy → Raport z
+  nauki**; export with automatic redaction (manual review still required) and `cases.jsonl` (all `unverified`).
+- **Learner reports:** "Zgłoś problem" during a session (missed mistake, wrong correction, misheard, unclear
+  explanation, wrong answer key); optional correct form when disputing a correction; "Wyjaśnienie jest niejasne".
+- **Teacher:** when the learner asks about the teacher's life, a per-reply note tells the model it is an AI (it
+  invented personal experiences in 6/20 replies before, 1/20 after; role-play unchanged).
+- **Fixes:** observations now record the evaluation model (was empty in production); uptake after a correction is
+  shown in the weak-spots journal (it was stored but never read); log directories are created 0700 at every level.
+
 ### F7 final audit fixes
 - **Assessment items:** six F7 items had a second correct option; distractors replaced.
 - **Corrections:** BrE/AmE phrase variants still recognised after span minimising ("the team are"); bare plurals,

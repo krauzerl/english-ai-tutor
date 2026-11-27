@@ -231,6 +231,8 @@ python main.py --voice --exam e8_english                        # exam practice 
 python main.py --voice --finish-evals                           # finish evaluations left after earlier sessions
 
 python main.py profile list                                     # also create, select, export, reset, delete
+python main.py logs report                                      # learning report (Markdown), last 7 days
+python main.py logs export                                      # redacted export for later analysis
 python main.py content validate en                              # validate the content pack
 ```
 
@@ -335,6 +337,7 @@ Planned, in rough order and without dates:
 ## Documentation
 
 - [docs/TESTING.md](docs/TESTING.md) — running the app, automated tests, owner test plans, microphone checks, measurements
+- [docs/LEARNING_LOGS.md](docs/LEARNING_LOGS.md) — learning logs: what is recorded, where, reports, export format, privacy
 - [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) — common problems
 - [CHANGELOG.md](CHANGELOG.md) — changes by milestone
 - [CONTRIBUTING.md](CONTRIBUTING.md) — setup, checks and content rules
