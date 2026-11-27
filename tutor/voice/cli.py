@@ -290,7 +290,7 @@ def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, l
           lesson=skill.id if skill else None, choice=(choice or {}).get("source") if a.lesson else None)
     tutor = VoiceTutor(repo, p["id"], sid, llm, tts, sink, system=system, context_window=cw,
                        echo=lambda s: out(f"Tutor: {s}"), record_user_turn=svc.user_turn if svc else None,
-                       feedback=feedback)
+                       feedback=feedback, persona=not (a.chat and chat_mode == "roleplay"))
     tutor.log = a.log                                                      # błędy TTS do dziennika nauki
     speak = None if a.no_audio else _speaker(tutor, q, mic, svc, out)       # lekcja głosowa; --no-audio = sam tekst
     out(f"Profil: {p['name']} · LLM: {llm.model} · TTS: {tts.name}/{tts.voice} · tryb: {a.mode if mic else 'tekst'}")

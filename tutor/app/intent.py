@@ -121,6 +121,29 @@ def detect(text: str) -> str | None:
     return _COARSE.get(classify(text) or "")
 
 
+# Pilot: pytanie o życie nauczyciela („What do you usually do on weekends?”, „Have you ever been there?”). Qwen3 8B
+# odpowiadał wtedy zmyślonym doświadczeniem mimo zakazu w prompcie (pomiar 6/20). Prośby o pomoc („can you repeat”,
+# „do you know what X means”) NIE są pytaniem o nauczyciela.
+_ABOUT_YOU = re.compile(
+    r"\b(?:what|how|where|when) (?:do|did) you (?:usually |normally |often )?(?:do|like|enjoy|eat|cook|spend|go)\b"
+    r"|\b(?:do|did) you (?:usually |ever |often |also |really )?(?:like|love|enjoy|prefer|have (?:a|any|kids|children|"
+    r"pets?|family|hobb)|live|work|cook|travel|play|watch|go|eat|drink|spend|visit)\b"
+    r"|\bhave you (?:ever|been|tried|seen|visited|travelled|traveled)\b|\bare you (?:married|tired|from|a fan)\b"
+    r"|\b(?:what|how) about you\b|\band you\s*\?|\byour (?:weekend|hobby|hobbies|favou?rite|family|childhood|"
+    r"holiday|vacation|day|life)\b", re.I)
+
+
+def asks_about_tutor(text: str) -> bool:
+    """Uczeń pyta nauczyciela o jego życie/upodobania (nie o pomoc ani znaczenie słowa)."""
+    t = _norm(text)
+    return bool(_ABOUT_YOU.search(t)) and not re.search(r"\b(?:can|could|would) you\b|\bdo you know\b", t, re.I)
+
+
+PERSONA_NOTE = ("(Tutor note: the student asked about you personally. You are an AI, so you have no weekends, "
+                "hobbies, tastes, family or memories: say that in a few friendly words, then answer with a general "
+                "view or what many people do.)")
+
+
 def requested_topic(text: str) -> str | None:
     """Temat wskazany w prośbie o zmianę („let's talk about my job”; „Maybe travel” tylko obok prośby o zmianę tematu)
     albo None (wtedy temat losujemy). Zwykłe zdania o rozmowach („My dad talks about politics”) nie są prośbą."""

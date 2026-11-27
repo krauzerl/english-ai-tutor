@@ -197,3 +197,34 @@ def test_llm_unavailable_message(repo):
 def test_typed_lines_keep_order_while_tutor_speaks(repo, conn):
     code, out, llm = cli(repo, conn, Lines("first", "second", "q"), ["--no-audio"])
     assert code == 0 and [c[-1].content for c in llm.calls] == ["first", "second"]
+
+
+# --- Pilot: pytanie o życie nauczyciela → notatka persona przy wiadomości (tylko dla modelu) ---
+def test_persona_note_only_in_llm_message_not_in_db(repo):
+    from tutor.app import intent as INTENT
+    t, pid, sid = mk(repo)
+    t.respond("What do you usually do on weekends?")
+    last = t.llm.calls[-1][-1]
+    assert last.role == "user" and last.content.endswith(INTENT.PERSONA_NOTE)
+    assert INTENT.PERSONA_NOTE not in t.llm.calls[-1][0].content                     # system bez zmian
+    assert repo.list_turns(pid, sid)[0]["text"] == "What do you usually do on weekends?"   # baza: czysty tekst
+    t.respond("I usually cook on Sundays.")
+    assert INTENT.PERSONA_NOTE not in t.llm.calls[-1][-1].content
+    assert all(INTENT.PERSONA_NOTE not in m.content for m in t.llm.calls[-1][1:-1])  # historia bez notatek
+
+
+def test_persona_note_off_in_roleplay(repo):
+    from tutor.app import intent as INTENT
+    t, _, _ = mk(repo, persona=False)
+    t.respond("Do you have any kids?")
+    assert INTENT.PERSONA_NOTE not in t.llm.calls[-1][-1].content
+
+
+def test_asks_about_tutor_detector():
+    from tutor.app.intent import asks_about_tutor
+    for s in ("What do you usually do on weekends?", "Do you like cooking?", "Have you ever been there?",
+              "What about you?", "I love jazz, and you?", "What is your favourite film?"):
+        assert asks_about_tutor(s), s
+    for s in ("Can you repeat that, please?", "Could you explain that in simpler words?", "Do you know what it means?",
+              "I usually cook on Sundays.", "Do you think it is a good idea?", "What did you say?", "What do you mean?"):
+        assert not asks_about_tutor(s), s
