@@ -147,13 +147,22 @@ def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, l
             conn.close()
         return 0
     build_eval = llm is None and eval_llm is None     # produkcja: modele z config.toml; wstrzyknięte `llm` = bez oceny
+    from tutor.app import ai_models as AM
+    _BUDGETS.pop(p["id"], None)                        # nowa sesja = nowy licznik żądań Gemini
+    a.budget = _budget(repo, p)                        # wspólny licznik żądań Gemini rozmowy i oceny w tej sesji
     if llm is None:
         llm = _chat_provider(a)
-    if llm.external:
-        err("Rozmowa głosowa używa tylko modeli lokalnych (Gemini odroczony).")
+        if llm.external:
+            err("Model rozmowy w config.toml musi być lokalny; Gemini wybierasz w Ustawieniach → Modele AI.")
+            return 1
+        llm = AM.build(repo, p["id"], "conversation", llm, budget=a.budget, sid=lambda: a.sid, notify=out,
+                       prompt="conversation.v1")
+    if llm.external and not hasattr(llm, "local"):
+        err("Rozmowa głosowa używa modelu lokalnego albo Gemini z ustawień profilu (z lokalnym zapasem).")
         return 1
     if not llm.health():
-        err("Ollama nie odpowiada: uruchom `ollama serve`.")
+        err("Ollama nie odpowiada: uruchom `ollama serve`." if not getattr(llm, "primary", None) else
+            "Ani Gemini, ani lokalny model (Ollama) nie odpowiada — sprawdź internet i `ollama serve`.")
         return 1
     cw = context_window(llm.model)
 
@@ -283,6 +292,7 @@ def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, l
         feedback = lambda text: FB.directive(repo, conv_pack, p["id"], sid, style, set(goals), text)  # noqa: E731
     _meta(a, repo, p, sid, kind, llm, tts, mic, correction=style if feedback else "none",
           evaluation=getattr(eval_llm, "model", None) if not build_eval else _role_model("evaluation"),
+          ai_models=AM.chosen(repo, p["id"]),
           evaluated=bool(svc), level=chat_level if a.chat else None,
           chat_mode=chat_mode if a.chat else None,
           category=repo.get_session_plan(p["id"], sid).get("category") if a.chat else None,
@@ -334,6 +344,9 @@ def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, l
                 if text is None:
                     break
                 if not text:
+                    continue
+                if text.strip().lower() == "/gemini":      # ręczne przywrócenie Gemini (nie trafia do rozmowy)
+                    out(AM.restore(a.budget))
                     continue
                 out(f"You: {text}")
                 if INTENT.classify(text) == "finish":      # koniec sesji ma pierwszeństwo przed nowym tematem
@@ -702,8 +715,13 @@ def _finish_evals(repo, p, out, eval_llm, err) -> int:
     if not pending:
         out("Wszystkie wypowiedzi są ocenione.")
         return 0
-    prov = eval_llm or build_provider("evaluation")
-    if prov.external or not prov.health():
+    if eval_llm is None:
+        from tutor.app import ai_models as AM
+        prov = AM.build(repo, p["id"], "evaluation", build_provider("evaluation"), budget=_budget(repo, p),
+                        notify=out, prompt="turn_eval.v3")
+    else:
+        prov = eval_llm
+    if (prov.external and not hasattr(prov, "local")) or not prov.health():
         err("Model oceny niedostępny lokalnie — oceny zostają w kolejce.")
         return 1
     pack = C.load(p["target_lang"])
@@ -786,10 +804,12 @@ def _review_phase(a, repo, p, llm, tts, sink, mic, stt, lines, out) -> None:
 def _eval_service(repo, conn, p, sid, eval_llm, build_eval, out, goals=None, pack=None):
     """SessionService z kolejką oceny na modelu `evaluation`; None = tury tylko zapisujemy (ocena po wznowieniu)."""
     if build_eval:
-        eval_llm = build_provider("evaluation")
+        from tutor.app import ai_models as AM
+        eval_llm = AM.build(repo, p["id"], "evaluation", build_provider("evaluation"), budget=_budget(repo, p),
+                            sid=lambda: sid, notify=out, prompt="turn_eval.v3")
     if eval_llm is None:
         return None
-    if eval_llm.external or not eval_llm.health():
+    if (eval_llm.external and not hasattr(eval_llm, "local")) or not eval_llm.health():
         out("[ocena wyłączona: model oceny niedostępny lokalnie; wypowiedzi zostaną ocenione później]")
         return None
     from tutor.app.eval_runner import eval_context, lt_from_config, make_queue
@@ -914,6 +934,15 @@ def _lesson(L, repo, pack, p, sid, sk, items, svc, a, q, mic, stt, ep, out, spea
         out(f"Tutor: {LV.CHAT_Q}")
         repo.add_turn(p["id"], sid, "assistant", LV.CHAT_Q)    # pytanie otwierające jest w historii rozmowy
     return True
+
+
+_BUDGETS: dict = {}
+
+
+def _budget(repo, p):
+    """Licznik Gemini tej sesji (rozmowa i ocena wspólnie); jeden na profil w procesie sesji."""
+    from tutor.app import ai_models as AM
+    return _BUDGETS.setdefault(p["id"], AM.session_budget(repo, p["id"]))
 
 
 def _role_model(role: str) -> str | None:

@@ -25,20 +25,33 @@ def make_queue(repo, pack: Pack, provider, structured, *, profile_id: int, sessi
     """`context`: model oceny dostaje poprzednią wypowiedź tutora (tylko przy partii 1 — kontekst jest wspólny dla
     całego wywołania). Domyślnie wyłączone do czasu wyniku eksperymentu B (bench/b_lite.py).
     `lt(text, input_mode)`: kandydaci LanguageTool (`lt_candidates`); None = LT niedostępny ⇒ sam model (F5)."""
+    used: dict = {"model": None}                    # model, który faktycznie ocenił partię (Gemini albo lokalny)
+
     def evaluate(items: list[Pending]):
         prev = tutor_prev(repo, profile_id, session_id, items[0].turn_id) if context and len(items) == 1 else ""
         cands = [(lt(p.text, p.input_mode) or []) for p in items] if lt else None
-        res = turn_eval.evaluate_texts(pack, provider, structured, [p.text for p in items],
-                                       input_modes=[p.input_mode for p in items],
-                                       low_probs=[set(p.low_probs) for p in items], goals=goals, tutor_prev=prev,
-                                       lt=cands if cands and any(cands) else None)
+        def run(prov):
+            return turn_eval.evaluate_texts(pack, prov, structured, [p.text for p in items],
+                                            input_modes=[p.input_mode for p in items],
+                                            low_probs=[set(p.low_probs) for p in items], goals=goals,
+                                            tutor_prev=prev, lt=cands if cands and any(cands) else None)
+        used["model"] = None
+        res = run(provider)
+        local = getattr(provider, "local", None)
+        if all(r.eval_status != "evaluated" for r in res) and local is not None and \
+                getattr(provider, "last_provider", None) == "gemini":
+            # Gemini odpowiedziało, ale bez poprawnej oceny (np. JSON niezgodny ze schematem): niczego z tej
+            # odpowiedzi nie zapisujemy; ta sama wypowiedź raz lokalnie (te same walidatory).
+            res = run(local)
+            used["model"] = local.model
         if all(r.eval_status != "evaluated" for r in res):
             raise ModelUnavailable
+        used["model"] = used["model"] or getattr(provider, "last_model", None)
         return res
 
     def apply(p: Pending, r) -> None:
         ingest.apply_turn_evaluation(repo, pack, profile_id, session_id, p.turn_id, r, input_mode=p.input_mode,
-                                     text=p.text, goals=set(goals), now=clock(), model=model,
+                                     text=p.text, goals=set(goals), now=clock(), model=used["model"] or model,
                                      prompt_version=prompt_version + ("+ctx" if context else ""),
                                      low_prob_words=sorted(p.low_probs) or None,
                                      theta=theta, tutor_prev=tutor_prev(repo, profile_id, session_id, p.turn_id))

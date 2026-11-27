@@ -414,3 +414,46 @@ def test_interface_language_switch_to_english(page):
     page.get_by_label("Interface language").select_option("pl")
     page.get_by_role("button", name="Save settings").click()
     expect(page.get_by_role("link", name="Postępy")).to_be_visible()
+
+
+def test_ai_models_settings_key_consent_and_test(page, monkeypatch):
+    """Modele AI: klucz ukryty, nie wraca do strony, zgoda przed włączeniem, test połączenia na atrapie (bez sieci)."""
+    from tests.test_gemini_integration import KEY, TP, FakeKeyring
+    from tutor.app import ai_models as AM
+    from tutor.llm import keystore
+    k = FakeKeyring()
+    monkeypatch.setattr(keystore, "_backend", lambda: k)
+    monkeypatch.setattr(AM, "_provider", TP())
+    start_profile(page)
+    page.goto(page.site + "/#/settings")
+    card = page.locator("section.card", has_text="Modele AI")
+    expect(card).to_contain_text("Klucz nie jest skonfigurowany.")
+    key = card.get_by_label("Gemini API Key")
+    assert key.get_attribute("type") == "password"
+    expect(card.get_by_label("Używaj Gemini w tym profilu")).to_be_disabled()      # bez zgody nie da się włączyć
+    key.fill(KEY)
+    card.get_by_role("button", name="Zapisz klucz").click()
+    expect(card).to_contain_text("Klucz zapisany w systemowym magazynie haseł.")
+    assert KEY not in page.content() and list(k.store.values()) == [KEY]
+    card.get_by_role("button", name="Testuj połączenie").click()
+    expect(card).to_contain_text("Pobrano listę modeli (2)")
+    card.get_by_role("button", name="Rozumiem i zgadzam się").click()
+    expect(card).to_contain_text("Zgoda:")
+    card.get_by_label("Używaj Gemini w tym profilu").check()
+    card.get_by_label("Model rozmowy").select_option("gemini:gemini-3.5-flash-lite")
+    card.get_by_role("button", name="Testuj połączenie").click()                   # test przed zapisem: wybór zostaje
+    expect(card).to_contain_text("Połączenie z Gemini działa (gemini-3.5-flash-lite")
+    expect(card.get_by_label("Model rozmowy")).to_have_value("gemini:gemini-3.5-flash-lite")
+    card.get_by_role("button", name="Zapisz modele AI").click()
+    expect(page.locator("#toast")).to_contain_text("Zapisano ustawienia modeli AI.")
+    card.get_by_role("button", name="Testuj połączenie").click()
+    expect(card).to_contain_text("Połączenie z Gemini działa (gemini-3.5-flash-lite")
+    page.reload()
+    card = page.locator("section.card", has_text="Modele AI")
+    expect(card.get_by_label("Model rozmowy")).to_have_value("gemini:gemini-3.5-flash-lite")
+    expect(card.get_by_label("Model oceniania")).to_have_value("local")
+    assert KEY not in page.content()
+    card.get_by_role("button", name="Usuń klucz").click()
+    expect(card).to_contain_text("Klucz nie jest skonfigurowany.")
+    expect(card.get_by_label("Model rozmowy")).to_have_value("local")
+    assert k.store == {} and not page.errors

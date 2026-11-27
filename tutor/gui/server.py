@@ -203,7 +203,7 @@ class App:
                   "/api/assessment": api.assessment,
                   "/api/weakspots": api.weakspots, "/api/achievements": api.achievements,
                   "/api/history": api.history, "/api/exams": api.exam_paths, "/api/settings": api.settings,
-                  "/api/chats": api.chat_history}
+                  "/api/chats": api.chat_history, "/api/ai_models": api.ai_models}
         if path in simple:
             return simple[path](pid)
         raise LookupError(path)
@@ -265,6 +265,20 @@ class App:
                 if not isinstance(ch, dict):
                     raise BadRequest("changes: obiekt")
                 return api.update_settings(pid, ch)
+            if path == "/api/ai_models/key":              # klucz tylko w treści POST; odpowiedź bez klucza
+                key = body.get("key")
+                if not isinstance(key, str) or len(key) > 200:
+                    raise BadRequest("Klucz API: tekst, najwyżej 200 znaków")
+                return api.ai_save_key(pid, key, bool(body.get("memory_only")))
+            if path == "/api/ai_models/key_delete":
+                return api.ai_delete_key(pid)
+            if path == "/api/ai_models/consent":
+                return api.ai_consent(pid, body.get("accept") is True)
+            if path == "/api/ai_models/test":
+                model = body.get("model")
+                if model is not None and (not isinstance(model, str) or len(model) > 64):
+                    raise BadRequest("model: nazwa modelu")
+                return api.ai_test(pid, model)
             if path == "/api/session/start":
                 kind = str(body.get("kind", ""))
                 args = body.get("args") or {}

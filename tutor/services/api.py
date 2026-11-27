@@ -245,3 +245,36 @@ class TutorAPI:
                 AC.record_event(self.repo, pid, "ui_lang" if k == "ui_lang" else "setting",
                                 {"key": k, "value": out.get(k), "from": before.get(k)})
         return out
+
+    # --- Ustawienia → Modele AI (opcjonalne Gemini; klucz nigdy nie wraca do interfejsu) ---
+    def ai_models(self, pid: int) -> dict:
+        from tutor.app import ai_models as AM
+        self._profile(pid)
+        return AM.status(self.repo, pid)
+
+    def ai_save_key(self, pid: int, key: str, memory_only: bool = False) -> dict:
+        from tutor.app import ai_models as AM
+        self._profile(pid)
+        try:
+            return AM.save_key(self.repo, pid, key, memory_only=memory_only)
+        except ValueError as e:
+            raise ServiceError(str(e)) from None     # komunikat własny, bez treści klucza
+
+    def ai_delete_key(self, pid: int) -> dict:
+        from tutor.app import ai_models as AM
+        self._profile(pid)
+        return AM.delete_key(self.repo, pid)
+
+    def ai_consent(self, pid: int, accept: bool) -> dict:
+        from tutor.app import ai_models as AM
+        self._profile(pid)
+        return AM.set_consent(self.repo, pid, accept)
+
+    def ai_test(self, pid: int, model: str | None) -> dict:
+        from tutor.app import ai_models as AM
+        from tutor.app.settings import SettingError
+        self._profile(pid)
+        try:
+            return AM.test_connection(self.repo, pid, model)
+        except SettingError as e:
+            raise ServiceError(str(e)) from None

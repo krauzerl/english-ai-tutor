@@ -708,6 +708,77 @@ function dangerZone() {
     h("div", { class: "row" }, btn(t("Resetuj postępy"), () => run("reset"), "danger"), btn(t("Usuń profil"), () => run("delete"), "danger")));
 }
 
+// Ustawienia → Modele AI: opcjonalne Gemini per profil. Klucz nigdy nie wraca z serwera; test łączy się z Google
+// tylko po kliknięciu (nigdy przy otwarciu ustawień).
+async function aiModelsCard() {
+  let d;
+  try { d = await q("/api/ai_models"); } catch (e) { return note(e.message, "muted"); }
+  const box = h("div", {});
+  let models = S.aiModels || [];
+  let last = null;                                   // ostatni wynik testu (przeżywa przerysowanie karty)
+  const sel = {};                                    // niezapisany wybór w formularzu (też przeżywa przerysowanie)
+  const v = d.values;
+  const draw = () => {
+    const keyIn = h("input", { type: "password", autocomplete: "off", spellcheck: "false", maxlength: 200, "aria-label": "Gemini API Key", placeholder: d.key ? t("zapisany — wpisz nowy, by zastąpić") : "Gemini API Key" });
+    const keyState = d.key === "keyring" ? t("Klucz zapisany w systemowym magazynie haseł.") : d.key === "memory" ? t("Klucz tylko w pamięci — zniknie po zamknięciu aplikacji.") : t("Klucz nie jest skonfigurowany.");
+    const act = (path, body, msg) => async () => {
+      try { d = { ...d, ...(await api(path, { pid: S.pid, ...body })) }; Object.assign(v, d.values); if (path.endsWith("key_delete")) { delete sel.chat; delete sel.eval; } draw(); if (msg) toast(msg); } catch (e) { toast(e.message); }
+    };
+    const pick = (role) => {
+      const cur = sel[role] || (v[`${role}_provider`] === "gemini" && v[`gemini_${role}_model`] ? `gemini:${v[`gemini_${role}_model`]}` : "local");
+      const names = [...new Set([...models, v[`gemini_${role}_model`]].filter(Boolean))];
+      const local = role === "chat" ? (v.chat_model || "qwen3:8b") : "qwen3:8b";
+      return h("select", { "aria-label": role === "chat" ? t("Model rozmowy") : t("Model oceniania"), onchange: (e) => { sel[role] = e.target.value; } },
+        h("option", { value: "local", selected: cur === "local" }, t("Lokalnie — {m}", { m: local })),
+        [...new Set([...names, ...(cur.startsWith("gemini:") ? [cur.slice(7)] : [])])].map((m) => h("option", { value: `gemini:${m}`, selected: cur === `gemini:${m}` }, `Gemini — ${m}${d.candidates.includes(m) ? " ★" : ""}`)));
+    };
+    const chatSel = pick("chat"), evalSel = pick("eval");
+    const on = h("input", { type: "checkbox", checked: !!v.gemini_enabled, disabled: !d.consent_at });
+    const lim = h("select", { "aria-label": t("Limit żądań Gemini na sesję") }, [20, 50, 100, 200, 500].map((n) => h("option", { value: n, selected: n === v.gemini_max_requests }, String(n))));
+    const result = h("p", { class: `note ${last ? (last.ok ? "ok" : "bad") : ""}`, role: "status" }, last ? last.message : "");
+    const test = async () => {
+      const m = [chatSel.value, evalSel.value].find((x) => x.startsWith("gemini:"));
+      result.textContent = t("Sprawdzam połączenie…");
+      try {
+        const r = await api("/api/ai_models/test", { pid: S.pid, model: m ? m.slice(7) : null });
+        if (r.models && r.models.length) { models = S.aiModels = r.models; }
+        last = r;
+      } catch (e) { last = { ok: false, message: e.message }; }
+      draw();
+    };
+    const saveAI = async () => {
+      const [cp, cm] = chatSel.value.startsWith("gemini:") ? ["gemini", chatSel.value.slice(7)] : ["local", v.gemini_chat_model];
+      const [ep, em] = evalSel.value.startsWith("gemini:") ? ["gemini", evalSel.value.slice(7)] : ["local", v.gemini_eval_model];
+      try {
+        const out = await api("/api/settings", { pid: S.pid, changes: { gemini_enabled: on.checked, chat_provider: cp, eval_provider: ep, gemini_chat_model: cm, gemini_eval_model: em, gemini_max_requests: Number(lim.value) } });
+        Object.assign(v, out); delete sel.chat; delete sel.eval; S.settings = null; toast(t("Zapisano ustawienia modeli AI."));
+      } catch (e) { toast(e.message); }
+    };
+    const consent = d.consent_at
+      ? h("div", { class: "row" }, chip(t("Zgoda: {d}", { d: fmtDate(d.consent_at) }), "ok"), btn(t("Wycofaj zgodę"), act("/api/ai_models/consent", { accept: false }, t("Zgoda wycofana — tylko modele lokalne.")), "ghost"))
+      : h("div", {}, note(d.consent_text), btn(t("Rozumiem i zgadzam się"), act("/api/ai_models/consent", { accept: true }, t("Zgoda zapisana.")), "primary"));
+    const u = d.usage;
+    box.replaceChildren(
+      note(t("Domyślnie wszystko działa lokalnie (Qwen3 8B). Gemini jest opcjonalne i wymaga internetu oraz własnego klucza. Gdy Gemini nie odpowiada lub skończy się limit, tutor przechodzi na lokalny model bez przerywania rozmowy."), "muted"),
+      h("label", { class: "field" }, h("span", {}, "Gemini API Key"), keyIn),
+      h("p", { class: "note" }, keyState, d.persistent_store ? "" : " " + t("Systemowy magazyn haseł jest niedostępny: klucz zostanie zapisany tylko w pamięci.")),
+      h("div", { class: "row" }, btn(t("Zapisz klucz"), async () => { const k = keyIn.value; keyIn.value = ""; await act("/api/ai_models/key", { key: k }, t("Klucz zapisany."))(); }, "primary"),
+        d.key ? btn(t("Usuń klucz"), act("/api/ai_models/key_delete", {}, t("Klucz usunięty — tylko modele lokalne.")), "danger") : null,
+        btn(t("Testuj połączenie"), test, "", "check")),
+      result, consent,
+      h("label", { class: "check" }, on, t("Używaj Gemini w tym profilu")),
+      h("label", { class: "field" }, h("span", {}, t("Model rozmowy")), chatSel),
+      h("label", { class: "field" }, h("span", {}, t("Model oceniania")), evalSel),
+      h("label", { class: "field" }, h("span", {}, t("Limit żądań Gemini na sesję")), lim),
+      note(models.length ? t("Lista modeli z ostatniego testu połączenia. ★ = sugerowany kandydat.") : t("Kliknij „Testuj połączenie”, by pobrać listę modeli dostępnych dla klucza."), "muted"),
+      h("div", { class: "row" }, btn(t("Zapisz modele AI"), saveAI, "primary", "check")),
+      table([t("Licznik aplikacji"), t("Wartość")], [[t("Żądania dzisiaj (UTC)"), u.requests_today_utc], [t("Tokeny dzisiaj (UTC)"), u.tokens_today_utc], [t("Żądania łącznie"), u.requests_total]]),
+      note(t("Liczniki tej aplikacji, nie stan konta Google. Rzeczywiste limity i opłaty sprawdzisz tylko w Google AI Studio."), "muted"));
+  };
+  draw();
+  return card(t("Modele AI"), box);
+}
+
 async function screenSettings(main) {
   const d = S.settings = await q("/api/settings");
   const st = S.system;
@@ -750,7 +821,8 @@ async function screenSettings(main) {
   main.append(pageHead(t("Profil ucznia"), t("Ustawienia"), t("Zmiany dotyczą tylko wybranego profilu.")),
     ...SET_GROUPS.map(([title, keys]) => card(title, h("form", { class: "settings", onsubmit: (e) => e.preventDefault() }, keys.map(field)))),
     h("div", { class: "row" }, btn(t("Zapisz ustawienia"), save, "primary lg", "check")),
-    note(t("Model oceny zostaje bez zmian (Qwen3 8B): jego zmiana wymaga kontroli jakości. Model rozmowy musi być pobrany w Ollamie."), "muted"),
+    note(t("Model rozmowy musi być pobrany w Ollamie. Gemini dla rozmowy lub oceny ustawisz w sekcji „Modele AI”."), "muted"),
+    await aiModelsCard(),
     dangerZone(),
     card(t("Ten komputer"), table([t("Element"), t("Stan")], st ? [
       ["Ollama", st.ollama ? t("działa") : t("nie odpowiada — uruchom `ollama serve`")], [t("Pobrane modele"), st.models.join(", ") || "—"],

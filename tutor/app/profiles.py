@@ -62,6 +62,8 @@ def reset_progress(repo, pid: int, confirm_name: str, *, make_backup: bool = Tru
 def delete(repo, pid: int, confirm_name: str, *, make_backup: bool = True, directory: Path | None = None) -> dict:
     p = _check(repo, pid, confirm_name)
     path = backup(repo, pid, directory) if make_backup else None
+    from tutor.llm import keystore
+    keystore.delete(repo, pid)                        # klucz API profilu z magazynu sekretów (przed usunięciem ref)
     with repo.transaction():
         repo.delete_profile(pid)
     _drop_log_files(repo, pid)

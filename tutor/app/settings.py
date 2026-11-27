@@ -2,6 +2,8 @@
 (styl korekt, minuty, materiały). Domyślne wartości głosu: `config.toml [voice]`; do pliku nic nie zapisujemy."""
 from __future__ import annotations
 
+import re
+
 from tutor import config
 
 LANGS = ("en",)                     # języki z paczką treści
@@ -34,6 +36,14 @@ SCHEMA: dict[str, dict] = {
     # Nauka na błędach: krótkie sprawdzenie głosowe na starcie Quick Chat (najwyżej co 2 dni, tylko przy powtarzającym
     # się błędzie; zawsze można pominąć słowem „skip”).
     "chat_checks": {"type": "bool"},
+    # Opcjonalne Gemini (Ustawienia → Modele AI). Główny przełącznik + osobny wybór dla rozmowy i oceny; klucz API
+    # NIE jest ustawieniem (systemowy magazyn sekretów, `tutor.llm.keystore`). Nowy profil: tylko lokalny Qwen3.
+    "gemini_enabled": {"type": "bool"},
+    "chat_provider": {"type": "choice", "choices": ("local", "gemini")},
+    "eval_provider": {"type": "choice", "choices": ("local", "gemini")},
+    "gemini_chat_model": {"type": "model"},
+    "gemini_eval_model": {"type": "model"},
+    "gemini_max_requests": {"type": "choice", "choices": (20, 50, 100, 200, 500)},   # na sesję, licznik aplikacji
 }
 # F7: tempo mowy. Kokoro zmienia tempo w modelu (długość fonemów), więc wysokość głosu się nie zmienia (bez
 # przepróbkowania). Domyślnie „normalnie” = 0,9 — test właściciela: 1,0 było za szybkie.
@@ -44,7 +54,8 @@ DEFAULTS = {"tts_voice": "bf_emma", "speed": DEFAULT_SPEED, "mic_mode": "ptt", "
             "conversation_mode": "lesson", "chat_model": CHAT_MODELS[0], "io_mode": "voice",
             "input_device": "default", "output_device": "default",
             "chat_level": "auto", "chat_category": "general", "chat_mode": "natural", "learning_log": True,
-            "chat_checks": True}
+            "chat_checks": True, "gemini_enabled": False, "chat_provider": "local", "eval_provider": "local",
+            "gemini_chat_model": "", "gemini_eval_model": "", "gemini_max_requests": 50}
 
 
 class SettingError(ValueError):
@@ -67,6 +78,10 @@ def _coerce(key: str, value):
             if isinstance(value, str):
                 value = value.lower() in ("1", "true", "tak", "yes", "on")
             value = bool(value)
+        elif t == "model":                      # nazwa modelu z listy API; "" = brak wyboru
+            value = str(value).strip().removeprefix("models/")
+            if value and not re.fullmatch(r"[a-z0-9][a-z0-9.\-]{1,63}", value):
+                raise SettingError(f"{key}: niepoprawna nazwa modelu")
         elif t == "choice":
             ch = spec["choices"]
             value = type(ch[0])(value)
@@ -95,9 +110,26 @@ def effective(repo, profile_id: int) -> dict:
     return out
 
 
+def _check_gemini(repo, profile_id: int, merged: dict, clean: dict) -> None:
+    """Gemini wybrane dla roli ⇒ włączone, zgoda profilu, klucz i nazwa modelu. Wyłączenie zawsze dozwolone."""
+    roles = [r for r in ("chat", "eval") if merged[f"{r}_provider"] == "gemini"]
+    if not merged["gemini_enabled"] or not roles or not ({"gemini_enabled", "chat_provider", "eval_provider",
+                                                           "gemini_chat_model", "gemini_eval_model"} & set(clean)):
+        return
+    from tutor.llm import keystore
+    if not repo.get_profile(profile_id)["external_api_consent_at"]:
+        raise SettingError("Gemini: najpierw potwierdź zgodę na wysyłanie treści do Google (Modele AI).")
+    if not keystore.status(repo, profile_id):
+        raise SettingError("Gemini: najpierw zapisz klucz API w tym profilu.")
+    for r in roles:
+        if not merged[f"gemini_{r}_model"]:
+            raise SettingError("Gemini: wybierz model (najpierw „Testuj połączenie”, by pobrać listę).")
+
+
 def update(repo, profile_id: int, changes: dict) -> dict:
     """Waliduje WSZYSTKIE zmiany przed zapisem (atomowo); zwraca obowiązujące ustawienia."""
     clean = {k: _coerce(k, v) for k, v in changes.items()}
+    _check_gemini(repo, profile_id, {**effective(repo, profile_id), **clean}, clean)
     with repo.transaction():
         cols = {}
         for k, v in clean.items():

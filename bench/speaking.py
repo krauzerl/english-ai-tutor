@@ -94,12 +94,57 @@ def score(cases: list[dict], rows: list[dict], key: str) -> dict:
     return out
 
 
-def run_policy(cases: list[dict]) -> dict:
+class Capped:
+    """Twardy limit żądań benchmarku (bez fallbacku: wynik ma pochodzić z jednego modelu). Po limicie: błąd = brak
+    oceny w wynikach, nie ocena innym modelem."""
+
+    def __init__(self, provider, cap: int):
+        self.p, self.cap, self.n = provider, cap, 0
+        self.name, self.model, self.external = provider.name, provider.model, provider.external
+
+    def chat(self, messages, **kw):
+        from tutor.llm.base import LLMError
+        if self.n >= self.cap:
+            raise LLMError("limit żądań benchmarku", reason="limit")
+        self.n += 1
+        return self.p.chat(messages, **kw)
+
+    def stream(self, messages, **kw):
+        from tutor.llm.base import LLMError
+        if self.n >= self.cap:
+            raise LLMError("limit żądań benchmarku", reason="limit")
+        self.n += 1
+        return self.p.stream(messages, **kw)
+
+    def health(self):
+        return True
+
+
+def gemini_provider(model: str, profile: str, cap: int):
+    """Gemini z kluczem zapisanym w profilu (Ustawienia → Modele AI). Baza otwierana TYLKO DO ODCZYTU (bez migracji)."""
+    import sqlite3
+
+    from tutor import config
+    from tutor.llm import keystore
+    from tutor.llm.gemini import GeminiProvider
+    from tutor.store.repo import Repo
+    conn = sqlite3.connect(f"file:{config.db_path()}?mode=ro", uri=True)
+    conn.row_factory = sqlite3.Row
+    repo = Repo(conn)
+    p = repo.find_profile(profile)
+    key = keystore.get(repo, p["id"]) if p else None
+    conn.close()
+    if not key:
+        raise SystemExit("Brak klucza Gemini w tym profilu (Ustawienia → Modele AI).")
+    return Capped(GeminiProvider(model, key, 30), cap)
+
+
+def run_policy(cases: list[dict], prov=None) -> dict:
     from tutor.app.turn_eval import evaluate_texts
     from tutor.llm import build_provider
     from tutor.llm.structured import structured
     from tutor.pedagogy import content as C
-    pack, prov = C.load("en"), build_provider("evaluation")
+    pack, prov = C.load("en"), prov or build_provider("evaluation")
     rows, times = [], []
     for c in cases:
         t0 = time.monotonic()
@@ -152,7 +197,18 @@ def run_chat(cases: list[dict], repeat: int = 2) -> dict:
     return out
 
 
-def run_chat_multi(cases: list[dict], per: int = 5, repeat: int = 1) -> dict:
+def generic_stats(p, messages, max_tokens=100, temperature=0.7) -> dict:
+    """Jak `bench.models.stream_stats`, ale dla dowolnego dostawcy (Gemini): czas 1. fragmentu i 1. zdania."""
+    t0, first, sent, parts = time.perf_counter(), None, None, []
+    for c in p.stream(messages, max_tokens=max_tokens, temperature=temperature):
+        first = first or time.perf_counter() - t0
+        parts.append(c)
+        if sent is None and re.search(r"[.!?](\s|$)", "".join(parts)):
+            sent = time.perf_counter() - t0
+    return {"text": "".join(parts), "ttft_s": first, "first_sentence_s": sent or (time.perf_counter() - t0)}
+
+
+def run_chat_multi(cases: list[dict], per: int = 5, repeat: int = 1, prov=None) -> dict:
     """Rozmowy wieloturowe (po `per` wypowiedzi z rzędu, odpowiedzi modelu w historii): nowy prompt sam vs nowy
     prompt + notatka przy wiadomości ucznia (`intent.NO_CORRECT_NOTE`). Liczymy komentarze o języku ucznia."""
     from bench.models import stream_stats
@@ -160,7 +216,7 @@ def run_chat_multi(cases: list[dict], per: int = 5, repeat: int = 1) -> dict:
     from tutor.app import quickchat as QC
     from tutor.llm import build_provider
     from tutor.llm.base import Message
-    p = build_provider("conversation")
+    p = prov or build_provider("conversation")
     topic = {"pl": "Travel and work", "category": "general", "category_pl": "General English"}
     sysp = QC.system_prompt(topic, "B1", "natural")
     out = {}
@@ -170,7 +226,8 @@ def run_chat_multi(cases: list[dict], per: int = 5, repeat: int = 1) -> dict:
             for k in range(0, len(cases), per):
                 hist = [Message("system", sysp), Message("assistant", "What have you been up to recently?")]
                 for c in cases[k:k + per]:
-                    st = stream_stats(p, [*hist, Message("user", c["text"] + note)], max_tokens=100, temperature=0.7)
+                    st = (generic_stats if prov else stream_stats)(p, [*hist, Message("user", c["text"] + note)],
+                                                                   max_tokens=100, temperature=0.7)
                     hist += [Message("user", c["text"]), Message("assistant", st["text"])]
                     rows.append({"id": c["id"], "kind": c["kind"], "rep": rep, "reply": st["text"],
                                  "self_correction": bool(SELF_CORR.search(st["text"])),
@@ -190,10 +247,19 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--split", default="dev", choices=["dev", "held", "all"])
     ap.add_argument("--repeat", type=int, default=2)
     ap.add_argument("--out")
+    ap.add_argument("--gemini", metavar="MODEL", help="policy/multi na Gemini (klucz z profilu, tylko syntetyczne "
+                    "przypadki z YAML); bez tej opcji: modele z config.toml")
+    ap.add_argument("--key-profile", help="profil z zapisanym kluczem Gemini")
+    ap.add_argument("--max-requests", type=int, default=60, help="twardy limit żądań do Gemini (domyślnie 60)")
     a = ap.parse_args(argv)
     cases = load(a.split)
-    r = run_policy(cases) if a.part == "policy" else run_chat(cases, a.repeat) if a.part == "chat" else \
-        run_chat_multi(cases, repeat=a.repeat)
+    prov = gemini_provider(a.gemini, a.key_profile or "", a.max_requests) if a.gemini else None
+    if prov and a.part == "chat":
+        raise SystemExit("--gemini: użyj części policy albo multi")
+    r = run_policy(cases, prov) if a.part == "policy" else run_chat(cases, a.repeat) if a.part == "chat" else \
+        run_chat_multi(cases, repeat=a.repeat, prov=prov)
+    if prov:
+        r["gemini_requests"] = prov.n
     summary = {k: v for k, v in r.items() if k != "rows"} if a.part == "policy" else \
         {k: {x: y for x, y in v.items() if x != "rows"} for k, v in r.items()}
     print(json.dumps(summary, ensure_ascii=False))
