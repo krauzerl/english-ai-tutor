@@ -509,6 +509,7 @@ async function screenWeak(main) {
             h("header", {}, h("strong", {}, `${i + 1}. ${catPl(e.category)}`), h("span", { class: `badge ${cls}` }, label)),
             e.example && cls !== "stt" ? h("p", { class: "example" }, e.correction ? fixLine(e.example, e.correction) : h("span", { lang: "en" }, e.example)) : null,
             h("p", { class: "muted" }, t("{n}× · ostatnio {d} · trend: {t}", { n: e.count, d: fmtDate(e.last_seen), t: tr.direction ? t(tr.direction) : t("za mało danych") })),
+            e.uptake ? h("p", { class: "muted" }, t("Po korekcie w rozmowie: użyta poprawnie {a}×, błąd powtórzony {b}× (obserwacja, nie dowód opanowania)", { a: e.uptake.used_ok, b: e.uptake.repeated })) : null,
             e.skills.length ? h("div", {}, btn(t("Ćwicz to"), () => startSession("drill", { target: String(i + 1), text_mode: defaultTextMode() }), "primary", "play")) : note(t("Brak materiałów do ćwiczeń dla tej kategorii."), "muted"));
         })) : null,
         note(t("Trend pokazujemy dopiero przy co najmniej 5 wypowiedziach w obu okresach (14 dni)."), "muted"),
@@ -524,7 +525,12 @@ async function screenWeak(main) {
 
 function journalEntry(e) {
   const review = async (verdict) => {
-    try { await api("/api/weakspots/review", { pid: S.pid, observation_id: e.id, verdict }); route(); } catch (err) { toast(err.message); }
+    // Pilot: przy zakwestionowaniu można podać poprawną formę (opcjonalnie; anulowanie = bez uwagi).
+    const note = verdict === "disputed" ? (window.prompt(t("ws.alt_prompt"), "") || "") : "";
+    try { await api("/api/weakspots/review", { pid: S.pid, observation_id: e.id, verdict, note }); route(); } catch (err) { toast(err.message); }
+  };
+  const unclear = async () => {
+    try { await api("/api/report", { pid: S.pid, kind: "unclear_explanation", observation_id: e.id }); toast(t("Zapisano zgłoszenie (do przeglądu).")); } catch (err) { toast(err.message); }
   };
   const [cls] = e.kind === "stt_suspect" ? ["stt"] : e.confidence === "h" ? ["warn"] : ["none"];
   return h("article", { class: `weak${e.counted ? "" : " struck"}` },
@@ -535,6 +541,7 @@ function journalEntry(e) {
     h("p", { class: "muted" }, `${fmtDate(e.date)} · ${t("ws.source")}: ${e.source}` + (e.review_pl ? ` · ${e.review_pl}` : "") + (e.counted ? "" : ` · ${t("ws.not_counted")}`)),
     h("div", { class: "row" }, e.counted ? [btn(t("ws.dispute"), () => review("disputed"), "sm quiet"), btn(t("ws.stt"), () => review("stt_error"), "sm quiet")]
       : btn(t("ws.restore"), () => review("restored"), "sm quiet"),
+    btn(t("Wyjaśnienie jest niejasne"), unclear, "sm quiet"),
     e.counted && e.category ? btn(t("ws.drill"), () => startSession("drill", { target: e.category, text_mode: defaultTextMode() }), "sm", "play") : null));
 }
 
@@ -564,8 +571,17 @@ async function screenProgress(main) {
   const small = (n) => (n < 5 ? t(" (mała próba)") : "");
   const groups = [["mastered", t("Opanowane"), "amber"], ["working", t("W toku"), "green"], ["struggling", t("Wymagają pracy"), "terra"], ["too_few", t("Za mało prób"), "turq"]];
   const status = { ended: t("zakończona"), paused: t("przerwana"), active: t("trwa"), abandoned: t("porzucona") };
+  const repBox = h("div", { id: "learnrep" });
+  const makeReport = async () => {
+    try {
+      const r = await api("/api/learning_report", { pid: S.pid, days: 7 });
+      repBox.replaceChildren(card(t("Raport z nauki (7 dni)"), note(t("Zapisano: {p}", { p: r.path }), "muted"), h("pre", { class: "report-md" }, r.markdown)));
+    } catch (e) { toast(e.message); }
+  };
   main.append(
-    pageHead(t("Dziennik nauki"), t("Postępy"), t("Wszystko pochodzi z bazy na tym komputerze. Czas nauki to przybliżenie z odstępów między zapisami.")),
+    pageHead(t("Dziennik nauki"), t("Postępy"), t("Wszystko pochodzi z bazy na tym komputerze. Czas nauki to przybliżenie z odstępów między zapisami."),
+      btn(t("Raport z nauki"), makeReport, "", "progress")),
+    repBox,
     growthSection(p.growth),
     h("div", { class: "stats" },
       stat(t("Czas nauki"), fmtMin(tot.study_seconds)), stat(t("Sesje"), tot.sessions), stat(t("Ukończone lekcje"), tot.lessons_completed),
@@ -660,8 +676,9 @@ const SET_LABELS = {
   input_device: t("Mikrofon (urządzenie)"), output_device: t("Głośnik (urządzenie)"), stt_model: t("Rozpoznawanie mowy"),
   allow_unreviewed: t("Używaj materiałów niesprawdzonych przez człowieka"), conversation_mode: t("Domyślna aktywność"), target_lang: t("Język nauki"),
   stt_confirm: t("Potwierdzanie rozpoznanej mowy"), ui_lang: t("Język interfejsu"), mascot: t("Maskotka (propozycja)"),
+  learning_log: t("Szczegółowy dziennik nauki (lokalnie)"),
 };
-const SET_GROUPS = [[t("Rozmowa i nauka"), ["ui_lang", "mascot", "chat_model", "correction", "conversation_mode", "session_minutes", "allow_unreviewed", "target_lang"]],
+const SET_GROUPS = [[t("Rozmowa i nauka"), ["ui_lang", "mascot", "chat_model", "correction", "conversation_mode", "session_minutes", "allow_unreviewed", "target_lang", "learning_log"]],
   [t("Głos i dźwięk"), ["io_mode", "tts_voice", "speed", "stt_confirm", "mic_mode", "input_device", "output_device"]]];
 const SPEED_LABELS = { slow: t("wolno"), normal: t("normalnie"), fast: t("szybko") };
 const CHOICE_LABELS = { A: t("A — Obwód"), B: t("B — Słuchawki"), C: t("C — Bit"), classic: t("dotychczasowa żaba"), pl: t("polski"), summary: t("swobodna — uwagi głównie na końcu"), periodic: t("zrównoważona — krótkie korekty w trakcie"), intensive: t("intensywna — częste korekty i ćwiczenie"),
@@ -803,6 +820,24 @@ function lessonText(text) {
 
 function chatLayout(s) { return s.kind === "chat" || s.phase === "chat"; }
 
+// Pilot: zgłoszenie problemu nauczyciela z bieżącej sesji (kontekst: ostatnia wypowiedź / ostatnie zadanie).
+const REPORT_OPTS = [["missed_error", t("Nauczyciel nie zauważył mojego błędu")], ["wrong_correction", t("Ta poprawka jest błędna")],
+  ["stt_misheard", t("Whisper źle mnie zrozumiał")], ["unclear_explanation", t("Wyjaśnienie jest niejasne")], ["wrong_answer_key", t("Ćwiczenie ma nieprawidłową odpowiedź")]];
+function reportBox() {
+  const kind = h("select", { "aria-label": t("Rodzaj problemu") }, REPORT_OPTS.map(([v, l]) => h("option", { value: v }, l)));
+  const quote = h("input", { type: "text", maxlength: 500, lang: "en", placeholder: t("Fragment (opcjonalnie)"), "aria-label": t("Fragment") });
+  const noteEl = h("input", { type: "text", maxlength: 500, placeholder: t("Uwaga, np. poprawna forma (opcjonalnie)"), "aria-label": t("Uwaga") });
+  const box = h("details", { class: "report-box" }, h("summary", {}, t("Zgłoś problem")));
+  const send = async () => {
+    try {
+      await api("/api/report", { pid: S.pid, kind: kind.value, quote: quote.value.trim(), note: noteEl.value.trim() });
+      quote.value = ""; noteEl.value = ""; box.open = false; toast(t("Zapisano zgłoszenie (do przeglądu)."));
+    } catch (e) { toast(e.message); }
+  };
+  box.append(kind, quote, noteEl, note(t("Zgłoszenie trafia do lokalnego dziennika; nie zmienia oceny ani nauczyciela."), "muted"), btn(t("Zapisz zgłoszenie"), send, "sm"));
+  return box;
+}
+
 function screenSession(main) {
   const s = S.session;
   if (!s) { main.append(h("div", { class: "empty" }, mascot("idle", 72), h("div", {}, h("p", {}, t("Brak aktywnej sesji.")), btn(t("Na start"), () => go("#/home"), "primary")))); return; }
@@ -832,7 +867,7 @@ function screenSession(main) {
         mascot("idle", 150), h("span", { class: "state-label", id: "sstate", "data-state": "connecting", role: "status" }, STATE_PL.connecting),
         h("p", { class: "next", id: "next" }), mic(),
         h("div", { class: "topic-now", id: "topicnow" }),
-        h("div", { class: "tools" }, tools.map(([l, t, c]) => btn(l, () => send(t), `sm ${c || ""}`))), stop),
+        h("div", { class: "tools" }, tools.map(([l, t, c]) => btn(l, () => send(t), `sm ${c || ""}`))), stop, reportBox()),
       h("section", { class: "convo", "aria-label": t("Rozmowa") },
         h("div", { class: "convo-head" }, h("h1", {}, s.kind === "chat" ? "Quick Chat" : t("Rozmowa po lekcji")), h("span", { class: "muted" }, s.text ? t("tryb tekstowy") : t("tryb głosowy"))),
         log,
@@ -853,7 +888,7 @@ function screenSession(main) {
         h("div", { class: "stage" }, mascot("idle", 130), h("span", { class: "state-label", id: "sstate", "data-state": "connecting" }, STATE_PL.connecting),
           h("div", { class: "said", id: "said", hidden: true })),
         h("div", { class: "tools" }, tools.map(([l, t, c]) => btn(l, () => send(t), `sm ${c || ""}`))),
-        stop, h("div", { id: "explainbox" }))));
+        stop, reportBox(), h("div", { id: "explainbox" }))));
   }
   s.log.forEach((ev) => drawEvent(ev, false));
   drawSide();

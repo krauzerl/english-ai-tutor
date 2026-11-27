@@ -508,3 +508,24 @@ I18N.add([
   ["B — Słuchawki", "B — Słuchawki", "B — Headset"], ["C — Bit", "C — Bit", "C — Bit"],
   ["dotychczasowa żaba", "dotychczasowa żaba", "previous frog"],
 ]);
+// Pilot: learning logs — zgłoszenia problemów nauczyciela, raport z nauki, przełącznik dziennika.
+I18N.add([
+  ["ws.alt_prompt", "Jaka forma jest Twoim zdaniem poprawna? (opcjonalnie — możesz zostawić puste)", "Which form do you think is correct? (optional — you can leave it empty)"],
+  ["Zapisano zgłoszenie (do przeglądu).", "Zapisano zgłoszenie (do przeglądu).", "Report saved (for review)."],
+  ["Wyjaśnienie jest niejasne", "Wyjaśnienie jest niejasne", "The explanation is unclear"],
+  ["Nauczyciel nie zauważył mojego błędu", "Nauczyciel nie zauważył mojego błędu", "The teacher missed my mistake"],
+  ["Ta poprawka jest błędna", "Ta poprawka jest błędna", "This correction is wrong"],
+  ["Whisper źle mnie zrozumiał", "Whisper źle mnie zrozumiał", "Whisper misheard me"],
+  ["Ćwiczenie ma nieprawidłową odpowiedź", "Ćwiczenie ma nieprawidłową odpowiedź", "The exercise has a wrong answer key"],
+  ["Rodzaj problemu", "Rodzaj problemu", "Problem type"], ["Fragment (opcjonalnie)", "Fragment (opcjonalnie)", "Fragment (optional)"],
+  ["Fragment", "Fragment", "Fragment"], ["Uwaga", "Uwaga", "Note"],
+  ["Uwaga, np. poprawna forma (opcjonalnie)", "Uwaga, np. poprawna forma (opcjonalnie)", "Note, e.g. the correct form (optional)"],
+  ["Zgłoś problem", "Zgłoś problem", "Report a problem"], ["Zapisz zgłoszenie", "Zapisz zgłoszenie", "Save report"],
+  ["Zgłoszenie trafia do lokalnego dziennika; nie zmienia oceny ani nauczyciela.", "Zgłoszenie trafia do lokalnego dziennika; nie zmienia oceny ani nauczyciela.", "The report goes to the local log; it does not change grading or the teacher."],
+  ["Raport z nauki", "Raport z nauki", "Learning report"], ["Raport z nauki (7 dni)", "Raport z nauki (7 dni)", "Learning report (7 days)"],
+  ["Zapisano: {p}", "Zapisano: {p}", "Saved: {p}"],
+  ["Szczegółowy dziennik nauki (lokalnie)", "Szczegółowy dziennik nauki (lokalnie)", "Detailed learning log (local)"],
+]);
+I18N.add([["Po korekcie w rozmowie: użyta poprawnie {a}×, błąd powtórzony {b}× (obserwacja, nie dowód opanowania)",
+  "Po korekcie w rozmowie: użyta poprawnie {a}×, błąd powtórzony {b}× (obserwacja, nie dowód opanowania)",
+  "After a correction in conversation: used correctly {a}×, mistake repeated {b}× (an observation, not proof of mastery)"]]);

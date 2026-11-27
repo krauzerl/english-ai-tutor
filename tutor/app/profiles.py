@@ -55,6 +55,7 @@ def reset_progress(repo, pid: int, confirm_name: str, *, make_backup: bool = Tru
             if t in KEEP_ON_RESET:
                 continue
             removed[t] = repo.conn.execute(f"DELETE FROM {t} WHERE profile_id=?", (pid,)).rowcount  # noqa: S608
+    _drop_log_files(repo, pid)
     return {"backup": str(path) if path else None, "removed": removed}
 
 
@@ -63,6 +64,16 @@ def delete(repo, pid: int, confirm_name: str, *, make_backup: bool = True, direc
     path = backup(repo, pid, directory) if make_backup else None
     with repo.transaction():
         repo.delete_profile(pid)
+    _drop_log_files(repo, pid)
     if config.get_last_profile() == pid:
         config.set_last_profile(None)
     return {"backup": str(path) if path else None, "deleted": p["name"]}
+
+
+def _drop_log_files(repo, pid: int) -> None:
+    """Pliki dziennika nauki profilu (JSONL, raporty, eksporty) idą razem z jego danymi w bazie."""
+    from tutor.app import learnlog as LL
+    try:
+        LL.delete_profile_logs(repo, pid, db_events=False)
+    except Exception:  # noqa: BLE001 - brak plików/uprawnień nie cofa usunięcia z bazy
+        pass

@@ -47,7 +47,7 @@ def chat():
 
 if __name__ == "__main__":
     if sys.argv[1:2] in (["-h"], ["--help"]):
-        print("Użycie: python main.py --gui | --voice [opcje; --voice --help] | profile ... | content ...\n"
+        print("Użycie: python main.py --gui | --voice [opcje; --voice --help] | profile ... | content ... | logs ...\n"
               "Bez opcji: stary czat tekstowy (Bielik).")
         sys.exit(0)
     if sys.argv[1:2] == ["profile"]:
@@ -58,6 +58,10 @@ if __name__ == "__main__":
         from tutor.cli import content_main
 
         sys.exit(content_main(sys.argv[2:]))
+    if sys.argv[1:2] == ["logs"]:
+        from tutor.cli import logs_main
+
+        sys.exit(logs_main(sys.argv[2:]))
     if "--gui" in sys.argv[1:]:
         from tutor.gui.server import main as gui_main
 

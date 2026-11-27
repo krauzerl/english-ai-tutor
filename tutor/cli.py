@@ -198,3 +198,78 @@ def content_main(argv: list[str], inp=input, out=print) -> int:
             break
     out(f"Koniec kolejki; zapisano {done}.")
     return 0
+
+
+def logs_main(argv: list[str], out=print) -> int:
+    """Dziennik nauki: python main.py logs path|report|export|flag|on|off|delete|prune."""
+    from tutor.app import learning_report as LR
+    from tutor.app import learnlog as LL
+    from tutor.pedagogy import content as C
+    ap = argparse.ArgumentParser(prog="main.py logs")
+    ap.add_argument("--profile", help="nazwa lub id profilu (domyślnie ostatnio wybrany)")
+    sub = ap.add_subparsers(dest="cmd", required=True)
+    sub.add_parser("path", help="gdzie są pliki dziennika")
+    for name, days in (("report", 7), ("export", 30)):
+        x = sub.add_parser(name)
+        x.add_argument("--days", type=int, default=days, help=f"okres w dniach (domyślnie {days}; 0 = całość)")
+        x.add_argument("--session", type=int, help="tylko jedna sesja (id)")
+        if name == "export":
+            x.add_argument("--no-redact", action="store_true", help="bez automatycznej redakcji (pełne wypowiedzi)")
+            x.add_argument("--redact-word", action="append", default=[], help="dodatkowe słowo do ukrycia")
+    fl = sub.add_parser("flag", help="zgłoszenie problemu nauczyciela (niezweryfikowane)")
+    fl.add_argument("kind", choices=sorted(LL.REPORT_KINDS))
+    fl.add_argument("--session", type=int)
+    fl.add_argument("--observation", type=int, help="id korekty z dziennika")
+    fl.add_argument("--quote", help="fragment wypowiedzi")
+    fl.add_argument("--note", help="uwaga, np. poprawna forma")
+    sub.add_parser("on", help="włącz szczegółowy dziennik")
+    sub.add_parser("off", help="wyłącz szczegółowy dziennik (zgłoszenia nadal zapisywane)")
+    de = sub.add_parser("delete", help="usuń pliki dziennika i zdarzenia dziennika profilu (historia nauki zostaje)")
+    de.add_argument("--yes", action="store_true")
+    pr = sub.add_parser("prune", help="usuń pliki JSONL starsze niż N dni")
+    pr.add_argument("--days", type=int, default=LL.RETENTION_DAYS)
+    a = ap.parse_args(argv)
+    conn = open_db(config.db_path())
+    repo = Repo(conn)
+    try:
+        if a.cmd == "prune":
+            out(f"Usunięto plików: {LL.prune(repo, a.days)}")
+            return 0
+        if a.cmd == "path":
+            out(str(LL.logs_dir(repo)))
+            return 0
+        p = repo.find_profile(a.profile) if a.profile else repo.get_profile(config.get_last_profile() or -1)
+        if p is None:
+            print("Brak profilu: podaj --profile NAZWA", file=sys.stderr)
+            return 1
+        pid = p["id"]
+        if a.cmd in ("on", "off"):
+            repo.set_setting(pid, "learning_log", a.cmd == "on")
+            out(f"Szczegółowy dziennik nauki: {'włączony' if a.cmd == 'on' else 'wyłączony'}")
+        elif a.cmd == "delete":
+            if not a.yes:
+                print("Usunięcie plików dziennika jest nieodwracalne. Dodaj --yes.", file=sys.stderr)
+                return 1
+            r = LL.delete_profile_logs(repo, pid)
+            out(f"Usunięto plików: {r['files']}, zdarzeń dziennika: {r['events']} (historia nauki została).")
+        elif a.cmd == "flag":
+            try:
+                r = LL.report(repo, pid, a.kind, session_id=a.session, observation_id=a.observation, quote=a.quote,
+                              note=a.note)
+            except ValueError as e:
+                print(f"Nie można zapisać zgłoszenia: {e}", file=sys.stderr)
+                return 1
+            out(f"Zapisano zgłoszenie #{r['id']} ({LL.REPORT_KINDS[a.kind]}), sesja #{r['session_id']}. "
+                "Status: niezweryfikowane.")
+        else:
+            pack = C.load(p["target_lang"])
+            if a.cmd == "report":
+                out(str(LR.write_report(repo, pack, pid, days=a.days or None, session_id=a.session)))
+            else:
+                d = LR.export(repo, pack, pid, days=a.days or None, session_id=a.session, redacted=not a.no_redact,
+                              extra_words=a.redact_word)
+                out(str(d))
+                out("Przejrzyj pliki ręcznie przed udostępnieniem (redakcja automatyczna nie jest kompletna).")
+        return 0
+    finally:
+        conn.close()

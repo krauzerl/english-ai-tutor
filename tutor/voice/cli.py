@@ -111,8 +111,12 @@ def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, l
     if p is None:
         err("Brak profilu. Utwórz: python main.py profile create NAZWA")
         return 1
+    from tutor.app import learnlog as LL
     from tutor.app.achievements import record_event
     a.event = lambda kind: record_event(repo, p["id"], kind)       # zdarzenia aplikacji (tylko osiągnięcia)
+    a.sid = None                                                   # bieżąca sesja: zdarzenia dziennika nauki
+    a.log = lambda kind, **d: LL.log(repo, p["id"], kind, a.sid, **d)  # noqa: E731 - nigdy nie rzuca
+    LL.prune(repo)                                                 # tylko stare pliki JSONL; baza bez zmian
     if a.progress:
         from tutor.app import progress as PG
         from tutor.pedagogy import content as C
@@ -269,7 +273,7 @@ def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, l
         from tutor.pedagogy import content as C
         conv_pack = C.load(p["target_lang"])
     svc = _eval_service(repo, conn, p, sid, eval_llm, build_eval, out, goals, conv_pack)
-    feedback = None
+    feedback = style = None
     if svc and conv_pack:
         from tutor.app import feedback as FB
         from tutor.pedagogy.correction import effective_style
@@ -277,15 +281,24 @@ def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, l
         if a.chat and chat_mode == "roleplay":           # roleplay: nie przerywamy scenariusza (intensywna = recast)
             style = {"intensive": "periodic"}.get(style, "summary")
         feedback = lambda text: FB.directive(repo, conv_pack, p["id"], sid, style, set(goals), text)  # noqa: E731
+    _meta(a, repo, p, sid, kind, llm, tts, mic, correction=style if feedback else "none",
+          evaluation=getattr(eval_llm, "model", None) if not build_eval else _role_model("evaluation"),
+          evaluated=bool(svc), level=chat_level if a.chat else None,
+          chat_mode=chat_mode if a.chat else None,
+          category=repo.get_session_plan(p["id"], sid).get("category") if a.chat else None,
+          topic=(chat_topic or {}).get("id") or ("custom" if chat_topic else None),
+          lesson=skill.id if skill else None, choice=(choice or {}).get("source") if a.lesson else None)
     tutor = VoiceTutor(repo, p["id"], sid, llm, tts, sink, system=system, context_window=cw,
                        echo=lambda s: out(f"Tutor: {s}"), record_user_turn=svc.user_turn if svc else None,
                        feedback=feedback)
+    tutor.log = a.log                                                      # błędy TTS do dziennika nauki
     speak = None if a.no_audio else _speaker(tutor, q, mic, svc, out)       # lekcja głosowa; --no-audio = sam tekst
     out(f"Profil: {p['name']} · LLM: {llm.model} · TTS: {tts.name}/{tts.voice} · tryb: {a.mode if mic else 'tekst'}")
     out(HELP)
     ep = A.Endpointer()
     clean = False
     proceed = True
+    reason = "quit"
     try:
         if a.chat:
             fresh = not repo.list_turns(p["id"], sid)
@@ -308,6 +321,7 @@ def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, l
         while proceed:
             if a.chat and QC.time_up(repo, p["id"], sid, datetime.now(UTC)):
                 out("Czas rozmowy minął — kończymy.")
+                reason = "time_up"
                 if speak:
                     speak("Our time is up. That was a nice chat. See you next time.")
                 break
@@ -321,6 +335,7 @@ def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, l
                     continue
                 out(f"You: {text}")
                 if INTENT.classify(text) == "finish":      # koniec sesji ma pierwszeństwo przed nowym tematem
+                    reason = "finish_intent"
                     out("Tutor: Okay, let's stop here. Thanks for the chat!")
                     if speak:
                         speak("Okay, let's stop here. Thanks for the chat!")
@@ -336,6 +351,7 @@ def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, l
                     tutor.system = base + QC.switch_note(nxt, cp.get("level") or "B1")   # tylko na tę odpowiedź
                     switched = base
                     out(f"[nowy temat: {nxt['pl']}]")
+                    a.log("log.topic_switch", topic=nxt.get("id") or "custom", requested=bool(req))
                 speaking = threading.Event()
                 watcher = threading.Thread(target=_cancel_on_enter, args=(q, tutor, speaking), daemon=True)
                 speaking.set()
@@ -346,6 +362,7 @@ def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, l
                     r = tutor.respond(text, t_end, input_mode=mode, low_probs=low)
                 except Exception as e:  # noqa: BLE001 - błąd odpowiedzi nie kończy rozmowy ani nie blokuje oceny
                     out(f"[błąd tutora: {e}]")
+                    a.log("log.error", where="tutor_reply", error=f"{type(e).__name__}: {e}")
                     r = None
                 if switched:
                     tutor.system, switched = switched, None
@@ -358,6 +375,8 @@ def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, l
                 if r.error:
                     out(f"[{r.error}]")
                 m = r.m
+                a.log("log.tutor_turn", cancelled=bool(r.cancelled), first_audio_s=m.get("first_audio"),
+                      first_token_s=m.get("llm_first_token"), error=r.error or None)
                 out(f"  ({'przerwano · ' if r.cancelled else ''}start mowy {m.get('first_audio', '-')} s, "
                     f"1. token {m.get('llm_first_token', '-')} s)")
             finally:
@@ -381,8 +400,14 @@ def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, l
         if proceed and a.chat and repo.get_session_plan(p["id"], sid).get("category") == "medical":
             out("Informacja zwrotna dotyczy wyłącznie języka, nie wiedzy ani decyzji klinicznych.")
         clean = proceed                               # `q` w trakcie ćwiczeń = pauza (lekcję można wznowić)
+        if not proceed:
+            reason = "lesson_paused"
     except KeyboardInterrupt:
-        pass
+        reason = "interrupted"
+    except BaseException as e:
+        reason = f"error:{type(e).__name__}"
+        a.log("log.error", where="session", error=f"{type(e).__name__}: {e}")
+        raise
     finally:
         if svc:
             svc.close()
@@ -391,6 +416,7 @@ def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, l
             repo.end_session(p["id"], sid)             # rozmowa: oczekujące oceny dokończy `--finish-evals`/GUI
         else:
             repo.pause_session(p["id"], sid)           # Ctrl+C / wyjątek / nieocenione tury: sesję można wznowić
+        _end_log(a, repo, p, sid, reason, svc)
         if mic:
             mic.close()
         if hasattr(sink, "close"):
@@ -499,6 +525,7 @@ def _assessment_phase(a, repo, p, llm, tts, sink, mic, stt, lines, out, eval_llm
         repo.set_session_plan(p["id"], sid, {"assessment": {"areas": list(areas), "states": {}, "counts": {},
                                                             "skipped": [], "finished": [], "results": {},
                                                             "open": {}}})
+    _meta(a, repo, p, sid, "assessment", llm, tts, mic, areas=list(areas))
     q = lines or _lines()
     tutor = VoiceTutor(repo, p["id"], sid, llm, tts, sink)
     speak = None if a.no_audio else _speaker(tutor, q, mic, None, out)
@@ -544,6 +571,7 @@ def _placement_phase(a, repo, p, llm, tts, sink, mic, stt, lines, out) -> bool:
         if cur:
             repo.pause_session(p["id"], cur["id"])
         sid = repo.start_session(p["id"], "placement")
+    _meta(a, repo, p, sid, "placement", llm, tts, mic)
     q = lines or _lines()
     tutor = VoiceTutor(repo, p["id"], sid, llm, tts, sink)
     speak = None if a.no_audio else _speaker(tutor, q, mic, None, out)
@@ -645,6 +673,7 @@ def _exam_phase(a, repo, p, llm, tts, sink, mic, stt, lines, out) -> None:
         if cur:
             repo.pause_session(p["id"], cur["id"])
         sid = repo.start_session(p["id"], "exam")
+    _meta(a, repo, p, sid, "exam", llm, tts, mic, exam=path["id"])
     q = lines or _lines()
     speak = None if a.no_audio else _speaker(VoiceTutor(repo, p["id"], sid, llm, tts, sink), q, mic, None, out)
     ask = _asker(a, q, mic, stt, A.Endpointer(), None, speak, out)
@@ -728,6 +757,7 @@ def _review_phase(a, repo, p, llm, tts, sink, mic, stt, lines, out) -> None:
         if cur:
             repo.pause_session(p["id"], cur["id"])
         sid = repo.start_session(p["id"], kind)
+    _meta(a, repo, p, sid, kind, llm, tts, mic, drill=a.drill)
     if a.drill:                                      # F7: co było ćwiczone (osiągnięcie „trafiony cel”)
         cat = (rep["errors"][int(a.drill) - 1]["category"] if a.drill.isdigit() and int(a.drill) <= len(rep["errors"])
                else a.drill if a.drill in pack.errors.ids() else None)
@@ -770,6 +800,7 @@ def _eval_service(repo, conn, p, sid, eval_llm, build_eval, out, goals=None, pac
         repo, lambda: Repo(open_db(path)),
         lambda wrepo: make_queue(wrepo, pack, eval_llm, structured, profile_id=p["id"], session_id=sid,
                                 goals=goals or {}, batch=1, context=eval_context(),
+                                model=getattr(eval_llm, "model", None),   # pilot: model zapisany przy ocenie
                                 lt=lt_from_config(pack)),
         # batch=1: Qwen3 8B ocenia 1 wypowiedź w ~2 s, partię 5 w ~30 s (pomiar F7); wypowiedź ucznia anuluje całą
         # trwającą partię, więc przy partiach po 5 ocena w rozmowie prawie nigdy się nie kończyła.
@@ -801,6 +832,7 @@ def _speaker(tutor, q, mic, svc, out):
             tutor.say(parts)
             if tutor.last_error:
                 out(f"[błąd TTS: {tutor.last_error} — dalej bez głosu]")
+                getattr(tutor, "log", lambda *_a, **_k: None)("log.error", where="tts", error=str(tutor.last_error))
                 state["on"] = False
         finally:
             speaking.clear()
@@ -848,6 +880,45 @@ def _lesson(L, repo, pack, p, sid, sk, items, svc, a, q, mic, stt, ep, out, spea
         out(f"Tutor: {LV.CHAT_Q}")
         repo.add_turn(p["id"], sid, "assistant", LV.CHAT_Q)    # pytanie otwierające jest w historii rozmowy
     return True
+
+
+def _role_model(role: str) -> str | None:
+    try:
+        from tutor.llm import llm_settings
+        return llm_settings()["roles"][role].get("model")
+    except Exception:  # noqa: BLE001
+        return None
+
+
+def _meta(a, repo, p, sid, kind, llm, tts, mic, **extra) -> None:
+    """Dziennik nauki: bieżąca sesja + wersje komponentów i ustawienia (`session.model_json`). Nigdy nie rzuca."""
+    from tutor.app import learnlog as LL
+    from tutor.app.eval_runner import eval_context
+    a.sid = sid
+    try:
+        ctx = eval_context()
+    except Exception:  # noqa: BLE001
+        ctx = None
+    LL.session_meta(repo, p["id"], sid, activity=kind, lang=p["target_lang"], conversation=getattr(llm, "model", None),
+                    eval_prompt="turn_eval.v3", eval_context=ctx, tts=f"{getattr(tts, 'name', '')}/"
+                    f"{getattr(tts, 'voice', '')}", stt=a.stt_model if mic else None, io="voice" if mic else "text",
+                    stt_confirm=getattr(a, "stt_confirm", None), **extra)
+
+
+def _end_log(a, repo, p, sid, reason, svc) -> None:
+    from tutor.app import learnlog as LL
+    try:
+        s = repo.get_session(p["id"], sid) or {}
+        n_user = repo.conn.execute("SELECT COUNT(*) FROM turn WHERE profile_id=? AND session_id=? AND role='user'",
+                                   (p["id"], sid)).fetchone()[0]
+        n_att = repo.conn.execute("SELECT COUNT(*) FROM attempt WHERE profile_id=? AND session_id=?",
+                                  (p["id"], sid)).fetchone()[0]
+        LL.log(repo, p["id"], "log.session_end", sid, status=s.get("status"), reason=reason, user_turns=n_user,
+               attempts=n_att, pending_evals=svc.pending if svc else None,
+               dropped_evals=len(svc.dropped) if svc else None,
+               eval_error=str(svc.last_error) if svc and svc.last_error else None)
+    except Exception:  # noqa: BLE001 - dziennik nie może zablokować zamknięcia sesji
+        pass
 
 
 def _report(svc, out) -> None:
@@ -919,6 +990,7 @@ def _listen(a, q, mic, stt, ep, out, begin=lambda: None,
     t_end = time.monotonic()
     t0 = time.monotonic()
     text, low = "", None
+    lg = getattr(a, "log", lambda *_a, **_k: None)
     if len(audio):
         try:                                   # błąd STT nie kończy rozmowy: tura nie powstaje
             if hasattr(stt, "transcribe_detailed"):
@@ -928,9 +1000,12 @@ def _listen(a, q, mic, stt, ep, out, begin=lambda: None,
                 text = stt.transcribe(audio)
         except Exception as e:  # noqa: BLE001
             out(f"[błąd rozpoznawania mowy: {e}]")
-    out(f"  (STT {time.monotonic() - t0:.2f} s, {len(audio) / A.MIC_SR:.1f} s nagrania)")
+            lg("log.error", where="stt", error=f"{type(e).__name__}: {e}")
+    stt_s, audio_s = round(time.monotonic() - t0, 2), round(len(audio) / A.MIC_SR, 1)
+    out(f"  (STT {stt_s:.2f} s, {audio_s:.1f} s nagrania)")
     if not text:
         out("(nic nie zrozumiałem — spróbuj jeszcze raz)")
+        lg("log.stt", status="empty", stt_s=stt_s, audio_s=audio_s)
         return text, t_end, "voice", low
     conf = getattr(a, "stt_confirm", "uncertain")
     if conf == "always" or (conf == "uncertain" and (low is None or low)):
@@ -943,10 +1018,17 @@ def _listen(a, q, mic, stt, ep, out, begin=lambda: None,
             return None, 0.0, "text", None
         if ln.strip().lower() in ("r", "again", "ponownie"):
             getattr(a, "event", lambda _k: None)("stt_rerecord")
+            lg("log.stt", status="rerecord", original=text, low_probs=low, stt_s=stt_s, audio_s=audio_s)
             out("(nagraj jeszcze raz)")
             return "", t_end, "text", None
         if ln.strip() and ln.strip() != text:
             getattr(a, "event", lambda _k: None)("stt_corrected")
+            # pierwotna i poprawiona wersja (benchmark Whispera); tura idzie jak wpisana, bez błędu językowego
+            lg("log.stt", status="corrected", original=text, corrected=ln.strip(), low_probs=low, stt_s=stt_s,
+               audio_s=audio_s)
             out("[poprawiona transkrypcja — to nie jest błąd językowy]")
             return ln.strip(), t_end, "text", None
+        lg("log.stt", status="confirmed", text=text, low_probs=low, stt_s=stt_s, audio_s=audio_s)
+        return text, t_end, "voice", low
+    lg("log.stt", status="ok", text=text, low_probs=low, stt_s=stt_s, audio_s=audio_s)
     return text, t_end, "voice", low

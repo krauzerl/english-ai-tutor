@@ -89,6 +89,12 @@ def build(repo, pack: C.Pack, pid: int, now: datetime) -> dict:
              if not h["correct"]]
     from tutor.app.goal import agv_checks
     checks = agv_checks(repo, pid)
+    uptake: dict[str, dict] = {}            # ponowne użycie po korekcie (obserwacja z rozmów, bez wpływu na plan)
+    for sess in repo.list_sessions(pid):
+        for u in (repo.get_session_plan(pid, sess["id"]) or {}).get("uptake") or []:
+            c = uptake.setdefault(u.get("category"), {"used_ok": 0, "repeated": 0})
+            if u.get("result") in c:
+                c[u["result"]] += 1
     for e in sorted(repo.list_errors(pid), key=lambda e: (-e["count"], e["category"])):
         cat = e["category"]
         agv = (checks.get(cat) or {}).get("outcome")
@@ -113,7 +119,8 @@ def build(repo, pack: C.Pack, pid: int, now: datetime) -> dict:
         errors.append({"category": cat, "count": e["count"], "status": e["status"], "reliability": rel,
                        "example": e["example"], "correction": e["correction"], "skills": skills,
                        "trend": _trend(repo, pid, mine, now), "first_seen": e["first_seen"],
-                       "last_seen": e["last_seen"], "confirmed_by_exercises": len(confirmed), "agv": agv})
+                       "last_seen": e["last_seen"], "confirmed_by_exercises": len(confirmed), "agv": agv,
+                       "uptake": uptake.get(cat)})
     stt_only = [o for o in repo.list_observations(pid, status="valid") if o["kind"] == "stt_suspect"
                 and o["id"] not in rejected]
     words = {}

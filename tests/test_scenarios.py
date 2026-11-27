@@ -116,7 +116,10 @@ def test_placement_review_progress_make_no_llm_calls_and_are_fast(env, pack):
 def test_migrations_unchanged_and_no_external_calls_configured(pack):
     import pathlib
     names = sorted(p.name for p in pathlib.Path("tutor/store/migrations").glob("*.sql"))
-    assert len(names) == 8 and names[-1] == "008_f7_quality.sql"   # addytywne (+ zmiana domyślnej polityki korekt)
+    assert len(names) == 9 and names[-1] == "009_learning_log.sql"   # addytywne (+ zmiana domyślnej polityki korekt)
+    sql = pathlib.Path("tutor/store/migrations/009_learning_log.sql").read_text()
+    body = [ln for ln in sql.splitlines() if ln.strip() and not ln.startswith("--")]
+    assert all(ln.startswith(("ALTER TABLE app_event ADD COLUMN", "CREATE INDEX")) for ln in body)   # bez przebudowy
 
 
 def test_interrupted_lesson_restart_flows_into_remaining_tasks(env, pack):

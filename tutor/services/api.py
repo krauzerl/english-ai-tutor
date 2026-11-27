@@ -177,14 +177,34 @@ class TutorAPI:
     def weakspots(self, pid: int) -> dict:
         return WS.build(self.repo, self.pack(pid), pid, self.now())
 
-    def review_observation(self, pid: int, observation_id: int, verdict: str) -> dict:
-        """Uczeń kwestionuje korektę / oznacza błąd STT / przywraca. Historia zostaje."""
+    def review_observation(self, pid: int, observation_id: int, verdict: str, note: str | None = None) -> dict:
+        """Uczeń kwestionuje korektę / oznacza błąd STT / przywraca. Historia zostaje. `note`: np. poprawna forma."""
         from tutor.app import ingest
+        if self.repo.conn.execute("SELECT 1 FROM observation WHERE id=? AND profile_id=?",
+                                  (int(observation_id), pid)).fetchone() is None:
+            raise ServiceError("Brak korekty w tym profilu")
         try:
-            ingest.review_observation(self.repo, self.pack(pid), pid, int(observation_id), verdict, self.now())
+            ingest.review_observation(self.repo, self.pack(pid), pid, int(observation_id), verdict, self.now(),
+                                      note=(note or "").strip()[:500] or None)
         except ValueError as e:
             raise ServiceError(f"Nie można zapisać: {e}") from e
         return WS.build(self.repo, self.pack(pid), pid, self.now())
+
+    def report_problem(self, pid: int, kind: str, observation_id: int | None = None, quote: str | None = None,
+                       note: str | None = None, session_id: int | None = None) -> dict:
+        """Zgłoszenie problemu nauczyciela do lokalnego dziennika (niezweryfikowane, bez zmian promptów/reguł)."""
+        from tutor.app import learnlog as LL
+        try:
+            return LL.report(self.repo, pid, kind, session_id=session_id, observation_id=observation_id,
+                             quote=quote, note=note)
+        except ValueError as e:
+            raise ServiceError(f"Nie można zapisać zgłoszenia: {e}") from e
+
+    def learning_report(self, pid: int, days: int = 7) -> dict:
+        """Raport z nauki (Markdown) zapisany w katalogu dziennika; zwraca ścieżkę i treść."""
+        from tutor.app import learning_report as LR
+        path = LR.write_report(self.repo, self.pack(pid), pid, days=days or None)
+        return {"path": str(path), "markdown": path.read_text(encoding="utf-8")}
 
     def achievements(self, pid: int, award: bool = True) -> dict:
         pack = self.pack(pid)

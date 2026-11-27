@@ -241,7 +241,25 @@ class App:
                 verdict = str(body.get("verdict", ""))
                 if verdict not in ("disputed", "stt_error", "restored"):
                     raise BadRequest("verdict: disputed, stt_error, restored")
-                return api.review_observation(pid, int(body.get("observation_id", 0)), verdict)
+                note = str(body.get("note") or "")
+                if len(note) > MAX_TEXT:
+                    raise BadRequest(f"Uwaga: najwyżej {MAX_TEXT} znaków")
+                return api.review_observation(pid, int(body.get("observation_id", 0)), verdict, note)
+            if path == "/api/report":                      # zgłoszenie problemu nauczyciela (dziennik lokalny)
+                from tutor.app.learnlog import REPORT_KINDS
+                kind = str(body.get("kind", ""))
+                if kind not in REPORT_KINDS:
+                    raise BadRequest(f"kind: {', '.join(REPORT_KINDS)}")
+                quote, note = str(body.get("quote") or ""), str(body.get("note") or "")
+                if len(quote) > MAX_TEXT or len(note) > MAX_TEXT:
+                    raise BadRequest(f"Tekst: najwyżej {MAX_TEXT} znaków")
+                oid = body.get("observation_id")
+                return api.report_problem(pid, kind, int(oid) if oid not in (None, "") else None, quote, note)
+            if path == "/api/learning_report":
+                days = int(body.get("days") or 7)
+                if not 0 <= days <= 3650:
+                    raise BadRequest("days: 0–3650")
+                return api.learning_report(pid, days)
             if path == "/api/settings":
                 ch = body.get("changes")
                 if not isinstance(ch, dict):
