@@ -22,6 +22,7 @@ synthesis on the CPU, learner data in a local SQLite file. No paid API is needed
 - [Requirements](#requirements)
 - [Installation on Ubuntu](#installation-on-ubuntu)
 - [Configuration](#configuration)
+- [Optional Gemini API Integration](#optional-gemini-api-integration)
 - [Usage](#usage)
 - [Assessment, adaptive learning and progress](#assessment-adaptive-learning-and-progress)
 - [Achievements](#achievements)
@@ -73,7 +74,7 @@ produced by the application's own lesson, review and assessment code with simula
 | Spaced repetition | **FSRS** (`fsrs` library) | Review scheduling |
 | Storage | **SQLite**, versioned additive migrations | One file per user account; every learner table keyed by profile |
 | GUI | Python standard library HTTP server, plain JavaScript | No CDN, no external requests from the page |
-| Cloud (off by default) | Gemini via `google-genai` | Optional provider; needs your own key and per-profile consent |
+| Cloud (off by default) | Gemini via `google-genai` | Optional per-profile model for conversation and/or evaluation, with automatic fallback to local Qwen3 |
 
 Default models per role are defined in `tutor/llm/__init__.py`. Qwen3 8B was chosen over Bielik 11B in a
 preliminary benchmark on one machine (130 cases, gold standard not yet reviewed by a human).
@@ -199,6 +200,70 @@ url = "http://127.0.0.1:8081"    # localhost only; other hosts are rejected
 Per-profile preferences are changed in the GUI (**Settings**) or with `python main.py --voice --set KEY=VALUE`
 (`--set ?` lists the keys): interface language, speech pace, voice, correction policy, text or voice mode,
 transcription confirmation, audio devices and the conversation model.
+
+## Optional Gemini API Integration
+
+The tutor runs fully locally by default: **Qwen3 8B in Ollama** for conversation and evaluation, Whisper and Kokoro for
+speech. No API key is needed. Gemini is an optional add-on for private experiments.
+
+**Set up (per profile, in the GUI):** Settings → **AI Models**.
+
+1. Paste your own key into **Gemini API Key** and click **Save key**. The field is hidden while you type.
+2. Click **Test API**. The app lists the models your key can use for text generation, then sends one fixed test prompt
+   (“Reply with the single word OK.”) to the model you picked. A model list alone is not treated as a working
+   connection. No learner data is sent by the test, and settings never contact Google on their own.
+3. Read the privacy notice and click **I understand and agree**.
+4. Tick **Use Gemini in this profile**, then choose the **Conversation model** and the **Evaluation model**
+   independently (Local Qwen3 or a Gemini model from the list). Click **Save AI models**.
+
+Each profile has its own key, consent and model choice. A new profile always starts local-only.
+
+**Key storage.** The key goes to the system secret store (Secret Service / GNOME Keyring through the `keyring`
+package, installed with `pip install -e ".[gemini]"`). It is filed under a random per-profile identifier, not the
+profile name. If no secure store is available, the key is kept in memory for the current run only. It is never written
+to SQLite, JSON or `config.toml`, never sent back to the page, and never put into URLs, logs or reports. Only the local
+app process uses it. Deleting the key or the profile removes it from the store.
+
+**Automatic fallback.** If Gemini returns HTTP 429, times out, cannot be reached, reports a server error or rejects
+the model, the tutor switches once to local Qwen3. You see one notice, and the conversation continues with the same
+context. Nothing is generated or saved twice. A short outage pauses Gemini for the time the API asks for (or two
+minutes), then the tutor tries once more. A daily quota, an invalid key, an unavailable model, missing consent or the
+per-session request limit keep the session local until it ends. For a key or model problem, the notice says that the
+key needs fixing. Type `/gemini` during a session to try Gemini again. If neither Gemini nor Ollama answers, the
+tutor says so and does not invent a reply. Conversation and evaluation fall back independently.
+
+**Same rules for every model.** Gemini output goes through the same validators as Qwen3: schema check, quote and
+category checks, BrE/AmE variants, Whisper uncertainty, Smart Speaking Corrections, disputing a suggestion and the
+mastery gates. Invalid JSON is never stored as an evaluation; that utterance is scored once by the local model
+instead. Model output is stored as a suggestion, never as a confirmed error.
+
+**What leaves the computer.** Only what the chosen role needs: the transcript of the current utterance and the
+recent part of the conversation (the same context Qwen3 gets). Audio, learning history, reports and the database
+are not sent. There is no sync with Google.
+
+**Usage control.** One switch turns Gemini off. A per-session request limit applies (default 50, conversation and
+evaluation together), with bounded retries. The app shows its own request and token counters. These are local
+counters, not your Google quota or bill. Check real limits and any charges in Google AI Studio. The app never
+enables billing.
+
+**Logs for comparison.** Each model call writes a `log.llm` learning-log event with no text. It records the role,
+the requested and actual provider and model, latency, time to the first token, prompt version, token counts (when
+the API reports them), the error reason and whether a fallback happened. See [docs/LEARNING_LOGS.md](docs/LEARNING_LOGS.md).
+
+**Limits and terms.** Gemini needs internet access and is subject to Google's terms and rate limits, which change
+over time. From the Gemini API Additional Terms (effective 23 March 2026, checked 27 November 2026):
+
+- You must be 18 or older.
+- Apps made available to users in the EEA, Switzerland or the UK may use only Paid Services.
+- On the free tier, Google may use submitted content to improve its products, and human reviewers may read it.
+  Do not send personal or confidential information.
+
+Free quotas are limited and can run out at any time. A request limit inside the app does not guarantee zero cost on
+a paid plan. This repository does not promote the free tier as unlimited.
+
+**Benchmark (optional).** `PYTHONPATH=. .venv/bin/python bench/speaking.py policy --split dev --gemini MODEL
+--key-profile NAME --max-requests 60` runs the synthetic correction cases on Gemini. The run uses a hard request cap
+and no fallback, and reads the database read-only. No private conversations are used.
 
 ## Usage
 

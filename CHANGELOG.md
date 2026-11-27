@@ -4,6 +4,23 @@ Notable changes. The project has no releases yet; versions below are development
 
 ## Unreleased
 
+### Optional Gemini API integration (branch `rnd/gemini-integration`)
+- **Settings → AI Models (per profile):** hidden Gemini API key field with save/replace/remove, key status, consent
+  notice before first use, master switch, separate conversation and evaluation model selectors (Local Qwen3 or a
+  Gemini model listed by the API), per-session request limit and local request/token counters. New profiles stay
+  local-only; the app works without any key.
+- **Key storage:** system secret store via `keyring` (Secret Service), filed under a random per-profile identifier;
+  memory-only fallback when no secure store exists. Never in SQLite, JSON, config, URLs, logs or GUI responses.
+- **Test API:** lists models that support `generateContent`, then one fixed test prompt to the chosen model; separate
+  messages for an invalid key, an unavailable model, limits and connection errors. Never runs on its own.
+- **Automatic fallback to local Qwen3** (`tutor/llm/route.py`): one switch per outage, cooldown from `retryDelay` or
+  two minutes, session-long pause for a daily quota, key/model problems, missing consent or the session request
+  limit; `/gemini` retries manually. Context kept, no duplicated replies or evaluations; invalid Gemini JSON is never
+  stored and the utterance is scored once locally. Conversation and evaluation fall back independently.
+- **Learning logs:** `log.llm` per model call (provider, model requested/used, latency, first token, prompt version,
+  tokens, reason, fallback, status).
+- **Bench:** `bench/speaking.py --gemini MODEL --key-profile NAME --max-requests N` (hard cap, no fallback).
+
 ### Smart speaking corrections (branch `rnd/teaching-intelligence-b-lite`)
 - **Conversation correction policy (default `periodic`):** the weight of a mistake comes from the edit, not from the
   model's confidence. Meaning-changing mistakes (bored/boring, borrow/lend, a few false friends, broken negation) get one

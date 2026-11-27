@@ -122,6 +122,15 @@ Check: `ollama list` shows `qwen3:8b`.
     “boring”…") and then normal conversation; the preposition slip does not interrupt and appears only in the "Do
     poprawy" list at the end. The tutor does not comment on your words otherwise ("X is a good way to say it").
     If you correct a misheard transcript and make a typo, it is not listed as a spelling mistake.
+14. **Optional Gemini (15 min, only if you want to use it; needs internet and your own key).** Settings → AI
+    Models: paste the key, **Save key** (the status says "system keyring"; reopen Settings — the field stays empty),
+    **Test API** without choosing a model (a model list appears), choose a model and **Test API** again ("Połączenie
+    z Gemini działa"). Agree to the notice, tick "Use Gemini", set only the **Conversation model** to Gemini and
+    keep evaluation local, save. Start a short Quick Chat in text mode. Then disconnect the network and say one more
+    sentence. Expected: one notice "Gemini jest chwilowo niedostępny… kontynuujesz lokalnie z qwen3:8b", the
+    conversation goes on with the same topic, and no reply is doubled. Reconnect and type `/gemini`: the next reply
+    tries Gemini again. A second profile must not see the first profile's key. **Remove key** at the end if you
+    do not want to keep it.
 
 To give a report to an AI model later: `python main.py logs export --days 14`, read the files in the printed
 directory, remove anything private, then share `report.md`, `cases.jsonl` and `README.md` (see LEARNING_LOGS.md).
