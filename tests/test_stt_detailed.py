@@ -227,7 +227,8 @@ def test_uncertain_transcript_can_be_accepted(repo, conn):
 def test_corrected_transcript_is_typed_text_not_a_language_error(repo, conn):
     code, out = _confirm_run(repo, conn, "I go home")
     u = [t for t in _turns(repo) if t["role"] == "user"]
-    assert u[0]["text"] == "I go home" and u[0]["input_mode"] == "text"
+    # nadal mowa (literówki ręcznej poprawki nie są błędami mówienia), słowa potwierdzone przez ucznia
+    assert u[0]["text"] == "I go home" and u[0]["input_mode"] == "voice" and u[0]["low_prob_json"] == "[]"
     assert any("nie jest błąd językowy" in x for x in out)
     assert repo.list_errors(repo.list_profiles()[0]["id"]) == []
 

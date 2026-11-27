@@ -17,6 +17,12 @@ from tutor.voice.text import SentenceSplitter, clean_for_speech
 
 NO_FAKE = ("You are an AI tutor: never invent personal experiences, memories, family, travels, likes or a body; you "
            "may give a view phrased as an opinion (I think...) or share general knowledge. ")
+# Poprawki pokazuje wyłącznie zwalidowana ścieżka oceny (notatka „Feedback note” na jedną odpowiedź). Wcześniej prompt
+# kazał modelowi rozmowy samemu „modelować poprawną formę”: na żywo Qwen3 poprawiał poprawne zdania („"Play football"
+# is correct, but…”) i dawał złe formy („I went” zamiast „I walked”), poza trybami korekt i bez walidatorów.
+NO_SELF_CORRECT = ("Do not correct the student's grammar or word choice yourself and do not comment on their "
+                   "English: when a correction is useful, you get a separate feedback note. If you really cannot "
+                   "understand what they meant, ask briefly. ")
 SYSTEM_PROMPT = (
     "You are a warm, patient English conversation partner talking with a Polish adult learner. "
     "Your words are spoken aloud, so: reply in 1-3 short sentences (under 40 words), natural spoken English "
@@ -27,8 +33,8 @@ SYSTEM_PROMPT = (
     "conversation forward; it is fine to end some replies with a comment instead of a question. Vary how your "
     "replies start. Keep track of what the student told you earlier and refer back to it. "
     + NO_FAKE +
-    "If a mistake would confuse a listener, model the correct phrasing naturally in your reply; "
-    "otherwise ignore small slips. You only get a text transcript, so never comment on pronunciation. "
+    NO_SELF_CORRECT +
+    "You only get a text transcript, so never comment on pronunciation. "
     "Always answer in English; if the student is stuck and asks in Polish, help in very simple English. "
     "Do not praise every answer: no stock phrases like \"You're doing great\" or \"Great job\"; comment on what the "
     "student said instead, and praise only something specific, rarely. "
@@ -36,6 +42,7 @@ SYSTEM_PROMPT = (
     "to something new."
 )
 FALLBACK = "Okay. Tell me more about that."
+SAY = "\x1e"          # separator: `feedback` zwraca SAY + zdanie do wypowiedzenia + SAY + notatka dla modelu
 _OPEN_EXCL = re.compile(r"^\W*(?:that|it|this|what|how|wow|oh|sounds|so|really|nice|great)\b[^.?!]{0,45}!", re.I)
 
 
@@ -76,12 +83,17 @@ class VoiceTutor:
         self._tok: CancelToken | None = None
         self.last_error: str | None = None
 
-    def _note(self, user_text: str = "") -> str:
+    def _note(self, user_text: str = "") -> tuple[str, str]:
+        """(zdanie do wypowiedzenia przed odpowiedzią modelu, notatka dla modelu). Zdanie = krótka korekta
+        poważnego błędu wybrana przez kod (`feedback.SAY`), więc nie zależy od tego, czy model posłucha notatki."""
         try:
             n = self.feedback(user_text) if self.feedback else None
         except Exception:  # noqa: BLE001 - informacja zwrotna nigdy nie psuje rozmowy
             n = None
-        return f"\n\n{n}" if n else ""
+        if n and n.startswith(SAY):
+            _, say, n = n.split(SAY, 2)
+            return say, f"\n\n{n}"
+        return "", f"\n\n{n}" if n else ""
 
     def say(self, text: str | list[str], gap: float = 0.6) -> bool:
         """Mówi gotowy tekst (bez LLM, bez zapisu tury). Lista = części z pauzą `gap` s między nimi (cisza, bez
@@ -137,12 +149,14 @@ class VoiceTutor:
         guard = Guard([t["text"] for t in self.repo.list_turns(self.pid, self.sid)       # „nie rozumiem” ≠ „powtórz”
                        if t["role"] == "assistant"][-8:], repeats=not INTENT.wants_repeat(user_text))
         prev = [t["text"] for t in self.repo.list_turns(self.pid, self.sid) if t["role"] == "assistant"][-3:]
-        system = self.system + self._note(user_text) + INTENT.NOTES.get(sig, "") + (
-            "" if sig else style_note(prev))
+        prefix, note = self._note(user_text)
+        system = self.system + note + INTENT.NOTES.get(sig, "") + ("" if sig else style_note(prev))
         # Pilot: notatka o persona przy wiadomości ucznia (tylko dla modelu; w bazie tekst ucznia bez zmian). W prompcie
         # systemowym Qwen3 ją ignorował (A/B: zmyślone doświadczenia 6/20 → 1/20 przy wiadomości ucznia).
         llm_text = f"{user_text}\n\n{INTENT.PERSONA_NOTE}" if self.persona and INTENT.asks_about_tutor(user_text) \
             else user_text
+        if not note or prefix:   # poza zwalidowaną notatką (recast/drabina) model nie komentuje języka ucznia
+            llm_text += f"\n\n{INTENT.NO_CORRECT_NOTE}"
         ctx = build_context(self.repo, self.pid, self.sid, system, llm_text,
                             context_window=self.window, reserve_out=self.max_tokens)
         if self.record_user_turn:
@@ -192,6 +206,9 @@ class VoiceTutor:
                     sents.put(c)
 
         try:
+            if prefix:                                     # krótka korekta poważnego błędu, potem zwykła rozmowa
+                ps = SentenceSplitter()
+                emit([*ps.feed(prefix + " "), *ps.flush()])
             stream = self.llm.stream(ctx.messages, temperature=self.temp, max_tokens=self.max_tokens, cancel=tok)
             for chunk in stream:
                 m.setdefault("llm_first_token", rel())

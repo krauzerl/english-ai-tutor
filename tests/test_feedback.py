@@ -50,16 +50,16 @@ def test_summary_style_never_interrupts_conversation(repo, pack):
 
 def test_periodic_recasts_significant_error_once_without_lecture(repo, pack):
     pid = repo.create_profile("ann"); sid = repo.start_session(pid, "voice")
-    obs(repo, pid, sid, "I'm paramedic.")
+    obs(repo, pid, sid, "She don't like it.", cat="agreement.subject_verb", span="don't", fix="doesn't")
     d = FB.recast_directive(repo, pack, pid, sid, "periodic", set())
-    assert d and "a paramedic" in d and "paramedic" in d and "do not" in d.lower()
+    assert d and "doesn't" in d and "gentle recast" in d and "do not" in d.lower()
     assert "mistake" in d.lower()                                       # nakaz: nie mówić o błędzie
     assert FB.recast_directive(repo, pack, pid, sid, "periodic", set()) is None   # raz, bez powtórek
 
 
 def test_minor_error_is_not_interrupted_but_goal_error_is(repo, pack):
     pid = repo.create_profile("ann"); sid = repo.start_session(pid, "voice")
-    obs(repo, pid, sid, "I'm paramedic.", sev=1)
+    obs(repo, pid, sid, "I'm paramedic.", sev=3)       # brak rodzajnika = drobny w rozmowie, nawet przy sev 3 modelu
     assert FB.recast_directive(repo, pack, pid, sid, "periodic", set()) is None       # drobiazg: nie przerywamy
     sk = next(s for s in pack.skills.values() if "article.missing" in s.error_categories)
     repo.conn.execute("UPDATE observation SET skill_id=?", (sk.id,))
@@ -77,8 +77,11 @@ def test_uncertain_or_dropped_observations_are_not_corrections(repo, pack):
 def test_stt_suspect_is_only_a_soft_check_never_an_error(repo, pack):
     pid = repo.create_profile("ann"); sid = repo.start_session(pid, "voice")
     obs(repo, pid, sid, "I'm paramedic.", kind="stt_suspect", mode="voice", sev=2)
-    d = FB.recast_directive(repo, pack, pid, sid, "periodic", set())
-    assert d and "misheard" in d.lower() and "a paramedic" in d
+    assert FB.recast_directive(repo, pack, pid, sid, "periodic", set()) is None    # bez wpływu na sens: nic
+    obs(repo, pid, sid, "I was boring there.", kind="stt_suspect", mode="voice", cat="word_choice", span="boring",
+        fix="bored")
+    d = FB.recast_directive(repo, pack, pid, sid, "periodic", set())             # sens: krótkie pytanie
+    assert d and "Did you mean bored?" in d and "mistake" in d.lower()
     lines = FB.summary_lines(repo, pack, pid, sid)
     assert any("źle usłyszałem" in x for x in lines) and not any("błąd" in x.lower() for x in lines)
 

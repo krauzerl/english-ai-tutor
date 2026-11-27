@@ -239,7 +239,7 @@ def recategorize(text: str, span: str, fix: str, category: str) -> str:
     x, y = es[0].old[0].lower(), es[0].new[0].lower()
     if frozenset((x, y)) in _AGREE:                     # have/has, was/were, don't/doesn't…: zgodność, nie przeszłość
         return "agreement.subject_verb"
-    if _past_of(x) == y and x not in _PAST_FORMS:       # „meet” → „met”: zły czas, a nie zła forma nieregularna
+    if (_past_of(x) == y or _regular_past(x, y)) and x not in _PAST_FORMS:   # „meet” → „met”, „travel” → „travelled”
         return "tense.past_simple"
     if not _s_form(x, y):
         return category
@@ -264,6 +264,34 @@ _PAST_MARK = re.compile(r"\b(yesterday|ago|last\s+(?:week|month|year|night|time|
                         r"previously|earlier\s+today|this\s+morning|back\s+then|at\s+that\s+time)\b", re.I)
 
 
+def _regular_past(x: str, y: str) -> bool:
+    """„travel” → „travelled/traveled”, „stop” → „stopped”, „study” → „studied”, „live” → „lived”."""
+    x, y = x.lower(), y.lower()
+    return y in {x + "ed", x + "d", x + x[-1:] + "ed", x[:-1] + "ied" if x.endswith("y") else x + "ed"}
+
+
+_PREP_W = {"in", "on", "at", "to", "for", "of", "with", "by", "from", "about", "into", "onto", "during", "since",
+           "until", "till", "over", "under", "through", "towards", "toward", "off", "up", "down", "out", "around",
+           "across", "along", "after", "before", "between", "among", "without", "within", "like", "per", "against",
+           "upon", "via", "behind", "above", "below", "near", "inside", "outside", "beside", "except"}
+_ART_W = {"a", "an", "the"}
+
+
+def category_mismatch(text: str, span: str, fix: str, category: str) -> bool:
+    """Kategoria przeczy edycji: „przyimek”, choć zmiana nie dotyczy żadnego przyimka (np. „, lock” → „and lock”),
+    albo „rodzajnik” bez rodzajnika. Taka sugestia nie trafia do dziennika błędów ani planera."""
+    core = (category or "").split(".")[0]
+    want = {"preposition": _PREP_W, "article": _ART_W}.get(core)
+    if want is None:
+        return False
+    es = edits(text, locate(text, span), fix)
+    words = {w.lower() for e in es for w in (*e.old, *e.new)}
+    return bool(es) and not words & want
+
+
+_PRES_MARK = re.compile(r"\b(now|right now|at the moment|currently|nowadays|these days)\b", re.I)
+
+
 def _past_of(x: str) -> str:
     x = x.lower()
     if x in _PAST_IRR:
@@ -281,6 +309,8 @@ def unsupported_tense(text: str, span: str, fix: str) -> bool:
     x, y = es[0].old[0].lower(), es[0].new[0].lower()
     if not (_past_of(x) == y or _past_of(y) == x):
         return False
+    if _past_of(y) == x and x != y:        # przeszły → teraźniejszy: czas przeszły ucznia sam w sobie jest poprawny
+        return not _PRES_MARK.search(text)  # („…but this week I was too tired” → „am”: Qwen3 na żywo)
     if _PAST_MARK.search(text):
         return False
     others = [t[2].lower() for t in _toks(text) if t[2].lower() != x]

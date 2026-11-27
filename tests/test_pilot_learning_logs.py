@@ -201,7 +201,7 @@ def test_s6_stt_correction_keeps_both_versions_no_language_error(env, pack):
                        ["--mode", "ptt", "--stt-confirm", "uncertain"], mic=mic, stt=stt, sink=A.SimSink(), ev=ev)
     assert code == 0
     u = env.users()
-    assert [(x["text"], x["input_mode"]) for x in u] == [("I want to buy a car", "text")]
+    assert [(x["text"], x["input_mode"]) for x in u] == [("I want to buy a car", "voice")]   # poprawka = nadal mowa
     sid = u[0]["session_id"]
     stt_ev = [e for e in LL.events(env.repo, env.pid, session_id=sid) if e["kind"] == "log.stt"]
     assert stt_ev[-1]["data"]["status"] == "corrected"

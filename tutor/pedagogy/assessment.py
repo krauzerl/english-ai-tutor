@@ -22,6 +22,7 @@ from tutor.pedagogy.content import (
 )
 from tutor.pedagogy.edits import (
     bare_plural_to_article,
+    category_mismatch,
     edits,
     find_spans,
     locate,
@@ -223,6 +224,11 @@ def classify(o: Obs, text: str, *, input_mode: str, low_prob_words: set[str], pr
     if o.k == "error" and plural_after_plural_determiner(text, o.s, o.f):          # audyt F7: „any medicines”
         return _drop(o, "plural_ok")
     cat = recategorize(text, o.s, o.f, o.c) if o.k == "error" else o.c             # F7: kategoria zgodna z edycją
+    if o.k == "error":
+        from tutor.pedagogy.correction import fixed_category
+        cat = fixed_category(text, o.s, o.f, cat)                                    # bored/boring, „I no like”
+    if o.k == "error" and category_mismatch(text, o.s, o.f, cat):                  # kategoria przeczy edycji
+        return _drop(o, "category_mismatch")
     return Classified(o.k, "valid", None, o.s, o.f, cat, o.v, o.p, source=o.src)     # 7
 
 

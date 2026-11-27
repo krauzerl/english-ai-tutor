@@ -78,6 +78,87 @@ def select(candidates: list[Candidate], style: str, *, turn_index: int, last_cor
         ok, key=lambda x: _prio(x, corrected_categories, rubric), reverse=True)]
 
 
+# --- waga błędu dla rozmowy (Quick Chat): deterministycznie, z edycji — NIE z deklarowanej pewności modelu ---
+SERIOUS, GRAMMAR, MINOR = "serious", "grammar", "minor"
+# Drobne w rozmowie: zrozumiałe mimo błędu albo zależne od stylu; nigdy nie przerywają (tylko podsumowanie).
+MINOR_CORES = {"preposition", "article", "determiner", "word_choice", "collocation", "register", "l1_calque",
+               "spelling", "punctuation", "capitalization"}
+# Pary, w których pomyłka zmienia sens (uczeń mówi co innego, niż myśli). Mała, jawna lista — nie klasyfikator.
+_ING_ED = {"bor", "interest", "excit", "tir", "confus", "embarrass", "disappoint", "surpris", "annoy", "worr",
+           "frighten", "amaz", "satisf", "exhaust", "frustrat", "relax", "shock", "terrify", "terrif"}
+_PAIRS = {frozenset(p): why for p, why in (
+    (("borrow", "lend"), "you borrow FROM someone, you lend TO someone"),
+    (("borrowed", "lent"), "you borrow FROM someone, you lend TO someone"),
+    (("borrows", "lends"), "you borrow FROM someone, you lend TO someone"),
+    (("actually", "currently"), "“actually” means “in fact”; “currently” means “now”"),
+    (("eventually", "possibly"), "“eventually” means “in the end”; “possibly” means “maybe”"),
+    (("sympathetic", "nice"), "“sympathetic” means “understanding someone's problems”, not “nice”"),
+    (("sensible", "sensitive"), "“sensible” means “reasonable”; “sensitive” means “easily affected”"),
+    (("receipt", "recipe"), "a “recipe” is for cooking; a “receipt” is proof that you paid"),
+)}   # he/she celowo nie: walidator `meaning_change` odrzuca zmianę osoby (nie wiemy, o kim mowa)
+_NEG_BAD = {"no", "not"}
+_NEG_GOOD = {"don't", "doesn't", "didn't", "do not", "does not", "did not", "haven't", "hasn't", "can't", "won't"}
+
+
+def _ing_ed(x: str, y: str) -> bool:
+    for a, b in ((x, y), (y, x)):
+        if a.endswith("ing") and b.endswith(("ed", "d")):
+            stem = a[:-3]
+            if any(stem.startswith(s) for s in _ING_ED) and (b.startswith(stem[:3]) or b[:3] == a[:3]):
+                return True
+    return False
+
+
+def impact(text: str, span: str, fix: str, category: str, *, count_30d: int = 1, discussed: bool = False,
+           rubric: Rubric | None = None) -> tuple[str, str]:
+    """(waga, powód) błędu dla decyzji w rozmowie. `serious` tylko z jawnych reguł: sens zmienia para słów
+    (bored/boring, borrow/lend, fałszywi przyjaciele), rozbita negacja („I no understand”), albo ten sam
+    wyraźny błąd gramatyczny powtarza się i był już omawiany. Pewność „h” zadeklarowana przez model nie wystarcza."""
+    from tutor.pedagogy import edits as E
+    es = E.edits(text, E.locate(text, span), fix)
+    core = (category or "").split(".")[0]
+    for e in es:
+        old = [w.lower() for w in e.old]
+        new = [w.lower() for w in e.new]
+        if len(old) == 1 and len(new) == 1:
+            if _ing_ed(old[0], new[0]):
+                return SERIOUS, "meaning:ing_ed"
+            if frozenset((old[0], new[0])) in _PAIRS:
+                return SERIOUS, "meaning:pair"
+        if set(old) & _NEG_BAD and (" ".join(new) in _NEG_GOOD or set(new) & {"don't", "doesn't", "didn't"}):
+            return SERIOUS, "negation_form"
+    if core in MINOR_CORES or not es:
+        return MINOR, f"minor:{core or '?'}"
+    rec = rubric.errors["recurring_count"] if rubric else 3
+    if discussed and count_30d >= rec:
+        return SERIOUS, "recurring_discussed"
+    return GRAMMAR, f"grammar:{core}"
+
+
+def fixed_category(text: str, span: str, fix: str, category: str) -> str:
+    """Kategoria zgodna z edycją dla par zmieniających sens: -ing/-ed → `morphology.word_form` (Qwen3 dawał np.
+    `morphology.irregular_past` dla „boring → bored”), rozbita negacja → `omission.auxiliary`."""
+    tier, why = impact(text, span, fix, category)
+    if why == "meaning:ing_ed":
+        return "morphology.word_form"
+    if why == "negation_form":
+        return "omission.auxiliary"
+    return category
+
+
+def pair_note(text: str, span: str, fix: str) -> str | None:
+    """Jedno zdanie różnicy (po angielsku, do notatki dla tutora) albo None."""
+    from tutor.pedagogy import edits as E
+    for e in E.edits(text, E.locate(text, span), fix):
+        if len(e.old) == 1 and len(e.new) == 1:
+            a, b = e.old[0].lower(), e.new[0].lower()
+            if frozenset((a, b)) in _PAIRS:
+                return _PAIRS[frozenset((a, b))]
+            if _ing_ed(a, b):
+                return "“-ed” is how a person feels; “-ing” is what makes them feel it"
+    return None
+
+
 def summary_batch_due(pending: int, at_checkpoint_or_end: bool, rubric: Rubric) -> bool:
     return pending > 0 and (at_checkpoint_or_end or pending >= rubric.correction["summary_batch"])
 

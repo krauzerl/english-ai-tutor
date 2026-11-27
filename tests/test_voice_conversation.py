@@ -134,7 +134,7 @@ def test_cli_text_mode_when_no_mic(repo, conn, monkeypatch, tmp_path):
     monkeypatch.setattr(A, "Speaker", lambda dev=None: A.SimSink())
     code, out, llm = cli(repo, conn, Lines("I like tea", "q"))
     assert code == 0 and any("brak mikrofonu" in o for o in out) and any(o.startswith("Tutor: Sure.") for o in out)
-    assert llm.calls[0][-1].content == "I like tea"
+    assert llm.calls[0][-1].content.split("\n\n")[0] == "I like tea"
 
 
 def test_cli_ptt_flow_empty_transcript_and_no_recordings(repo, conn, tmp_path, monkeypatch):
@@ -147,7 +147,7 @@ def test_cli_ptt_flow_empty_transcript_and_no_recordings(repo, conn, tmp_path, m
                          sink=A.SimSink())
     assert code == 0 and stt.audio_seen
     assert any("nic nie zrozumiałem" in o for o in out)
-    assert llm.calls[0][-1].content == "I went to London" and len(llm.calls) == 1
+    assert llm.calls[0][-1].content.split("\n\n")[0] == "I went to London" and len(llm.calls) == 1
     assert list(cwd.iterdir()) == []  # żadnych plików z nagraniami
     assert mic.muted and mic.muted[-1] == 0.4  # ogon echa po mowie
 
@@ -196,7 +196,7 @@ def test_llm_unavailable_message(repo):
 
 def test_typed_lines_keep_order_while_tutor_speaks(repo, conn):
     code, out, llm = cli(repo, conn, Lines("first", "second", "q"), ["--no-audio"])
-    assert code == 0 and [c[-1].content for c in llm.calls] == ["first", "second"]
+    assert code == 0 and [c[-1].content.split("\n\n")[0] for c in llm.calls] == ["first", "second"]
 
 
 # --- Pilot: pytanie o życie nauczyciela → notatka persona przy wiadomości (tylko dla modelu) ---
@@ -205,7 +205,7 @@ def test_persona_note_only_in_llm_message_not_in_db(repo):
     t, pid, sid = mk(repo)
     t.respond("What do you usually do on weekends?")
     last = t.llm.calls[-1][-1]
-    assert last.role == "user" and last.content.endswith(INTENT.PERSONA_NOTE)
+    assert last.role == "user" and INTENT.PERSONA_NOTE in last.content
     assert INTENT.PERSONA_NOTE not in t.llm.calls[-1][0].content                     # system bez zmian
     assert repo.list_turns(pid, sid)[0]["text"] == "What do you usually do on weekends?"   # baza: czysty tekst
     t.respond("I usually cook on Sundays.")

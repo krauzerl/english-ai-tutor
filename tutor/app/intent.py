@@ -170,3 +170,10 @@ NOTES = {
     "help": (" Student signal: they did not understand. Rephrase your last point in simpler words, one short "
              "sentence, then ask ONE very easy question. Do not repeat the same sentence."),
 }
+
+
+# Smart corrections: Qwen3 w dłuższej rozmowie sam komentował i poprawiał język ucznia mimo zakazu w prompcie
+# systemowym („Arrived to the cinema is a bit awkward…”), także poprawne zdania. Notatka przy wiadomości ucznia
+# (jak PERSONA_NOTE) działa lepiej niż w prompcie systemowym; korekty pokazuje tylko zwalidowana ścieżka oceny.
+NO_CORRECT_NOTE = ("(Tutor note: in this reply do not comment on, praise or correct the student's English, words or "
+                   "phrases; just react to what they said.)")

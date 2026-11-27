@@ -1061,7 +1061,8 @@ def _listen(a, q, mic, stt, ep, out, begin=lambda: None,
             lg("log.stt", status="corrected", original=text, corrected=ln.strip(), low_probs=low, stt_s=stt_s,
                audio_s=audio_s)
             out("[poprawiona transkrypcja — to nie jest błąd językowy]")
-            return ln.strip(), t_end, "text", None
+            # to nadal mowa: literówki w ręcznej poprawce (pisownia, interpunkcja) nie są błędami mówienia
+            return ln.strip(), t_end, "voice", []
         lg("log.stt", status="confirmed", text=text, low_probs=low, stt_s=stt_s, audio_s=audio_s)
         return text, t_end, "voice", low
     lg("log.stt", status="ok", text=text, low_probs=low, stt_s=stt_s, audio_s=audio_s)

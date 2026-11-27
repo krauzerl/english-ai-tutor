@@ -175,7 +175,7 @@ def test_history_is_complete_and_ordered_for_the_llm(repo):
     msgs = llm.calls[1]
     roles = [(m.role, m.content) for m in msgs]
     assert [r for r, _ in roles] == ["system", "user", "assistant", "user"]
-    assert roles[2][1] == "Is Beatrice your friend?" and roles[3][1] == "I don't know any Beatrice."
+    assert roles[2][1] == "Is Beatrice your friend?" and roles[3][1].split("\n\n")[0] == "I don't know any Beatrice."
 
 
 def test_resumed_session_keeps_turn_order(repo):
@@ -185,7 +185,8 @@ def test_resumed_session_keeps_turn_order(repo):
     repo.pause_session(pid, sid); repo.resume_session(pid, sid)
     t2 = VoiceTutor(repo, pid, sid, llm, FakeTTS(), A.SimSink())
     t2.respond("second", input_mode="text")
-    assert [(m.role, m.content) for m in llm.calls[1]][1:] == [("user", "first"), ("assistant", "Question one?"),
+    assert [(m.role, m.content.split("\n\n")[0]) for m in llm.calls[1]][1:] == [("user", "first"),
+                                                                                ("assistant", "Question one?"),
                                                               ("user", "second")]
 
 
@@ -233,7 +234,7 @@ def test_lesson_chat_opener_is_in_history_so_llm_knows_what_the_student_answers(
     conv = FakeProvider(chunks=["Nice. "])
     env.go(Gated({}, *[i.answers[0] for i in items], "My day was lazy", "q"),
            ["--no-audio", "--lesson", SKILL], llm=conv, ev=EvalProv())
-    msgs = [(m.role, m.content) for m in conv.calls[0]]
+    msgs = [(m.role, m.content.split("\n\n")[0]) for m in conv.calls[0]]   # notatka „nie poprawiaj” po tekście
     assert msgs[1][0] == "assistant" and "day" in msgs[1][1].lower() and msgs[-1] == ("user", "My day was lazy")
 
 
