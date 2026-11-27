@@ -1,0 +1,486 @@
+{
+ "model": "qwen3:8b",
+ "rows": [
+  {
+   "id": "d01",
+   "kind": "clean",
+   "status": "evaluated",
+   "obs": [
+    {
+     "kind": "error",
+     "status": "dropped",
+     "drop": "unsupported_tense",
+     "span": "was",
+     "fix": "am",
+     "cat": "tense.present_simple",
+     "sev": 2,
+     "conf": "h"
+    }
+   ],
+   "old": [],
+   "new": []
+  },
+  {
+   "id": "d02",
+   "kind": "clean",
+   "status": "evaluated",
+   "obs": [],
+   "old": [],
+   "new": []
+  },
+  {
+   "id": "d03",
+   "kind": "bre",
+   "status": "evaluated",
+   "obs": [],
+   "old": [],
+   "new": []
+  },
+  {
+   "id": "d04",
+   "kind": "ame",
+   "status": "evaluated",
+   "obs": [
+    {
+     "kind": "variant",
+     "status": "valid",
+     "drop": null,
+     "span": "I just got back from vacation and my apartment is a mess.",
+     "fix": "I just came back from vacation and my apartment is a mess.",
+     "cat": "word_choice",
+     "sev": 2,
+     "conf": "h"
+    }
+   ],
+   "old": [],
+   "new": []
+  },
+  {
+   "id": "d05",
+   "kind": "minor",
+   "status": "evaluated",
+   "obs": [
+    {
+     "kind": "error",
+     "status": "valid",
+     "drop": null,
+     "span": "to",
+     "fix": "at",
+     "cat": "preposition.place",
+     "sev": 2,
+     "conf": "h"
+    }
+   ],
+   "old": [
+    {
+     "decision": "recast",
+     "span": "to",
+     "fix": "at"
+    }
+   ],
+   "new": [
+    {
+     "decision": "summary",
+     "span": "to",
+     "fix": "at"
+    }
+   ]
+  },
+  {
+   "id": "d06",
+   "kind": "minor",
+   "status": "evaluated",
+   "obs": [
+    {
+     "kind": "error",
+     "status": "valid",
+     "drop": null,
+     "span": "make",
+     "fix": "take",
+     "cat": "word_choice",
+     "sev": 2,
+     "conf": "h"
+    }
+   ],
+   "old": [
+    {
+     "decision": "recast",
+     "span": "make",
+     "fix": "take"
+    }
+   ],
+   "new": [
+    {
+     "decision": "summary",
+     "span": "make",
+     "fix": "take"
+    }
+   ]
+  },
+  {
+   "id": "d07",
+   "kind": "minor",
+   "status": "evaluated",
+   "obs": [],
+   "old": [],
+   "new": []
+  },
+  {
+   "id": "d08",
+   "kind": "grammar",
+   "status": "evaluated",
+   "obs": [
+    {
+     "kind": "error",
+     "status": "dropped",
+     "drop": "span_not_found",
+     "span": "I go there",
+     "fix": "I went there",
+     "cat": "tense.past_simple",
+     "sev": 2,
+     "conf": "h"
+    }
+   ],
+   "old": [],
+   "new": []
+  },
+  {
+   "id": "d09",
+   "kind": "grammar",
+   "status": "evaluated",
+   "obs": [
+    {
+     "kind": "error",
+     "status": "valid",
+     "drop": null,
+     "span": "don't",
+     "fix": "doesn't",
+     "cat": "agreement.subject_verb",
+     "sev": 2,
+     "conf": "h"
+    }
+   ],
+   "old": [
+    {
+     "decision": "recast",
+     "span": "don't",
+     "fix": "doesn't"
+    }
+   ],
+   "new": [
+    {
+     "decision": "recast",
+     "span": "don't",
+     "fix": "doesn't"
+    }
+   ]
+  },
+  {
+   "id": "d10",
+   "kind": "serious",
+   "status": "evaluated",
+   "obs": [
+    {
+     "kind": "error",
+     "status": "valid",
+     "drop": null,
+     "span": "boring",
+     "fix": "bored",
+     "cat": "morphology.word_form",
+     "sev": 2,
+     "conf": "h"
+    }
+   ],
+   "old": [
+    {
+     "decision": "recast",
+     "span": "boring",
+     "fix": "bored"
+    }
+   ],
+   "new": [
+    {
+     "decision": "immediate",
+     "span": "boring",
+     "fix": "bored"
+    }
+   ]
+  },
+  {
+   "id": "d11",
+   "kind": "serious",
+   "status": "evaluated",
+   "obs": [
+    {
+     "kind": "error",
+     "status": "valid",
+     "drop": null,
+     "span": "borrow",
+     "fix": "lend",
+     "cat": "word_choice",
+     "sev": 2,
+     "conf": "h"
+    }
+   ],
+   "old": [
+    {
+     "decision": "recast",
+     "span": "borrow",
+     "fix": "lend"
+    }
+   ],
+   "new": [
+    {
+     "decision": "immediate",
+     "span": "borrow",
+     "fix": "lend"
+    }
+   ]
+  },
+  {
+   "id": "d12",
+   "kind": "serious",
+   "status": "evaluated",
+   "obs": [
+    {
+     "kind": "error",
+     "status": "valid",
+     "drop": null,
+     "span": "interesting",
+     "fix": "interested",
+     "cat": "morphology.word_form",
+     "sev": 3,
+     "conf": "h"
+    }
+   ],
+   "old": [
+    {
+     "decision": "recast",
+     "span": "interesting",
+     "fix": "interested"
+    }
+   ],
+   "new": [
+    {
+     "decision": "immediate",
+     "span": "interesting",
+     "fix": "interested"
+    }
+   ]
+  },
+  {
+   "id": "d13",
+   "kind": "serious",
+   "status": "evaluated",
+   "obs": [
+    {
+     "kind": "error",
+     "status": "valid",
+     "drop": null,
+     "span": "no",
+     "fix": "don't",
+     "cat": "omission.auxiliary",
+     "sev": 2,
+     "conf": "h"
+    }
+   ],
+   "old": [
+    {
+     "decision": "recast",
+     "span": "no",
+     "fix": "don't"
+    }
+   ],
+   "new": [
+    {
+     "decision": "immediate",
+     "span": "no",
+     "fix": "don't"
+    }
+   ]
+  },
+  {
+   "id": "d14",
+   "kind": "stt",
+   "status": "evaluated",
+   "obs": [
+    {
+     "kind": "stt_suspect",
+     "status": "valid",
+     "drop": null,
+     "span": "fourteen past six",
+     "fix": "six past four",
+     "cat": "word_order.adverb",
+     "sev": 3,
+     "conf": "h"
+    }
+   ],
+   "old": [
+    {
+     "decision": "stt_check",
+     "span": "fourteen past six",
+     "fix": "six past four"
+    }
+   ],
+   "new": [
+    {
+     "decision": "skipped_stt",
+     "span": "fourteen past six",
+     "fix": "six past four"
+    }
+   ]
+  },
+  {
+   "id": "d15",
+   "kind": "stt",
+   "status": "evaluated",
+   "obs": [],
+   "old": [],
+   "new": []
+  },
+  {
+   "id": "d16",
+   "kind": "bait",
+   "status": "evaluated",
+   "obs": [
+    {
+     "kind": "error",
+     "status": "valid",
+     "drop": null,
+     "span": "say",
+     "fix": "talk",
+     "cat": "word_choice",
+     "sev": 2,
+     "conf": "h"
+    }
+   ],
+   "old": [
+    {
+     "decision": "recast",
+     "span": "say",
+     "fix": "talk"
+    }
+   ],
+   "new": [
+    {
+     "decision": "summary",
+     "span": "say",
+     "fix": "talk"
+    }
+   ]
+  },
+  {
+   "id": "d17",
+   "kind": "bait",
+   "status": "evaluated",
+   "obs": [
+    {
+     "kind": "error",
+     "status": "valid",
+     "drop": null,
+     "span": "try",
+     "fix": "ran a",
+     "cat": "word_choice.confusable",
+     "sev": 3,
+     "conf": "h"
+    }
+   ],
+   "old": [
+    {
+     "decision": "recast",
+     "span": "try",
+     "fix": "ran a"
+    }
+   ],
+   "new": [
+    {
+     "decision": "summary",
+     "span": "try",
+     "fix": "ran a"
+    }
+   ]
+  },
+  {
+   "id": "d18",
+   "kind": "bait",
+   "status": "evaluated",
+   "obs": [
+    {
+     "kind": "error",
+     "status": "valid",
+     "drop": null,
+     "span": "signature",
+     "fix": "sign",
+     "cat": "word_choice.confusable",
+     "sev": 3,
+     "conf": "h"
+    }
+   ],
+   "old": [
+    {
+     "decision": "recast",
+     "span": "signature",
+     "fix": "sign"
+    }
+   ],
+   "new": [
+    {
+     "decision": "summary",
+     "span": "signature",
+     "fix": "sign"
+    }
+   ]
+  },
+  {
+   "id": "d19",
+   "kind": "clean",
+   "status": "evaluated",
+   "obs": [],
+   "old": [],
+   "new": []
+  },
+  {
+   "id": "d20",
+   "kind": "minor",
+   "status": "evaluated",
+   "obs": [],
+   "old": [],
+   "new": []
+  }
+ ],
+ "old": {
+  "n": 20,
+  "false_interventions": 6,
+  "false_cases": [
+   "d05",
+   "d06",
+   "d14",
+   "d16",
+   "d17",
+   "d18"
+  ],
+  "serious_n": 4,
+  "serious_caught": 4,
+  "serious_any": 4,
+  "grammar_n": 2,
+  "grammar_recast": 1,
+  "interventions": 11,
+  "summary_items": 0,
+  "summary_on_clean": 0
+ },
+ "new": {
+  "n": 20,
+  "false_interventions": 0,
+  "false_cases": [],
+  "serious_n": 4,
+  "serious_caught": 4,
+  "serious_any": 4,
+  "grammar_n": 2,
+  "grammar_recast": 1,
+  "interventions": 5,
+  "summary_items": 5,
+  "summary_on_clean": 0
+ },
+ "eval_p50": 1.76,
+ "eval_p95": 2.01
+}

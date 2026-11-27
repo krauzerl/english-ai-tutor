@@ -1,0 +1,722 @@
+{
+ "model": "qwen3:8b",
+ "rows": [
+  {
+   "id": "h01",
+   "kind": "clean",
+   "status": "evaluated",
+   "obs": [],
+   "old": [],
+   "new": []
+  },
+  {
+   "id": "h02",
+   "kind": "clean",
+   "status": "evaluated",
+   "obs": [],
+   "old": [],
+   "new": []
+  },
+  {
+   "id": "h03",
+   "kind": "clean",
+   "status": "evaluated",
+   "obs": [],
+   "old": [],
+   "new": []
+  },
+  {
+   "id": "h04",
+   "kind": "clean",
+   "status": "evaluated",
+   "obs": [],
+   "old": [],
+   "new": []
+  },
+  {
+   "id": "h05",
+   "kind": "clean",
+   "status": "evaluated",
+   "obs": [],
+   "old": [],
+   "new": []
+  },
+  {
+   "id": "h06",
+   "kind": "bre",
+   "status": "evaluated",
+   "obs": [
+    {
+     "kind": "variant",
+     "status": "valid",
+     "drop": null,
+     "span": "are",
+     "fix": "is",
+     "cat": "agreement.subject_verb",
+     "sev": 2,
+     "conf": "h"
+    }
+   ],
+   "old": [],
+   "new": []
+  },
+  {
+   "id": "h07",
+   "kind": "bre",
+   "status": "evaluated",
+   "obs": [
+    {
+     "kind": "error",
+     "status": "valid",
+     "drop": null,
+     "span": "queueing",
+     "fix": "queuing",
+     "cat": "spelling",
+     "sev": 2,
+     "conf": "h"
+    }
+   ],
+   "old": [
+    {
+     "decision": "recast",
+     "span": "queueing",
+     "fix": "queuing"
+    }
+   ],
+   "new": [
+    {
+     "decision": "summary",
+     "span": "queueing",
+     "fix": "queuing"
+    }
+   ]
+  },
+  {
+   "id": "h08",
+   "kind": "ame",
+   "status": "evaluated",
+   "obs": [],
+   "old": [],
+   "new": []
+  },
+  {
+   "id": "h09",
+   "kind": "ame",
+   "status": "evaluated",
+   "obs": [
+    {
+     "kind": "error",
+     "status": "valid",
+     "drop": null,
+     "span": "traveling",
+     "fix": "travel",
+     "cat": "tense.past_simple",
+     "sev": 2,
+     "conf": "h"
+    }
+   ],
+   "old": [
+    {
+     "decision": "recast",
+     "span": "traveling",
+     "fix": "travel"
+    }
+   ],
+   "new": [
+    {
+     "decision": "recast",
+     "span": "traveling",
+     "fix": "travel"
+    }
+   ]
+  },
+  {
+   "id": "h10",
+   "kind": "minor",
+   "status": "evaluated",
+   "obs": [
+    {
+     "kind": "error",
+     "status": "valid",
+     "drop": null,
+     "span": "in",
+     "fix": "at",
+     "cat": "word_choice.confusable",
+     "sev": 2,
+     "conf": "h"
+    }
+   ],
+   "old": [
+    {
+     "decision": "recast",
+     "span": "in",
+     "fix": "at"
+    }
+   ],
+   "new": [
+    {
+     "decision": "summary",
+     "span": "in",
+     "fix": "at"
+    }
+   ]
+  },
+  {
+   "id": "h11",
+   "kind": "minor",
+   "status": "evaluated",
+   "obs": [
+    {
+     "kind": "error",
+     "status": "valid",
+     "drop": null,
+     "span": "about",
+     "fix": "",
+     "cat": "preposition.dependent",
+     "sev": 2,
+     "conf": "h"
+    }
+   ],
+   "old": [],
+   "new": []
+  },
+  {
+   "id": "h12",
+   "kind": "minor",
+   "status": "evaluated",
+   "obs": [
+    {
+     "kind": "variant",
+     "status": "valid",
+     "drop": null,
+     "span": "I will call you",
+     "fix": "I'll call you",
+     "cat": "spelling",
+     "sev": 1,
+     "conf": "h"
+    }
+   ],
+   "old": [],
+   "new": []
+  },
+  {
+   "id": "h13",
+   "kind": "minor",
+   "status": "evaluated",
+   "obs": [
+    {
+     "kind": "variant",
+     "status": "valid",
+     "drop": null,
+     "span": "since two thousand eighteen",
+     "fix": "since 2018",
+     "cat": "spelling",
+     "sev": 2,
+     "conf": "h"
+    }
+   ],
+   "old": [],
+   "new": []
+  },
+  {
+   "id": "h14",
+   "kind": "grammar",
+   "status": "evaluated",
+   "obs": [
+    {
+     "kind": "error",
+     "status": "valid",
+     "drop": null,
+     "span": "work",
+     "fix": "worked",
+     "cat": "tense.past_simple",
+     "sev": 2,
+     "conf": "h"
+    }
+   ],
+   "old": [
+    {
+     "decision": "recast",
+     "span": "work",
+     "fix": "worked"
+    }
+   ],
+   "new": [
+    {
+     "decision": "recast",
+     "span": "work",
+     "fix": "worked"
+    }
+   ]
+  },
+  {
+   "id": "h15",
+   "kind": "grammar",
+   "status": "evaluated",
+   "obs": [
+    {
+     "kind": "error",
+     "status": "valid",
+     "drop": null,
+     "span": "have",
+     "fix": "has",
+     "cat": "agreement.subject_verb",
+     "sev": 2,
+     "conf": "h"
+    }
+   ],
+   "old": [
+    {
+     "decision": "recast",
+     "span": "have",
+     "fix": "has"
+    }
+   ],
+   "new": [
+    {
+     "decision": "recast",
+     "span": "have",
+     "fix": "has"
+    }
+   ]
+  },
+  {
+   "id": "h16",
+   "kind": "grammar",
+   "status": "evaluated",
+   "obs": [
+    {
+     "kind": "error",
+     "status": "valid",
+     "drop": null,
+     "span": "living",
+     "fix": "a child",
+     "cat": "word_choice",
+     "sev": 3,
+     "conf": "h"
+    }
+   ],
+   "old": [
+    {
+     "decision": "recast",
+     "span": "living",
+     "fix": "a child"
+    }
+   ],
+   "new": [
+    {
+     "decision": "summary",
+     "span": "living",
+     "fix": "a child"
+    }
+   ]
+  },
+  {
+   "id": "h17",
+   "kind": "serious",
+   "status": "evaluated",
+   "obs": [
+    {
+     "kind": "error",
+     "status": "valid",
+     "drop": null,
+     "span": "bored",
+     "fix": "boring",
+     "cat": "morphology.word_form",
+     "sev": 3,
+     "conf": "h"
+    }
+   ],
+   "old": [
+    {
+     "decision": "recast",
+     "span": "bored",
+     "fix": "boring"
+    }
+   ],
+   "new": [
+    {
+     "decision": "immediate",
+     "span": "bored",
+     "fix": "boring"
+    }
+   ]
+  },
+  {
+   "id": "h18",
+   "kind": "serious",
+   "status": "evaluated",
+   "obs": [],
+   "old": [],
+   "new": []
+  },
+  {
+   "id": "h19",
+   "kind": "serious",
+   "status": "evaluated",
+   "obs": [
+    {
+     "kind": "error",
+     "status": "valid",
+     "drop": null,
+     "span": "exciting",
+     "fix": "excited",
+     "cat": "morphology.word_form",
+     "sev": 3,
+     "conf": "h"
+    }
+   ],
+   "old": [
+    {
+     "decision": "recast",
+     "span": "exciting",
+     "fix": "excited"
+    }
+   ],
+   "new": [
+    {
+     "decision": "immediate",
+     "span": "exciting",
+     "fix": "excited"
+    }
+   ]
+  },
+  {
+   "id": "h20",
+   "kind": "serious",
+   "status": "evaluated",
+   "obs": [
+    {
+     "kind": "error",
+     "status": "valid",
+     "drop": null,
+     "span": "not",
+     "fix": "don't",
+     "cat": "omission.auxiliary",
+     "sev": 2,
+     "conf": "h"
+    }
+   ],
+   "old": [
+    {
+     "decision": "recast",
+     "span": "not",
+     "fix": "don't"
+    }
+   ],
+   "new": [
+    {
+     "decision": "immediate",
+     "span": "not",
+     "fix": "don't"
+    }
+   ]
+  },
+  {
+   "id": "h21",
+   "kind": "serious",
+   "status": "evaluated",
+   "obs": [
+    {
+     "kind": "error",
+     "status": "valid",
+     "drop": null,
+     "span": "tiring",
+     "fix": "tired",
+     "cat": "morphology.word_form",
+     "sev": 2,
+     "conf": "h"
+    }
+   ],
+   "old": [
+    {
+     "decision": "recast",
+     "span": "tiring",
+     "fix": "tired"
+    }
+   ],
+   "new": [
+    {
+     "decision": "immediate",
+     "span": "tiring",
+     "fix": "tired"
+    }
+   ]
+  },
+  {
+   "id": "h22",
+   "kind": "stt",
+   "status": "evaluated",
+   "obs": [
+    {
+     "kind": "stt_suspect",
+     "status": "valid",
+     "drop": null,
+     "span": "starts at thirty past nine",
+     "fix": "starts at 9:30",
+     "cat": "word_choice",
+     "sev": 2,
+     "conf": "h"
+    }
+   ],
+   "old": [
+    {
+     "decision": "stt_check",
+     "span": "starts at thirty past nine",
+     "fix": "starts at 9:30"
+    }
+   ],
+   "new": [
+    {
+     "decision": "skipped_stt",
+     "span": "starts at thirty past nine",
+     "fix": "starts at 9:30"
+    }
+   ]
+  },
+  {
+   "id": "h23",
+   "kind": "stt",
+   "status": "evaluated",
+   "obs": [
+    {
+     "kind": "stt_suspect",
+     "status": "valid",
+     "drop": null,
+     "span": "a United",
+     "fix": "the United",
+     "cat": "article.wrong",
+     "sev": 2,
+     "conf": "h"
+    }
+   ],
+   "old": [
+    {
+     "decision": "stt_check",
+     "span": "a United",
+     "fix": "the United"
+    }
+   ],
+   "new": [
+    {
+     "decision": "skipped_stt",
+     "span": "a United",
+     "fix": "the United"
+    }
+   ]
+  },
+  {
+   "id": "h24",
+   "kind": "stt",
+   "status": "evaluated",
+   "obs": [],
+   "old": [],
+   "new": []
+  },
+  {
+   "id": "h25",
+   "kind": "bait",
+   "status": "evaluated",
+   "obs": [
+    {
+     "kind": "error",
+     "status": "valid",
+     "drop": null,
+     "span": "of deploy",
+     "fix": "for deploying",
+     "cat": "preposition",
+     "sev": 2,
+     "conf": "h"
+    }
+   ],
+   "old": [
+    {
+     "decision": "recast",
+     "span": "of deploy",
+     "fix": "for deploying"
+    }
+   ],
+   "new": [
+    {
+     "decision": "summary",
+     "span": "of deploy",
+     "fix": "for deploying"
+    }
+   ]
+  },
+  {
+   "id": "h26",
+   "kind": "bait",
+   "status": "evaluated",
+   "obs": [
+    {
+     "kind": "error",
+     "status": "valid",
+     "drop": null,
+     "span": "me",
+     "fix": "to me",
+     "cat": "preposition.dependent",
+     "sev": 2,
+     "conf": "h"
+    }
+   ],
+   "old": [
+    {
+     "decision": "recast",
+     "span": "me",
+     "fix": "to me"
+    }
+   ],
+   "new": [
+    {
+     "decision": "summary",
+     "span": "me",
+     "fix": "to me"
+    }
+   ]
+  },
+  {
+   "id": "h27",
+   "kind": "bait",
+   "status": "evaluated",
+   "obs": [
+    {
+     "kind": "error",
+     "status": "valid",
+     "drop": null,
+     "span": "We was planning go",
+     "fix": "We were planning to go",
+     "cat": "tense.past_simple",
+     "sev": 2,
+     "conf": "h"
+    }
+   ],
+   "old": [
+    {
+     "decision": "recast",
+     "span": "We was planning go",
+     "fix": "We were planning to go"
+    }
+   ],
+   "new": [
+    {
+     "decision": "recast",
+     "span": "We was planning go",
+     "fix": "We were planning to go"
+    }
+   ]
+  },
+  {
+   "id": "h28",
+   "kind": "clean",
+   "status": "evaluated",
+   "obs": [],
+   "old": [],
+   "new": []
+  },
+  {
+   "id": "h29",
+   "kind": "minor",
+   "status": "evaluated",
+   "obs": [
+    {
+     "kind": "error",
+     "status": "valid",
+     "drop": null,
+     "span": "I'm",
+     "fix": "I",
+     "cat": "agreement.subject_verb",
+     "sev": 2,
+     "conf": "h"
+    }
+   ],
+   "old": [
+    {
+     "decision": "recast",
+     "span": "I'm",
+     "fix": "I"
+    }
+   ],
+   "new": [
+    {
+     "decision": "recast",
+     "span": "I'm",
+     "fix": "I"
+    }
+   ]
+  },
+  {
+   "id": "h30",
+   "kind": "grammar",
+   "status": "evaluated",
+   "obs": [
+    {
+     "kind": "error",
+     "status": "valid",
+     "drop": null,
+     "span": "go",
+     "fix": "goes",
+     "cat": "agreement.subject_verb",
+     "sev": 2,
+     "conf": "h"
+    }
+   ],
+   "old": [
+    {
+     "decision": "recast",
+     "span": "go",
+     "fix": "goes"
+    }
+   ],
+   "new": [
+    {
+     "decision": "recast",
+     "span": "go",
+     "fix": "goes"
+    }
+   ]
+  }
+ ],
+ "old": {
+  "n": 30,
+  "false_interventions": 9,
+  "false_cases": [
+   "h07",
+   "h09",
+   "h10",
+   "h22",
+   "h23",
+   "h25",
+   "h26",
+   "h27",
+   "h29"
+  ],
+  "serious_n": 5,
+  "serious_caught": 4,
+  "serious_any": 4,
+  "grammar_n": 4,
+  "grammar_recast": 4,
+  "interventions": 17,
+  "summary_items": 0,
+  "summary_on_clean": 0
+ },
+ "new": {
+  "n": 30,
+  "false_interventions": 3,
+  "false_cases": [
+   "h09",
+   "h27",
+   "h29"
+  ],
+  "serious_n": 5,
+  "serious_caught": 4,
+  "serious_any": 4,
+  "grammar_n": 4,
+  "grammar_recast": 3,
+  "interventions": 10,
+  "summary_items": 5,
+  "summary_on_clean": 1
+ },
+ "eval_p50": 1.78,
+ "eval_p95": 2.08
+}

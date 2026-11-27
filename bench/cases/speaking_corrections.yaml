@@ -1,0 +1,70 @@
+# Korekty w Quick Chat (rozmowa głosowa) — autor: Claude Opus 5.5, 2026-11-27. STATUS: NIEZWALIDOWANY.
+# Etykiety napisał jeden autor (AI, inny model niż oceniający Qwen3) PRZED uruchomieniem nowej polityki na `held`;
+# to NIE jest złoty standard, dopóki człowiek ich nie zrecenzuje. Nie zastępować recenzji człowieka oceną modelu.
+#
+# Podział: dev — wolno oglądać wyniki i stroić reguły; held — tylko końcowa weryfikacja (przed/po tym samym kodem
+# pomiaru), bez zmian reguł na podstawie wyników held. SHA-256 pliku w raporcie SMART_SPEAKING_CORRECTIONS_REPORT.md.
+#
+# kind:  clean | bre | ame | minor | grammar | serious | stt | bait
+#   clean/bre/ame — poprawne; każda interwencja w rozmowie = fałszywa
+#   minor   — drobny błąd, zrozumiały (przyimek, rodzajnik, kolokacja, styl): w rozmowie NIE przerywamy
+#   grammar — wyraźny błąd gramatyczny bez zmiany sensu: delikatny recast dopuszczalny, natychmiastowa korekta nie
+#   serious — błąd zmieniający sens / utrudniający zrozumienie: oczekiwana natychmiastowa korekta z `fix_has`
+#   stt     — podejrzenie błędu rozpoznania mowy (mode voice, low = niepewne słowa): bez błędu ucznia w rozmowie
+#   bait    — zdanie, w którym pojedyncza zamiana słowa nie daje poprawnego zdania (przypadki A/C/E właściciela):
+#             natychmiastowa korekta pojedynczego słowa = fałszywa interwencja
+# fix_has: forma, którą musi zawierać poprawka, by uznać wykrycie (alternatywy przez „|”)
+review: {status: unvalidated, human_reviewer: null, reviewed_at: null}
+cases:
+  # ===================== DEV =====================
+  - {id: d01, split: dev, kind: clean, text: "I usually go to the gym after work, but this week I was too tired."}
+  - {id: d02, split: dev, kind: clean, text: "We spent two weeks in Portugal and the food was amazing."}
+  - {id: d03, split: dev, kind: bre, text: "I've got a new flat near the city centre."}
+  - {id: d04, split: dev, kind: ame, text: "I just got back from vacation and my apartment is a mess."}
+  - {id: d05, split: dev, kind: minor, text: "I arrived to the airport two hours before the flight."}
+  - {id: d06, split: dev, kind: minor, text: "I want to make a photo of the old town."}
+  - {id: d07, split: dev, kind: minor, text: "He is working in the IT company in Warsaw."}
+  - {id: d08, split: dev, kind: grammar, text: "Yesterday I go to the cinema with my friend."}
+  - {id: d09, split: dev, kind: grammar, text: "She don't like spicy food."}
+  - {id: d10, split: dev, kind: serious, text: "I was very boring at that meeting, nothing interesting happened.", fix_has: "bored"}
+  - {id: d11, split: dev, kind: serious, text: "Can you borrow me your charger for a moment?", fix_has: "lend"}
+  - {id: d12, split: dev, kind: serious, text: "I am very interesting in machine learning.", fix_has: "interested"}
+  - {id: d13, split: dev, kind: serious, text: "I no understand what you mean.", fix_has: "don't understand|do not understand"}
+  - {id: d14, split: dev, kind: stt, mode: voice, low: ["fourteen"], text: "The train leaves at fourteen past six."}
+  - {id: d15, split: dev, kind: stt, mode: voice, low: ["the"], text: "I bought the ticket at the station."}
+  - {id: d16, split: dev, kind: bait, text: "I don't like or say about my travels last year."}
+  - {id: d17, split: dev, kind: bait, text: "Two, maybe three times I try race in my town."}
+  - {id: d18, split: dev, kind: bait, text: "We need signature our email."}
+  - {id: d19, split: dev, kind: clean, mode: voice, text: "Maybe I don't really remember that."}
+  - {id: d20, split: dev, kind: minor, text: "In the interview they asked me about my strong sides."}
+  # ===================== HELD (tylko końcowa weryfikacja) =====================
+  - {id: h01, split: held, kind: clean, text: "I've been learning English for about three years, mostly at work."}
+  - {id: h02, split: held, kind: clean, text: "If I get the job, I'll have to move to another city."}
+  - {id: h03, split: held, kind: clean, text: "Last summer we rented a car and drove along the coast."}
+  - {id: h04, split: held, kind: clean, text: "I'd rather take the train, because driving at night makes me nervous."}
+  - {id: h05, split: held, kind: clean, mode: voice, text: "My main responsibility was testing the backend services."}
+  - {id: h06, split: held, kind: bre, text: "The team are preparing the programme for the autumn conference."}
+  - {id: h07, split: held, kind: bre, text: "I'll ring you when I get to the hotel, we're queueing at reception."}
+  - {id: h08, split: held, kind: ame, text: "Did you eat yet? We could grab some takeout on the way."}
+  - {id: h09, split: held, kind: ame, text: "I'll call you on the weekend, I'm traveling Monday."}
+  - {id: h10, split: held, kind: minor, text: "I'm good in solving problems with my team."}
+  - {id: h11, split: held, kind: minor, text: "We discussed about the budget for the next quarter."}
+  - {id: h12, split: held, kind: minor, text: "I will take a shower and after I will call you."}
+  - {id: h13, split: held, kind: minor, text: "I live in Kraków since two thousand eighteen."}
+  - {id: h14, split: held, kind: grammar, text: "Last year I work in a small startup in Gdańsk."}
+  - {id: h15, split: held, kind: grammar, text: "My manager have a lot of meetings every day."}
+  - {id: h16, split: held, kind: grammar, text: "When I was child, I was living in a small village."}
+  - {id: h17, split: held, kind: serious, text: "The presentation was so bored that half of the people left.", fix_has: "boring"}
+  - {id: h18, split: held, kind: serious, text: "My colleague borrowed me his laptop because mine was broken.", fix_has: "lent"}
+  - {id: h19, split: held, kind: serious, text: "I'm really exciting about this position.", fix_has: "excited"}
+  - {id: h20, split: held, kind: serious, text: "I not have experience with Kubernetes, but I want to learn.", fix_has: "don't have|do not have|haven't got"}
+  - {id: h21, split: held, kind: serious, text: "I was so tiring after the night shift that I slept all day.", fix_has: "tired"}
+  - {id: h22, split: held, kind: stt, mode: voice, low: ["thirty"], text: "The meeting starts at thirty past nine."}
+  - {id: h23, split: held, kind: stt, mode: voice, low: ["a"], text: "I need a visa to go to a United States."}
+  - {id: h24, split: held, kind: stt, mode: voice, low: ["can"], text: "I can come to the office on Friday."}
+  - {id: h25, split: held, kind: bait, text: "In my last job I was responsible of deploy the new version."}
+  - {id: h26, split: held, kind: bait, text: "I would like that you explain me this rule."}
+  - {id: h27, split: held, kind: bait, text: "We was planning go to the mountains but it rain all weekend."}
+  - {id: h28, split: held, kind: clean, mode: voice, text: "Honestly, I don't remember the name of that hotel."}
+  - {id: h29, split: held, kind: minor, text: "I'm agree with you that remote work is more comfortable."}
+  - {id: h30, split: held, kind: grammar, text: "He go to work by bike every morning."}

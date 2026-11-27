@@ -1,0 +1,1222 @@
+{
+ "prompt_only": {
+  "n": 60,
+  "self_corrections": 1,
+  "quoted_language_comments": 9,
+  "questions": 57,
+  "first_sentence_p50": 0.29,
+  "first_sentence_p95": 0.43,
+  "rows": [
+   {
+    "id": "h01",
+    "kind": "clean",
+    "rep": 0,
+    "reply": "That's great! Have you noticed any words or phrases from work that you use a lot now?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.5365893659982248
+   },
+   {
+    "id": "h02",
+    "kind": "clean",
+    "rep": 0,
+    "reply": "That sounds exciting! Do you know any phrases in English that mean \"to move to another city\"?",
+    "self_correction": false,
+    "quotes": true,
+    "question": true,
+    "first_sentence_s": 0.21074573999794666
+   },
+   {
+    "id": "h03",
+    "kind": "clean",
+    "rep": 0,
+    "reply": "That sounds amazing! Did you enjoy driving along the coast?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.23588742799984175
+   },
+   {
+    "id": "h04",
+    "kind": "clean",
+    "rep": 0,
+    "reply": "I see! Taking the train is safer for you. Have you ever traveled by train before?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.24824323000211734
+   },
+   {
+    "id": "h05",
+    "kind": "clean",
+    "rep": 0,
+    "reply": "Testing backend services sounds important! Do you know any English words related to \"testing\" or \"services\" that you use at work?",
+    "self_correction": false,
+    "quotes": true,
+    "question": true,
+    "first_sentence_s": 0.3490119159978349
+   },
+   {
+    "id": "h06",
+    "kind": "bre",
+    "rep": 0,
+    "reply": "That sounds exciting! Do you know if there will be any guest speakers?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.1536224730007234
+   },
+   {
+    "id": "h07",
+    "kind": "bre",
+    "rep": 0,
+    "reply": "Cool, I'll be here waiting! Do you usually stay in the same hotel when you travel?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.2988982909992046
+   },
+   {
+    "id": "h08",
+    "kind": "ame",
+    "rep": 0,
+    "reply": "Not yet, sounds good! What's your favorite takeout?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.2784660969991819
+   },
+   {
+    "id": "h09",
+    "kind": "ame",
+    "rep": 0,
+    "reply": "Okay, I'll wait for your call! Safe travels then.",
+    "self_correction": false,
+    "quotes": false,
+    "question": false,
+    "first_sentence_s": 0.38105695500053116
+   },
+   {
+    "id": "h10",
+    "kind": "minor",
+    "rep": 0,
+    "reply": "That’s a great strength to have! Do you often lead meetings or just contribute ideas?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.37732061600036104
+   },
+   {
+    "id": "h11",
+    "kind": "minor",
+    "rep": 0,
+    "reply": "That sounds important. Do you need help planning the budget?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.14849407600195264
+   },
+   {
+    "id": "h12",
+    "kind": "minor",
+    "rep": 0,
+    "reply": "Okay, I'll wait. Do you need help with anything before your call?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.22944113400080823
+   },
+   {
+    "id": "h13",
+    "kind": "minor",
+    "rep": 0,
+    "reply": "Kraków is a beautiful city! Have you ever visited the Old Town or the Wawel Castle?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.32749058800254716
+   },
+   {
+    "id": "h14",
+    "kind": "grammar",
+    "rep": 0,
+    "reply": "That sounds exciting! Did you enjoy working in a startup? I think they can be really fast-paced and fun.",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.24841939399993862
+   },
+   {
+    "id": "h15",
+    "kind": "grammar",
+    "rep": 0,
+    "reply": "That must keep things busy! Do you find meetings helpful or stressful? I think they can be useful if they're well-organized.",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.3340143790010188
+   },
+   {
+    "id": "h16",
+    "kind": "grammar",
+    "rep": 0,
+    "reply": "That sounds peaceful. Did you enjoy being in a small village?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.15572370500012767
+   },
+   {
+    "id": "h17",
+    "kind": "serious",
+    "rep": 0,
+    "reply": "That’s a funny way to describe it! Did you mean the presentation was so boring that people left?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.3118914719998429
+   },
+   {
+    "id": "h18",
+    "kind": "serious",
+    "rep": 0,
+    "reply": "That’s kind of your colleague! Did you manage to finish your work on the borrowed laptop?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.30901024199920357
+   },
+   {
+    "id": "h19",
+    "kind": "serious",
+    "rep": 0,
+    "reply": "You mean you're really excited about this position! That’s great news — do you know what the job involves yet?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.39435860000230605
+   },
+   {
+    "id": "h20",
+    "kind": "serious",
+    "rep": 0,
+    "reply": "That’s a great attitude! Maybe you could start with some free online courses — have you tried any yet?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.3097800510004163
+   },
+   {
+    "id": "h21",
+    "kind": "serious",
+    "rep": 0,
+    "reply": "That sounds exhausting! Did you manage to get enough rest?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.16856806299983873
+   },
+   {
+    "id": "h22",
+    "kind": "stt",
+    "rep": 0,
+    "reply": "Thirty past nine is 9:30 AM. Do you usually start meetings that early?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.34316365600170684
+   },
+   {
+    "id": "h23",
+    "kind": "stt",
+    "rep": 0,
+    "reply": "You need a visa to enter the U.S. — it’s called a B-1/B-2 visa for tourism or business. Have you applied yet?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.3664122079972003
+   },
+   {
+    "id": "h24",
+    "kind": "stt",
+    "rep": 0,
+    "reply": "Great! Friday sounds good. Do you need help preparing for the meeting?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.23318957799710915
+   },
+   {
+    "id": "h25",
+    "kind": "bait",
+    "rep": 0,
+    "reply": "You were responsible for deploying the new version — that’s a big task! Did you work with a team on that?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.5267029870010447
+   },
+   {
+    "id": "h26",
+    "kind": "bait",
+    "rep": 0,
+    "reply": "Which rule? I'm not sure what you're referring to. Can you tell me more about what you're learning?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.1396172970016778
+   },
+   {
+    "id": "h27",
+    "kind": "bait",
+    "rep": 0,
+    "reply": "Oh no, that's a shame! Maybe you can go next weekend? Do you often get bad weather when you plan trips?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.2974485459999414
+   },
+   {
+    "id": "h28",
+    "kind": "clean",
+    "rep": 0,
+    "reply": "Oh, I see. Maybe you can look at your phone or ask someone who was there? Do you usually book hotels online or through a travel agent?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.2635407470006612
+   },
+   {
+    "id": "h29",
+    "kind": "minor",
+    "rep": 0,
+    "reply": "That's true! I think working from home can save time on commuting. Have you ever worked remotely before?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.2711671170000045
+   },
+   {
+    "id": "h30",
+    "kind": "grammar",
+    "rep": 0,
+    "reply": "That's a great way to stay fit! Do you ride a bike too, or do you prefer another mode of transport?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.3882859949990234
+   },
+   {
+    "id": "h01",
+    "kind": "clean",
+    "rep": 1,
+    "reply": "That’s great! Have you noticed any changes in your confidence or vocabulary since you started?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.1587365840023267
+   },
+   {
+    "id": "h02",
+    "kind": "clean",
+    "rep": 1,
+    "reply": "Moving for a job can be exciting but also tough. Have you thought about what you’d miss most in your current city?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.3538202290001209
+   },
+   {
+    "id": "h03",
+    "kind": "clean",
+    "rep": 1,
+    "reply": "That sounds amazing! Did you stop at any beaches or small towns along the way?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.20886660099859
+   },
+   {
+    "id": "h04",
+    "kind": "clean",
+    "rep": 1,
+    "reply": "I think you’re wise to prefer the train — it’s safer and more relaxing. Have you ever traveled by train somewhere interesting?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.5316378290008288
+   },
+   {
+    "id": "h05",
+    "kind": "clean",
+    "rep": 1,
+    "reply": "Testing backend services sounds like important work! Did you use any specific tools or software for that?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.3741975410011946
+   },
+   {
+    "id": "h06",
+    "kind": "bre",
+    "rep": 1,
+    "reply": "That sounds exciting! Do you know if there will be any workshops or guest speakers?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.1591810469981283
+   },
+   {
+    "id": "h07",
+    "kind": "bre",
+    "rep": 1,
+    "reply": "Cool, I'll be here waiting! By the way, do you usually stay at the same hotel when you travel?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.28166310700180475
+   },
+   {
+    "id": "h08",
+    "kind": "ame",
+    "rep": 1,
+    "reply": "Not yet, sounds good! What’s your favorite type of takeout?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.2849206589999085
+   },
+   {
+    "id": "h09",
+    "kind": "ame",
+    "rep": 1,
+    "reply": "Okay, see you then! Enjoy your trip – let me know if you need help with anything.",
+    "self_correction": false,
+    "quotes": false,
+    "question": false,
+    "first_sentence_s": 0.31156878199908533
+   },
+   {
+    "id": "h10",
+    "kind": "minor",
+    "rep": 1,
+    "reply": "That’s great to hear! Teamwork makes the dream work, right? Have you ever led a project before?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.347196699000051
+   },
+   {
+    "id": "h11",
+    "kind": "minor",
+    "rep": 1,
+    "reply": "That sounds like a big project! Did you set specific goals for the budget? I think \"target\" is a good word for that.",
+    "self_correction": false,
+    "quotes": true,
+    "question": true,
+    "first_sentence_s": 0.20966907199908746
+   },
+   {
+    "id": "h12",
+    "kind": "minor",
+    "rep": 1,
+    "reply": "Sounds good! I'll wait for your call. By the way, do you usually take a shower before important calls?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.19379600499814842
+   },
+   {
+    "id": "h13",
+    "kind": "minor",
+    "rep": 1,
+    "reply": "Oh, Kraków is such a beautiful city! I think \"since 2018\" is a great way to say that. Have you ever traveled to other cities in Poland?",
+    "self_correction": false,
+    "quotes": true,
+    "question": true,
+    "first_sentence_s": 0.3597908939991612
+   },
+   {
+    "id": "h14",
+    "kind": "grammar",
+    "rep": 1,
+    "reply": "That sounds exciting! Startups can be such a great learning experience. Did you enjoy working in Gdańsk?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.28438917200037395
+   },
+   {
+    "id": "h15",
+    "kind": "grammar",
+    "rep": 1,
+    "reply": "That must be busy! I think \"has\" is the correct verb here. Do you ever find it hard to keep up with all the meetings?",
+    "self_correction": true,
+    "quotes": true,
+    "question": true,
+    "first_sentence_s": 0.29926823600180796
+   },
+   {
+    "id": "h16",
+    "kind": "grammar",
+    "rep": 1,
+    "reply": "That sounds peaceful. Did you enjoy being in a small village?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.15291764900030103
+   },
+   {
+    "id": "h17",
+    "kind": "serious",
+    "rep": 1,
+    "reply": "That’s a funny way to describe it! I think \"boring\" might be a better word. Have you ever been in a meeting that felt like that?",
+    "self_correction": false,
+    "quotes": true,
+    "question": true,
+    "first_sentence_s": 0.3110689560016908
+   },
+   {
+    "id": "h18",
+    "kind": "serious",
+    "rep": 1,
+    "reply": "That’s kind of your colleague! Did you use the laptop for work or something else?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.31132431000150973
+   },
+   {
+    "id": "h19",
+    "kind": "serious",
+    "rep": 1,
+    "reply": "You mean \"excited,\" right? That sounds like a great opportunity! What’s the job about?",
+    "self_correction": false,
+    "quotes": true,
+    "question": true,
+    "first_sentence_s": 0.34652859500056366
+   },
+   {
+    "id": "h20",
+    "kind": "serious",
+    "rep": 1,
+    "reply": "That’s a great attitude! Maybe start with some free online courses? Have you tried anything like that yet?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.33191140899725724
+   },
+   {
+    "id": "h21",
+    "kind": "serious",
+    "rep": 1,
+    "reply": "That sounds really tough! You should take time to rest and recharge. Did you manage to get enough sleep?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.18169099999795435
+   },
+   {
+    "id": "h22",
+    "kind": "stt",
+    "rep": 1,
+    "reply": "Oh, I see! Thirty past nine is 9:30. Do you usually start meetings that early?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.22626047999801813
+   },
+   {
+    "id": "h23",
+    "kind": "stt",
+    "rep": 1,
+    "reply": "You need a visa to enter the U.S. — it’s a common requirement. Did you know you can apply for it online?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.35340600600102334
+   },
+   {
+    "id": "h24",
+    "kind": "stt",
+    "rep": 1,
+    "reply": "Great! Friday sounds like a good day. Do you usually work Fridays or is it a flexible day for you?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.2141108389987494
+   },
+   {
+    "id": "h25",
+    "kind": "bait",
+    "rep": 1,
+    "reply": "Oh, I see! Deploying a new version is a big responsibility. Did you use any specific tools or processes for that?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.27241496500209905
+   },
+   {
+    "id": "h26",
+    "kind": "bait",
+    "rep": 1,
+    "reply": "Sure! What rule are you referring to? I’d love to help!",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.11690578400157392
+   },
+   {
+    "id": "h27",
+    "kind": "bait",
+    "rep": 1,
+    "reply": "That’s a shame! You’ll have to try again next time. “We were planning to go” is correct. Let me know if you want more examples!",
+    "self_correction": false,
+    "quotes": true,
+    "question": false,
+    "first_sentence_s": 0.2432797789988399
+   },
+   {
+    "id": "h28",
+    "kind": "clean",
+    "rep": 1,
+    "reply": "Oh no! That’s frustrating. Maybe you can describe it instead? Like the area or the view? I think I know a few places in the mountains!",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.22630791000119643
+   },
+   {
+    "id": "h29",
+    "kind": "minor",
+    "rep": 1,
+    "reply": "That’s true! I think it’s great how flexible work can be now. Have you ever worked remotely for a long time?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.28602616599891917
+   },
+   {
+    "id": "h30",
+    "kind": "grammar",
+    "rep": 1,
+    "reply": "That’s a cool way to start the day! “He goes to work by bike” is correct. Do you ride a bike too?",
+    "self_correction": false,
+    "quotes": true,
+    "question": true,
+    "first_sentence_s": 0.43072536299951025
+   }
+  ]
+ },
+ "prompt+note": {
+  "n": 60,
+  "self_corrections": 0,
+  "quoted_language_comments": 0,
+  "questions": 52,
+  "first_sentence_p50": 0.31,
+  "first_sentence_p95": 0.52,
+  "rows": [
+   {
+    "id": "h01",
+    "kind": "clean",
+    "rep": 0,
+    "reply": "That’s great! Learning at work can be really practical. Have you noticed any improvements in your confidence?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.17911491899940302
+   },
+   {
+    "id": "h02",
+    "kind": "clean",
+    "rep": 0,
+    "reply": "That’s a big step! Moving for a job can be exciting but also challenging. Have you thought about which city you’d like to move to?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.2616473829984898
+   },
+   {
+    "id": "h03",
+    "kind": "clean",
+    "rep": 0,
+    "reply": "That sounds like fun! Driving along the coast must have been amazing. Did you stop at any beaches?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.3000865879985213
+   },
+   {
+    "id": "h04",
+    "kind": "clean",
+    "rep": 0,
+    "reply": "Oh, I see! Taking the train is safer for you. I think I’d feel the same way — driving at night can be tricky.",
+    "self_correction": false,
+    "quotes": false,
+    "question": false,
+    "first_sentence_s": 0.3223521870022523
+   },
+   {
+    "id": "h05",
+    "kind": "clean",
+    "rep": 0,
+    "reply": "That’s interesting! Testing backend services sounds like important work. Do you enjoy problem-solving in that role?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.36223481699926197
+   },
+   {
+    "id": "h06",
+    "kind": "bre",
+    "rep": 0,
+    "reply": "That sounds exciting! Do you know what kind of topics they're planning to cover?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.1836362369976996
+   },
+   {
+    "id": "h07",
+    "kind": "bre",
+    "rep": 0,
+    "reply": "Alright, I’ll be waiting. By the way, do you usually stay in hotels with a nice view?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.3074136110008112
+   },
+   {
+    "id": "h08",
+    "kind": "ame",
+    "rep": 0,
+    "reply": "Sure, that sounds good. Do you have a favorite takeout spot near the hotel?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.30733618500016746
+   },
+   {
+    "id": "h09",
+    "kind": "ame",
+    "rep": 0,
+    "reply": "Okay, I’ll wait for your call. Have a great trip!",
+    "self_correction": false,
+    "quotes": false,
+    "question": false,
+    "first_sentence_s": 0.3857274200017855
+   },
+   {
+    "id": "h10",
+    "kind": "minor",
+    "rep": 0,
+    "reply": "That’s great to hear! Teamwork makes everything easier, right?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.36398218600152177
+   },
+   {
+    "id": "h11",
+    "kind": "minor",
+    "rep": 0,
+    "reply": "That sounds like a lot of planning! Do you need help organizing the budget?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.2714397640011157
+   },
+   {
+    "id": "h12",
+    "kind": "minor",
+    "rep": 0,
+    "reply": "Okay, I'll wait. Take your time — no rush.",
+    "self_correction": false,
+    "quotes": false,
+    "question": false,
+    "first_sentence_s": 0.276129743000638
+   },
+   {
+    "id": "h13",
+    "kind": "minor",
+    "rep": 0,
+    "reply": "Kraków is a beautiful city! Do you like living there?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.31727772200247273
+   },
+   {
+    "id": "h14",
+    "kind": "grammar",
+    "rep": 0,
+    "reply": "Gdańsk is a nice place to work — it's near the sea!",
+    "self_correction": false,
+    "quotes": false,
+    "question": false,
+    "first_sentence_s": 0.5720037920000323
+   },
+   {
+    "id": "h15",
+    "kind": "grammar",
+    "rep": 0,
+    "reply": "That sounds busy! Do you find it hard to keep up with all the meetings?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.32666810899900156
+   },
+   {
+    "id": "h16",
+    "kind": "grammar",
+    "rep": 0,
+    "reply": "That’s interesting! Small villages often have a close-knit community. Did you enjoy growing up there?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.18227042400030768
+   },
+   {
+    "id": "h17",
+    "kind": "serious",
+    "rep": 0,
+    "reply": "That’s a strong statement! Did the speaker make it worse or did the topic just not interest anyone?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.264957917999709
+   },
+   {
+    "id": "h18",
+    "kind": "serious",
+    "rep": 0,
+    "reply": "That’s helpful! Did you manage to finish your work on time?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.25617581800179323
+   },
+   {
+    "id": "h19",
+    "kind": "serious",
+    "rep": 0,
+    "reply": "That’s great to hear! Are you looking forward to starting the job?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.3047980559967982
+   },
+   {
+    "id": "h20",
+    "kind": "serious",
+    "rep": 0,
+    "reply": "That’s a good attitude! Learning new tech can be challenging, but you’ll get there.",
+    "self_correction": false,
+    "quotes": false,
+    "question": false,
+    "first_sentence_s": 0.36568954400354414
+   },
+   {
+    "id": "h21",
+    "kind": "serious",
+    "rep": 0,
+    "reply": "That sounds really tough. Night shifts can really mess with your sleep schedule. Have you tried keeping a regular bedtime routine?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.19948083000053884
+   },
+   {
+    "id": "h22",
+    "kind": "stt",
+    "rep": 0,
+    "reply": "Oh, that’s early! Do you usually start work that early too?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.28145115900042583
+   },
+   {
+    "id": "h23",
+    "kind": "stt",
+    "rep": 0,
+    "reply": "Oh, I see. Do you know how long the visa process usually takes?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.25862480900104856
+   },
+   {
+    "id": "h24",
+    "kind": "stt",
+    "rep": 0,
+    "reply": "That sounds good! Do you need help organizing your schedule for Friday?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.24549887900138856
+   },
+   {
+    "id": "h25",
+    "kind": "bait",
+    "rep": 0,
+    "reply": "That’s a big responsibility! Did you feel confident handling the deployment?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.354316488999757
+   },
+   {
+    "id": "h26",
+    "kind": "bait",
+    "rep": 0,
+    "reply": "Okay, you want me to explain a rule. Which rule are you thinking of?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.3027279689995339
+   },
+   {
+    "id": "h27",
+    "kind": "bait",
+    "rep": 0,
+    "reply": "That's a shame! Did you end up going anyway, or did the weather stop you?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.2594567760024802
+   },
+   {
+    "id": "h28",
+    "kind": "clean",
+    "rep": 0,
+    "reply": "Oh, I see. Maybe you can look it up on the app or check your messages?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.2594765809990349
+   },
+   {
+    "id": "h29",
+    "kind": "minor",
+    "rep": 0,
+    "reply": "That's true — no commute, no office distractions. Have you tried working from a café sometimes?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.43082262399911997
+   },
+   {
+    "id": "h30",
+    "kind": "grammar",
+    "rep": 0,
+    "reply": "That's a good way to stay fit! Do you ride a bike too, or do you walk?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.4310589209999307
+   },
+   {
+    "id": "h01",
+    "kind": "clean",
+    "rep": 1,
+    "reply": "That's great! Have you noticed any changes in your work since you started learning English?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.19131632700009504
+   },
+   {
+    "id": "h02",
+    "kind": "clean",
+    "rep": 1,
+    "reply": "That's a big decision. Do you know which city you're considering moving to?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.2852714600012405
+   },
+   {
+    "id": "h03",
+    "kind": "clean",
+    "rep": 1,
+    "reply": "That sounds amazing! Did you enjoy driving along the coast?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.2704444369992416
+   },
+   {
+    "id": "h04",
+    "kind": "clean",
+    "rep": 1,
+    "reply": "Oh, I see. I think I'd feel the same way — driving at night can be tricky. Have you ever traveled by train before?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.31498472599923844
+   },
+   {
+    "id": "h05",
+    "kind": "clean",
+    "rep": 1,
+    "reply": "Testing backend services sounds like important work. Did you find it challenging?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.3978725149972888
+   },
+   {
+    "id": "h06",
+    "kind": "bre",
+    "rep": 1,
+    "reply": "That sounds busy! Have you got a favorite part of the conference programme?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.18616381600077148
+   },
+   {
+    "id": "h07",
+    "kind": "bre",
+    "rep": 1,
+    "reply": "Cool, I'll be waiting by the phone. Do you usually stay in the same hotel when you travel?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.34807854699829477
+   },
+   {
+    "id": "h08",
+    "kind": "ame",
+    "rep": 1,
+    "reply": "Sounds good! Do you have a favorite takeout spot in the area?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.2384045459984918
+   },
+   {
+    "id": "h09",
+    "kind": "ame",
+    "rep": 1,
+    "reply": "Got it — sounds like a busy week! How do you usually handle work when you're traveling?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.40006884199829074
+   },
+   {
+    "id": "h10",
+    "kind": "minor",
+    "rep": 1,
+    "reply": "That’s great to hear! Teamwork makes everything easier, right?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.3529598189998069
+   },
+   {
+    "id": "h11",
+    "kind": "minor",
+    "rep": 1,
+    "reply": "That’s a good topic. Did you set specific goals for the budget?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.2216235020023305
+   },
+   {
+    "id": "h12",
+    "kind": "minor",
+    "rep": 1,
+    "reply": "Okay, I’ll wait. Take your time—no rush.",
+    "self_correction": false,
+    "quotes": false,
+    "question": false,
+    "first_sentence_s": 0.23482991100172512
+   },
+   {
+    "id": "h13",
+    "kind": "minor",
+    "rep": 1,
+    "reply": "Kraków’s a great city—lots of history and good food. Do you like the culture there?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.49111363799966057
+   },
+   {
+    "id": "h14",
+    "kind": "grammar",
+    "rep": 1,
+    "reply": "That’s interesting—Gdańsk is a nice place to work. Did you enjoy the atmosphere there?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.5039457700004277
+   },
+   {
+    "id": "h15",
+    "kind": "grammar",
+    "rep": 1,
+    "reply": "That sounds busy—meetings can take up a lot of time. Do you find them helpful or stressful?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.4922181950023514
+   },
+   {
+    "id": "h16",
+    "kind": "grammar",
+    "rep": 1,
+    "reply": "That's interesting. Small villages often have a close-knit community. Did you enjoy growing up there?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.18519551699864678
+   },
+   {
+    "id": "h17",
+    "kind": "serious",
+    "rep": 1,
+    "reply": "That sounds really frustrating. I’ve heard that sometimes presentations can feel too long or not engaging. Did the topic matter to the audience?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.22282665600141627
+   },
+   {
+    "id": "h18",
+    "kind": "serious",
+    "rep": 1,
+    "reply": "Oh, that’s a good solution. Sometimes tech issues can really slow things down. Did you use it for work or something else?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.35220211500200094
+   },
+   {
+    "id": "h19",
+    "kind": "serious",
+    "rep": 1,
+    "reply": "That’s great to hear! I’m excited to hear more about the role. What kind of work does it involve?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.3420830979994207
+   },
+   {
+    "id": "h20",
+    "kind": "serious",
+    "rep": 1,
+    "reply": "That’s a good attitude! Kubernetes is pretty complex, but you can start with basics like containerization. Want to know a simple term first?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.37477097699957085
+   },
+   {
+    "id": "h21",
+    "kind": "serious",
+    "rep": 1,
+    "reply": "That sounds really tough. Night shifts can be so draining. Do you usually work nights or is it a one-off?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.19980509900051402
+   },
+   {
+    "id": "h22",
+    "kind": "stt",
+    "rep": 1,
+    "reply": "Thirty past nine is a bit early for some people, but it works for others. Do you find it hard to wake up that early?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.4938007259988808
+   },
+   {
+    "id": "h23",
+    "kind": "stt",
+    "rep": 1,
+    "reply": "That’s right — a visa is needed for most people to visit the United States. Do you know what type of visa you’ll need?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.5245274029985012
+   },
+   {
+    "id": "h24",
+    "kind": "stt",
+    "rep": 1,
+    "reply": "That sounds good! Are you looking forward to coming in on Friday?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.2997017550005694
+   },
+   {
+    "id": "h25",
+    "kind": "bait",
+    "rep": 1,
+    "reply": "That’s interesting — deploying new versions can be tricky. Did you work with a team on that?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.4690041249996284
+   },
+   {
+    "id": "h26",
+    "kind": "bait",
+    "rep": 1,
+    "reply": "Okay, you want me to explain a rule. Which rule are you thinking of?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.3102982609998435
+   },
+   {
+    "id": "h27",
+    "kind": "bait",
+    "rep": 1,
+    "reply": "That sounds like a plan that got washed away by the rain! Did you end up going anyway, or did you stay home?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.40787179000108154
+   },
+   {
+    "id": "h28",
+    "kind": "clean",
+    "rep": 1,
+    "reply": "That’s okay — sometimes even native speakers forget names. Did you take any photos or notes to help remember?",
+    "self_correction": false,
+    "quotes": false,
+    "question": true,
+    "first_sentence_s": 0.420370506002655
+   },
+   {
+    "id": "h29",
+    "kind": "minor",
+    "rep": 1,
+    "reply": "That’s true — no commute, no traffic, and you can wear your favorite pajamas!",
+    "self_correction": false,
+    "quotes": false,
+    "question": false,
+    "first_sentence_s": 0.6000312809992465
+   },
+   {
+    "id": "h30",
+    "kind": "grammar",
+    "rep": 1,
+    "reply": "That’s a great way to stay healthy and save money on transport!",
+    "self_correction": false,
+    "quotes": false,
+    "question": false,
+    "first_sentence_s": 0.5225266229972476
+   }
+  ]
+ }
+}
