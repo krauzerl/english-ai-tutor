@@ -20,7 +20,7 @@ NO_DIAGNOSIS = "To jest wybór startowy, nie jest wynikiem diagnozy."
 @dataclass(frozen=True)
 class Choice:
     skill_id: str
-    source: str            # starter | plan | error
+    source: str            # starter | plan | error | transfer
     reason: str
     provisional: bool      # poziom niezweryfikowany diagnozą
     category: str | None = None   # source=error: kategoria błędu, którą lekcja ma potwierdzić ćwiczeniem (AGV)
@@ -33,6 +33,8 @@ def completed(repo, profile_id: int) -> dict[str, dict]:
         if s["kind"] != "lesson":
             continue
         plan = repo.get_session_plan(profile_id, s["id"])
+        if (plan.get("cycle") or {}).get("kind") == "transfer":
+            continue                          # zadania kontrolne po przerwie to nie lekcja
         items, done = plan.get("items") or [], plan.get("done") or []
         if plan.get("lesson") and items and len(done) >= len(items):
             out[plan["lesson"]] = {"ok": len(plan.get("ok") or []), "total": len(items)}
@@ -97,24 +99,29 @@ def choose(repo, pack: C.Pack, profile_id: int, now: datetime, _use_easy: bool =
             if d["ok"] < d["total"] else None
 
     plan = planner.plan(inp)
-    checks = agv_checks(repo, profile_id)
+    from tutor.app import remediation as R
+    hist = R.history(repo, profile_id)
     for e in sorted(repo.list_errors(profile_id), key=lambda e: (-(e.get("severity_max") or 1), e["category"])):
         recurring = e.get("status") == "recurring" or (
             e.get("count", 0) >= 3 and e.get("status") not in ("resolved", "improving"))
         if not recurring:
             continue
-        chk = checks.get(e["category"])
-        if chk and chk["outcome"] != "confirmed" and (e.get("last_seen") or "") <= chk["at"]:
-            continue        # ćwiczenie nie potwierdziło problemu, a od tego czasu brak nowej obserwacji: nie wymuszamy
         cat, parent = e["category"], e["category"].split(".")[0]
+        recs = hist.get(cat, [])
         rank = {sid: 0 if cat in pack.skills[sid].error_categories else 1 for sid in pack.skills
                 if {cat, parent} & set(pack.skills[sid].error_categories)}
-        for sid in sorted(rank, key=lambda x: (rank[x], x)):      # dokładna kategoria przed jej rodzicem
-            if usable(sid) is not None:
-                why = ("Powtarzający się błąd w rozmowach ({cat}), potwierdzony wcześniej w ćwiczeniu — utrwalimy to."
-                       if chk and chk["outcome"] == "confirmed" else "Powtarzający się błąd w rozmowach ({cat}). To "
-                       "sugestia modelu, niezweryfikowana — sprawdzimy to w zadaniach.")
-                return Choice(sid, "error", why.format(cat=cat), True, category=cat)
+        last_skill = next((r["skill_id"] for r in reversed(recs) if r["skill_id"] in rank), None)
+        for sid in sorted(rank, key=lambda x: (x != last_skill, rank[x], x)):   # ten sam cel co w cyklu, potem
+            if sid in easy:                                                     # dokładna kategoria przed rodzicem
+                continue
+            try:
+                L.prepare(pack, sid, allow_unreviewed=allow)
+            except L.LessonError:
+                continue
+            d = R.decide(repo, pack, profile_id, e, now, recs, allow, sid)
+            if d is not None:
+                return Choice(sid, "error" if d[0] == "lesson" else "transfer", d[1], True, category=cat)
+            break           # decyzja dotyczy kategorii, nie celu: nie szukamy innego celu dla tego samego błędu
     for t in plan["practice"]:
         pre = usable(t["skill_id"])
         if pre is None:

@@ -128,10 +128,11 @@ def test_s3_error_lesson_confirmation_and_mastery_guard(env, pack):
     assert plan["agv"]["outcome"] == "confirmed" and plan["agv"]["category"] == "tense.past_simple"
     atts = env.repo.conn.execute("SELECT source, feedback_json FROM attempt WHERE profile_id=? AND session_id=?",
                                  (env.pid, les["id"])).fetchall()
-    assert atts and {a[0] for a in atts} == {"remediation"} and all(json.loads(a[1])["no_mastery"] for a in atts)
+    assert atts and {a[0] for a in atts} <= {"remediation", "practice"} and \
+        all(json.loads(a[1])["no_mastery"] for a in atts)
     assert all(s["status"] != "mastered" for s in env.repo.list_skill_states(env.pid))
-    again = G.choose(env.repo, pack, env.pid, datetime.now(UTC))             # potwierdzony: dalej w planie
-    assert again.source == "error" and "potwierdzony" in again.reason
+    again = G.choose(env.repo, pack, env.pid, datetime.now(UTC) + timedelta(days=1))   # test nieudany: powtórka
+    assert again.source == "error" and "Test po lekcji" in again.reason
     meta = json.loads(les["model_json"])
     assert meta["lesson"] == ch.skill_id and meta["choice"] == "error"
     rep = LR.build(env.repo, pack, env.pid, session_id=les["id"])

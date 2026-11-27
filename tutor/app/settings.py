@@ -31,6 +31,9 @@ SCHEMA: dict[str, dict] = {
     "chat_mode": {"type": "choice", "choices": ("natural", "guided", "roleplay")},
     # Pilot: szczegółowy dziennik nauki (zdarzenia STT/błędy/koniec sesji + pliki JSONL). Zgłoszenia ucznia zawsze.
     "learning_log": {"type": "bool"},
+    # Nauka na błędach: krótkie sprawdzenie głosowe na starcie Quick Chat (najwyżej co 2 dni, tylko przy powtarzającym
+    # się błędzie; zawsze można pominąć słowem „skip”).
+    "chat_checks": {"type": "bool"},
 }
 # F7: tempo mowy. Kokoro zmienia tempo w modelu (długość fonemów), więc wysokość głosu się nie zmienia (bez
 # przepróbkowania). Domyślnie „normalnie” = 0,9 — test właściciela: 1,0 było za szybkie.
@@ -40,7 +43,8 @@ DEFAULTS = {"tts_voice": "bf_emma", "speed": DEFAULT_SPEED, "mic_mode": "ptt", "
             "stt_confirm": "uncertain", "mascot": "A",
             "conversation_mode": "lesson", "chat_model": CHAT_MODELS[0], "io_mode": "voice",
             "input_device": "default", "output_device": "default",
-            "chat_level": "auto", "chat_category": "general", "chat_mode": "natural", "learning_log": True}
+            "chat_level": "auto", "chat_category": "general", "chat_mode": "natural", "learning_log": True,
+            "chat_checks": True}
 
 
 class SettingError(ValueError):

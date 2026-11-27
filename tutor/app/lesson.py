@@ -187,16 +187,49 @@ def _show(item: C.Item, idx: int, n: int) -> str:
 
 def begin(repo, pack: C.Pack, profile_id: int, session_id: int, skill_id: str,
           choice: dict | None = None, allow_unreviewed: bool = True) -> tuple[C.Skill, list[C.Item]]:
-    """Nowa lekcja zapisuje plan w sesji; wznowiona używa zapisanych zadań (te same, w tej samej kolejności)."""
+    """Nowa lekcja zapisuje plan w sesji; wznowiona używa zapisanych zadań (te same, w tej samej kolejności).
+    Lekcja z powtarzającego się błędu (`choice.source == "error"`) jest etapowa: sprawdzenie → wyjaśnienie →
+    ćwiczenia → test samodzielny; `transfer` = same nowe zadania po przerwie (bez wyjaśnienia)."""
     plan = repo.get_session_plan(profile_id, session_id)
     sk, items = prepare(pack, skill_id, allow_unreviewed=allow_unreviewed)
     if plan.get("lesson") == skill_id:
         by = {i.id: i for i in pack.items.values()}
         saved = [by[x] for x in plan.get("items", []) if x in by]
         return sk, saved or items
+    src, cat = (choice or {}).get("source"), (choice or {}).get("category")
+    if src in ("error", "transfer") and cat:
+        from tutor.app import remediation as R
+        seen = R.seen_items(repo, profile_id, skill_id)
+        if src == "error":
+            stages = R.staged(pack, skill_id, seen, allow_unreviewed)
+            other = None
+        else:
+            prev = [r for r in R.history(repo, profile_id).get(cat, []) if r["kind"] == "lesson"]
+            dom = set(prev[-1]["domains"]) if prev else set()
+            stages = {"transfer": R.fresh_items(pack, skill_id, seen, allow_unreviewed, dom)}
+            other = bool(stages["transfer"]) and all(i.domain not in dom for i in stages["transfer"])
+        checks = [i for st in R.CHECK_STAGES for i in stages.get(st, [])]
+        if any(stages.values()):
+            cyc = {"category": cat, "skill_id": skill_id, "kind": "lesson" if src == "error" else "transfer",
+                   "unverified_items": any(i.review.status != "human_reviewed" for i in checks),
+                   "fresh": all(i.id not in seen for i in checks), "other_context": other}
+            p = {"lesson": skill_id, **R.plan_for(stages, cyc), "choice": choice}
+            repo.set_session_plan(profile_id, session_id, p)
+            by = {i.id: i for i in pack.items.values()}
+            return sk, [by[x] for x in p["items"]]
     repo.set_session_plan(profile_id, session_id,
                           {"lesson": skill_id, "items": [i.id for i in items], "done": [], "ok": [], "choice": choice})
     return sk, items
+
+
+_SKIP_CHECK = {"skip", "pomiń", "pomin", "dalej", "skip it"}
+STAGE_HEAD = {
+    "pre": "Najpierw krótkie sprawdzenie (zadania: {n}), bez podpowiedzi. Reguła i odpowiedzi będą po sprawdzeniu.",
+    "practice": "Ćwiczenia (z podpowiedziami, jeśli będą potrzebne).",
+    "post": "Teraz samodzielny test na nowych zadaniach (zadania: {n}), bez podpowiedzi.",
+    "transfer": "Sprawdzenie po przerwie na nowych zadaniach (zadania: {n}), bez podpowiedzi i bez wyjaśnienia.",
+    "check": "Krótkie sprawdzenie głosowe (zadania: {n}), bez podpowiedzi (powiedz „skip”, żeby od razu rozmawiać).",
+}
 
 
 def run_exercises(repo, pack: C.Pack, profile_id: int, session_id: int, sk: C.Skill, items: list[C.Item],
@@ -205,18 +238,33 @@ def run_exercises(repo, pack: C.Pack, profile_id: int, session_id: int, sk: C.Sk
     """`ask` zwraca None = uczeń kończy (postęp zostaje zapisany; wznowienie pomija zrobione zadania)."""
     plan = repo.get_session_plan(profile_id, session_id) or {"lesson": sk.id, "items": [i.id for i in items]}
     done, ok = list(plan.get("done", [])), list(plan.get("ok", []))
-    agv = _agv_request(pack, sk, items, plan)          # lekcja z powodu błędu z rozmowy = ćwiczenie potwierdzające
+    stages = plan.get("stages") or {}
+    results = dict(plan.get("results") or {})
+    req = _check_request(sk, items, plan) if stages else None
+    agv = None if stages else _agv_request(pack, sk, items, plan)   # dawny plan: AGV po wyjaśnieniu
     cat = _category(pack, sk)
     skipped = 0
     first: dict[str, bool] = {}
+    shown: set[str] = set()
     from tutor.app import lesson_voice as V
     speak = speak or (lambda _t: None)                     # głos tylko w trybie głosowym; ekran zawsze
     for idx, item in enumerate(items):
         if item.id in done:
             continue
+        stage = stages.get(item.id)
+        if stage and stage not in shown:
+            shown.add(stage)
+            n_st = sum(1 for i in items if stages.get(i.id) == stage)
+            if stage == "practice":
+                say("\n" + explanation(pack, sk))
+                for part in V.explanation(pack, sk):
+                    speak(part)
+            say("\n" + STAGE_HEAD[stage].format(n=n_st))
+        check = stage in ("pre", "post", "transfer", "check")
         say(_show(item, idx, len(items)))
         speak(V.task(item, idx, len(items)))
         tries = reasks = helps = 0
+        res_item = None
         while True:
             a = ask(item, idx)
             if a is None:
@@ -224,11 +272,21 @@ def run_exercises(repo, pack: C.Pack, profile_id: int, session_id: int, sk: C.Sk
             if a.mode == "voice":                          # uczeń widzi, co usłyszał system (tylko na ekranie)
                 say(_heard(a))
             verdict = judge(pack, sk.id, item, a)
+            if stage == "check" and C.norm_answer(a.text) in _SKIP_CHECK:
+                verdict = "skip"                           # nagłówek mówi „skip”: jedno słowo wystarcza
             if verdict == "correct":
-                say("✓ Dobrze." + (" (po podpowiedzi)" if tries else "")
-                    + (f" {item.explanation_pl}" if item.explanation_pl else ""))
-                speak(V.correct(tries))
-                _record(repo, pack, profile_id, session_id, sk, item, True, a, tries, now, agv)
+                res_item = "assisted" if (tries or helps) else "independent"
+                if stage == "pre":
+                    say("Zapisano odpowiedź.")
+                else:
+                    say("✓ Dobrze." + (" (po podpowiedzi)" if tries or (check and helps) else "")
+                        + (f" {item.explanation_pl}" if item.explanation_pl else ""))
+                    speak(V.correct(tries))
+                if check:
+                    _record_check(repo, pack, profile_id, session_id, req, stage, item, True, a, int(bool(helps)),
+                                  now)
+                else:
+                    _record(repo, pack, profile_id, session_id, sk, item, True, a, tries, now, agv)
                 ok.append(item.id)
                 first[item.id] = tries == 0
                 break
@@ -237,12 +295,18 @@ def run_exercises(repo, pack: C.Pack, profile_id: int, session_id: int, sk: C.Sk
                 return Result(len(ok), len(done), quit=True)
             if verdict == "skip":
                 say("Dobrze, kończymy ćwiczenia. To nie oznacza opanowania umiejętności — nic nie zapisano jako "
-                    "zrobione. Do zadań wrócisz poleceniem `--lesson`.")
+                    "zrobione. Do zadań wrócisz poleceniem `--lesson`." if stage != "check" else
+                    "Dobrze, pomijamy sprawdzenie.")
                 speak(V.stop_exercises())
                 return Result(len(ok), len(done), moved_on=True, skipped=skipped,
                               declared_easy=bool(_EASY.search(a.text)))
             if verdict == "help" and helps < MAX_HELP:
                 helps += 1
+                if stage == "pre":                         # podpowiedź zmieniłaby wynik sprawdzenia
+                    say("W sprawdzeniu nie podpowiadam — odpowiedz, jak umiesz, albo powiedz „I don't know”. "
+                        "Wyjaśnienie będzie zaraz potem.")
+                    speak("Just try your best, or say: I don't know.")
+                    continue
                 ex = _examples(pack, sk)
                 say("Przypomnienie — poprawne przykłady: " + "; ".join(ex) if ex else "Przypomnienie: " + sk.can_do_pl)
                 speak(V.help_(ex))
@@ -253,6 +317,11 @@ def run_exercises(repo, pack: C.Pack, profile_id: int, session_id: int, sk: C.Sk
                 # niska pewność STT albo niejasna wypowiedź nie jest dowodem błędu językowego i nie jest dopasowywana
                 reasks += 1
                 if reasks > MAX_REASK:
+                    if check:                              # zadanie kontrolne: wynik niejednoznaczny, bez oceny
+                        say("Nie mogę wiarygodnie ocenić tej odpowiedzi (niepewne rozpoznanie mowy) — zapisuję ją "
+                            "jako niejednoznaczną, bez wpływu na wynik.")
+                        res_item = "ambiguous"
+                        break
                     say("Pomijam to zadanie: rozpoznawanie mowy jest niepewne. Wpisz odpowiedź albo wróć do niego "
                         "po wznowieniu lekcji.")
                     speak(V.skipped())
@@ -263,6 +332,16 @@ def run_exercises(repo, pack: C.Pack, profile_id: int, session_id: int, sk: C.Sk
                 speak(V.reask(a.text))
                 continue
             tries += 1
+            if check:                                      # jedna próba: bez drabiny podpowiedzi
+                res_item = "wrong"
+                if stage == "pre":
+                    say("Zapisano odpowiedź.")
+                else:
+                    say(f"✗ Poprawna odpowiedź: {item.answers[0]}"
+                        + (f"\n{item.explanation_pl}" if item.explanation_pl else ""))
+                    speak(V.reveal(item))
+                _record_check(repo, pack, profile_id, session_id, req, stage, item, False, a, int(bool(helps)), now)
+                break
             if tries == 1:
                 say((cat.l1 if cat else "Prawie!") + " Spróbuj jeszcze raz.")
                 speak(V.retry())
@@ -271,15 +350,83 @@ def run_exercises(repo, pack: C.Pack, profile_id: int, session_id: int, sk: C.Sk
             speak(V.reveal(item))
             _record(repo, pack, profile_id, session_id, sk, item, False, a, 4, now, agv)
             first[item.id] = False
+            res_item = "wrong"
             break
         if item is None:                                   # pominięte: zostaje do zrobienia
             continue
         done.append(item.id)
-        plan = {**plan, "done": done, "ok": ok}
+        if res_item:
+            results[item.id] = res_item
+        plan = {**plan, "done": done, "ok": ok, "results": results}
         if agv:
             plan = {**plan, "agv": _agv_state(plan, agv, first, items, now)}
+        if stage and all(i.id in done for i in items if stages.get(i.id) == stage):
+            plan = _stage_done(repo, profile_id, session_id, plan, stage, items, now)
+            if stage == "pre":
+                say(pre_summary(plan, items))
         repo.set_session_plan(profile_id, session_id, plan)
     return Result(len(ok), len(done), skipped=skipped)
+
+
+def _check_request(sk: C.Skill, items: list[C.Item], plan: dict):
+    from tutor.pedagogy import evidence as EV
+    cy = plan.get("cycle") or {}
+    st = plan.get("stages") or {}
+    ids = tuple(i.id for i in items if st.get(i.id) in ("pre", "post", "transfer", "check"))
+    if not cy.get("category") or not ids:
+        return None
+    return EV.ConfirmRequest(sk.id, cy["category"], ids, bool(cy.get("unverified_items")), f"error:{cy['category']}")
+
+
+def _record_check(repo, pack, pid, sid, req, stage, item, correct, a: Answer, hint_level, now) -> None:
+    n_opt = len(item.options) if item.options else None
+    if req is None:
+        return
+    ingest.apply_confirmation(repo, pack, pid, sid, req, item.id, correct, now=now, stage=stage,
+                              dedupe_key=f"lesson:{sid}:{item.id}", response=a.text, hint_level=hint_level,
+                              n_options=n_opt)
+
+
+def _stage_done(repo, pid, sid, plan: dict, stage: str, items: list[C.Item], now: datetime) -> dict:
+    """Etap zakończony: czas, wynik (dla `pre` także AGV przed wyjaśnieniem) i zdarzenie w dzienniku nauki."""
+    from tutor.app import learnlog as LL
+    from tutor.app import remediation as R
+    st = plan.get("stages") or {}
+    ids = [i.id for i in items if st.get(i.id) == stage]
+    sc = R.score(plan.get("results") or {}, ids)
+    cy = plan.get("cycle") or {}
+    plan = {**plan, "stage_at": {**(plan.get("stage_at") or {}), stage: now.strftime("%Y-%m-%dT%H:%M:%SZ")}}
+    if stage == "pre":
+        res = plan.get("results") or {}
+        plan["agv"] = {"category": cy.get("category"), "skill_id": cy.get("skill_id"),
+                       "results": {i: res[i] == "independent" for i in ids if res.get(i) in ("independent", "wrong")},
+                       "outcome": R.outcome(sc), "after_explanation": False, "stage": "pre",
+                       "unverified_items": cy.get("unverified_items", False),
+                       "at": now.strftime("%Y-%m-%dT%H:%M:%SZ")}
+    LL.log(repo, pid, "log.remediation", sid, stage=stage, category=cy.get("category"),
+           skill_id=cy.get("skill_id"), cycle=cy.get("kind"), items=ids, outcome=R.outcome(sc) if stage != "practice"
+           else None, fresh=cy.get("fresh"), unverified_items=cy.get("unverified_items"),
+           **{k: sc[k] for k in ("independent", "assisted", "wrong", "ambiguous", "n")})
+    return plan
+
+
+def pre_summary(plan: dict, items: list[C.Item]) -> str:
+    """Po sprawdzeniu (dopiero teraz) pokazujemy odpowiedzi i uczciwy wniosek."""
+    from tutor.app import remediation as R
+    st, res = plan.get("stages") or {}, plan.get("results") or {}
+    pre = [i for i in items if st.get(i.id) == "pre"]
+    sc = R.score(res, [i.id for i in pre])
+    lines = [f"\nSprawdzenie: {sc['independent']}/{sc['n']} poprawnie."]
+    for i in pre:
+        mark = {"independent": "✓", "wrong": "✗", "ambiguous": "?"}.get(res.get(i.id), "–")
+        lines.append(f"  {mark} {i.prompt} → {i.answers[0]}")
+    o = R.outcome(sc)
+    lines.append({"confirmed": "Problem wystąpił w zadaniach — przejdźmy do wyjaśnienia.",
+                  "not_confirmed": "W tych zadaniach problem nie wystąpił (to nie znaczy, że błędu w rozmowie nie "
+                                   "było). Krótkie przypomnienie i ćwiczenia — możesz je pominąć („skip”).",
+                  "inconclusive": "Wynik mieszany — przejdźmy do wyjaśnienia.",
+                  "no_data": "Brak rozstrzygniętych odpowiedzi — sprawdzenie bez wyniku."}[o])
+    return "\n".join(lines)
 
 
 def _agv_request(pack: C.Pack, sk: C.Skill, items: list[C.Item], plan: dict):
@@ -337,6 +484,19 @@ def judge(pack: C.Pack, skill_id: str, item: C.Item, a: Answer) -> str:
     return "wrong"
 
 
+def stage_summary(plan: dict) -> str:
+    """Wynik etapów z rzeczywistych prób (bez oceny modelu). Poprawny test ≠ trwałe opanowanie."""
+    from tutor.app import remediation as R
+    st, res = plan.get("stages") or {}, plan.get("results") or {}
+    parts = []
+    for k in ("pre", "practice", "post", "transfer", "check"):
+        ids = [i for i in plan.get("items", []) if st.get(i) == k]
+        if ids:
+            parts.append(f"{R.STAGE_PL[k]}: {R._frac(R.score(res, ids))}")
+    return ("\nWynik etapów — " + " · ".join(parts) + ". To wynik ćwiczeń, nie trwałe opanowanie; sprawdzimy go "
+            "później na nowych zadaniach.") if parts else ""
+
+
 def summary(res: Result) -> str:
     if res.moved_on:
         return ("\nĆwiczenia zakończone na Twoją prośbę. To nie oznacza opanowania umiejętności — "
@@ -348,8 +508,14 @@ def summary(res: Result) -> str:
             "umiejętności — opanowanie wymaga potwierdzenia w kolejnych dniach.")
 
 
-def intro(pack: C.Pack, sk: C.Skill, choice: dict | None = None) -> str:
+def intro(pack: C.Pack, sk: C.Skill, choice: dict | None = None, plan: dict | None = None) -> str:
     why = f"Dlaczego ten cel: {choice['reason']}\n\n" if choice else ""
+    if (plan or {}).get("stages"):                     # lekcja etapowa: wyjaśnienie dopiero po sprawdzeniu
+        kinds = set(plan["stages"].values())
+        flow = ("Plan: sprawdzenie → wyjaśnienie → ćwiczenia → samodzielny test." if "pre" in kinds else
+                "Plan: wyjaśnienie → ćwiczenia → samodzielny test." if "practice" in kinds else
+                "Plan: krótkie zadania kontrolne.")
+        return f"Cel lekcji: {sk.id} ({sk.cefr}) — {sk.can_do_pl}\n{why}{flow} (q = przerwij, lekcję można wznowić)."
     return (f"Cel lekcji: {sk.id} ({sk.cefr}) — {sk.can_do_pl}\n{why}\n{explanation(pack, sk)}\n\n"
             "Ćwiczenia: odpowiadaj tekstem lub głosem (q = przerwij, lekcję można wznowić).")
 

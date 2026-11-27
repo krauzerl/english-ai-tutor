@@ -344,7 +344,7 @@ def apply_item_attempt(repo: Repo, pack: Pack, profile_id: int, session_id: int 
 
 def apply_confirmation(repo: Repo, pack: Pack, profile_id: int, session_id: int | None, req, item_id: str,
                        correct: bool, *, now: datetime, dedupe_key: str, response: str | None = None,
-                       hint_level: int = 0, n_options: int | None = None) -> dict:
+                       hint_level: int = 0, n_options: int | None = None, stage: str | None = None) -> dict:
     """Kontrakt F5 (AGV): wynik niezależnego zadania potwierdzającego problem z rozmowy (`evidence.ConfirmRequest`).
     To zwykła próba zadania (źródło `remediation`, BKT `production`) — jedyna droga do oceny `confirmed`.
     Wynik całej prośby: `evidence.outcome([...])` po wszystkich zadaniach."""
@@ -352,7 +352,8 @@ def apply_confirmation(repo: Repo, pack: Pack, profile_id: int, session_id: int 
         raise ValueError(f"{item_id} nie należy do prośby o potwierdzenie")
     return apply_item_attempt(repo, pack, profile_id, session_id, item_id, req.skill_id, correct,
                               source="remediation", dedupe_key=dedupe_key, now=now, response=response,
-                              hint_level=hint_level, agv={"category": req.category, "reason": req.reason},
+                              hint_level=hint_level, agv={"category": req.category, "reason": req.reason,
+                                                         **({"stage": stage} if stage else {})},
                               n_options=n_options, allow_mastery=False)   # potwierdzenie ≠ opanowanie
 
 

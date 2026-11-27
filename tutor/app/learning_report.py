@@ -125,6 +125,13 @@ def build(repo, pack, pid: int, *, since: str | None = None, until: str | None =
     dropped = sum(1 for m in metas if m["dropped_at"])
     dropped_obs = [o for o in obs if o["status"] == "dropped"]
     cases = build_cases(repo, pack, pid, sess=sess, obs=obs, metas=metas, evs=evs, reviews=reviews, cache=cache)
+    activity = chat_activity(repo, pack, pid, sess, plans, secs, evs, counted, metas)
+    from tutor.app import remediation as R
+    hist = R.history(repo, pid)
+    rem = [{"category": c, "lines": R.lines(rs, repo, pid), "status": R.status_pl(rs, next(
+        (e for e in repo.list_errors(pid) if e["category"] == c), None)),
+            "checks": [{"at": r["at"], "kind": r["kind"], **{k: v for k, v in r["stages"].items()}} for r in rs]}
+           for c, rs in sorted(hist.items()) if any(r["session_id"] in sids for r in rs)]
     return {"profile_id": pid, "since": since, "until": until, "session_id": session_id,
             "generated_at": now.isoformat(timespec="seconds"), "app": LL.app_version(),
             "sessions": {"n": len(sess), "seconds": sum(secs.values()), "kinds": dict(kinds), "status": dict(status),
@@ -140,7 +147,9 @@ def build(repo, pack, pid: int, *, since: str | None = None, until: str | None =
                                         "status": states[k]["status"] if k in states else None}
                                     for k, v in sorted(skills.items())},
                          "agv": agv, "uptake": uptake, "choices": choices, "retention": growth.get("retention"),
-                         "weak": [e["category"] for e in WS.build(repo, pack, pid, now)["errors"][:5]]},
+                         "weak": [e["category"] for e in WS.build(repo, pack, pid, now)["errors"][:5]],
+                         "remediation": rem},
+            "activity": activity,
             "technical": {"stt": dict(stt), "stt_marked": len(stt_marked), "disputed": len(disputed),
                           "reports": Counter(e["kind"].removeprefix("report.") for e in rep),
                           "errors": [{"where": e["data"].get("where"), "error": e["data"].get("error"),
@@ -207,6 +216,70 @@ def build_cases(repo, pack, pid: int, *, sess, obs, metas, evs, reviews, cache) 
 
 
 # --- Markdown ---
+def chat_activity(repo, pack, pid: int, sess, plans, secs, evs, counted, metas) -> dict:
+    """Wskaźniki AKTYWNOŚCI w rozmowach (per dzień). To nie są dowody postępu: liczba słów, czas mówienia czy brak
+    korekt modelu nie mówią, czy wypowiedź była poprawna. Wymowy nie oceniamy (transkrypcja jej nie mierzy)."""
+    from tutor.pedagogy.assessment import prefilter
+    days: dict[str, dict] = {}
+    by_sess = {s["id"]: s for s in sess}
+    evaluated = {m["turn_id"] for m in metas if m["eval_status"] == "evaluated"}
+    for s in sess:
+        turns = [t for t in repo.list_turns(pid, s["id"]) if t["role"] == "user"]
+        if not turns:
+            continue
+        d = days.setdefault((s["started_at"] or "")[:10], {
+            "sessions": 0, "chat_sessions": 0, "minutes": 0.0, "utterances": 0, "voice": 0, "words": 0,
+            "longest": 0, "speaking_s": 0.0, "speaking_known": 0, "evaluated": 0, "evaluated_words": 0,
+            "suggestions": 0, "self_repairs": 0, "uptake_ok": 0, "uptake_repeated": 0, "topics": set()})
+        d["sessions"] += 1
+        d["chat_sessions"] += s["kind"] == "chat"
+        d["minutes"] += secs.get(s["id"], 0) / 60
+        if (plans[s["id"]].get("topic") or {}).get("pl"):
+            d["topics"].add(plans[s["id"]]["topic"]["pl"])
+        for t in turns:
+            w = len(t["text"].split())
+            d["utterances"] += 1
+            d["voice"] += t["input_mode"] == "voice"
+            d["words"] += w
+            d["longest"] = max(d["longest"], w)
+            d["self_repairs"] += len(prefilter(t["text"], pack.disfluency).repairs)
+            if t["id"] in evaluated:
+                d["evaluated"] += 1
+                d["evaluated_words"] += w
+        for u in plans[s["id"]].get("uptake") or []:
+            if u.get("result") == "used_ok":
+                d["uptake_ok"] += 1
+            elif u.get("result") == "repeated":
+                d["uptake_repeated"] += 1
+    for e in evs:                       # czas nagrań przyjętych wypowiedzi (dziennik nauki; bez niego: brak danych)
+        if e["kind"] == "log.stt" and e["data"].get("status") in ("ok", "confirmed", "corrected") and \
+                e["session_id"] in by_sess:
+            d = days.get((by_sess[e["session_id"]]["started_at"] or "")[:10])
+            if d is not None and isinstance(e["data"].get("audio_s"), int | float):
+                d["speaking_s"] += e["data"]["audio_s"]
+                d["speaking_known"] += 1
+    for o in counted:
+        s = by_sess.get(o["session_id"])
+        if s and (d := days.get((s["started_at"] or "")[:10])):
+            d["suggestions"] += 1
+    out = {}
+    for k, d in sorted(days.items()):
+        d["topics"] = sorted(d["topics"])
+        d["minutes"] = round(d["minutes"], 1)
+        d["speaking_s"] = round(d["speaking_s"], 1)
+        d["words_per_utterance"] = round(d["words"] / d["utterances"], 1) if d["utterances"] else 0
+        d["suggestions_per_100_words"] = round(100 * d["suggestions"] / d["evaluated_words"], 1) \
+            if d["evaluated_words"] else None
+        out[k] = d
+    tot = {k: sum(d[k] for d in out.values()) for k in ("sessions", "chat_sessions", "utterances", "voice", "words",
+                                                         "speaking_known", "evaluated", "suggestions",
+                                                         "self_repairs", "uptake_ok", "uptake_repeated")}
+    tot["minutes"] = round(sum(d["minutes"] for d in out.values()), 1)
+    tot["speaking_s"] = round(sum(d["speaking_s"] for d in out.values()), 1)
+    tot["days"] = len(out)
+    return {"days": out, "total": tot}
+
+
 def _pct(a: int, n: int) -> str:
     return f"{a}/{n}" if n else "—"
 
@@ -228,8 +301,9 @@ def render(d: dict, pack=None) -> str:
          f"- Wypowiedzi ucznia w rozmowach: {s['user_turns']}",
          f"- Stan sesji: {', '.join(f'{k}: {v}' for k, v in sorted(s['status'].items())) or '—'}",
          f"- Tematy rozmów: {', '.join(s['topics']) or '—'}",
-         f"- Lekcje (cele): {', '.join(f'`{x}`' for x in s['lessons']) or '—'}", "",
-         "## B. Błędy i słabości", ""]
+         f"- Lekcje (cele): {', '.join(f'`{x}`' for x in s['lessons']) or '—'}", ""]
+    L += _render_activity(d.get("activity") or {})
+    L += ["## B. Błędy i słabości", ""]
     if e["by_category"]:
         L += ["| kategoria | sugestie | wysoka pewność | inne |", "|---|---|---|---|"]
         L += [f"| {cat(c)} | {v['n']} | {v['high']} | {v['other']} |" for c, v in e["by_category"].items()]
@@ -270,6 +344,16 @@ def render(d: dict, pack=None) -> str:
                              and k.startswith("after_"))
                  + ("" if r.get("enough") else " — za mało danych na wniosek"))
     L.append(f"- Do dalszej pracy (dziennik słabych stron): {', '.join(map(cat, p['weak'])) or '—'}")
+    L += ["", "### Nauka na błędach — dowody z zadań kontrolnych", "",
+          "Wyniki z rzeczywistych odpowiedzi na zadania zamknięte (sprawdzane kodem, nie przez model). Sprawdzenie "
+          "wstępne jest przed wyjaśnieniem; test samodzielny i transfer na innych zadaniach. Poprawny wynik po "
+          "lekcji nie oznacza trwałego opanowania.", ""]
+    for r in p.get("remediation") or []:
+        L.append(f"**{cat(r['category'])}** — {r['status']}")
+        L += [f"- {x}" for x in r["lines"]]
+        L.append("")
+    if not p.get("remediation"):
+        L += ["Brak zadań kontrolnych w tym okresie — nie mamy dowodu poprawy ani pogorszenia.", ""]
     L += ["", "## D. Problemy techniczne i jakościowe", "",
           f"- Korekty zakwestionowane przez Ciebie: {t['disputed']}; oznaczone jako błąd rozpoznania mowy: "
           f"{t['stt_marked']}",
@@ -303,6 +387,34 @@ def render(d: dict, pack=None) -> str:
     if not d["cases"]:
         L.append("Brak przypadków w tym okresie.")
     return "\n".join(L) + "\n"
+
+
+def _render_activity(a: dict) -> list[str]:
+    if not a.get("days"):
+        return []
+    t = a["total"]
+    sp = f"{round(t['speaking_s'] / 60, 1)} min ({t['speaking_known']} nagrań)" if t["speaking_known"] else \
+        "brak danych (dziennik nauki wyłączony albo tylko tekst)"
+    L = ["### Aktywność w rozmowach — to NIE są dowody postępu", "",
+         f"- Dni z rozmową: {t['days']} · sesje: {t['sessions']} (Quick Chat: {t['chat_sessions']}) · "
+         f"czas: {t['minutes']} min",
+         f"- Mówienie (długość przyjętych nagrań): {sp}",
+         f"- Wypowiedzi: {t['utterances']} (głosem: {t['voice']}), słowa: {t['words']}, "
+         f"średnio {round(t['words'] / t['utterances'], 1) if t['utterances'] else 0} słowa na wypowiedź",
+         f"- Ocenione przez model: {t['evaluated']}; sugestie błędów: {t['suggestions']}",
+         f"- Samopoprawki widoczne w transkrypcji: {t['self_repairs']} (Whisper często je usuwa — zaniżone)",
+         f"- Po korekcie w rozmowie: forma użyta poprawnie {t['uptake_ok']}×, błąd powtórzony "
+         f"{t['uptake_repeated']}× (obserwacje modelu)", "",
+         "| dzień | min | wypowiedzi (głos) | słowa/wyp. | najdłuższa | mówienie [s] | sugestie / 100 słów |",
+         "|---|---|---|---|---|---|---|"]
+    for k, d in a["days"].items():
+        L.append(f"| {k} | {d['minutes']} | {d['utterances']} ({d['voice']}) | {d['words_per_utterance']} | "
+                 f"{d['longest']} | {d['speaking_s'] if d['speaking_known'] else '—'} | "
+                 f"{d['suggestions_per_100_words'] if d['suggestions_per_100_words'] is not None else '—'} |")
+    L += ["", "> Wymowa nie jest oceniana: transkrypcja Whispera nie mierzy wymowy. Wypowiedź bez korekty modelu "
+          "NIE jest uznawana za poprawną (Qwen3 pomija część błędów). Liczba sugestii zależy od tematu i długości "
+          "wypowiedzi, więc jej spadek nie jest dowodem poprawy.", ""]
+    return L
 
 
 # --- pliki ---

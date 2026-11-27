@@ -25,6 +25,10 @@ def greeting(sk: C.Skill) -> str:
     return f"Hello! Today we practise: {_topic(sk)}. First, a quick explanation."
 
 
+def greeting_check(sk: C.Skill) -> str:
+    return f"Hello! Today we work on: {_topic(sk)}. First, a short check without hints."
+
+
 def welcome_back() -> str:
     return "Welcome back. Let's continue where we stopped."
 

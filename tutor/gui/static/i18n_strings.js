@@ -525,6 +525,8 @@ I18N.add([
   ["Raport z nauki", "Raport z nauki", "Learning report"], ["Raport z nauki (7 dni)", "Raport z nauki (7 dni)", "Learning report (7 days)"],
   ["Zapisano: {p}", "Zapisano: {p}", "Saved: {p}"],
   ["Szczegółowy dziennik nauki (lokalnie)", "Szczegółowy dziennik nauki (lokalnie)", "Detailed learning log (local)"],
+  ["Krótkie sprawdzenie głosowe przed Quick Chat (co kilka dni)", "Krótkie sprawdzenie głosowe przed Quick Chat (co kilka dni)", "Short voice check before Quick Chat (every few days)"],
+  ["Sprawdzanie w zadaniach: {s}", "Sprawdzanie w zadaniach: {s}", "Checked in exercises: {s}"],
 ]);
 I18N.add([["Po korekcie w rozmowie: użyta poprawnie {a}×, błąd powtórzony {b}× (obserwacja, nie dowód opanowania)",
   "Po korekcie w rozmowie: użyta poprawnie {a}×, błąd powtórzony {b}× (obserwacja, nie dowód opanowania)",

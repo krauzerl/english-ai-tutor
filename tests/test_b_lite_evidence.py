@@ -51,13 +51,15 @@ def test_error_lesson_records_confirmation_without_mastery(repo, pack):
     recurring(repo, pid)
     sid, items = lesson_from_error(repo, pack, pid, correct=False)
     agv = repo.get_session_plan(pid, sid)["agv"]
-    assert agv["outcome"] == "confirmed" and agv["category"] == CAT and agv["after_explanation"]
+    # etapowa lekcja: AGV liczone ze sprawdzenia PRZED wyjaśnieniem
+    assert agv["outcome"] == "confirmed" and agv["category"] == CAT and not agv["after_explanation"]
     atts = repo.attempt_history(pid, SKILL)
-    assert {a["source"] for a in atts} == {"remediation"}
+    assert {a["source"] for a in atts} == {"remediation", "practice"}    # kontrolne vs ćwiczenia z podpowiedziami
     assert all(json.loads(a["feedback_json"])["no_mastery"] for a in atts)   # potwierdzenie ≠ opanowanie
     assert repo.get_skill_state(pid, SKILL)["status"] != "mastered"
-    again = G.choose(repo, pack, pid, NOW)                  # potwierdzony problem: dalej proponowany, z uzasadnieniem
-    assert again.source == "error" and "potwierdzony" in again.reason
+    assert G.choose(repo, pack, pid, NOW).source != "error"     # nie tego samego dnia: bez pętli tej samej lekcji
+    again = G.choose(repo, pack, pid, NOW + timedelta(days=1))  # test po lekcji nieudany: powtórka następnego dnia
+    assert again.source == "error" and "Test po lekcji" in again.reason
     from tutor.app import weakspots as W
     e = next(x for x in W.build(repo, pack, pid, NOW)["errors"] if x["category"] == CAT)
     assert e["agv"] == "confirmed" and e["reliability"] == "potwierdzony ćwiczeniem kontrolnym"

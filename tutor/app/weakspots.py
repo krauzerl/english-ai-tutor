@@ -87,8 +87,10 @@ def build(repo, pack: C.Pack, pid: int, now: datetime) -> dict:
     errors = []
     wrong = [(h, s) for s in repo.list_skill_states(pid) for h in repo.attempt_history(pid, s["skill_id"])
              if not h["correct"]]
+    from tutor.app import remediation as R
     from tutor.app.goal import agv_checks
     checks = agv_checks(repo, pid)
+    hist = R.history(repo, pid)
     uptake: dict[str, dict] = {}            # ponowne użycie po korekcie (obserwacja z rozmów, bez wpływu na plan)
     for sess in repo.list_sessions(pid):
         for u in (repo.get_session_plan(pid, sess["id"]) or {}).get("uptake") or []:
@@ -120,7 +122,9 @@ def build(repo, pack: C.Pack, pid: int, now: datetime) -> dict:
                        "example": e["example"], "correction": e["correction"], "skills": skills,
                        "trend": _trend(repo, pid, mine, now), "first_seen": e["first_seen"],
                        "last_seen": e["last_seen"], "confirmed_by_exercises": len(confirmed), "agv": agv,
-                       "uptake": uptake.get(cat)})
+                       "uptake": uptake.get(cat),
+                       "learning": R.status_pl(hist[cat], e) if cat in hist else None,
+                       "learning_lines": R.lines(hist[cat]) if cat in hist else []})
     stt_only = [o for o in repo.list_observations(pid, status="valid") if o["kind"] == "stt_suspect"
                 and o["id"] not in rejected]
     words = {}
@@ -154,6 +158,8 @@ def render(rep: dict) -> list[str]:
                    f"({t['last_14d']} vs {t['previous_14d']} w poprzednim okresie)")
         if e["example"]:
             out.append(f"       np. „{e['example']}” → „{e['correction']}”")
+        if e.get("learning"):
+            out.append(f"       sprawdzanie w zadaniach: {e['learning']}")
     if rep["vocabulary"]:
         words = ", ".join(f"{w['term']} (×{w['misses']})" for w in rep["vocabulary"][:8])
         out.append(f"  Słownictwo do utrwalenia: {words}")

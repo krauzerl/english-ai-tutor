@@ -509,6 +509,7 @@ async function screenWeak(main) {
             h("header", {}, h("strong", {}, `${i + 1}. ${catPl(e.category)}`), h("span", { class: `badge ${cls}` }, label)),
             e.example && cls !== "stt" ? h("p", { class: "example" }, e.correction ? fixLine(e.example, e.correction) : h("span", { lang: "en" }, e.example)) : null,
             h("p", { class: "muted" }, t("{n}× · ostatnio {d} · trend: {t}", { n: e.count, d: fmtDate(e.last_seen), t: tr.direction ? t(tr.direction) : t("za mało danych") })),
+            e.learning ? h("p", { class: "muted" }, t("Sprawdzanie w zadaniach: {s}", { s: e.learning })) : null,
             e.uptake ? h("p", { class: "muted" }, t("Po korekcie w rozmowie: użyta poprawnie {a}×, błąd powtórzony {b}× (obserwacja, nie dowód opanowania)", { a: e.uptake.used_ok, b: e.uptake.repeated })) : null,
             e.skills.length ? h("div", {}, btn(t("Ćwicz to"), () => startSession("drill", { target: String(i + 1), text_mode: defaultTextMode() }), "primary", "play")) : note(t("Brak materiałów do ćwiczeń dla tej kategorii."), "muted"));
         })) : null,
@@ -677,8 +678,9 @@ const SET_LABELS = {
   allow_unreviewed: t("Używaj materiałów niesprawdzonych przez człowieka"), conversation_mode: t("Domyślna aktywność"), target_lang: t("Język nauki"),
   stt_confirm: t("Potwierdzanie rozpoznanej mowy"), ui_lang: t("Język interfejsu"), mascot: t("Maskotka (propozycja)"),
   learning_log: t("Szczegółowy dziennik nauki (lokalnie)"),
+  chat_checks: t("Krótkie sprawdzenie głosowe przed Quick Chat (co kilka dni)"),
 };
-const SET_GROUPS = [[t("Rozmowa i nauka"), ["ui_lang", "mascot", "chat_model", "correction", "conversation_mode", "session_minutes", "allow_unreviewed", "target_lang", "learning_log"]],
+const SET_GROUPS = [[t("Rozmowa i nauka"), ["ui_lang", "mascot", "chat_model", "correction", "conversation_mode", "session_minutes", "allow_unreviewed", "target_lang", "learning_log", "chat_checks"]],
   [t("Głos i dźwięk"), ["io_mode", "tts_voice", "speed", "stt_confirm", "mic_mode", "input_device", "output_device"]]];
 const SPEED_LABELS = { slow: t("wolno"), normal: t("normalnie"), fast: t("szybko") };
 const CHOICE_LABELS = { A: t("A — Obwód"), B: t("B — Słuchawki"), C: t("C — Bit"), classic: t("dotychczasowa żaba"), pl: t("polski"), summary: t("swobodna — uwagi głównie na końcu"), periodic: t("zrównoważona — krótkie korekty w trakcie"), intensive: t("intensywna — częste korekty i ćwiczenie"),

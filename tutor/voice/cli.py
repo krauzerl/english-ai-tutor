@@ -305,7 +305,9 @@ def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, l
             out(f"Quick Chat — temat: {chat_topic['pl']}. (Powiedz „change the topic”, by zmienić; q = koniec.)")
             cat_pl = T.chat_catalog()["categories"].get(cplan.get("category") or "", {}).get("pl", "Własny temat")
             out(f"Ustawienia rozmowy: {chat_level} · {cat_pl} · {QC.MODES_PL.get(chat_mode, chat_mode)}")
-            if fresh:
+            if fresh and conv_pack and _chat_check(repo, conv_pack, p, sid, a, q, mic, stt, ep, svc, speak, out):
+                proceed, reason = False, "quit"           # uczeń zakończył już w sprawdzeniu
+            if fresh and proceed:
                 if cplan.get("level_source") != "manual" and chat_level_note:
                     out(f"[{chat_level_note}]")
                 if (sc := QC.scenario_line(chat_topic)) and chat_mode == "roleplay":
@@ -844,6 +846,35 @@ def _speaker(tutor, q, mic, svc, out):
     return speak
 
 
+def _chat_check(repo, pack, p, sid, a, q, mic, stt, ep, svc, speak, out) -> bool:
+    """Quick Chat: krótkie, porównywalne zadania kontrolne (głosem lub tekstem) dla powtarzającego się błędu, zanim
+    zacznie się rozmowa. Najwyżej co kilka dni, wyłączane ustawieniem `chat_checks`. True = uczeń zakończył sesję.
+    Błąd tu nigdy nie blokuje rozmowy."""
+    from tutor.app import lesson as L
+    from tutor.app import remediation as R
+    try:
+        if repo.get_settings(p["id"]).get("chat_checks", True) in (False, 0, "false", "0"):
+            return False
+        chk = R.chat_check(repo, pack, p["id"], datetime.now(UTC), bool(p["allow_unreviewed_practice"]))
+        if not chk:
+            return False
+        items = chk["items"]
+        cyc = {"category": chk["category"], "skill_id": chk["skill_id"], "kind": "check", "fresh": True,
+               "unverified_items": any(i.review.status != "human_reviewed" for i in items)}
+        repo.set_session_plan(p["id"], sid, {**repo.get_session_plan(p["id"], sid),
+                                             **R.plan_for({"check": items}, cyc)})
+    except Exception as e:  # noqa: BLE001
+        getattr(a, "log", lambda *_a, **_k: None)("log.error", where="chat_check", error=str(e))
+        return False
+    out(f"[Zanim porozmawiamy: krótkie sprawdzenie ({chk['category']} — powtarzający się błąd z rozmów, sugestia "
+        "modelu). Wynik nie zmienia poziomu ani opanowania.]")
+    res = L.run_exercises(repo, pack, p["id"], sid, pack.skills[chk["skill_id"]], items,
+                          _asker(a, q, mic, stt, ep, svc, speak, out), out, now=datetime.now(UTC), speak=speak)
+    if not res.quit:
+        out(L.stage_summary(repo.get_session_plan(p["id"], sid)))
+    return res.quit
+
+
 def _lesson(L, repo, pack, p, sid, sk, items, svc, a, q, mic, stt, ep, out, speak=None) -> bool:
     """Wyjaśnienie + ćwiczenia (odpowiedzi tekstem lub głosem). True = idziemy do rozmowy; False = uczeń przerwał."""
 
@@ -851,10 +882,13 @@ def _lesson(L, repo, pack, p, sid, sk, items, svc, a, q, mic, stt, ep, out, spea
     say = speak or (lambda _t: None)
     plan = repo.get_session_plan(p["id"], sid)
     if not plan.get("done"):
-        out(L.intro(pack, sk, plan.get("choice")))
-        say(LV.greeting(sk))
-        for part in LV.explanation(pack, sk):
-            say(part)
+        out(L.intro(pack, sk, plan.get("choice"), plan))
+        if plan.get("stages"):                       # etapowa: wyjaśnienie dopiero po sprawdzeniu (run_exercises)
+            say(LV.greeting_check(sk))
+        else:
+            say(LV.greeting(sk))
+            for part in LV.explanation(pack, sk):
+                say(part)
     else:
         say(LV.welcome_back())
 
@@ -873,7 +907,7 @@ def _lesson(L, repo, pack, p, sid, sk, items, svc, a, q, mic, stt, ep, out, spea
         out("Lekcja niedokończona — wróć do pominiętych zadań poleceniem `--lesson`.")
         return False
     if not plan.get("done") or len(plan["done"]) < len(items):
-        out(L.summary(res))
+        out(L.stage_summary(repo.get_session_plan(p["id"], sid)) if plan.get("stages") else L.summary(res))
         out("\nTeraz krótka rozmowa po angielsku — użyj tego, co ćwiczysz (q = koniec).")
         say(LV.chat_start(res.correct, res.total))
         say(LV.CHAT_Q)
