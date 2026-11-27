@@ -1,6 +1,8 @@
 """Gemini przez oficjalny SDK google-genai. external=True. Model i klucz z konfiguracji."""
 from __future__ import annotations
 
+import json
+import re
 import time
 from collections.abc import Iterator
 
@@ -15,6 +17,29 @@ from tutor.llm.base import (
     Usage,
     log,
 )
+
+
+def classify_api_error(code: int, details) -> LLMError:
+    """Kod HTTP + szczegóły odpowiedzi (JSON) → wyjątek z `reason`. Treści odpowiedzi nie przepisujemy do komunikatu.
+
+    429: limit minutowy/dzienny rozpoznajemy tylko z jawnego `quotaId` (…PerMinute… / …PerDay…); inaczej `quota`
+    (nie zgadujemy). Zły klucz: Gemini zwraca 400 z `API_KEY_INVALID`, nie 401."""
+    raw = json.dumps(details, default=str) if details is not None else ""
+    if code in (401, 403) or "API_KEY_INVALID" in raw or "API key not valid" in raw:
+        return LLMError("Gemini odrzuciło klucz API (nieprawidłowy klucz lub brak uprawnień).", reason="auth")
+    if code == 404:
+        return LLMError("Wybrany model Gemini jest niedostępny dla tego klucza.", reason="model")
+    if code == 429:
+        m = re.search(r'"retryDelay":\s*"(\d+(?:\.\d+)?)s"', raw)
+        retry = float(m.group(1)) if m else None
+        if "PerDay" in raw:
+            return LLMUnavailable("Gemini: osiągnięto dzienny limit API.", reason="quota_day", retry_after=retry)
+        if "PerMinute" in raw:
+            return LLMUnavailable("Gemini: osiągnięto limit API na minutę.", reason="quota_minute", retry_after=retry)
+        return LLMUnavailable("Gemini: osiągnięto limit API (HTTP 429).", reason="quota", retry_after=retry)
+    if code >= 500:
+        return LLMUnavailable(f"Gemini chwilowo niedostępne (HTTP {code}).", reason="server")
+    return LLMError(f"Gemini odrzuciło żądanie (HTTP {code}).", reason="bad_request")
 
 
 class GeminiProvider:
@@ -56,16 +81,11 @@ class GeminiProvider:
         """Komunikat zawsze własny: tekst wyjątku SDK może zawierać klucz lub treść."""
         from google.genai import errors
         if isinstance(e, errors.APIError):
-            code = getattr(e, "code", 0) or 0
-            if code in (401, 403):
-                return LLMError("Gemini odrzuciło klucz API.")
-            if code == 429 or code >= 500:
-                return LLMUnavailable(f"Gemini chwilowo niedostępne (HTTP {code}, możliwy limit konta).")
-            return LLMError(f"Gemini odrzuciło żądanie (HTTP {code}).")
+            return classify_api_error(getattr(e, "code", 0) or 0, getattr(e, "details", None))
         if isinstance(e, TimeoutError) or "Timeout" in type(e).__name__:
-            return LLMTimeout("Gemini nie odpowiedziało w czasie.")
+            return LLMTimeout("Gemini nie odpowiedziało w czasie.", reason="timeout")
         if isinstance(e, OSError) or type(e).__module__.startswith("httpx"):
-            return LLMUnavailable("Nie można połączyć się z Gemini.")
+            return LLMUnavailable("Nie można połączyć się z Gemini.", reason="network")
         return LLMError("Nieoczekiwany błąd Gemini.")
 
     @staticmethod
@@ -116,6 +136,20 @@ class GeminiProvider:
                     close()
             return self._usage(last, t0)
         return Stream(gen(), cancel)
+
+    def list_text_models(self) -> list[str]:
+        """Modele dostępne dla klucza, które obsługują `generateContent` (lista z API, bez zgadywania)."""
+        try:
+            out = [m.name.removeprefix("models/") for m in self.client.models.list()
+                   if "generateContent" in (getattr(m, "supported_actions", None) or [])]
+        except Exception as e:
+            log.warning("gemini list error %s", type(e).__name__)
+            raise self._err(e) from None
+        return sorted(set(out))
+
+    def ping(self) -> Reply:
+        """Minimalne wywołanie testowe: stały tekst, bez danych ucznia."""
+        return self.chat([Message("user", "Reply with the single word OK.")], temperature=0.0, max_tokens=64)
 
     def health(self) -> bool:
         try:

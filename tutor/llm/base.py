@@ -40,9 +40,14 @@ class Reply:
 
 # --- wyjątki: user_message = tekst dla ucznia/UI, str(e) = bez treści rozmów ---
 class LLMError(Exception):
-    def __init__(self, user_message: str = "Błąd modelu językowego."):
+    """`reason`: krótki kod przyczyny do dziennika i decyzji o fallbacku (auth, model, quota_minute, quota_day,
+    quota, server, network, timeout, bad_request, limit, consent); None = nieokreślony. `retry_after`: sekundy z
+    odpowiedzi API (RetryInfo), jeśli podane."""
+
+    def __init__(self, user_message: str = "Błąd modelu językowego.", *, reason: str | None = None,
+                 retry_after: float | None = None):
         super().__init__(user_message)
-        self.user_message = user_message
+        self.user_message, self.reason, self.retry_after = user_message, reason, retry_after
 
 
 class LLMTimeout(LLMError): ...

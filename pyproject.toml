@@ -17,9 +17,9 @@ voice = ["numpy>=2", "sounddevice>=0.5", "faster-whisper>=1.1", "kokoro-onnx>=0.
 # Optional alternative TTS. piper-tts is GPL-3.0: kept out of "voice" on purpose.
 piper = ["piper-tts>=1.3"]
 # Optional cloud provider (off by default; needs an API key and explicit per-profile consent).
-gemini = ["google-genai>=1.0"]
+gemini = ["google-genai>=1.0", "keyring>=25"]
 # Tests import numpy and google-genai at module level.
-dev = ["pytest>=8", "ruff>=0.6", "numpy>=2", "google-genai>=1.0"]
+dev = ["pytest>=8", "ruff>=0.6", "numpy>=2", "google-genai>=1.0", "keyring>=25"]
 # Browser tests of the GUI (tests/test_browser.py skip without it). Then: playwright install chromium
 browser-tests = ["playwright>=1.50"]
 
