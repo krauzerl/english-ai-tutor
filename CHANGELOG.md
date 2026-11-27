@@ -4,6 +4,22 @@ Notable changes. The project has no releases yet; versions below are development
 
 ## Unreleased
 
+### Smart speaking corrections (branch `rnd/teaching-intelligence-b-lite`)
+- **Conversation correction policy (default `periodic`):** the weight of a mistake comes from the edit, not from the
+  model's confidence. Meaning-changing mistakes (bored/boring, borrow/lend, a few false friends, broken negation) get one
+  short correction spoken at the start of the next reply; ordinary grammar mistakes keep the gentle recast every few
+  turns; prepositions, articles, word choice, style and spelling never interrupt and go to the end summary. A suspected
+  speech-recognition error leads to "Did you mean…?" only when meaning is at stake. `summary` and `intensive` unchanged.
+- **The conversation model no longer corrects on its own** (it corrected correct sentences and gave wrong forms):
+  system prompt line replaced and a per-reply note on the learner message.
+- **Validators:** a category that contradicts the edit is rejected (`category_mismatch`, e.g. "preposition" for
+  ", lock → and lock"); -ing/-ed and negation get the right category; regular past with a doubled consonant
+  (travelled) is `tense.past_simple`; past → present on a correct sentence is rejected; a corrected transcript counts
+  as speech (typos in the correction are not spelling mistakes).
+- **Fix:** the recurring count of a mistake was always 1 in the correction choice.
+- **Learning log:** event `log.correction` (decision, tier, reason, STT suspicion, `verified: false`).
+- **Benchmark:** `bench/cases/speaking_corrections.yaml` (dev/held, unvalidated labels), `python -m bench.speaking`.
+
 ### Learning from recurring mistakes (branch `rnd/teaching-intelligence-b-lite`)
 - **Lesson from a recurring mistake has stages:** a check without hints *before* the explanation (the control
   result now comes from it, `after_explanation: false`), the explanation, practice with hints (easier tasks first),

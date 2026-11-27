@@ -116,6 +116,13 @@ Check: `ollama list` shows `qwen3:8b`.
     lists only real answers to the checks, per mistake category. Pronunciation is not scored. An utterance with no
     correction is not counted as correct.
 
+13. **Speaking corrections (voice, 10 min).** Quick Chat, voice, default correction mode. Say "I was very bored…"
+    correctly, then "I was very boring at that meeting", then "I arrived to the airport late". Expected: after the
+    second sentence, in the tutor's next reply, one short spoken correction ("Quick note: we say “bored” here, not
+    “boring”…") and then normal conversation; the preposition slip does not interrupt and appears only in the "Do
+    poprawy" list at the end. The tutor does not comment on your words otherwise ("X is a good way to say it").
+    If you correct a misheard transcript and make a typo, it is not listed as a spelling mistake.
+
 To give a report to an AI model later: `python main.py logs export --days 14`, read the files in the printed
 directory, remove anything private, then share `report.md`, `cases.jsonl` and `README.md` (see LEARNING_LOGS.md).
 

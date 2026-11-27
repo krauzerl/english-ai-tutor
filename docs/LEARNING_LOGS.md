@@ -31,6 +31,7 @@ SQLite already held the learning history; the pilot only adds what was missing.
 | dialogue: turns in order, role, text or voice, STT low-probability words | `turn` |
 | AI corrections: quote, fix, category, confidence (h/m/l), model, prompt version, validator result and reason | `observation` (`status`, `drop_reason`) |
 | evaluation status of each utterance (evaluated / unrated / aborted / rejected / dropped) | `turn_meta` |
+| correction decision in conversation: observation and turn id, category, model severity, tier (`serious` / `grammar` / `minor`) and the rule that set it, decision (`immediate`, `recast`, `self_repair_prompt`, `ladder`, `ask_stt`, `skipped_stt`, `deferred_summary`, `summary_shown`), STT suspicion, `verified: false` (a model suggestion, never an independently verified error) | event `log.correction`; validator rejections stay in `observation` (`status=dropped`, `drop_reason`, e.g. `category_mismatch`) |
 | learner reaction to a correction: disputed, speech-recognition error, restored, optional correct form | `observation_review` (`note`) |
 | learner reports (wrong correction, missed mistake, misheard, unclear explanation, wrong answer key) | event `report.*` |
 | STT: status (ok, confirmed, corrected, rerecord, empty), recognised text, original and corrected transcript, uncertain words, STT time, audio length | event `log.stt` |
