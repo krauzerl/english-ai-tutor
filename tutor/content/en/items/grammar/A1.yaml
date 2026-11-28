@@ -1,5 +1,7 @@
 # Bank pilotażowy (AI-draft, niezweryfikowany przez człowieka). Zmiany statusu: tylko `main.py content review`.
 # F7: zadania diagnostyczne (AI-draft, Claude; status tylko przez solve-check/recenzję)
+# UX rozmowy 2026-11-28: przyimki (AI-draft, Claude; status tylko przez solve-check/recenzję). Pule practice i
+# retention rozłączne; bez recenzji człowieka nie są dowodem mastery.
 - id: en.pilot.gram.a1.01
   lang: en
   skill_ids:
@@ -853,6 +855,331 @@
     model: claude-sonnet-5-5
     prompt_version: f7_diag.v1
     created_at: '2026-11-26'
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.ux.prep_place_basic.01
+  lang: en
+  skill_ids:
+  - en.gram.prep_place_basic
+  area: grammar
+  type: mc
+  cefr: A1
+  difficulty: -0.8
+  pools:
+  - practice
+  domain: grammar
+  prompt: The milk is ___ the fridge.
+  stimulus: null
+  options: &id001
+  - in
+  - 'on'
+  - at
+  answers:
+  - in
+  explanation_pl: 'Wewnątrz czegoś: in.'
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-opus-5-5
+    prompt_version: gen_item.ux1
+    created_at: '2026-11-28'
+    refs: []
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.ux.prep_place_basic.02
+  lang: en
+  skill_ids:
+  - en.gram.prep_place_basic
+  area: grammar
+  type: mc
+  cefr: A1
+  difficulty: -0.6
+  pools:
+  - practice
+  domain: grammar
+  prompt: There is a picture ___ the wall.
+  stimulus: null
+  options: *id001
+  answers:
+  - 'on'
+  explanation_pl: 'Na powierzchni: on.'
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-opus-5-5
+    prompt_version: gen_item.ux1
+    created_at: '2026-11-28'
+    refs: []
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.ux.prep_place_basic.03
+  lang: en
+  skill_ids:
+  - en.gram.prep_place_basic
+  area: grammar
+  type: mc
+  cefr: A1
+  difficulty: -0.3
+  pools:
+  - practice
+  domain: grammar
+  prompt: I'll meet you ___ the bus stop.
+  stimulus: null
+  options: *id001
+  answers:
+  - at
+  explanation_pl: 'Konkretny punkt: at.'
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-opus-5-5
+    prompt_version: gen_item.ux1
+    created_at: '2026-11-28'
+    refs: []
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.ux.prep_place_basic.04
+  lang: en
+  skill_ids:
+  - en.gram.prep_place_basic
+  area: grammar
+  type: mc
+  cefr: A1
+  difficulty: -0.5
+  pools:
+  - practice
+  domain: grammar
+  prompt: My shoes are ___ the bed, on the floor.
+  stimulus: null
+  options:
+  - in
+  - 'on'
+  - under
+  answers:
+  - under
+  explanation_pl: 'Pod czymś: under.'
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-opus-5-5
+    prompt_version: gen_item.ux1
+    created_at: '2026-11-28'
+    refs: []
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.ux.prep_place_basic.05
+  lang: en
+  skill_ids:
+  - en.gram.prep_place_basic
+  area: grammar
+  type: mc
+  cefr: A1
+  difficulty: -0.7
+  pools:
+  - practice
+  domain: grammar
+  prompt: She lives ___ London.
+  stimulus: null
+  options: *id001
+  answers:
+  - in
+  explanation_pl: 'Miasto: in.'
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-opus-5-5
+    prompt_version: gen_item.ux1
+    created_at: '2026-11-28'
+    refs: []
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.ux.prep_place_basic.06
+  lang: en
+  skill_ids:
+  - en.gram.prep_place_basic
+  area: grammar
+  type: gap
+  cefr: A1
+  difficulty: -0.2
+  pools:
+  - practice
+  domain: grammar
+  prompt: There is a lot of snow ___ the roof.
+  stimulus: null
+  options: null
+  answers:
+  - 'on'
+  explanation_pl: 'Na powierzchni: on.'
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-opus-5-5
+    prompt_version: gen_item.ux1
+    created_at: '2026-11-28'
+    refs: []
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.ux.prep_place_basic.07
+  lang: en
+  skill_ids:
+  - en.gram.prep_place_basic
+  area: grammar
+  type: mc
+  cefr: A1
+  difficulty: -0.4
+  pools:
+  - practice
+  domain: grammar
+  prompt: We are sitting ___ the car, waiting for you.
+  stimulus: null
+  options: *id001
+  answers:
+  - in
+  explanation_pl: 'Wewnątrz samochodu: in.'
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-opus-5-5
+    prompt_version: gen_item.ux1
+    created_at: '2026-11-28'
+    refs: []
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.ux.prep_place_basic.08
+  lang: en
+  skill_ids:
+  - en.gram.prep_place_basic
+  area: grammar
+  type: mc
+  cefr: A1
+  difficulty: 0.0
+  pools:
+  - practice
+  domain: grammar
+  prompt: He works ___ home on Fridays.
+  stimulus: null
+  options: *id001
+  answers:
+  - at
+  explanation_pl: 'Stałe wyrażenie: at home.'
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-opus-5-5
+    prompt_version: gen_item.ux1
+    created_at: '2026-11-28'
+    refs: []
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.ux.prep_place_basic.09
+  lang: en
+  skill_ids:
+  - en.gram.prep_place_basic
+  area: grammar
+  type: mc
+  cefr: A1
+  difficulty: -0.7
+  pools:
+  - retention
+  domain: general
+  prompt: Your phone is ___ my bag.
+  stimulus: null
+  options: *id001
+  answers:
+  - in
+  explanation_pl: 'Wewnątrz: in.'
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-opus-5-5
+    prompt_version: gen_item.ux1
+    created_at: '2026-11-28'
+    refs: []
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.ux.prep_place_basic.10
+  lang: en
+  skill_ids:
+  - en.gram.prep_place_basic
+  area: grammar
+  type: mc
+  cefr: A1
+  difficulty: 0.1
+  pools:
+  - retention
+  domain: general
+  prompt: There's a small spider ___ the ceiling.
+  stimulus: null
+  options: *id001
+  answers:
+  - 'on'
+  explanation_pl: 'Na powierzchni (sufit): on.'
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-opus-5-5
+    prompt_version: gen_item.ux1
+    created_at: '2026-11-28'
+    refs: []
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.ux.prep_place_basic.11
+  lang: en
+  skill_ids:
+  - en.gram.prep_place_basic
+  area: grammar
+  type: mc
+  cefr: A1
+  difficulty: -0.1
+  pools:
+  - retention
+  domain: general
+  prompt: Let's wait ___ the door.
+  stimulus: null
+  options: *id001
+  answers:
+  - at
+  explanation_pl: 'Konkretny punkt: at the door.'
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-opus-5-5
+    prompt_version: gen_item.ux1
+    created_at: '2026-11-28'
+    refs: []
   review:
     status: ai_checked
     reviewer: null

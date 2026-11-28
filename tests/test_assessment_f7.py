@@ -98,7 +98,7 @@ def test_balanced_default_recasts_in_conversation(env):
     conv = FakeProvider(chunks=["Ok. "])
     env.go(Gated({1: lambda: env.applied() >= 1}, "I goed home yesterday", "And then", "q"),
            ["--no-audio", "--summary-wait", "5"], llm=conv, ev=EvalProv())
-    assert any("went" in c[0].content for c in conv.calls[1:])
+    assert "went" in conv.calls[0][0].content                                   # recast w odpowiedzi na tę wypowiedź
 
 
 def test_noun_number_change_is_not_explained_as_verb_ending():

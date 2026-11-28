@@ -57,3 +57,7 @@ tmp/
 
 # Internal AI work notes (kept locally only)
 docs/ai-work/
+
+# Dzienniki nauki i eksporty (prywatne; domyślnie poza repo, w katalogu danych)
+learning-logs/
+*.jsonl

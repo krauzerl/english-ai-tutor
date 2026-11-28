@@ -14,6 +14,7 @@ from types import SimpleNamespace
 
 import pytest
 
+from tests.llm_fakes import FakeProvider
 from tests.test_gui import STATUS, fake_run, xdg  # noqa: F401 - fixture xdg używana przez `site`
 from tutor import config
 from tutor.gui import runner as R
@@ -457,3 +458,51 @@ def test_ai_models_settings_key_consent_and_test(page, monkeypatch):
     expect(card).to_contain_text("Klucz nie jest skonfigurowany.")
     expect(card.get_by_label("Model rozmowy")).to_have_value("local")
     assert k.store == {} and not page.errors
+
+
+# --- UX rozmowy: korekta przy wypowiedzi w trakcie sesji, zakwestionowanie, rzeczywisty model ---
+@pytest.fixture
+def eval_page(browser, xdg):  # noqa: F811
+    from tests.test_conversation_ux import TextEval
+
+    def run(argv, **kw):
+        return cli.run(argv, llm=FakeProvider(chunks=["Nice. ", "Tell me more."]), eval_llm=TextEval(), **kw)
+    app = SV.App(runner=R.Runner(run=run), token="T0K", status=lambda: STATUS)
+    httpd = SV.serve(app, 0)
+    threading.Thread(target=httpd.serve_forever, daemon=True).start()
+    ctx = browser.new_context(viewport={"width": 1366, "height": 860})
+    pg = ctx.new_page()
+    pg.errors = []
+    pg.on("pageerror", lambda e: pg.errors.append(str(e)))
+    pg.on("console", lambda m: m.type == "error" and pg.errors.append(m.text))
+    pg.site, pg.app = f"http://127.0.0.1:{httpd.server_address[1]}", app
+    yield pg
+    ctx.close()
+    app.runner.stop()
+    httpd.shutdown()
+    httpd.server_close()
+
+
+def test_live_correction_next_to_utterance_dispute_and_model_label(eval_page):
+    page = eval_page
+    start_profile(page)
+    chat_with_custom(page)
+    expect(page.locator(".msg.tutor .bubble").first).to_have_text(re.compile(r"^(Hi|Hello|Hey|Good)"))   # powitanie
+    say(page, "I goed home early.", 2)
+    you = page.locator(".msg.you").first
+    expect(you.locator(".livecorr")).to_have_count(1, timeout=15000)            # przy właściwej wypowiedzi
+    expect(you.locator(".livecorr ins")).to_have_text("went")
+    expect(you.locator(".livecorr")).to_contain_text("Sugestia modelu")
+    expect(you.locator(".evalchip")).to_have_text("Są sugestie")
+    expect(page.locator("#modelnow")).to_contain_text("lokalny")                # z faktycznego wywołania
+    say(page, "I like my job.", 3)
+    expect(page.locator(".msg.you").nth(1).locator(".evalchip")).to_have_text("Bez uwag", timeout=15000)
+    assert page.locator(".livecorr").count() == 1                               # bez duplikatów
+    with page.expect_response(re.compile("/api/weakspots/review")):
+        you.get_by_role("button", name="Kwestionuję").click()
+    expect(you.locator(".livecorr")).to_contain_text("Zakwestionowano")
+    page.evaluate("() => route()")                                              # odtworzenie widoku: dalej 1 korekta
+    expect(page.locator(".livecorr")).to_have_count(1)
+    expect(page.locator(".msg.tutor")).to_have_count(3)
+    end_session(page)
+    assert page.errors == []

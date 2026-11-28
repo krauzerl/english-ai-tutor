@@ -322,6 +322,14 @@ table.grid td { padding: 10px; border-bottom: 1px solid var(--line); vertical-al
 .fix s, .example s { color: var(--terra-ink); text-decoration-thickness: 2px; }
 .fix ins, .example ins { text-decoration: none; font-weight: 700; color: #2f4a17; }
 .msg.correction .why { font-size: 14px; color: var(--paper-muted); }
+.evalchip { display: block; margin-top: 4px; font-size: 13px; color: var(--paper-muted); }
+.evalchip[data-state="suggest"] { color: var(--terra-ink); font-weight: 700; }
+.livecorr { margin-top: 8px; padding: 8px 10px; background: #fbe3da; border-radius: 6px; display: grid; gap: 4px; font-size: 15px; }
+.livecorr.stt { background: #eee7d6; }
+.livecorr.struck .fix { opacity: .55; text-decoration: line-through; }
+.livecorr-head { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.livecorr .why { font-size: 14px; color: var(--paper-muted); }
+.convo-head .modelnow { font-size: 13px; color: var(--paper-muted); }
 .msg.correction-head { align-self: stretch; max-width: none; font-weight: 700; margin-top: 8px; color: var(--terra-ink); }
 .msg.hint { align-self: flex-start; background: #f8e6bd; padding: 10px 14px; color: var(--amber-ink); }
 .msg.feedback { align-self: flex-start; background: #f8e6bd; padding: 10px 14px; color: #5a4210; }

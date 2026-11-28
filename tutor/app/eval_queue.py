@@ -6,6 +6,7 @@ przerywa ocenę, a niedokończona partia wraca do kolejki i jest oceniana późn
 """
 from __future__ import annotations
 
+import logging
 import threading
 from collections.abc import Callable
 from dataclasses import dataclass
@@ -31,6 +32,7 @@ class EvalQueue:
         self._tries: dict[int, int] = {}
         self._lock = threading.Lock()
         self.dropped: list[int] = []
+        self.on_applied: Callable[[Pending], None] | None = None   # po zapisie wyniku (np. korekta w oknie rozmowy)
 
     def submit(self, p: Pending) -> None:
         with self._lock:
@@ -41,6 +43,16 @@ class EvalQueue:
 
     def __len__(self) -> int:
         return len(self._q)
+
+    def prioritize(self, turn_id: int) -> None:
+        """Tura, na którą czeka rozmowa, idzie na początek kolejki (starsze, np. po przekroczonym czasie, po niej —
+        inaczej jedno spóźnienie powodowało spóźnienie wszystkich następnych tur)."""
+        with self._lock:
+            self._q.sort(key=lambda x: x.turn_id != turn_id)
+
+    def has(self, turn_id: int) -> bool:
+        with self._lock:
+            return any(x.turn_id == turn_id for x in self._q)
 
     def drain(self, cancel: CancelToken, *, conversation_active: Callable[[], bool] = lambda: False) -> int:
         """Ocenia partie do wyczerpania kolejki lub przerwania. Zwraca liczbę ocenionych wypowiedzi."""
@@ -62,6 +74,11 @@ class EvalQueue:
             for p, r in zip(batch, results, strict=True):
                 self._apply(p, r)
                 self._tries.pop(p.turn_id, None)
+                if self.on_applied:        # przed zdjęciem z kolejki: kto czeka na turę, widzi już korektę
+                    try:
+                        self.on_applied(p)
+                    except Exception as e:  # noqa: BLE001 - wyświetlenie korekty nigdy nie psuje kolejki oceny
+                        logging.getLogger(__name__).warning("on_applied failed: %s", e)
             with self._lock:
                 ids = {p.turn_id for p in batch}
                 self._q = [x for x in self._q if x.turn_id not in ids]

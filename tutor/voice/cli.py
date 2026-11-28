@@ -15,7 +15,7 @@ from tutor.llm import build_provider, context_window
 from tutor.store.db import open_db
 from tutor.store.repo import Repo
 from tutor.voice import audio as A
-from tutor.voice.conversation import SPEAK_TAIL_S, SYSTEM_PROMPT, VoiceTutor
+from tutor.voice.conversation import SAY, SPEAK_TAIL_S, SYSTEM_PROMPT, VoiceTutor
 from tutor.voice.text import clean_for_speech
 
 HELP = ("[Enter] nagrywaj/zatrzymaj nagrywanie · [Enter] w trakcie mowy tutora = przerwij · "
@@ -281,7 +281,9 @@ def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, l
     if conv_pack is None and (build_eval or eval_llm is not None):
         from tutor.pedagogy import content as C
         conv_pack = C.load(p["target_lang"])
-    svc = _eval_service(repo, conn, p, sid, eval_llm, build_eval, out, goals, conv_pack)
+    live = _Live(a, p["id"], sid, conv_pack, out)
+    svc = _eval_service(repo, conn, p, sid, eval_llm, build_eval, out, goals, conv_pack,
+                        on_eval=live.evaluated if conv_pack else None)
     feedback = style = None
     if svc and conv_pack:
         from tutor.app import feedback as FB
@@ -289,7 +291,9 @@ def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, l
         style = a.correction or effective_style(p["correction_style"], conv_pack.rubric)["style"]
         if a.chat and chat_mode == "roleplay":           # roleplay: nie przerywamy scenariusza (intensywna = recast)
             style = {"intensive": "periodic"}.get(style, "summary")
-        feedback = lambda text: FB.directive(repo, conv_pack, p["id"], sid, style, set(goals), text)  # noqa: E731
+        feedback = live.directive(lambda text: FB.directive(repo, conv_pack, p["id"], sid, style, set(goals), text,
+                                                            recorded=True), repo)
+    live.svc, live.style = svc, style
     _meta(a, repo, p, sid, kind, llm, tts, mic, correction=style if feedback else "none",
           evaluation=getattr(eval_llm, "model", None) if not build_eval else _role_model("evaluation"),
           ai_models=AM.chosen(repo, p["id"]),
@@ -300,7 +304,8 @@ def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, l
           lesson=skill.id if skill else None, choice=(choice or {}).get("source") if a.lesson else None)
     tutor = VoiceTutor(repo, p["id"], sid, llm, tts, sink, system=system, context_window=cw,
                        echo=lambda s: out(f"Tutor: {s}"), record_user_turn=svc.user_turn if svc else None,
-                       feedback=feedback, persona=not (a.chat and chat_mode == "roleplay"))
+                       feedback=feedback, persona=not (a.chat and chat_mode == "roleplay"),
+                       await_eval=live.await_eval if svc else None)
     tutor.log = a.log                                                      # błędy TTS do dziennika nauki
     speak = None if a.no_audio else _speaker(tutor, q, mic, svc, out)       # lekcja głosowa; --no-audio = sam tekst
     out(f"Profil: {p['name']} · LLM: {llm.model} · TTS: {tts.name}/{tts.voice} · tryb: {a.mode if mic else 'tekst'}")
@@ -322,7 +327,8 @@ def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, l
                     out(f"[{chat_level_note}]")
                 if (sc := QC.scenario_line(chat_topic)) and chat_mode == "roleplay":
                     out(sc)
-                first = QC.opener(chat_topic, chat_level)
+                first = QC.greeting(repo, p["id"], sid, chat_topic, chat_level,    # tylko nowa rozmowa (fresh)
+                                    after_check=bool(repo.get_session_plan(p["id"], sid).get("stages")))
                 out(f"Tutor: {first}")
                 repo.add_turn(p["id"], sid, "assistant", first)
                 if speak:
@@ -373,6 +379,7 @@ def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, l
                 watcher.start()
                 if mic:
                     mic.mute(3600)  # half-duplex: nie transkrybuj własnego głosu tutora
+                live.t_end = t_end
                 try:
                     r = tutor.respond(text, t_end, input_mode=mode, low_probs=low)
                 except Exception as e:  # noqa: BLE001 - błąd odpowiedzi nie kończy rozmowy ani nie blokuje oceny
@@ -391,7 +398,11 @@ def run(argv: list[str], *, stt=None, tts=None, sink=None, mic=None, llm=None, l
                     out(f"[{r.error}]")
                 m = r.m
                 a.log("log.tutor_turn", cancelled=bool(r.cancelled), first_audio_s=m.get("first_audio"),
-                      first_token_s=m.get("llm_first_token"), error=r.error or None)
+                      first_token_s=m.get("llm_first_token"), error=r.error or None,
+                      eval_wait_s=m.get("eval_wait"), turn_id=live.tid,
+                      correction_obs=live.used.get("obs"), correction_mode=live.used.get("mode"),
+                      correction_spoken=bool(r.correction_spoken))
+                out(_model_line(llm, live))
                 out(f"  ({'przerwano · ' if r.cancelled else ''}start mowy {m.get('first_audio', '-')} s, "
                     f"1. token {m.get('llm_first_token', '-')} s)")
             finally:
@@ -801,7 +812,7 @@ def _review_phase(a, repo, p, llm, tts, sink, mic, stt, lines, out) -> None:
         repo.end_session(p["id"], sid)
 
 
-def _eval_service(repo, conn, p, sid, eval_llm, build_eval, out, goals=None, pack=None):
+def _eval_service(repo, conn, p, sid, eval_llm, build_eval, out, goals=None, pack=None, on_eval=None):
     """SessionService z kolejką oceny na modelu `evaluation`; None = tury tylko zapisujemy (ocena po wznowieniu)."""
     if build_eval:
         from tutor.app import ai_models as AM
@@ -826,11 +837,109 @@ def _eval_service(repo, conn, p, sid, eval_llm, build_eval, out, goals=None, pac
                                 lt=lt_from_config(pack)),
         # batch=1: Qwen3 8B ocenia 1 wypowiedź w ~2 s, partię 5 w ~30 s (pomiar F7); wypowiedź ucznia anuluje całą
         # trwającą partię, więc przy partiach po 5 ocena w rozmowie prawie nigdy się nie kończyła.
-        p["id"], sid)
+        p["id"], sid, on_evaluated=on_eval)
+    svc.eval_llm = eval_llm
     n = svc.start()
     if n:
         out(f"[do oceny z poprzedniej sesji: {n}]")
     return svc
+
+
+EVAL_WAIT_S = 3.0   # Qwen3 8B: ocena 1 wypowiedzi osobno mediana 1,8 s / p90 2,1 s, w rozmowie (z narzutem) do ~2,5 s;
+                    # dłużej = rozmowa traci płynność (pomiar 2026-11-28, CONVERSATION_UX_FEEDBACK_REPORT)
+
+
+def _eval_wait() -> float:
+    """`[conversation] eval_wait_s` w config.toml (0 = nie czekaj; korekta pojawi się później)."""
+    try:
+        v = float((config.raw_config().get("conversation") or {}).get("eval_wait_s", EVAL_WAIT_S))
+    except (TypeError, ValueError):
+        return EVAL_WAIT_S
+    return min(max(v, 0.0), 10.0)
+
+
+_USE_MODE = (("Did you mean", "pytanie_stt"), ("Correction step", "drabina"), ("say them again", "samopoprawa"),
+             ("corrected themselves", "samopoprawa_ok"))
+
+
+class _Live:
+    """Korekty w trakcie rozmowy: status oceny tury, sugestie przy właściwej wypowiedzi (z wątku oceny),
+    ograniczone czekanie przed odpowiedzią i znacznik, która sugestia została omówiona w odpowiedzi (bez duplikatu
+    w oknie). Wszystko z istniejącej kolejki ocen i obserwacji — bez drugiej oceny."""
+
+    def __init__(self, a, pid, sid, pack, out):
+        self.a, self.pid, self.sid, self.pack, self.out = a, pid, sid, pack, out
+        self.svc = self.style = None
+        self.t_end: float | None = None
+        self.tid: int | None = None
+        self.ends: dict[int, float] = {}
+        self.used: dict = {}
+        self.eval_model: str | None = None
+
+    def await_eval(self, tid: int) -> None:
+        self.tid, self.used = tid, {}
+        if self.t_end is not None:
+            self.ends[tid] = self.t_end
+        if not self.svc or not self.svc.queued(tid):
+            return                                   # np. tura głosowa bez danych STT: nie jest oceniana
+        self.out(f"Ocena #{tid}: sprawdzam…")
+        if self.style in (None, "summary"):
+            return                                   # tryb swobodny: bez czekania, korekta pojawi się po odpowiedzi
+        wait = _eval_wait()
+        ev = getattr(self.svc, "eval_llm", None)
+        t0 = time.monotonic()
+        res = self.svc.wait_turn(tid, wait, cancel_on_timeout=not getattr(ev, "external", False)) if wait \
+            else "timeout"
+        self.a.log("log.eval_wait", turn_id=tid, waited_s=round(time.monotonic() - t0, 3), result=res, limit_s=wait)
+        if res == "timeout":
+            self.out(f"Ocena #{tid}: w toku — sugestie pojawią się, gdy będą gotowe")
+        elif res == "failed":
+            self.out(f"Ocena #{tid}: model oceny nie odpowiedział — spróbuję ponownie po odpowiedzi")
+
+    def evaluated(self, wrepo, pend) -> None:
+        """Wątek oceny (własne połączenie z bazą): sugestie dla tej tury do okna rozmowy, ślad w dzienniku."""
+        from tutor.app import feedback as FB
+        from tutor.app import learnlog as LL
+        row = wrepo.conn.execute("SELECT model, eval_status FROM turn_meta WHERE turn_id=? AND profile_id=?",
+                                 (pend.turn_id, self.pid)).fetchone()
+        model = row[0] if row else None
+        self.eval_model = model or self.eval_model
+        lines = FB.live_lines(wrepo, self.pack, self.pid, self.sid, pend.turn_id, model)
+        for ln in lines:
+            self.out(ln)
+        t = self.ends.get(pend.turn_id)
+        LL.log(wrepo, self.pid, "log.eval_live", self.sid, turn_id=pend.turn_id, model=model,
+               eval_status=row[1] if row else None, suggestions=len(lines) - 1,
+               shown_after_s=round(time.monotonic() - t, 3) if t is not None else None,
+               before_reply=pend.turn_id == self.tid and not self.used.get("replied"))
+
+    def directive(self, fn, repo):
+        """Owija `feedback.directive`: która obserwacja została użyta w tej odpowiedzi i jak (dla okna i dziennika)."""
+        def run(text):
+            done = set((repo.get_session_plan(self.pid, self.sid).get("recast") or {}).get("done") or [])
+            n = fn(text)
+            now = (repo.get_session_plan(self.pid, self.sid).get("recast") or {}).get("done") or []
+            new = [o for o in now if o not in done]
+            self.used = {"replied": True}
+            if new and n:
+                mode = "głosem" if n.startswith(SAY) else next((m for k, m in _USE_MODE if k in n), "recast")
+                row = repo.conn.execute("SELECT turn_id FROM observation WHERE id=? AND profile_id=?",
+                                        (new[-1], self.pid)).fetchone()
+                self.used = {"replied": True, "obs": new[-1], "mode": mode}
+                if row:
+                    self.out(f"Omówiono #{row[0]}.{new[-1]}: {mode}")
+            return n
+        return run
+
+
+def _model_line(llm, live) -> str:
+    """Model, który FAKTYCZNIE odpowiedział w tej turze (z ostatniego wywołania), i ostatni model oceny."""
+    prov = getattr(llm, "last_provider", None) or getattr(llm, "name", "ollama")
+    model = getattr(llm, "last_model", None) or getattr(llm, "model", "?")
+    who = "Gemini (Google)" if prov == "gemini" else "lokalny (Ollama)"
+    extra = " · zapas lokalny po błędzie Gemini" if getattr(llm, "last_fallback", False) and prov != "gemini" else ""
+    ev = f" · ocena: {live.eval_model}" if live.eval_model else ""
+    return f"Model rozmowy: {who} {model}{extra}{ev}"
 
 
 def _speaker(tutor, q, mic, svc, out):

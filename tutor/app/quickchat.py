@@ -4,6 +4,7 @@ Wykorzystuje istniejące `VoiceTutor`/`SessionService`; tu tylko stan sesji (tem
 Rozmowa NIE zapisuje prób zadań, więc nie może zmienić `skill_state` ani nadać mastery."""
 from __future__ import annotations
 
+import random
 from datetime import datetime
 
 from tutor.app import topics as T
@@ -103,6 +104,45 @@ def system_prompt(topic: dict, level: str = "B1", mode: str = "natural") -> str:
     base = SYSTEM_PROMPT + " " + LEVEL_NOTES[level] + LONG_OK + CATEGORY_NOTES.get(cat, "")
     return (base + MODE_NOTES.get(mode, MODE_NOTES["natural"]) + f" Current topic: “{topic['pl']}” "
             f"({topic.get('category_pl', '')}). Stay on this topic unless the student changes it.")
+
+
+# Powitanie nowej rozmowy składa KOD (nie model): audyt właściciela — Quick Chat zaczynał od samego pytania, a sama
+# instrukcja w prompcie nie jest niezawodna (Qwen3/Gemini). Warianty bez zmyślonych przeżyć nauczyciela, jedno
+# pytanie na końcu (pytanie tematu), bez powtórzenia wariantu z poprzedniej rozmowy.
+_HELLO = ("Hi!", "Hello!", "Hey!", "Hi there!", "Good {tod}!")
+_BACK = ("Good to see you again.", "Nice to have you back.", "Great to talk with you again.", "Welcome back.")
+_FIRST = ("Nice to meet you.", "I'm glad we can talk today.", "Let's have a relaxed chat in English.")
+_INTRO = ("I've got a topic for us today.", "Here's something we can talk about.", "Let's start with this.",
+          "I thought we could talk about this today.")
+_INTRO_EASY = ("Let's talk a little.", "Here is my first question.", "Let's start.")
+
+
+def greeting(repo, profile_id: int, sid: int, topic: dict, level: str = "B1", *, now: datetime | None = None,
+             rnd: random.Random | None = None, after_check: bool = False) -> str:
+    """Pierwsza kwestia NOWEJ rozmowy: przywitanie + krótkie wprowadzenie + pytanie tematu (jedno pytanie).
+    Roleplay: kwestia w roli bez zmian (scenariusz ma własne otwarcie). Wznowienie rozmowy nie wywołuje tej funkcji.
+    Wybrany wariant zapisany w planie sesji (`greeting`), następna rozmowa bierze inny."""
+    q = opener(topic, level)
+    if topic.get("kind") == "roleplay":
+        return q
+    rnd = rnd or random.Random()
+    now = now or datetime.now()
+    prev = [s for s in repo.list_sessions(profile_id) if s["id"] != sid and s["kind"] in ("chat", "lesson", "voice")]
+    last = next(((repo.get_session_plan(profile_id, s["id"]) or {}).get("greeting") for s in reversed(prev)
+                 if (repo.get_session_plan(profile_id, s["id"]) or {}).get("greeting")), None) or {}
+    easy = T._li(level) <= 1
+    pools = {"hello": _HELLO, "rel": _BACK if prev else _FIRST, "intro": _INTRO_EASY if easy else _INTRO}
+    pick = {}
+    for k, pool in pools.items():
+        opts = [i for i in range(len(pool)) if i != last.get(k)] or list(range(len(pool)))
+        pick[k] = rnd.choice(opts)
+    tod = "morning" if now.hour < 12 else "afternoon" if now.hour < 18 else "evening"
+    hello = pools["hello"][pick["hello"]].format(tod=tod)
+    intro = "" if not topic.get("id") else " " + pools["intro"][pick["intro"]]     # własny temat: pytanie już wprowadza
+    repo.set_session_plan_keys(profile_id, sid, greeting=pick)
+    if after_check:                     # po krótkim sprawdzeniu na starcie uczeń już się przywitał z aplikacją
+        return f"Thanks, that's it for the quick check. Now let's just talk.{intro} {q}"
+    return f"{hello} {pools['rel'][pick['rel']]}{intro} {q}"
 
 
 def switch_note(topic: dict, level: str = "B1") -> str:

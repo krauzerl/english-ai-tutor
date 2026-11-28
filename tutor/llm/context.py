@@ -40,8 +40,9 @@ def _summary_text(raw: str) -> str:
 
 def build_context(repo, profile_id: int, session_id: int, system_prompt: str, user_message: str,
                   *, context_window: int, reserve_out: int,
-                  memory_budget: int = MEMORY_TOKENS) -> Context:
-    """`context_window` = limit modelu (wejście + odpowiedź). `user_message` jeszcze nie w DB."""
+                  memory_budget: int = MEMORY_TOKENS, exclude_turn: int | None = None) -> Context:
+    """`context_window` = limit modelu (wejście + odpowiedź). `user_message` jeszcze nie w DB albo zapisana jako
+    tura `exclude_turn` (rozmowa zapisuje turę przed oceną, a model dostaje ją jako bieżącą wiadomość)."""
     fixed = estimate_tokens(system_prompt) + estimate_tokens(user_message) + 2 * TURN_OVERHEAD
     room = context_window - reserve_out - fixed
     if room < 0:
@@ -66,7 +67,7 @@ def build_context(repo, profile_id: int, session_id: int, system_prompt: str, us
             used += t
 
     turns = [t for t in repo.list_turns(profile_id, session_id)
-             if t["id"] > upto and t["role"] in ("user", "assistant")]
+             if t["id"] > upto and t["role"] in ("user", "assistant") and t["id"] != exclude_turn]
     kept: list[dict] = []
     for t in reversed(turns):  # od najnowszych, ciągły ogon historii
         c = estimate_tokens(t["text"]) + TURN_OVERHEAD

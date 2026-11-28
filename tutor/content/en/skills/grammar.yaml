@@ -90,6 +90,7 @@
   can_do_pl: Opisuję położenie przedmiotów (in, on, at, under).
   prereqs: []
   error_categories: [preposition.place]
+  explanation_ref: grammar/prep_place_basic.md
 - id: en.gram.present_continuous
   lang: en
   domain: grammar
@@ -198,6 +199,7 @@
   can_do_pl: Podaję czas przyimkami at/on/in.
   prereqs: []
   error_categories: [preposition.time]
+  explanation_ref: grammar/prep_time.md
 - id: en.gram.adverbs_frequency
   lang: en
   domain: grammar
@@ -310,6 +312,7 @@
   can_do_pl: Używam stałych przyimków po czasownikach i przymiotnikach.
   prereqs: [en.gram.prep_place_basic]
   error_categories: [preposition.dependent]
+  explanation_ref: grammar/prep_dependent.md
 - id: en.gram.third_conditional
   lang: en
   domain: grammar

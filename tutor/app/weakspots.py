@@ -20,9 +20,19 @@ def _iso(d: datetime) -> str:
     return d.strftime("%Y-%m-%dT%H:%M:%fZ")
 
 
-def _skills_for(pack: C.Pack, category: str) -> list[str]:
-    parent = category.split(".")[0]
-    return [s.id for s in pack.skills.values() if {category, parent} & set(s.error_categories)]
+def _skills_for(pack: C.Pack, category: str, allow: bool = True) -> list[str]:
+    """Umiejętności z materiałem do ćwiczeń dla kategorii: najlepsze dopasowanie (`content.skills_for_category`), które
+    ma wyjaśnienie i zadania zamknięte. Bez dopasowania po samym rodzicu kategorii (np. „tense” przy
+    „tense.past_continuous” dawało stronę bierną) — lepiej uczciwe „brak materiałów” niż ćwiczenie czegoś innego."""
+    from tutor.app import lesson as L
+    tiers: dict[int, list[str]] = {}
+    for rank, sid in C.skills_for_category(pack, category, parents=False):
+        try:
+            L.prepare(pack, sid, allow_unreviewed=allow)
+        except L.LessonError:
+            continue
+        tiers.setdefault(rank, []).append(sid)
+    return tiers[min(tiers)] if tiers else []
 
 
 def _user_turns_between(repo, pid: int, a: str, b: str) -> int:
@@ -44,6 +54,7 @@ def _trend(repo, pid: int, obs: list[dict], now: datetime) -> dict:
 
 
 SOURCE_PL = {"turn_eval.v3": "ocena wypowiedzi (model)"}
+SPOKEN_PL = "pisownia z wypowiedzi mówionej (transkrypcja) — nie liczy się jako błąd"
 VERDICT_PL = {"disputed": "zakwestionowane przez Ciebie", "stt_error": "oznaczone jako błąd rozpoznania mowy",
               "accepted": "potwierdzone przez Ciebie", "restored": "przywrócone"}
 
@@ -53,6 +64,7 @@ def entries(repo, pack: C.Pack, pid: int, limit: int = 60) -> list[dict]:
     źródło oceny, wyjaśnienie dopasowane do edycji i stan przeglądu przez ucznia. Najnowsze pierwsze."""
     from tutor.app.feedback import explain_edit
     reviews = repo.observation_reviews(pid)
+    spoken = repo.spoken_orthography_ids(pid)       # pisownia z mowy: zostaje w historii, oznaczona, nie liczy się
     out = []
     obs = [o for o in repo.list_observations(pid, status="valid")
            if o["kind"] in ("error", "stt_suspect") and o["fix"]][-limit:]
@@ -75,14 +87,14 @@ def entries(repo, pack: C.Pack, pid: int, limit: int = 60) -> list[dict]:
                     "date": o["created_at"], "source": SOURCE_PL.get(o["prompt_version"] or "", "ocena wypowiedzi")
                     + (f" · {o['model']}" if o["model"] else ""),
                     "explanation": explain_edit(pack, o["span"], o["fix"], o["category"] or ""),
-                    "review": rv["verdict"] if rv else None,
-                    "review_pl": VERDICT_PL.get(rv["verdict"]) if rv else None,
-                    "counted": not (rv and rv["verdict"] in ("disputed", "stt_error"))})
+                    "review": rv["verdict"] if rv else ("spoken_orthography" if o["id"] in spoken else None),
+                    "review_pl": VERDICT_PL.get(rv["verdict"]) if rv else (SPOKEN_PL if o["id"] in spoken else None),
+                    "counted": not (rv and rv["verdict"] in ("disputed", "stt_error")) and o["id"] not in spoken})
     return out
 
 
 def build(repo, pack: C.Pack, pid: int, now: datetime) -> dict:
-    rejected = repo.rejected_observation_ids(pid)                 # F7: zakwestionowane nie są słabą stroną
+    rejected = repo.ignored_observation_ids(pid)                 # F7: zakwestionowane nie są słabą stroną
     obs = [o for o in repo.list_observations(pid, status="valid") if o["category"] and o["id"] not in rejected]
     errors = []
     wrong = [(h, s) for s in repo.list_skill_states(pid) for h in repo.attempt_history(pid, s["skill_id"])
@@ -101,8 +113,10 @@ def build(repo, pack: C.Pack, pid: int, now: datetime) -> dict:
         cat = e["category"]
         agv = (checks.get(cat) or {}).get("outcome")
         mine = [o for o in obs if o["category"] == cat]
-        skills = _skills_for(pack, cat)
-        confirmed = [h for h, s in wrong if s["skill_id"] in skills and h["source"] in ("practice", "remediation",
+        allow = bool((repo.get_profile(pid) or {}).get("allow_unreviewed_practice", True))
+        skills = _skills_for(pack, cat, allow)
+        related = {sid for _r, sid in C.skills_for_category(pack, cat, parents=False)}
+        confirmed = [h for h, s in wrong if s["skill_id"] in related and h["source"] in ("practice", "remediation",
                                                                                          "diagnosis", "retention")]
         sure = [o for o in mine if o["kind"] == "error" and o["confidence"] == "h"]
         stt = [o for o in mine if o["kind"] == "stt_suspect"]
@@ -182,7 +196,7 @@ def resolve_drill(rep: dict, pack: C.Pack, target: str, allow: bool = True) -> l
     elif target.isdigit() and 1 <= int(target) <= len(rep["errors"]):
         skills = rep["errors"][int(target) - 1]["skills"]
     else:
-        skills = _skills_for(pack, target)
+        skills = _skills_for(pack, target, allow)
     out = []
     for s in skills:
         try:

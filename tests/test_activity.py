@@ -156,7 +156,9 @@ class StopReleases(WaitLines):
         return v
 
 
-def test_recording_cancels_running_eval_and_nothing_runs_until_reply_done(env):
+def test_recording_cancels_running_eval_and_nothing_runs_until_reply_done(env, monkeypatch):
+    from tutor.voice import cli as CLI
+    monkeypatch.setattr(CLI, "_eval_wait", lambda: 0.0)        # bez czekania na ocenę przed odpowiedzią (eval_wait_s=0)
     spy, probe = Spy(), Probe(env)
     window = {}
     mic = FakeMic(loop=blocks(tone(0.1))[0])

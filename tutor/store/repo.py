@@ -5,6 +5,8 @@ from contextlib import contextmanager
 
 from tutor.store.db import student_tables
 
+ORTHO_CORES = {"spelling", "punctuation", "capitalization"}   # zapis, nie mowa: z transkrypcji nie oceniamy
+
 
 def _rows(cur) -> list[dict]:
     return [dict(r) for r in cur.fetchall()]
@@ -231,9 +233,36 @@ class Repo:
             "INSERT INTO error_log(profile_id,category,skill_id,example,correction)"
             " VALUES (?,?,?,?,?)", (profile_id, category, skill_id, example, correction)).lastrowid
 
-    def list_errors(self, profile_id: int) -> list[dict]:
-        return _rows(self.conn.execute(
-            "SELECT * FROM error_log WHERE profile_id=? ORDER BY id", (profile_id,)))
+    def list_errors(self, profile_id: int, raw: bool = False) -> list[dict]:
+        """Rejestr błędów. Bez `raw`: ukryte wpisy ortografii, za którymi stoją wyłącznie obserwacje z mowy
+        (`spoken_orthography_ids`) — filtr przy odczycie, wiersze w bazie zostają."""
+        rows = _rows(self.conn.execute("SELECT * FROM error_log WHERE profile_id=? ORDER BY id", (profile_id,)))
+        if raw or not any(r["category"].split(".")[0] in ORTHO_CORES for r in rows):
+            return rows
+        hidden = self.spoken_orthography_ids(profile_id) | self.rejected_observation_ids(profile_id)
+        live = {o["category"] for o in self.list_observations(profile_id, status="valid") if o["id"] not in hidden}
+        return [r for r in rows if r["category"].split(".")[0] not in ORTHO_CORES or r["category"] in live]
+
+    def spoken_orthography_ids(self, profile_id: int) -> set[int]:
+        """Obserwacje pisowni/interpunkcji/wielkich liter z wypowiedzi MÓWIONYCH: tura głosowa albo tekst równy
+        transkrypcji poprawionej ręcznie przez ucznia (`log.stt` status `corrected` w tej samej sesji — sprzed
+        poprawki, która zapisuje takie tury jako `voice`). Rozpoznanie mowy nie jest dowodem znajomości ortografii."""
+        obs = self.conn.execute(
+            "SELECT o.id, o.category, t.input_mode, t.text, t.session_id FROM observation o JOIN turn t ON "
+            "t.id=o.turn_id AND t.profile_id=o.profile_id WHERE o.profile_id=?", (profile_id,)).fetchall()
+        obs = [r for r in obs if (r[1] or "").split(".")[0] in ORTHO_CORES]
+        if not obs:
+            return set()
+        fixed: set[tuple[int, str]] = set()
+        for sid, data in self.conn.execute("SELECT session_id, data_json FROM app_event WHERE profile_id=? AND "
+                                           "kind='log.stt'", (profile_id,)):
+            try:
+                d = json.loads(data or "{}")
+            except ValueError:
+                continue
+            if d.get("status") == "corrected" and isinstance(d.get("corrected"), str):
+                fixed.add((sid, " ".join(d["corrected"].split())))
+        return {r[0] for r in obs if r[2] == "voice" or (r[4], " ".join(r[3].split())) in fixed}
 
     def add_vocab(self, profile_id: int, lang: str, term: str, meaning_pl: str | None = None,
                   example: str | None = None, source: str | None = None) -> int:
@@ -390,6 +419,10 @@ class Repo:
                 "SELECT * FROM observation_review WHERE profile_id=? ORDER BY id", (profile_id,))):
             out[r["observation_id"]] = r
         return out
+
+    def ignored_observation_ids(self, profile_id: int) -> set[int]:
+        """Nie liczą się: zakwestionowane przez ucznia + ortografia z wypowiedzi mówionych."""
+        return self.rejected_observation_ids(profile_id) | self.spoken_orthography_ids(profile_id)
 
     def rejected_observation_ids(self, profile_id: int) -> set[int]:
         return {k for k, v in self.observation_reviews(profile_id).items() if v["verdict"] in ("disputed", "stt_error")}

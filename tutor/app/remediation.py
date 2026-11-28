@@ -141,7 +141,7 @@ def history(repo, pid: int) -> dict[str, list[dict]]:
 
 def recurrences(repo, pid: int, category: str, since: str) -> int:
     """Obserwacje tej kategorii po `since` (bez zakwestionowanych). To sugestie modelu, nie potwierdzenie."""
-    rej = repo.rejected_observation_ids(pid)
+    rej = repo.ignored_observation_ids(pid)
     return sum(1 for o in repo.list_observations(pid, status="valid")
                if o["kind"] == "error" and o["category"] == category and o["id"] not in rej
                and o["created_at"] > since)
@@ -274,10 +274,8 @@ def chat_check(repo, pack: C.Pack, pid: int, now: datetime, allow: bool) -> dict
         if not (e.get("status") == "recurring" or (e.get("count", 0) >= 3 and e.get("status") not in
                                                      ("resolved", "improving"))):
             continue
-        cat, parent = e["category"], e["category"].split(".")[0]
-        for sid in sorted(s for s in pack.skills if cat in pack.skills[s].error_categories) + \
-                sorted(s for s in pack.skills if parent in pack.skills[s].error_categories
-                       and cat not in pack.skills[s].error_categories):
+        cat = e["category"]
+        for _rank, sid in C.skills_for_category(pack, cat, parents=False):   # dokładna → podkategoria
             items = fresh_items(pack, sid, seen_items(repo, pid, sid), allow)
             if items:
                 return {"category": cat, "skill_id": sid, "items": items}

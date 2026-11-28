@@ -654,6 +654,24 @@ def usable(item: Item, purpose: str, allow_unreviewed_practice: bool) -> bool:
     raise ValueError(purpose)
 
 
+def skills_for_category(pack: Pack, category: str, parents: bool = True) -> list[tuple[int, str]]:
+    """Umiejętności dla kategorii błędu z rangą: 0 = dokładna kategoria, 1 = podkategoria kategorii ogólnej (model
+    często zwraca samo „preposition” zamiast „preposition.time”), 2 = tylko rodzic (np. „tense” przy
+    „tense.past_simple” — słabe dopasowanie: strona bierna nie ćwiczy Past Continuous). `parents=False` pomija
+    rangę 2 (ćwiczenia z dziennika i sprawdzenia kontrolne). Posortowane (ranga, id)."""
+    parent = category.split(".")[0]
+    out = []
+    for s in pack.skills.values():
+        cats = set(s.error_categories)
+        if category in cats:
+            out.append((0, s.id))
+        elif "." not in category and any(c.startswith(category + ".") for c in cats):
+            out.append((1, s.id))
+        elif parents and parent != category and parent in cats:
+            out.append((2, s.id))
+    return sorted(out)
+
+
 def select_items(pack: Pack, *, pool: str, purpose: str, allow_unreviewed_practice: bool = True,
                  area: str | None = None, skill_id: str | None = None,
                  exclude: set[str] = frozenset()) -> list[Item]:

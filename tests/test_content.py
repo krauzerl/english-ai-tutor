@@ -30,13 +30,13 @@ def tmp_root(tmp_path):
 def test_content_validates_clean():  # DoD F3
     rep = C.validate("en")
     assert rep.ok, rep.errors
-    assert rep.n_skills >= 80 and rep.n_items == 60 + 84 + 60   # F3 + pilotaż F4.6 (84) + diagnoza F7 (60)
+    assert rep.n_skills >= 80 and rep.n_items == 60 + 84 + 60 + 33   # F3 + F4.6 (84) + F7 (60) + przyimki UX (33)
 
 
 def test_content_1_items_schema_and_pilot_shape(pack):  # T-CONTENT-1
     cells = {}
     for i in pack.items.values():
-        if i.id.startswith(("en.f46.", "en.f7.")):   # pilotaż F4.6 i diagnoza F7 mają własne testy
+        if i.id.startswith(("en.f46.", "en.f7.", "en.ux.")):   # pilotaż F4.6, diagnoza F7, przyimki UX: własne testy
             continue
         assert i.skill_ids and all(s in pack.skills for s in i.skill_ids)
         assert i.review.status in C.STATUSES and i.answers

@@ -126,7 +126,9 @@ async function catalog() {
   return S.catalog;
 }
 // EN: paczka treści ma opisy celów tylko po polsku — pokazujemy nazwę umiejętności z jej identyfikatora.
-const skillEn = (id) => { const s = String(id).split(".").pop().replace(/_/g, " "); return s.charAt(0).toUpperCase() + s.slice(1); };
+// Nazwa EN z id umiejętności; skróty w id („prep”) czytałyby się źle („Prep time” = czas przygotowania).
+const SKILL_EN = { prep_time: "Prepositions of time", prep_place_basic: "Prepositions of place", prep_dependent: "Dependent prepositions" };
+const skillEn = (id) => { const k = String(id).split(".").pop(); if (SKILL_EN[k]) return SKILL_EN[k]; const s = k.replace(/_/g, " "); return s.charAt(0).toUpperCase() + s.slice(1); };
 const skillName = (c) => (I18N.lang === "en" ? skillEn(c.skill_id) : c.can_do_pl);
 const skillPl = (id) => (I18N.lang === "en" ? skillEn(id) : (S.catalog || []).find((c) => c.skill_id === id)?.can_do_pl || id);
 const rpContext = (tp) => (I18N.lang === "en" && tp.learner ? `You are ${tp.learner}. The tutor plays ${tp.role}.` : tp.context_pl);
@@ -151,7 +153,7 @@ function setStatus() {
   const who = S.profiles.find((p) => p.id === S.pid);
   const sys = [];
   if (st) {
-    sys.push(h("div", { class: `sys ${st.ollama ? "ok" : "bad"}` }, st.ollama ? `Model: ${S.settings?.values?.chat_model || st.roles.conversation || "Ollama"}` : t("Ollama nie odpowiada")));
+    sys.push(h("div", { class: `sys ${st.ollama ? "ok" : "bad"}` }, st.ollama ? t("Model lokalny: {m}", { m: S.settings?.values?.chat_model || st.roles.conversation || "Ollama" }) : t("Ollama nie odpowiada")));
     sys.push(h("div", { class: `sys ${st.kokoro ? "ok" : "bad"}` }, st.kokoro ? t("Głos: gotowy") : t("Głos: brak plików Kokoro")));
     sys.push(h("div", { class: `sys ${st.audio_error ? "bad" : "ok"}` }, st.audio_error ? t("Mikrofon: niedostępny") : t("Mikrofon: dostępny")));
   }
@@ -943,7 +945,7 @@ function screenSession(main) {
         h("div", { class: "topic-now", id: "topicnow" }),
         h("div", { class: "tools" }, tools.map(([l, t, c]) => btn(l, () => send(t), `sm ${c || ""}`))), stop, reportBox()),
       h("section", { class: "convo", "aria-label": t("Rozmowa") },
-        h("div", { class: "convo-head" }, h("h1", {}, s.kind === "chat" ? "Quick Chat" : t("Rozmowa po lekcji")), h("span", { class: "muted" }, s.text ? t("tryb tekstowy") : t("tryb głosowy"))),
+        h("div", { class: "convo-head" }, h("h1", {}, s.kind === "chat" ? "Quick Chat" : t("Rozmowa po lekcji")), h("span", { class: "modelnow", id: "modelnow", role: "status" }, modelText(s.model)), h("span", { class: "muted" }, s.text ? t("tryb tekstowy") : t("tryb głosowy"))),
         log,
         s.text ? composer : h("details", { class: "write-toggle" }, h("summary", {}, t("Wolę napisać")), composer))));
   } else {
@@ -989,6 +991,7 @@ function drawEvent(ev, store = true) {
     if (["prompt", "listening", "end", "you"].includes(k)) s.speaking = false;
     if (k === "error") s.error = ev.text;
     if (k === "chatinfo") s.chatinfo = ev.text;
+    if (k === "model") { s.model = ev; const mn = document.getElementById("modelnow"); if (mn) mn.textContent = modelText(ev); }
     if (k === "scenario") s.scenario = ev.text;
     if (k === "info" && ev.text.startsWith("Quick Chat — temat:")) s.topic = ev.text.replace("Quick Chat — temat:", "").split("(")[0].trim().replace(/\.$/, "");
     if (k === "notice" && /^(nowy temat|new topic):/.test(ev.text)) s.topic = ev.text.replace(/^(nowy temat|new topic):/, "").trim();
@@ -996,11 +999,15 @@ function drawEvent(ev, store = true) {
   }
   const log = S.logEl;            // także przed wstawieniem widoku do strony (odtwarzanie historii po zmianie układu)
   if (!log) return;
-  if (["prompt", "start", "metric", "listening", "recording", "chatinfo"].includes(k)) return;
+  if (["prompt", "start", "metric", "listening", "recording", "chatinfo", "model"].includes(k)) return;
+  if (k === "evalstate") return evalState(log, ev);
+  if (k === "corr_used") return corrUsed(log, ev);
+  if (k === "live_correction") { if (liveCorrection(log, ev)) return; }
   if (k === "info" && /^(\[Enter\]|Profil:|Quick Chat — temat:)/.test(ev.text)) return;        // diagnostyka i instrukcje CLI
   if (k === "goal" && s.layout === "task") return;                                              // cel ma własne miejsce
   const last = log.lastElementChild;
-  if (k === "tutor" && last && last.classList.contains("tutor") && last.dataset.seq == ev.seq - 1) {   // jedna wypowiedź, kilka zdań
+  // jedna wypowiedź, kilka zdań; status oceny i korekta wstawiona do dymka ucznia nie dzielą odpowiedzi tutora
+  if (k === "tutor" && last && last.classList.contains("tutor") && log.dataset.open === "1") {
     last.querySelector(".bubble").textContent += " " + ev.text; last.dataset.seq = ev.seq; log.scrollTop = log.scrollHeight; return;
   }
   let el;
@@ -1021,7 +1028,62 @@ function drawEvent(ev, store = true) {
   else el = h("div", { class: `msg ${k}` }, h("pre", {}, ev.text.trim()));
   el.dataset.seq = ev.seq;
   log.append(el);
+  log.dataset.open = k === "tutor" ? "1" : "0";
   log.scrollTop = log.scrollHeight;
+}
+
+// ---------- korekty w trakcie rozmowy (ta sama ocena co podsumowanie; GUI tylko pokazuje) ----------
+function modelText(m) {
+  if (!m) return "";
+  const who = m.provider === "gemini" ? "Gemini" : t("lokalny");
+  return t("Rozmowa: {w} · {m}", { w: who, m: m.model }) + (m.fallback ? t(" (zapas po błędzie Gemini)") : "") + (m.eval_model ? t(" · ocena: {e}", { e: m.eval_model }) : "");
+}
+const EVAL_LABEL = { pending: () => t("Sprawdzam…"), suggest: () => t("Są sugestie"), ok: () => t("Bez uwag"), late: () => t("Sprawdzam w tle…"), failed: () => t("Ocena później") };
+function youBubble(log, tid, claim) {
+  let b = log.querySelector(`.msg.you[data-tid="${tid}"]`);
+  if (!b && claim) {                                   // pierwszy status tury: ostatni dymek ucznia bez numeru tury
+    const free = [...log.querySelectorAll(".msg.you:not([data-tid])")].pop();
+    if (free) { free.dataset.tid = tid; b = free; }
+  }
+  return b;
+}
+function evalState(log, ev) {
+  const b = youBubble(log, ev.tid, ev.state === "pending");
+  if (!b) return;
+  let c = b.querySelector(".evalchip");
+  if (!c) { c = h("span", { class: "evalchip", role: "status" }); b.append(c); }
+  c.dataset.state = ev.state;
+  c.textContent = (EVAL_LABEL[ev.state] || EVAL_LABEL.pending)();
+  if (ev.model) c.title = t("Model oceny: {m}", { m: ev.model });
+}
+const TAG_LABEL = { "ważne": () => t("ważne"), gramatyka: () => t("gramatyka"), drobne: () => t("drobne"), stt: () => t("możliwy błąd rozpoznania mowy") };
+function liveCorrection(log, ev) {
+  if (log.querySelector(`[data-obs="${ev.obs}"]`)) return true;      // bez duplikatów (wznowienie, odtworzenie widoku)
+  const box = h("div", { class: `livecorr ${ev.tag === "stt" ? "stt" : ""}`, "data-obs": ev.obs },
+    h("div", { class: "livecorr-head" }, h("b", {}, t("Sugestia modelu")), chip((TAG_LABEL[ev.tag] || (() => ev.tag))(), ev.tag === "ważne" ? "warn" : "")),
+    h("div", { class: "fix" }, fixLine(ev.span, ev.fix)),
+    ev.why ? h("div", { class: "why" }, ev.why) : null,
+    ev.tag === "stt" ? h("div", { class: "why" }, t("Możliwe, że źle usłyszałem — sprawdź, czy tak powiedziałeś/aś.")) : null);
+  const review = (verdict) => async () => {
+    try {
+      await api("/api/weakspots/review", { pid: S.pid, observation_id: ev.obs, verdict, note: "" });
+      box.classList.add("struck"); acts.replaceChildren(chip(verdict === "stt_error" ? t("Oznaczono: błąd rozpoznania") : t("Zakwestionowano — nie liczy się"), "muted"));
+    } catch (e) { toast(e.message); }
+  };
+  const acts = h("div", { class: "row" }, btn(t("Kwestionuję"), review("disputed"), "ghost sm"), S.session && !S.session.text ? btn(t("Źle usłyszane"), review("stt_error"), "ghost sm") : null);
+  box.append(acts);
+  const b = youBubble(log, ev.tid, false);
+  if (b) { b.append(box); return true; }
+  // tura sprzed wznowienia (dymka nie ma w oknie): osobny wpis z oznaczeniem
+  const el = h("div", { class: "msg correction live", "data-seq": ev.seq }, h("b", {}, t("Wcześniejsza wypowiedź")), box);
+  log.append(el); log.dataset.open = "0"; log.scrollTop = log.scrollHeight;
+  return true;
+}
+const USED_LABEL = { "głosem": () => t("Nauczyciel poprawił to głosem"), recast: () => t("Nauczyciel użył poprawnej formy w odpowiedzi"), samopoprawa: () => t("Nauczyciel poprosił o poprawienie"), drabina: () => t("Nauczyciel pomaga to poprawić"), pytanie_stt: () => t("Nauczyciel dopytał, co powiedziałeś/aś") };
+function corrUsed(log, ev) {
+  const box = log.querySelector(`[data-obs="${ev.obs}"]`);
+  if (!box || box.querySelector(".used")) return;
+  box.querySelector(".livecorr-head").append(chip((USED_LABEL[ev.mode] || (() => ev.mode))(), "ok used"));
 }
 
 // F7: niepewne rozpoznanie mowy wraca do ucznia przed oceną. Poprawka to korekta ROZPOZNANIA, nie błąd językowy.

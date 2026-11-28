@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import logging
 import threading
+import time
 from collections.abc import Callable
 
 from tutor.app.eval_queue import EvalQueue, Pending
@@ -18,11 +19,13 @@ log = logging.getLogger(__name__)
 
 class SessionService:
     def __init__(self, repo, open_worker_repo: Callable[[], object], queue_factory: Callable[[object], EvalQueue],
-                 profile_id: int, session_id: int):
+                 profile_id: int, session_id: int, on_evaluated: Callable[[object, Pending], None] | None = None):
         """`repo`: połączenie rozmowy. Wątek roboczy otwiera WŁASNE połączenie (`open_worker_repo`), by jego
-        transakcje nie mieszały się z zapisami rozmowy; `queue_factory(worker_repo)` buduje kolejkę na nim."""
+        transakcje nie mieszały się z zapisami rozmowy; `queue_factory(worker_repo)` buduje kolejkę na nim.
+        `on_evaluated(worker_repo, pending)`: po zapisie oceny tury (wątek roboczy) — np. korekta w oknie rozmowy."""
         self._repo, self._open, self._qf = repo, open_worker_repo, queue_factory
         self._pid, self._sid = profile_id, session_id
+        self._on_eval = on_evaluated
         self._q: EvalQueue | None = None
         self._ready = threading.Event()
         self._lock = threading.Lock()
@@ -59,6 +62,38 @@ class SessionService:
         if self._q is not None and (input_mode == "text" or low_probs is not None):
             self._q.submit(Pending(tid, text, input_mode, frozenset(low_probs or ())))
         return tid
+
+    def queued(self, turn_id: int) -> bool:
+        return self._q is not None and self._q.has(turn_id)
+
+    def wait_turn(self, turn_id: int, timeout: float, *, cancel_on_timeout: bool = True) -> str:
+        """Ograniczone czekanie na ocenę jednej tury PRZED odpowiedzią tutora (korekta przy właściwej wypowiedzi,
+        nie kilka tur później). Na czas czekania ocena jest dozwolona; potem znów „rozmowa aktywna”. Po przekroczeniu
+        czasu trwająca ocena jest przerywana (lokalny model: bez równoległej generacji) albo
+        (`cancel_on_timeout=False`, model zdalny) kończy się w tle, a korekta trafia do okna, gdy będzie gotowa.
+        Wynik: `done` (ocena zapisana), `timeout`, `failed` (model nie dał oceny; tura wraca do kolejki) albo
+        `none` (tury nie ma w kolejce)."""
+        if self._q is None or not self._q.has(turn_id):
+            return "none"
+        self._q.prioritize(turn_id)
+        with self._lock:
+            self._active = False
+        self._kick()
+        end = time.monotonic() + max(timeout, 0.0)
+        res = "timeout"
+        while time.monotonic() < end:
+            if not self._q.has(turn_id):
+                res = "failed" if turn_id in self._q.dropped else "done"
+                break
+            if self._idle.is_set() and not self._wake.is_set():   # przebieg skończony, tura nadal czeka = błąd modelu
+                res = "failed"
+                break
+            time.sleep(0.03)
+        with self._lock:
+            self._active = True
+            if res == "timeout" and cancel_on_timeout and self._token:
+                self._token.set()
+        return res
 
     def tutor_done(self) -> None:
         """Koniec cyklu rozmowy (także przerwanego): zwalnia ocenianie. Po `close` nic nie robi."""
@@ -97,6 +132,8 @@ class SessionService:
         wrepo = self._open()
         try:
             self._q = self._qf(wrepo)
+            if self._on_eval:
+                self._q.on_applied = lambda p: self._on_eval(wrepo, p)
         finally:
             self._ready.set()
         try:

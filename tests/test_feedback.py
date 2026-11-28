@@ -152,7 +152,8 @@ def test_cli_periodic_style_recasts_next_turn_once(env):
            "periodic", "--summary-wait", "0"], llm=conv, ev=ev)
     sys_ = [c[0].content for c in conv.calls]
     assert len(sys_) == 3
-    assert "went" not in sys_[0] and "went" in sys_[1] and "went" not in sys_[2]       # raz, w następnej turze
+    # raz, w odpowiedzi na TĘ wypowiedź (ocena przed odpowiedzią), potem już nie
+    assert "went" in sys_[0] and "went" not in sys_[1] and "went" not in sys_[2]
     assert [u["text"] for u in env.users()] == ["I goed home", "And then", "More"]     # rozmowa nie przerwana
 
 

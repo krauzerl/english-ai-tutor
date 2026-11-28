@@ -18,6 +18,14 @@ MAX_EVENTS = 3000
 _CORR = re.compile(r"^•\s*„(?P<span>.+?)”\s*→\s*„(?P<fix>.+?)”(?:\s*—\s*(?P<why>.*?))?(?:\s*\(możliwe.*\))?$")
 _STT_CONFIRM = re.compile(r"^\[Sprawdź rozpoznanie: „(?P<text>.*)”(?: \(niepewne: (?P<unsure>[^)]*)\))? — ")
 _SUMMARY = re.compile(r"Powtórki: \d+/\d+")
+_LIVE = re.compile(r"^Korekta #(?P<tid>\d+)\.(?P<obs>\d+) \[(?P<tag>[^\]]+)\]: „(?P<span>.+?)” → „(?P<fix>.+?)”"
+                   r"(?:\s*—\s*(?P<why>.*))?$", re.S)
+_EVAL = re.compile(r"^Ocena #(?P<tid>\d+): (?P<rest>.*)$")
+_USED = re.compile(r"^Omówiono #(?P<tid>\d+)\.(?P<obs>\d+): (?P<mode>\S+)$")
+_MODEL = re.compile(r"^Model rozmowy: (?P<who>Gemini \(Google\)|lokalny \(Ollama\)) (?P<model>\S+)"
+                    r"(?P<fb> · zapas lokalny po błędzie Gemini)?(?: · ocena: (?P<ev>\S+))?$")
+_EVAL_STATE = (("sprawdzam", "pending"), ("sugestie", "suggest"), ("bez uwag", "ok"), ("w toku", "late"),
+               ("model oceny nie odpowiedział", "failed"))
 _TASK = re.compile(r"^(?:\[(?P<tag>[^\]]+)\])?\s*Zadanie (?P<i>\d+)/(?P<n>\d+): (?P<text>.*)$", re.S)
 
 
@@ -67,6 +75,19 @@ def classify(line: str) -> dict:
     if m := _CORR.match(s):                           # „• „span” → „fix” — wyjaśnienie” z podsumowania korekt
         return {"kind": "correction", "text": s, "span": m["span"], "fix": m["fix"], "why": m["why"] or "",
                 "stt": "źle usłyszałem" in s}
+    if m := _LIVE.match(s):                          # korekta przy konkretnej wypowiedzi, w trakcie rozmowy
+        return {"kind": "live_correction", "text": s, "tid": int(m["tid"]), "obs": int(m["obs"]), "tag": m["tag"],
+                "span": m["span"], "fix": m["fix"], "why": m["why"] or ""}
+    if m := _EVAL.match(s):
+        rest = m["rest"]
+        return {"kind": "evalstate", "text": s, "tid": int(m["tid"]),
+                "state": next((v for k, v in _EVAL_STATE if rest.startswith(k)), "pending"),
+                "model": rest.split(" · model ", 1)[1] if " · model " in rest else ""}
+    if m := _USED.match(s):
+        return {"kind": "corr_used", "text": s, "tid": int(m["tid"]), "obs": int(m["obs"]), "mode": m["mode"]}
+    if m := _MODEL.match(s):
+        return {"kind": "model", "text": s, "provider": "gemini" if m["who"].startswith("Gemini") else "local",
+                "model": m["model"], "fallback": bool(m["fb"]), "eval_model": m["ev"] or ""}
     if s.endswith("Spróbuj jeszcze raz."):           # drabina pomocy w ćwiczeniach (L1–L3)
         return {"kind": "hint", "text": s}
     if m := _STT_CONFIRM.match(s):                  # F7: potwierdzenie/poprawa niepewnej transkrypcji

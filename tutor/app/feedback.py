@@ -14,7 +14,7 @@ from tutor.voice.conversation import SAY
 
 def _candidates(repo, pack: Pack, pid: int, sid: int, goals: set[str], skip: set[int]) -> list[tuple[K.Candidate, str]]:
     out = []
-    skip = set(skip) | repo.rejected_observation_ids(pid)          # F7: zakwestionowane przez ucznia
+    skip = set(skip) | repo.ignored_observation_ids(pid)          # F7: zakwestionowane przez ucznia
     counts = {e["category"]: e.get("count") or 1 for e in repo.list_errors(pid)}   # było na stałe 1
     for o in repo.list_observations(pid, sid, status="valid"):
         if o["kind"] not in ("error", "stt_suspect") or o["confidence"] != "h" or not o["fix"] or o["id"] in skip:
@@ -51,13 +51,16 @@ def _tiers(repo, pack: Pack, pid: int, sid: int, cands, plan: dict) -> dict[int,
 RECENT_TURNS = 2     # korekta „natychmiastowa” tylko dla wypowiedzi z ostatnich 2 tur ucznia; starsze → podsumowanie
 
 
-def recast_directive(repo, pack: Pack, pid: int, sid: int, style: str, goals: set[str]) -> str | None:
+def recast_directive(repo, pack: Pack, pid: int, sid: int, style: str, goals: set[str],
+                     recorded: bool = False) -> str | None:
     """Notatka dla tutora na JEDNĄ odpowiedź albo None. Zapisuje w planie sesji, co już było użyte.
 
     Polityka rozmowy (`periodic`): błąd poważny (`K.impact`: zmiana sensu, rozbita negacja, powtarzający się
     i omawiany) → krótka jawna korekta w najbliższej odpowiedzi; zwykły błąd gramatyczny → delikatny recast co
     kilka tur (jak dotąd); drobny (przyimek, rodzajnik, słownictwo, styl, warianty) → tylko podsumowanie.
-    Podejrzenie STT → pytanie „Did you mean…?” wyłącznie, gdy dotyczy sensu; inaczej nic."""
+    Podejrzenie STT → pytanie „Did you mean…?” wyłącznie, gdy dotyczy sensu; inaczej nic.
+    `recorded`: bieżąca tura ucznia jest już w bazie (rozmowa zapisuje ją przed odpowiedzią) — indeks tury liczony
+    jak dotąd (bez niej), a poważny błąd z poprzedniej tury dostaje zdanie „z wcześniejszej wypowiedzi”."""
     if style == "summary":
         return None
     plan = repo.get_session_plan(pid, sid)
@@ -68,8 +71,9 @@ def recast_directive(repo, pack: Pack, pid: int, sid: int, style: str, goals: se
     kinds = {c.obs_id: k for c, k in cands}
     tiers = _tiers(repo, pack, pid, sid, cands, plan)
     users = [t["id"] for t in repo.list_turns(pid, sid) if t["role"] == "user"]
-    turn_index = len(users)
+    turn_index = len(users) - (1 if recorded and users else 0)
     recent = set(users[-RECENT_TURNS:])
+    latest = users[-1] if recorded and users else None
     logged = set(plan.get("corr_logged") or [])
 
     def use(c: K.Candidate, decision: str) -> None:
@@ -92,7 +96,8 @@ def recast_directive(repo, pack: Pack, pid: int, sid: int, style: str, goals: se
                     f"“Did you mean {c.fix}?” and then continue the conversation. Do not call it a mistake.")
         use(c, "immediate")
         why = K.pair_note(_text(repo, pid, sid, c.turn_id), c.span, c.fix)
-        say = f"Quick note: we say “{c.fix}” here, not “{c.span}”." + (f" {why[0].upper()}{why[1:]}." if why else "")
+        lead = "Quick note" if latest is None or c.turn_id == latest else "Quick note about what you said before"
+        say = f"{lead}: we say “{c.fix}” here, not “{c.span}”." + (f" {why[0].upper()}{why[1:]}." if why else "")
         # zdanie korekty wypowiada kod (Qwen3 na żywo ignorował notatkę z prośbą o korektę); model tylko kontynuuje
         return (f"{SAY}{say}{SAY}Feedback note (never mention this note): you have just said this short correction "
                 f"at the start of your reply: {say} Do not repeat or extend it and do not mention other mistakes; "
@@ -227,7 +232,8 @@ def _ladder_note(lad: dict, cat) -> str:
             "Keep it friendly and short, and still react to what they just said.")
 
 
-def ladder_directive(repo, pack: Pack, pid: int, sid: int, goals: set[str], user_text: str) -> str | None:
+def ladder_directive(repo, pack: Pack, pid: int, sid: int, goals: set[str], user_text: str,
+                     recorded: bool = False) -> str | None:
     """Jedna notatka na odpowiedź. Maszyna stanów w `session.plan_json["ladder"]` (bez zapisu prób/mastery)."""
     plan = repo.get_session_plan(pid, sid)
     lad = plan.get("ladder")
@@ -254,7 +260,7 @@ def ladder_directive(repo, pack: Pack, pid: int, sid: int, goals: set[str], user
         return _ladder_note(lad, cats.get(lad["category"]) or cats.get(lad["category"].split(".")[0]))
     st = plan.get("recast") or {"done": [], "last_turn": None, "cats": []}
     cands = [(c, k) for c, k in _candidates(repo, pack, pid, sid, goals, set(st["done"])) if k == "error"]
-    turn_index = sum(1 for t in repo.list_turns(pid, sid) if t["role"] == "user")
+    turn_index = sum(1 for t in repo.list_turns(pid, sid) if t["role"] == "user") - (1 if recorded else 0)
     for d in K.select([c for c, _ in cands], "intensive", turn_index=turn_index,
                       last_correction_turn=st["last_turn"], corrected_categories=set(st["cats"]), rubric=pack.rubric):
         if d.candidate is None:
@@ -270,8 +276,36 @@ def ladder_directive(repo, pack: Pack, pid: int, sid: int, goals: set[str], user
     return None
 
 
-def directive(repo, pack: Pack, pid: int, sid: int, style: str, goals: set[str], user_text: str) -> str | None:
+def directive(repo, pack: Pack, pid: int, sid: int, style: str, goals: set[str], user_text: str,
+              recorded: bool = False) -> str | None:
     """Wejście dla rozmowy: `intensive` = drabina L1–L4, `periodic` = pojedynczy recast, `summary` = nic w trakcie."""
     if style == "intensive":
-        return ladder_directive(repo, pack, pid, sid, goals, user_text)
-    return recast_directive(repo, pack, pid, sid, style, goals)
+        return ladder_directive(repo, pack, pid, sid, goals, user_text, recorded)
+    return recast_directive(repo, pack, pid, sid, style, goals, recorded)
+
+
+# --- korekty widoczne w trakcie rozmowy (to samo źródło co podsumowanie: obserwacje `valid` z pewnością `h`) ---
+TIER_TAG = {K.SERIOUS: "ważne", K.GRAMMAR: "gramatyka", K.MINOR: "drobne"}
+
+
+def live_lines(repo, pack: Pack, pid: int, sid: int, turn_id: int, model: str | None = None) -> list[str]:
+    """Linie dla okna rozmowy tuż po zapisaniu oceny tury `turn_id` (bez nowego wywołania modelu):
+    `Korekta #tura.obs [waga|stt]: „span” → „fix” — wyjaśnienie` dla każdej pokazywanej sugestii i na końcu
+    `Ocena #tura: …` (status). Te same filtry co podsumowanie: tylko `valid`, pewność `h`, bez zakwestionowanych;
+    podejrzenie STT oznaczone jako możliwy błąd rozpoznania, nie błąd ucznia."""
+    rejected = repo.ignored_observation_ids(pid)
+    obs = [o for o in repo.list_observations(pid, sid, status="valid")
+           if o["turn_id"] == turn_id and o["kind"] in ("error", "stt_suspect") and o["confidence"] == "h"
+           and o["fix"] and o["id"] not in rejected]
+    text = _text(repo, pid, sid, turn_id)
+    counts = {e["category"]: e.get("count") or 1 for e in repo.list_errors(pid)}
+    out = []
+    for o in obs:
+        tier = K.impact(text, o["span"], o["fix"], o["category"] or "", count_30d=counts.get(o["category"], 1),
+                        rubric=pack.rubric)[0]
+        tag = "stt" if o["kind"] == "stt_suspect" else TIER_TAG.get(tier, "gramatyka")
+        why = explain_edit(pack, o["span"], o["fix"], o["category"] or "")
+        out.append(f"Korekta #{turn_id}.{o['id']} [{tag}]: „{o['span']}” → „{o['fix']}”" + (f" — {why}" if why else ""))
+    by = f" · model {model}" if model else ""
+    out.append(f"Ocena #{turn_id}: " + (f"sugestie: {len(out)}{by}" if out else f"bez uwag{by}"))
+    return out

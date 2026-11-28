@@ -63,7 +63,7 @@ class Routed:
         self.down_until: float | None = None
         self.down_reason: str | None = None
         self.fallbacks = 0                       # liczba przejść na model lokalny (awarii), nie wywołań
-        self.last_provider, self.last_model = None, None
+        self.last_provider, self.last_model, self.last_fallback = None, None, False
         self._lock = threading.Lock()
 
     # --- tożsamość: dostawca, który zostanie użyty w następnym wywołaniu ---
@@ -131,7 +131,7 @@ class Routed:
 
     def _event(self, prov: LLMProvider, t0: float, *, usage=None, error: LLMError | None = None,
                fallback: bool = False, first_ms: int | None = None, status: str = "ok") -> None:
-        self.last_provider, self.last_model = prov.name, prov.model
+        self.last_provider, self.last_model, self.last_fallback = prov.name, prov.model, fallback
         if usage and prov.external and self.budget:
             self.budget.add_tokens(usage.in_tokens, usage.billed_out)
         if not self.on_event:

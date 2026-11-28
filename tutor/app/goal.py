@@ -106,10 +106,9 @@ def choose(repo, pack: C.Pack, profile_id: int, now: datetime, _use_easy: bool =
             e.get("count", 0) >= 3 and e.get("status") not in ("resolved", "improving"))
         if not recurring:
             continue
-        cat, parent = e["category"], e["category"].split(".")[0]
+        cat = e["category"]
         recs = hist.get(cat, [])
-        rank = {sid: 0 if cat in pack.skills[sid].error_categories else 1 for sid in pack.skills
-                if {cat, parent} & set(pack.skills[sid].error_categories)}
+        rank = {sid: r for r, sid in C.skills_for_category(pack, cat)}   # dokładna → podkategoria → rodzic
         last_skill = next((r["skill_id"] for r in reversed(recs) if r["skill_id"] in rank), None)
         for sid in sorted(rank, key=lambda x: (x != last_skill, rank[x], x)):   # ten sam cel co w cyklu, potem
             if sid in easy:                                                     # dokładna kategoria przed rodzicem

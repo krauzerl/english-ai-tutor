@@ -93,7 +93,7 @@ def _recompute_skill(repo: Repo, pack: Pack, profile_id: int, skill_id: str, now
 
 def _recompute_errors(repo: Repo, pack: Pack, profile_id: int, now: datetime) -> list[dict]:
     """error_log z obserwacji (nadpisuje stan pochodny). Zwraca przejścia statusów."""
-    rejected = repo.rejected_observation_ids(profile_id)       # F7: zakwestionowane / błąd STT nie liczą się
+    rejected = repo.ignored_observation_ids(profile_id)    # F7: zakwestionowane / błąd STT / ortografia z mowy
     obs = [o for o in repo.list_observations(profile_id, status="valid") if o["id"] not in rejected]
     agg = E.aggregate(obs, now, pack.rubric)
     if rejected:

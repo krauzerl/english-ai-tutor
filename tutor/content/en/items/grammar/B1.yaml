@@ -1,5 +1,7 @@
 # Bank pilotażowy (AI-draft, niezweryfikowany przez człowieka). Zmiany statusu: tylko `main.py content review`.
 # F7: zadania diagnostyczne (AI-draft, Claude; status tylko przez solve-check/recenzję)
+# UX rozmowy 2026-11-28: przyimki (AI-draft, Claude; status tylko przez solve-check/recenzję). Pule practice i
+# retention rozłączne; bez recenzji człowieka nie są dowodem mastery.
 - id: en.pilot.gram.b1.01
   lang: en
   skill_ids:
@@ -640,6 +642,340 @@
     model: claude-sonnet-5-5
     prompt_version: f7_diag.v1
     created_at: '2026-11-26'
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.ux.prep_dependent.01
+  lang: en
+  skill_ids:
+  - en.gram.prep_dependent
+  area: grammar
+  type: gap
+  cefr: B1
+  difficulty: -0.3
+  pools:
+  - practice
+  domain: grammar
+  prompt: It depends ___ the weather.
+  stimulus: null
+  options: null
+  answers:
+  - 'on'
+  explanation_pl: depend on.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-opus-5-5
+    prompt_version: gen_item.ux1
+    created_at: '2026-11-28'
+    refs: []
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.ux.prep_dependent.02
+  lang: en
+  skill_ids:
+  - en.gram.prep_dependent
+  area: grammar
+  type: gap
+  cefr: B1
+  difficulty: -0.3
+  pools:
+  - practice
+  domain: grammar
+  prompt: She's very interested ___ photography.
+  stimulus: null
+  options: null
+  answers:
+  - in
+  explanation_pl: interested in.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-opus-5-5
+    prompt_version: gen_item.ux1
+    created_at: '2026-11-28'
+    refs: []
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.ux.prep_dependent.03
+  lang: en
+  skill_ids:
+  - en.gram.prep_dependent
+  area: grammar
+  type: gap
+  cefr: B1
+  difficulty: -0.2
+  pools:
+  - practice
+  domain: grammar
+  prompt: I'm not very good ___ cooking.
+  stimulus: null
+  options: null
+  answers:
+  - at
+  explanation_pl: good at.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-opus-5-5
+    prompt_version: gen_item.ux1
+    created_at: '2026-11-28'
+    refs: []
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.ux.prep_dependent.04
+  lang: en
+  skill_ids:
+  - en.gram.prep_dependent
+  area: grammar
+  type: mc
+  cefr: B1
+  difficulty: -0.1
+  pools:
+  - practice
+  domain: grammar
+  prompt: We're still waiting ___ the test results.
+  stimulus: null
+  options:
+  - for
+  - at
+  - to
+  answers:
+  - for
+  explanation_pl: wait for.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-opus-5-5
+    prompt_version: gen_item.ux1
+    created_at: '2026-11-28'
+    refs: []
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.ux.prep_dependent.05
+  lang: en
+  skill_ids:
+  - en.gram.prep_dependent
+  area: grammar
+  type: mc
+  cefr: B1
+  difficulty: 0.0
+  pools:
+  - practice
+  domain: grammar
+  prompt: Are you afraid ___ spiders?
+  stimulus: null
+  options:
+  - of
+  - from
+  - for
+  answers:
+  - of
+  explanation_pl: afraid of.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-opus-5-5
+    prompt_version: gen_item.ux1
+    created_at: '2026-11-28'
+    refs: []
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.ux.prep_dependent.06
+  lang: en
+  skill_ids:
+  - en.gram.prep_dependent
+  area: grammar
+  type: gap
+  cefr: B1
+  difficulty: 0.1
+  pools:
+  - practice
+  domain: grammar
+  prompt: Can you listen ___ me for a moment?
+  stimulus: null
+  options: null
+  answers:
+  - to
+  explanation_pl: listen to.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-opus-5-5
+    prompt_version: gen_item.ux1
+    created_at: '2026-11-28'
+    refs: []
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.ux.prep_dependent.07
+  lang: en
+  skill_ids:
+  - en.gram.prep_dependent
+  area: grammar
+  type: mc
+  cefr: B1
+  difficulty: 0.2
+  pools:
+  - practice
+  domain: grammar
+  prompt: I agree ___ you about that.
+  stimulus: null
+  options:
+  - with
+  - to
+  - 'on'
+  answers:
+  - with
+  explanation_pl: agree with (kimś).
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-opus-5-5
+    prompt_version: gen_item.ux1
+    created_at: '2026-11-28'
+    refs: []
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.ux.prep_dependent.08
+  lang: en
+  skill_ids:
+  - en.gram.prep_dependent
+  area: grammar
+  type: mc
+  cefr: B1
+  difficulty: 0.4
+  pools:
+  - practice
+  domain: grammar
+  prompt: He apologised ___ being late.
+  stimulus: null
+  options:
+  - for
+  - about
+  - of
+  answers:
+  - for
+  explanation_pl: apologise for.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-opus-5-5
+    prompt_version: gen_item.ux1
+    created_at: '2026-11-28'
+    refs: []
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.ux.prep_dependent.09
+  lang: en
+  skill_ids:
+  - en.gram.prep_dependent
+  area: grammar
+  type: gap
+  cefr: B1
+  difficulty: 0.3
+  pools:
+  - retention
+  domain: general
+  prompt: I'm really looking forward ___ the holiday.
+  stimulus: null
+  options: null
+  answers:
+  - to
+  explanation_pl: look forward to.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-opus-5-5
+    prompt_version: gen_item.ux1
+    created_at: '2026-11-28'
+    refs: []
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.ux.prep_dependent.10
+  lang: en
+  skill_ids:
+  - en.gram.prep_dependent
+  area: grammar
+  type: mc
+  cefr: B1
+  difficulty: 0.1
+  pools:
+  - retention
+  domain: general
+  prompt: This bag belongs ___ my sister.
+  stimulus: null
+  options:
+  - to
+  - at
+  - for
+  answers:
+  - to
+  explanation_pl: belong to.
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-opus-5-5
+    prompt_version: gen_item.ux1
+    created_at: '2026-11-28'
+    refs: []
+  review:
+    status: ai_checked
+    reviewer: null
+    reviewed_at: null
+    notes: 'solve_check: zgodne z kluczem (kontrola AI na ślepo, nie recenzja człowieka; sędzia niezwalidowany)'
+- id: en.ux.prep_dependent.11
+  lang: en
+  skill_ids:
+  - en.gram.prep_dependent
+  area: grammar
+  type: gap
+  cefr: B1
+  difficulty: 0.4
+  pools:
+  - retention
+  domain: general
+  prompt: She's married ___ a doctor.
+  stimulus: null
+  options: null
+  answers:
+  - to
+  explanation_pl: married to (nie „with”).
+  audio_text: null
+  provenance:
+    source: ai_generated
+    model: claude-opus-5-5
+    prompt_version: gen_item.ux1
+    created_at: '2026-11-28'
+    refs: []
   review:
     status: ai_checked
     reviewer: null

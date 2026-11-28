@@ -68,18 +68,20 @@ class TurnResult:
     error: str | None = None
     sentences: int = 0
     m: dict = field(default_factory=dict)  # pomiary w sekundach od t_end
+    correction_spoken: bool = False        # krótka korekta (zdanie od kodu) faktycznie trafiła do głośnika
 
 
 class VoiceTutor:
     def __init__(self, repo, profile_id, session_id, llm, tts, sink, *, system=SYSTEM_PROMPT,
                  context_window=8192, max_tokens=100, temperature=0.7, clock=time.monotonic, echo=None,
-                 record_user_turn=None, feedback=None, persona=True):
+                 record_user_turn=None, feedback=None, persona=True, await_eval=None):
         self.repo, self.pid, self.sid, self.llm, self.tts, self.sink = repo, profile_id, session_id, llm, tts, sink
         self.system, self.window, self.max_tokens, self.temp = system, context_window, max_tokens, temperature
         self.clock, self.echo = clock, echo or (lambda s: None)
         self.feedback = feedback          # () -> notatka dla tutora na jedną odpowiedź (recast) albo None
         self.record_user_turn = record_user_turn   # np. SessionService.user_turn: jedyna ścieżka zapisu tury ucznia
         self.persona = persona            # False w roleplay: postać ma fikcyjne życie (część scenariusza)
+        self.await_eval = await_eval      # (turn_id) -> None: ograniczone czekanie na ocenę tej tury przed odpowiedzią
         self._tok: CancelToken | None = None
         self.last_error: str | None = None
 
@@ -145,10 +147,27 @@ class VoiceTutor:
         user_text = user_text.strip()
         t_end = self.clock() if t_end is None else t_end
         res = TurnResult(user_text)
+        m = res.m
+
+        def rel() -> float:
+            return round(self.clock() - t_end, 3)
+
         sig = INTENT.classify(user_text)                   # jasny sygnał ucznia → notatka na tę jedną odpowiedź
         guard = Guard([t["text"] for t in self.repo.list_turns(self.pid, self.sid)       # „nie rozumiem” ≠ „powtórz”
                        if t["role"] == "assistant"][-8:], repeats=not INTENT.wants_repeat(user_text))
         prev = [t["text"] for t in self.repo.list_turns(self.pid, self.sid) if t["role"] == "assistant"][-3:]
+        # Tura ucznia trafia do bazy (i kolejki oceny) PRZED notatką korekty: dzięki temu poważny błąd z tej wypowiedzi
+        # może zostać poprawiony w tej odpowiedzi, a nie kilka tur później (`await_eval` = ograniczone czekanie).
+        if self.record_user_turn:
+            tid = self.record_user_turn(user_text, input_mode=input_mode, low_probs=low_probs)
+        else:
+            tid = self.repo.add_turn(self.pid, self.sid, "user", user_text, input_mode=input_mode, low_probs=low_probs)
+        if self.await_eval and tid is not None:
+            try:
+                self.await_eval(tid)
+            except Exception:  # noqa: BLE001 - czekanie na ocenę nigdy nie blokuje odpowiedzi
+                pass
+        m["eval_wait"] = rel()
         prefix, note = self._note(user_text)
         system = self.system + note + INTENT.NOTES.get(sig, "") + ("" if sig else style_note(prev))
         # Pilot: notatka o persona przy wiadomości ucznia (tylko dla modelu; w bazie tekst ucznia bez zmian). W prompcie
@@ -158,19 +177,11 @@ class VoiceTutor:
         if not note or prefix:   # poza zwalidowaną notatką (recast/drabina) model nie komentuje języka ucznia
             llm_text += f"\n\n{INTENT.NO_CORRECT_NOTE}"
         ctx = build_context(self.repo, self.pid, self.sid, system, llm_text,
-                            context_window=self.window, reserve_out=self.max_tokens)
-        if self.record_user_turn:
-            self.record_user_turn(user_text, input_mode=input_mode, low_probs=low_probs)
-        else:
-            self.repo.add_turn(self.pid, self.sid, "user", user_text, input_mode=input_mode, low_probs=low_probs)
+                            context_window=self.window, reserve_out=self.max_tokens, exclude_turn=tid)
         tok = self._tok = CancelToken()
         tok.on_cancel(self.sink.stop)
         sents: queue.Queue = queue.Queue()
         spoken: list[str] = []
-        m = res.m
-
-        def rel() -> float:
-            return round(self.clock() - t_end, 3)
 
         def speaker() -> None:
             started = False
@@ -196,6 +207,7 @@ class VoiceTutor:
         th = threading.Thread(target=speaker, daemon=True)
         th.start()
         sp = SentenceSplitter()
+        n_prefix = 0
 
         def emit(parts: list[str]) -> None:
             for p in parts:
@@ -209,6 +221,7 @@ class VoiceTutor:
             if prefix:                                     # krótka korekta poważnego błędu, potem zwykła rozmowa
                 ps = SentenceSplitter()
                 emit([*ps.feed(prefix + " "), *ps.flush()])
+                n_prefix = res.sentences
             stream = self.llm.stream(ctx.messages, temperature=self.temp, max_tokens=self.max_tokens, cancel=tok)
             for chunk in stream:
                 m.setdefault("llm_first_token", rel())
@@ -232,6 +245,7 @@ class VoiceTutor:
         m["llm_done"] = rel()
         res.cancelled = tok.is_set() and res.error is None
         res.reply = " ".join(spoken)
+        res.correction_spoken = bool(n_prefix) and len(spoken) >= n_prefix
         m["underrun_s"] = round(self.sink.underrun_s, 3)
         m["n_gaps"] = len(getattr(self.sink, "gaps", []))
         if res.reply:

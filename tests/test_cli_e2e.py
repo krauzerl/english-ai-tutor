@@ -133,7 +133,8 @@ def test_no_evaluation_while_tutor_is_replying(env):
     ev = EvalProv()
     conv = SlowConv(ev)
     env.go(WaitLines(lambda: env.applied() >= 1, "I goed home"), ["--no-audio"], llm=conv, ev=ev)
-    assert conv.seen == [0] and len(ev.calls) == 1                           # 0 ocen w trakcie, potem dokładnie 1
+    # ocena tej tury kończy się PRZED odpowiedzią (ograniczone czekanie), nic nie biegnie w trakcie i nic drugi raz
+    assert conv.seen == [1] and len(ev.calls) == 1
 
 
 def test_ollama_eval_error_does_not_block_tutor(env):
@@ -142,7 +143,8 @@ def test_ollama_eval_error_does_not_block_tutor(env):
     assert code == 0
     assert [t["role"] for t in env.turns()] == ["user", "assistant"]         # odpowiedź tutora była
     assert env.applied() == 0 and env.repo.list_observations(env.pid) == []
-    assert any("ocen" in o and "oczekuj" in o for o in out)                  # porażka widoczna, nie „sukces”
+    assert any("ocen" in o and ("oczekuj" in o or "porzuc" in o) for o in out)   # porażka widoczna, nie „sukces”
+    assert any("model oceny nie odpowiedział" in o for o in out)                 # już w trakcie rozmowy
 
 
 class Interrupt(Lines):
@@ -205,7 +207,9 @@ def test_exception_in_reply_does_not_leave_conversation_active(env):
     assert len(env.users()) == 2 and env.applied() == 2                      # obie tury ocenione mimo wyjątku
 
 
-def test_worker_close_does_not_wait_for_running_eval(env):
+def test_worker_close_does_not_wait_for_running_eval(env, monkeypatch):
+    from tutor.voice import cli as CLI
+    monkeypatch.setattr(CLI, "_eval_wait", lambda: 0.0)            # mierzymy zamknięcie, nie czekanie przed odpowiedzią
     ev = EvalProv()
     gate, started = threading.Event(), threading.Event()
     orig = ev.chat
