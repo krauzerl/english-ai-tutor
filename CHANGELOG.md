@@ -4,6 +4,25 @@ Notable changes. The project has no releases yet; versions below are development
 
 ## Unreleased
 
+### Conversation UX and live feedback (branch `rnd/conversation-ux-feedback`)
+- **Greeting:** a new Quick Chat starts with a short greeting composed by the code (varied, not the same as last time,
+  "again" for returning learners), a topic intro and one question; resumed chats and role-plays are not re-greeted.
+- **Corrections during the conversation:** each learner bubble shows the evaluation status and then the model's
+  suggestions (fix, short explanation, weight, "Sugestia modelu", **Kwestionuję** / **Źle usłyszane**) as soon as the
+  existing evaluation queue stores them — no second evaluation, no duplicates after a resume or a view rebuild.
+- **Spoken correction of serious mistakes in the same reply:** the learner's turn is stored and evaluated before the
+  reply, with a bounded wait (`[conversation] eval_wait_s`, default 3.0 s; Qwen3 8B: median 1.8 s per utterance, about 2.2 s in a live conversation). If
+  the evaluation is late, the reply is not delayed further and the card appears later; a serious mistake from the
+  previous turn is introduced as "about what you said before". Minor mistakes are only shown.
+- **Practice for detected mistakes:** explanations and 33 closed tasks (ai_checked, not human-reviewed) for
+  prepositions of time, place and dependent prepositions; a general category such as `preposition` maps to its
+  subcategories; a parent-only match (e.g. passive voice for a Past Continuous mistake) is no longer offered.
+- **Spelling from speech:** spelling/punctuation observations from spoken turns, including old transcripts corrected
+  by hand, are hidden from the error journal on read (database rows unchanged).
+- **Real model in the conversation:** the header shows the provider and model that actually answered, fallback and
+  the evaluation model; the sidebar label now says "Model lokalny".
+- **Learning logs:** `log.eval_wait`, `log.eval_live`, new fields in `log.tutor_turn`.
+
 ### Optional Gemini API integration (branch `rnd/gemini-integration`)
 - **Settings → AI Models (per profile):** hidden Gemini API key field with save/replace/remove, key status, consent
   notice before first use, master switch, separate conversation and evaluation model selectors (Local Qwen3 or a

@@ -131,6 +131,17 @@ Check: `ollama list` shows `qwen3:8b`.
     conversation goes on with the same topic, and no reply is doubled. Reconnect and type `/gemini`: the next reply
     tries Gemini again. A second profile must not see the first profile's key. **Remove key** at the end if you
     do not want to keep it.
+15. **Conversation UX and live corrections (15 min).** Start a **new** Quick Chat (voice or text). Expected: the
+    tutor first greets you (a different greeting than last time), introduces the topic and asks one question. Say
+    "I am boring at work". Under your bubble you see "Sprawdzam…", then a "Sugestia modelu" card `boring → bored`
+    with a short explanation, and the tutor's reply starts with "Quick note: we say “bored” here…" (the card is
+    marked "Nauczyciel poprawił to głosem"). Say "We met in Monday": a card `in → on` appears ("drobne"), the tutor
+    does not mention it. Click **Kwestionuję** on a card: it is struck through and does not count. The header shows
+    "Rozmowa: lokalny · qwen3:8b" (or Gemini when it answered). Close the app during a conversation and start Quick
+    Chat again: it resumes without a new greeting and without duplicated cards. Open **Słabe strony**: prepositions
+    have **Ćwicz to**; `realy → really` from the corrected transcript is struck through ("nie liczy się").
+    `[conversation] eval_wait_s` in `config.toml` (default 3.0; 0 = never wait) sets how long the reply may wait for
+    the evaluation.
 
 To give a report to an AI model later: `python main.py logs export --days 14`, read the files in the printed
 directory, remove anything private, then share `report.md`, `cases.jsonl` and `README.md` (see LEARNING_LOGS.md).

@@ -36,7 +36,9 @@ SQLite already held the learning history; the pilot only adds what was missing.
 | learner reaction to a correction: disputed, speech-recognition error, restored, optional correct form | `observation_review` (`note`) |
 | learner reports (wrong correction, missed mistake, misheard, unclear explanation, wrong answer key) | event `report.*` |
 | STT: status (ok, confirmed, corrected, rerecord, empty), recognised text, original and corrected transcript, uncertain words, STT time, audio length | event `log.stt` |
-| teacher reply timing (first token, first audio), interruption | event `log.tutor_turn` |
+| teacher reply timing (first token, first audio), interruption, how long the reply waited for the evaluation (`eval_wait_s`), which correction was used in this reply and how (`correction_obs`, `correction_mode`: `głosem`, `recast`, `samopoprawa`, `drabina`, `pytanie_stt`) and whether the short correction actually reached the speaker (`correction_spoken`) | event `log.tutor_turn` |
+| bounded wait for the evaluation before the teacher's reply: turn id, time waited, limit, result (`done`, `timeout`, `failed`) | event `log.eval_wait` |
+| evaluation result shown in the conversation window: turn id, model that actually evaluated, evaluation status, number of suggestions shown, seconds from the end of the learner's utterance to the moment it was shown, whether it was ready before the teacher's reply (`before_reply`; false = delayed) | event `log.eval_live` |
 | errors (teacher reply, TTS, STT, session) | event `log.error` |
 | topic change | event `log.topic_switch` |
 | session end: status, reason (quit, finish_intent, time_up, interrupted, lesson_paused, error), counts, pending/dropped evaluations | event `log.session_end` |
