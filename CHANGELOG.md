@@ -4,6 +4,15 @@ Notable changes. The project has no releases yet; versions below are development
 
 ## Unreleased
 
+### Integration into `main` (2026-11-28)
+- `main` now includes B-lite, learning logs, recurring-mistake lessons, smart speaking corrections, optional Gemini
+  and live corrections (fast-forward, no merge conflicts).
+- README rewritten for users and developers; new screenshots from a demonstration profile (home, live correction,
+  weak spots, AI models); `docs/DEVELOPMENT.md` with the current defaults, invariants and working rules.
+- `.gitignore`: learning-log folders and `*.jsonl` exports.
+- English GUI: readable names for the preposition lessons and English text for the bored/boring and borrow/lend
+  explanations.
+
 ### Conversation UX and live feedback (branch `rnd/conversation-ux-feedback`)
 - **Greeting:** a new Quick Chat starts with a short greeting composed by the code (varied, not the same as last time,
   "again" for returning learners), a topic intro and one question; resumed chats and role-plays are not re-greeted.
