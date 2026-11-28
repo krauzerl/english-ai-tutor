@@ -404,6 +404,7 @@ def test_interface_language_switch_to_english(page):
     page.get_by_label("Język interfejsu").select_option("en")
     page.get_by_role("button", name="Zapisz ustawienia").click()
     expect(page.get_by_role("link", name="Progress")).to_be_visible()          # przeładowanie w EN
+    page.wait_for_load_state("networkidle")              # po przeładowaniu: inaczej widok ustawień nadpisywał nawigację
     for route, heading in (("home", "Hi, Ola!"), ("placement", "Assessment"), ("progress", "Progress"),
                            ("weak", "Weak spots"), ("settings", "Settings")):
         page.goto(page.site + "/#/" + route)
