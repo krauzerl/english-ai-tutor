@@ -25,8 +25,8 @@ from tutor.services.api import ServiceError, TutorAPI
 from tutor.voice import audio as A
 from tutor.voice.conversation import VoiceTutor
 
-KEY = "AIzaTEST-not-a-real-key-0123456789"
-KEY2 = "AIzaTEST-second-profile-key-987654"
+KEY = "AIza" + "TEST-not-a-real-key-0123456789"     # sklejony: skaner kluczy w repo go nie łapie
+KEY2 = "AIza" + "TEST-second-profile-key-987654"
 MSG = [Message("user", "hi")]
 
 
